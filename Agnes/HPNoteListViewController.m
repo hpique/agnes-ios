@@ -29,15 +29,63 @@
     UIBarButtonItem *addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     self.navigationItem.rightBarButtonItem = addNoteBarButtonItem;
     [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
-    
-    _notes = [HPNoteManager sharedManager].notes;
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self updateNotes]; // TODO: Should we call this the first time?
+}
+
+- (void)updateNotes
+{
+    NSArray *previousNotes = _notes;
     _notes = [HPNoteManager sharedManager].notes;
-    [_tableView reloadData];
+
+    NSArray *indexPathsToDelete = [self indexPathsOfArray:previousNotes notInArray:_notes];
+    NSArray *indexPathsToInsert = [self indexPathsOfArray:_notes notInArray:previousNotes];
+    
+    [_tableView beginUpdates];
+    [_tableView deleteRowsAtIndexPaths:indexPathsToDelete withRowAnimation:UITableViewRowAnimationAutomatic];
+    [_tableView insertRowsAtIndexPaths:indexPathsToInsert withRowAnimation:UITableViewRowAnimationAutomatic];
+    [_tableView endUpdates];
+}
+
+- (NSArray*)indexPathsOfArray:(NSArray*)objectsA notInArray:(NSArray*)objectsB
+{ // TODO: Profile performance with many objects. Can this be done in O(n+m) with dictionaries?
+    NSInteger countA = objectsA.count;
+    NSInteger countB = objectsB.count;
+    NSMutableArray *indexPaths = [NSMutableArray array];
+    for (NSInteger i = 0, j = 0; i < countA; i++)
+    {
+        if (j >= countB)
+        {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+            [indexPaths addObject:indexPath];
+            continue;
+        }
+        
+        id objectA = objectsA[i];
+
+        BOOL found = NO;
+        for (NSInteger k = j; k < countB; k++)
+        {
+            id objectB = objectsB[k];
+            if (objectA == objectB)
+            {
+                j++;
+                found = YES;
+                break;
+            }
+        }
+        
+        if (!found)
+        {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+            [indexPaths addObject:indexPath];
+        }
+    }
+    return indexPaths;
 }
 
 #pragma mark - Actions
