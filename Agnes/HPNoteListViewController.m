@@ -26,7 +26,7 @@
     
     self.title = NSLocalizedString(@"All Notes", @"");
     
-    UIBarButtonItem *addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"+" style:UIBarButtonItemStylePlain target:self action:@selector(addNoteBarButtonItemAction:)];
+    UIBarButtonItem *addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     self.navigationItem.rightBarButtonItem = addNoteBarButtonItem;
     [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
     

@@ -16,8 +16,11 @@
 
 @implementation HPNoteViewController {
     __weak IBOutlet UITextView *_bodyTextView;
-    UIBarButtonItem *_trashBarButtonItem;
     UIEdgeInsets _originalBodyTextViewInset;
+
+    UIBarButtonItem *_addNoteBarButtonItem;
+    UIBarButtonItem *_doneBarButtonItem;
+    UIBarButtonItem *_trashBarButtonItem;
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -38,8 +41,12 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
+    _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
+    _doneBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneBarButtonItemAction:)];
     _trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(trashBarButtonItemAction:)];
+
+    self.navigationItem.rightBarButtonItem = _addNoteBarButtonItem;
     self.toolbarItems = @[_trashBarButtonItem];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -75,6 +82,17 @@
 
 #pragma mark - Actions
 
+- (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    self.note = nil;
+    [self displayNote];
+}
+
+- (void)doneBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    [self.view endEditing:YES];
+}
+
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPNoteManager sharedManager] removeNote:self.note];
@@ -96,6 +114,16 @@
         self.note.modifiedAt = [NSDate date];
     }
     self.note.body = textView.text;
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    [self.navigationItem setRightBarButtonItem:_doneBarButtonItem animated:YES];
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView
+{
+    [self.navigationItem setRightBarButtonItem:_addNoteBarButtonItem animated:YES];
 }
 
 #pragma mark - Notifications
