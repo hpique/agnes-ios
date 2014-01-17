@@ -11,6 +11,7 @@
 #import "HPNoteManager.h"
 #import "HPNote.h"
 #import "HPNoteTableViewCell.h"
+#import "HPNoteSearchTableViewCell.h"
 
 @interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -192,7 +193,27 @@
 - (NSArray*)notesWithSearchString:(NSString*)searchString
 {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.text contains[cd] %@", searchString];
-    return [_notes filteredArrayUsingPredicate:predicate];
+    NSArray *notes = [_notes filteredArrayUsingPredicate:predicate];
+    NSArray *rankedNotes = [notes sortedArrayUsingComparator:^NSComparisonResult(HPNote *obj1, HPNote *obj2)
+    {
+        NSComparisonResult result = HPCompareSearchResults(obj1.title, obj2.title, searchString);
+        if (result != NSOrderedSame) return result;
+        result = HPCompareSearchResults(obj1.body, obj2.body, searchString);
+        if (result != NSOrderedSame) return result;
+        return [obj1.modifiedAt compare:obj2.modifiedAt];
+    }];
+    return rankedNotes;
+}
+
+NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSString *search)
+{
+    NSRange range1 = [text1 rangeOfString:search options:NSCaseInsensitiveSearch];
+    NSRange range2 = [text2 rangeOfString:search options:NSCaseInsensitiveSearch];
+    NSUInteger location1 = range1.location == NSNotFound ? NSUIntegerMax : range1.location;
+    NSUInteger location2 = range2.location == NSNotFound ? NSUIntegerMax : range2.location;
+    if (location1 < location2) return NSOrderedAscending;
+    if (location1 > location2) return NSOrderedDescending;
+    return NSOrderedSame;
 }
 
 #pragma mark - UITableViewDataSource
@@ -205,16 +226,27 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    HPNoteTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
-    NSArray *objects = self.searchDisplayController.searchResultsTableView == tableView ? _searchResults : _notes;
-    HPNote *note = [objects objectAtIndex:indexPath.row];
-    cell.note = note;
-    cell.displayCriteria = _displayCriteria;
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+    if (self.searchDisplayController.searchResultsTableView == tableView)
+    {
+        HPNoteSearchTableViewCell *searchCell = (HPNoteSearchTableViewCell*)cell;
+        HPNote *note = [_searchResults objectAtIndex:indexPath.row];
+        searchCell.searchText = _searchString;
+        searchCell.note = note;
+    }
+    else
+    {
+        HPNoteTableViewCell *noteCell = (HPNoteTableViewCell*)cell;
+        HPNote *note = [_notes objectAtIndex:indexPath.row];
+        noteCell.note = note;
+        noteCell.displayCriteria = _displayCriteria;
+    }
     return cell;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (self.searchDisplayController.searchResultsTableView == tableView) return NO;
     return _displayCriteria == HPNoteDisplayCriteriaOrder;
 }
 
@@ -261,7 +293,7 @@
 
 - (void)searchDisplayController:(UISearchDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView
 {
-    [tableView registerClass:[HPNoteTableViewCell class] forCellReuseIdentifier:@"cell"];
+    [tableView registerClass:[HPNoteSearchTableViewCell class] forCellReuseIdentifier:@"cell"];
 }
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString

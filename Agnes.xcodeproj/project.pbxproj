@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3980E9A5F51A4472B7514BF4 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9553C6822D1E4B5082F74644 /* libPods.a */; };
+		8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */; };
 		8763DA2B18883ACF000D9569 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2A18883ACF000D9569 /* Foundation.framework */; };
 		8763DA2D18883ACF000D9569 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2C18883ACF000D9569 /* CoreGraphics.framework */; };
 		8763DA2F18883ACF000D9569 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2E18883ACF000D9569 /* UIKit.framework */; };
@@ -42,6 +43,8 @@
 
 /* Begin PBXFileReference section */
 		09E94F643D944B4DAEA256D1 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
+		8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteSearchTableViewCell.h; sourceTree = "<group>"; };
+		8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteSearchTableViewCell.m; sourceTree = "<group>"; };
 		8763DA2718883ACF000D9569 /* Agnes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agnes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8763DA2A18883ACF000D9569 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8763DA2C18883ACF000D9569 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -135,6 +138,8 @@
 		8763DA3018883ACF000D9569 /* Agnes */ = {
 			isa = PBXGroup;
 			children = (
+				8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */,
+				8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */,
 				8763DA3918883ACF000D9569 /* HPAppDelegate.h */,
 				8763DA3A18883ACF000D9569 /* HPAppDelegate.m */,
 				8763DA69188942F6000D9569 /* HPBaseTextStorage.h */,
@@ -324,6 +329,7 @@
 			files = (
 				8763DA5B18883B2B000D9569 /* HPNoteListViewController.m in Sources */,
 				8763DA6E18897982000D9569 /* HPNoteTableViewCell.m in Sources */,
+				8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */,
 				8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */,
 				8763DA6018883B8F000D9569 /* HPNote.m in Sources */,
 				8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */,
