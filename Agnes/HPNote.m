@@ -18,10 +18,10 @@
     return note;
 }
 
-+ (HPNote*)noteWithBody:(NSString*)body
++ (HPNote*)noteWithText:(NSString*)text
 {
     HPNote *note = [HPNote note];
-    note.body = body;
+    note.text = text;
     return note;
 }
 
@@ -29,16 +29,26 @@
 
 - (BOOL)empty
 {
-    NSString *trimmedBody = [self.body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    return trimmedBody.length == 0;
+    NSString *trimmedText = [self.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return trimmedText.length == 0;
+}
+
+- (NSString*)body
+{
+    if (!self.text) return nil;
+
+    NSRange titleRange = [self.text rangeOfString:self.title];
+    NSString *body = [self.text stringByReplacingCharactersInRange:titleRange withString:@""];
+    NSString *trimmedBody = [body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return trimmedBody;
 }
 
 - (NSString*)title
 {
-    if (!self.body) return nil;
+    if (!self.text) return nil;
     
-    NSString *trimmedBody = [self.body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    NSString *firstLine = [trimmedBody componentsSeparatedByString:@"\n"][0];
+    NSString *trimmedText = [self.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *firstLine = [trimmedText componentsSeparatedByString:@"\n"][0];
     return firstLine;
 }
 

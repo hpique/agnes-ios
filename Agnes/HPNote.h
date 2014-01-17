@@ -10,16 +10,17 @@
 
 @interface HPNote : NSObject
 
-@property (nonatomic, copy) NSString *body;
+@property (nonatomic, copy) NSString *text;
 @property (nonatomic, copy) NSDate *modifiedAt;
 @property (nonatomic, copy) NSDate *createdAt;
 @property (nonatomic, assign) NSInteger views;
 
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) BOOL empty;
+@property (nonatomic, readonly) NSString *body;
 
 + (HPNote*)note;
 
-+ (HPNote*)noteWithBody:(NSString*)body;
++ (HPNote*)noteWithText:(NSString*)text;
 
 @end

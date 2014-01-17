@@ -54,7 +54,7 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)displayNote
 {
-    self.textLabel.text = self.note.body;
+    self.textLabel.text = self.note.title;
 }
 
 

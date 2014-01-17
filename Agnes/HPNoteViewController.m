@@ -133,7 +133,7 @@
     {
         self.note.modifiedAt = [NSDate date];
     }
-    self.note.body = textView.text;
+    self.note.text = textView.text;
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
