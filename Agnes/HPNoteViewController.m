@@ -78,6 +78,10 @@
 {
     [super viewWillDisappear:animated];
     self.navigationController.toolbarHidden = YES;
+    if (self.note.empty)
+    {
+        [[HPNoteManager sharedManager] removeNote:self.note];
+    }
 }
 
 #pragma mark - Private
