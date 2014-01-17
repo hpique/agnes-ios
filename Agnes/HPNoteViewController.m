@@ -21,21 +21,22 @@
     UIEdgeInsets _originalBodyTextViewInset;
     NSTextStorage *_bodyTextStorage;
 
+    UIBarButtonItem *_actionBarButtonItem;
     UIBarButtonItem *_addNoteBarButtonItem;
     UIBarButtonItem *_doneBarButtonItem;
     UIBarButtonItem *_trashBarButtonItem;
-    
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 
+    _actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionBarButtonItemAction:)];
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     _doneBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneBarButtonItemAction:)];
     _trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(trashBarButtonItemAction:)];
 
-    self.navigationItem.rightBarButtonItem = _addNoteBarButtonItem;
+    self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem, _actionBarButtonItem];
     self.toolbarItems = @[_trashBarButtonItem];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShowNotification:) name:UIKeyboardDidShowNotification object:nil];
@@ -95,6 +96,13 @@
 
 #pragma mark - Actions
 
+- (void)actionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    NSArray *activityItems = @[self.note.text];
+    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
+    [self presentViewController:activityViewController animated:YES completion:nil];
+}
+
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     self.note = nil;
@@ -138,12 +146,12 @@
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
 {
-    [self.navigationItem setRightBarButtonItem:_doneBarButtonItem animated:YES];
+    [self.navigationItem setRightBarButtonItems:@[_doneBarButtonItem, _actionBarButtonItem] animated:YES];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-    [self.navigationItem setRightBarButtonItem:_addNoteBarButtonItem animated:YES];
+    [self.navigationItem setRightBarButtonItems:@[_addNoteBarButtonItem, _actionBarButtonItem] animated:YES];
 }
 
 #pragma mark - UIActionSheetDelegate
