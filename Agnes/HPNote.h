@@ -16,6 +16,7 @@
 @property (nonatomic, assign) NSInteger views;
 
 @property (nonatomic, readonly) NSString *title;
+@property (nonatomic, readonly) BOOL empty;
 
 + (HPNote*)note;
 

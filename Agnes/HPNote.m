@@ -10,18 +10,6 @@
 
 @implementation HPNote
 
-#pragma mark - Properties
-
-- (NSString*)title
-{
-    if (!self.body) return nil;
-    
-    NSString *trimmedBody = [self.body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    NSString *firstLine = [trimmedBody componentsSeparatedByString:@"\n"][0];
-    return firstLine;
-}
-
-
 + (HPNote*)note
 {
     HPNote *note = [[HPNote alloc] init];
@@ -35,6 +23,23 @@
     HPNote *note = [HPNote note];
     note.body = body;
     return note;
+}
+
+#pragma mark - Properties
+
+- (BOOL)empty
+{
+    NSString *trimmedBody = [self.body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return trimmedBody.length == 0;
+}
+
+- (NSString*)title
+{
+    if (!self.body) return nil;
+    
+    NSString *trimmedBody = [self.body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *firstLine = [trimmedBody componentsSeparatedByString:@"\n"][0];
+    return firstLine;
 }
 
 @end

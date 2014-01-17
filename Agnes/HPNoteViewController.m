@@ -12,7 +12,7 @@
 #import "HPBaseTextStorage.h"
 #import "PSPDFTextView.h"
 
-@interface HPNoteViewController () <UITextViewDelegate>
+@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate>
 
 @end
 
@@ -87,6 +87,12 @@
     self.note.views++;
 }
 
+- (void)trashNote
+{
+    [[HPNoteManager sharedManager] removeNote:self.note];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 #pragma mark - Actions
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
@@ -102,8 +108,15 @@
 
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    [[HPNoteManager sharedManager] removeNote:self.note];
-    [self.navigationController popViewControllerAnimated:YES];
+    if (!self.note || self.note.empty)
+    {
+        [self trashNote];
+    }
+    else
+    {
+        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:@"Delete Note" otherButtonTitles:nil];
+        [actionSheet showInView:self.view];
+    }
 }
 
 #pragma mark - UITextViewDelegate
@@ -132,6 +145,17 @@
 {
     [self.navigationItem setRightBarButtonItem:_addNoteBarButtonItem animated:YES];
 }
+
+#pragma mark - UIActionSheetDelegate
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0)
+    {
+        [self trashNote];
+    }
+}
+
 
 #pragma mark - Notifications
 
