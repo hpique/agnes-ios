@@ -1,0 +1,14 @@
+PODS:
+  - PSPDFTextView (1.1.0)
+
+DEPENDENCIES:
+  - PSPDFTextView (from `https://github.com/steipete/PSPDFTextView.git`)
+
+EXTERNAL SOURCES:
+  PSPDFTextView:
+    :git: https://github.com/steipete/PSPDFTextView.git
+
+SPEC CHECKSUMS:
+  PSPDFTextView: 778b967396e062389f9963b43b860af2e1fe9055
+
+COCOAPODS: 0.29.0
