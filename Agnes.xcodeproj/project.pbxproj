@@ -27,6 +27,7 @@
 		8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6518884650000D9569 /* HPNoteViewController.m */; };
 		8763DA6818884650000D9569 /* HPNoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA6618884650000D9569 /* HPNoteViewController.xib */; };
 		8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */; };
+		8763DA6E18897982000D9569 /* HPNoteTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6D18897982000D9569 /* HPNoteTableViewCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,8 @@
 		8763DA6618884650000D9569 /* HPNoteViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteViewController.xib; sourceTree = "<group>"; };
 		8763DA69188942F6000D9569 /* HPBaseTextStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPBaseTextStorage.h; sourceTree = "<group>"; };
 		8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPBaseTextStorage.m; sourceTree = "<group>"; };
+		8763DA6C18897982000D9569 /* HPNoteTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteTableViewCell.h; sourceTree = "<group>"; };
+		8763DA6D18897982000D9569 /* HPNoteTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteTableViewCell.m; sourceTree = "<group>"; };
 		9553C6822D1E4B5082F74644 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -143,6 +146,8 @@
 				8763DA5C18883B6D000D9569 /* HPNoteListViewController.xib */,
 				8763DA611888420A000D9569 /* HPNoteManager.h */,
 				8763DA621888420A000D9569 /* HPNoteManager.m */,
+				8763DA6C18897982000D9569 /* HPNoteTableViewCell.h */,
+				8763DA6D18897982000D9569 /* HPNoteTableViewCell.m */,
 				8763DA6418884650000D9569 /* HPNoteViewController.h */,
 				8763DA6518884650000D9569 /* HPNoteViewController.m */,
 				8763DA6618884650000D9569 /* HPNoteViewController.xib */,
@@ -318,6 +323,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8763DA5B18883B2B000D9569 /* HPNoteListViewController.m in Sources */,
+				8763DA6E18897982000D9569 /* HPNoteTableViewCell.m in Sources */,
 				8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */,
 				8763DA6018883B8F000D9569 /* HPNote.m in Sources */,
 				8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */,

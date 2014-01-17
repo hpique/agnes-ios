@@ -10,6 +10,7 @@
 #import "HPNoteViewController.h"
 #import "HPNoteManager.h"
 #import "HPNote.h"
+#import "HPNoteTableViewCell.h"
 
 @interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -28,7 +29,7 @@
     
     UIBarButtonItem *addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     self.navigationItem.rightBarButtonItem = addNoteBarButtonItem;
-    [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
+    [_tableView registerClass:[HPNoteTableViewCell class] forCellReuseIdentifier:@"cell"];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -113,9 +114,9 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+    HPNoteTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     HPNote *note = [_notes objectAtIndex:indexPath.row];
-    cell.textLabel.text = note.title;
+    cell.note = note;
     return cell;
 }
 
