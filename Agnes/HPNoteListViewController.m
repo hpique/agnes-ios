@@ -52,22 +52,52 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self updateNotes]; // TODO: This should be triggered by a notification from the note manager.
+    [self updateNotes:animated]; // TODO: This should be triggered by a notification from the note manager.
 }
 
-- (void)updateNotes
+- (void)updateNotes:(BOOL)animated
 {
+    _tableView.editing = _displayCriteria == HPNoteDisplayCriteriaOrder;
+    
     NSArray *previousNotes = _notes;
     NSArray *notes = [[HPNoteManager sharedManager] sortedNotesWithCriteria:_displayCriteria];
     _notes = [NSMutableArray arrayWithArray:notes];
-    _displayCriteriaLabel.text = [self descriptionForDisplayCriteria:_displayCriteria];
+    NSString *criteriaDescription = [self descriptionForDisplayCriteria:_displayCriteria];
     
-    [self updateTableView:_tableView previousData:previousNotes updatedData:_notes];
-    if (_searching && _searchString != nil)
+    if (animated)
     {
-        NSArray *previousSearchResults = _searchResults;
-        _searchResults = [self notesWithSearchString:_searchString];
-        [self updateTableView:self.searchDisplayController.searchResultsTableView previousData:previousSearchResults updatedData:_searchResults];
+        // For some reason the following doesn't work
+        /* [UIView animateWithDuration:0.2 animations:^{
+            _displayCriteriaLabel.text = criteriaDescription;
+        }]; */
+        
+        CATransition *animation = [CATransition animation];
+        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        animation.type = kCATransitionFade;
+        animation.duration = 0.2;
+        [_titleView.layer addAnimation:animation forKey:nil];
+        
+        _displayCriteriaLabel.text = criteriaDescription;
+        
+        [self updateTableView:_tableView previousData:previousNotes updatedData:_notes];
+    }
+    else
+    {
+        _displayCriteriaLabel.text = criteriaDescription;
+        [_tableView reloadData];
+    }
+    if (!_searching || _searchString == nil) return;
+
+    UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
+    NSArray *previousSearchResults = _searchResults;
+    _searchResults = [self notesWithSearchString:_searchString];
+    if (animated)
+    {
+        [self updateTableView:searchTableView previousData:previousSearchResults updatedData:_searchResults];
+    }
+    else
+    {
+        [searchTableView reloadData];
     }
 }
 
@@ -90,7 +120,7 @@
     NSInteger index = [values indexOfObject:@(_displayCriteria)];
     index = (index + 1) % values.count;
     _displayCriteria = [values[index] intValue];
-    [self updateNotes];
+    [self updateNotes:YES /* animated */];
 }
 
 #pragma mark - Private
@@ -142,10 +172,10 @@
 {
     switch (criteria)
     {
-        case HPNoteDisplayCriteriaOrder: return _userChangedDisplayCriteria ? NSLocalizedString(@"Custom", @"") : @"";
-        case HPNoteDisplayCriteriaAlphabetical: return NSLocalizedString(@"A-Z", @"");
-        case HPNoteDisplayCriteriaModifiedAt: return NSLocalizedString(@"By date", @"");
-        case HPNoteDisplayCriteriaViews: return NSLocalizedString(@"Most viewed", @"");
+        case HPNoteDisplayCriteriaOrder: return _userChangedDisplayCriteria ? NSLocalizedString(@"custom", @"") : @"";
+        case HPNoteDisplayCriteriaAlphabetical: return NSLocalizedString(@"a-z", @"");
+        case HPNoteDisplayCriteriaModifiedAt: return NSLocalizedString(@"by date", @"");
+        case HPNoteDisplayCriteriaViews: return NSLocalizedString(@"most viewed", @"");
     }
 }
 
@@ -172,6 +202,11 @@
     return cell;
 }
 
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return _displayCriteria == HPNoteDisplayCriteriaOrder;
+}
+
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
     NSInteger index = sourceIndexPath.row;
@@ -194,6 +229,16 @@
     NSArray *objects = self.searchDisplayController.searchResultsTableView == tableView ? _searchResults : _notes;
     HPNote *note = [objects objectAtIndex:indexPath.row];
     [self showNote:note];
+}
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleNone;
+}
+
+- (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return NO;
 }
 
 #pragma mark - UISearchDisplayDelegate
