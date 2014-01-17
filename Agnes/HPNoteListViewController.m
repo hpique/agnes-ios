@@ -19,6 +19,10 @@
 @implementation HPNoteListViewController {
     __weak IBOutlet UITableView *_tableView;
     NSArray *_notes;
+    
+    BOOL _searching;
+    NSString *_searchString;
+    NSArray *_searchResults;
 }
 
 - (void)viewDidLoad
@@ -39,17 +43,50 @@
 }
 
 - (void)updateNotes
-{
+{ // TODO: This should be a notification.
     NSArray *previousNotes = _notes;
     _notes = [HPNoteManager sharedManager].notes;
 
-    NSArray *indexPathsToDelete = [self indexPathsOfArray:previousNotes notInArray:_notes];
-    NSArray *indexPathsToInsert = [self indexPathsOfArray:_notes notInArray:previousNotes];
+    [self updateTableView:_tableView previousData:previousNotes updatedData:_notes];
+    if (_searching && _searchString != nil)
+    {
+        NSArray *previousSearchResults = _searchResults;
+        _searchResults = [self notesWithSearchString:_searchString];
+        [self updateTableView:self.searchDisplayController.searchResultsTableView previousData:previousSearchResults updatedData:_searchResults];
+    }
+}
+
+#pragma mark - Actions
+
+- (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    [self showNote:nil];
+}
+
+#pragma mark - Private
+
+- (void)updateTableView:(UITableView*)tableView previousData:(NSArray*)previousData updatedData:(NSArray*)updatedData
+{
+    NSArray *indexPathsToDelete = [self indexPathsOfArray:previousData notInArray:updatedData];
+    NSArray *indexPathsToInsert = [self indexPathsOfArray:updatedData notInArray:previousData];
     
-    [_tableView beginUpdates];
-    [_tableView deleteRowsAtIndexPaths:indexPathsToDelete withRowAnimation:UITableViewRowAnimationAutomatic];
-    [_tableView insertRowsAtIndexPaths:indexPathsToInsert withRowAnimation:UITableViewRowAnimationAutomatic];
-    [_tableView endUpdates];
+    [tableView beginUpdates];
+    [tableView deleteRowsAtIndexPaths:indexPathsToDelete withRowAnimation:UITableViewRowAnimationAutomatic];
+    [tableView insertRowsAtIndexPaths:indexPathsToInsert withRowAnimation:UITableViewRowAnimationAutomatic];
+    [tableView endUpdates];
+}
+
+- (void)showNote:(HPNote*)note
+{
+    HPNoteViewController *noteViewController = [[HPNoteViewController alloc] init];
+    noteViewController.note = note;
+    [self.navigationController pushViewController:noteViewController animated:YES];
+}
+
+- (NSArray*)notesWithSearchString:(NSString*)searchString
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.text contains[cd] %@", searchString];
+    return [_notes filteredArrayUsingPredicate:predicate];
 }
 
 - (NSArray*)indexPathsOfArray:(NSArray*)objectsA notInArray:(NSArray*)objectsB
@@ -67,7 +104,7 @@
         }
         
         id objectA = objectsA[i];
-
+        
         BOOL found = NO;
         for (NSInteger k = j; k < countB; k++)
         {
@@ -89,33 +126,19 @@
     return indexPaths;
 }
 
-#pragma mark - Actions
-
-- (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [self showNote:nil];
-}
-
-#pragma mark - Private
-
-- (void)showNote:(HPNote*)note
-{
-    HPNoteViewController *noteViewController = [[HPNoteViewController alloc] init];
-    noteViewController.note = note;
-    [self.navigationController pushViewController:noteViewController animated:YES];
-}
-
 #pragma mark - UITableViewDataSource
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return _notes.count;
+    NSArray *objects = self.searchDisplayController.searchResultsTableView == tableView ? _searchResults : _notes;
+    return objects.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     HPNoteTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
-    HPNote *note = [_notes objectAtIndex:indexPath.row];
+    NSArray *objects = self.searchDisplayController.searchResultsTableView == tableView ? _searchResults : _notes;
+    HPNote *note = [objects objectAtIndex:indexPath.row];
     cell.note = note;
     return cell;
 }
@@ -124,8 +147,38 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    HPNote *note = [_notes objectAtIndex:indexPath.row];
+    NSArray *objects = self.searchDisplayController.searchResultsTableView == tableView ? _searchResults : _notes;
+    HPNote *note = [objects objectAtIndex:indexPath.row];
     [self showNote:note];
+}
+
+#pragma mark - UISearchDisplayDelegate
+
+- (void) searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
+{
+    // TODO: Track
+}
+
+- (void)searchDisplayController:(UISearchDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView
+{
+    [tableView registerClass:[HPNoteTableViewCell class] forCellReuseIdentifier:@"cell"];
+}
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+{
+    _searchString = searchString;
+    _searchResults = [self notesWithSearchString:searchString];
+    return YES;
+}
+
+- (void)searchDisplayController:(UISearchDisplayController *)controller willShowSearchResultsTableView:(UITableView *)tableView
+{
+    _searching = YES;
+}
+
+- (void)searchDisplayController:(UISearchDisplayController *)controller didHideSearchResultsTableView:(UITableView *)tableView
+{
+    _searching = NO;
 }
 
 @end

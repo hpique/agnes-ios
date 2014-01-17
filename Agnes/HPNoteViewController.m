@@ -83,7 +83,7 @@
 
 - (void)displayNote
 {
-    _bodyTextView.text = self.note.body;
+    _bodyTextView.text = self.note.text;
     self.note.views++;
 }
 
