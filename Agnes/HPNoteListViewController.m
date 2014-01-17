@@ -50,11 +50,11 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self updateNotes]; // TODO: Should we call this the first time?
+    [self updateNotes]; // TODO: This should be triggered by a notification from the note manager.
 }
 
 - (void)updateNotes
-{ // TODO: This should be a notification.
+{
     NSArray *previousNotes = _notes;
     _notes = [[HPNoteManager sharedManager] sortedNotesWithCriteria:_displayCriteria];
     _displayCriteriaLabel.text = [self descriptionForDisplayCriteria:_displayCriteria];
