@@ -9,13 +9,14 @@
 #import "HPNoteViewController.h"
 #import "HPNote.h"
 #import "HPNoteManager.h"
+#import "PSPDFTextView.h"
 
 @interface HPNoteViewController () <UITextViewDelegate>
 
 @end
 
 @implementation HPNoteViewController {
-    __weak IBOutlet UITextView *_bodyTextView;
+    UITextView *_bodyTextView;
     UIEdgeInsets _originalBodyTextViewInset;
 
     UIBarButtonItem *_addNoteBarButtonItem;
@@ -37,7 +38,12 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShowNotification:) name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
  
-    _bodyTextView.textStorage removeL
+    _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds];
+    _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    _bodyTextView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    _bodyTextView.dataDetectorTypes = UIDataDetectorTypeLink | UIDataDetectorTypePhoneNumber;
+    _bodyTextView.delegate = self;
+    [self.view addSubview:_bodyTextView];
     
     [self displayNote];
 }
