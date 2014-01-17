@@ -47,6 +47,7 @@
     _titleLabel.text = self.title;
     
     _displayCriteria = HPNoteDisplayCriteriaOrder;
+    [self updateDisplayCriteria:NO /* animated */];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -57,33 +58,16 @@
 
 - (void)updateNotes:(BOOL)animated
 {
-    _tableView.editing = _displayCriteria == HPNoteDisplayCriteriaOrder;
-    
     NSArray *previousNotes = _notes;
     NSArray *notes = [[HPNoteManager sharedManager] sortedNotesWithCriteria:_displayCriteria];
     _notes = [NSMutableArray arrayWithArray:notes];
-    NSString *criteriaDescription = [self descriptionForDisplayCriteria:_displayCriteria];
     
     if (animated)
     {
-        // For some reason the following doesn't work
-        /* [UIView animateWithDuration:0.2 animations:^{
-            _displayCriteriaLabel.text = criteriaDescription;
-        }]; */
-        
-        CATransition *animation = [CATransition animation];
-        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-        animation.type = kCATransitionFade;
-        animation.duration = 0.2;
-        [_titleView.layer addAnimation:animation forKey:nil];
-        
-        _displayCriteriaLabel.text = criteriaDescription;
-        
         [self updateTableView:_tableView previousData:previousNotes updatedData:_notes];
     }
     else
     {
-        _displayCriteriaLabel.text = criteriaDescription;
         [_tableView reloadData];
     }
     if (!_searching || _searchString == nil) return;
@@ -99,6 +83,31 @@
     {
         [searchTableView reloadData];
     }
+}
+
+- (void)updateDisplayCriteria:(BOOL)animated
+{
+    _tableView.editing = _displayCriteria == HPNoteDisplayCriteriaOrder;
+    NSString *criteriaDescription = [self descriptionForDisplayCriteria:_displayCriteria];
+    if (animated)
+    {
+        // For some reason the following doesn't work
+        /* [UIView animateWithDuration:0.2 animations:^{
+         _displayCriteriaLabel.text = criteriaDescription;
+         }]; */
+        
+        CATransition *animation = [CATransition animation];
+        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        animation.type = kCATransitionFade;
+        animation.duration = 0.2;
+        [_titleView.layer addAnimation:animation forKey:nil];
+        
+    }
+    _displayCriteriaLabel.text = criteriaDescription;
+    
+    [_tableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteTableViewCell *cell, NSUInteger idx, BOOL *stop) {
+        cell.displayCriteria = _displayCriteria;
+    }];
 }
 
 #pragma mark - Actions
@@ -121,6 +130,7 @@
     index = (index + 1) % values.count;
     _displayCriteria = [values[index] intValue];
     [self updateNotes:YES /* animated */];
+    [self updateDisplayCriteria:NO /* animated */];
 }
 
 #pragma mark - Private
@@ -199,6 +209,7 @@
     NSArray *objects = self.searchDisplayController.searchResultsTableView == tableView ? _searchResults : _notes;
     HPNote *note = [objects objectAtIndex:indexPath.row];
     cell.note = note;
+    cell.displayCriteria = _displayCriteria;
     return cell;
 }
 

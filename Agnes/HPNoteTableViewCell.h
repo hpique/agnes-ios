@@ -7,10 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HPNoteManager.h"
 @class HPNote;
 
 @interface HPNoteTableViewCell : UITableViewCell
 
 @property (nonatomic, strong) HPNote *note;
+@property (nonatomic, assign) HPNoteDisplayCriteria displayCriteria;
 
 @end

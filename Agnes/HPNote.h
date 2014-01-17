@@ -19,6 +19,7 @@
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) BOOL empty;
 @property (nonatomic, readonly) NSString *body;
+@property (nonatomic, readonly) NSString *modifiedAtDescription;
 
 + (HPNote*)note;
 

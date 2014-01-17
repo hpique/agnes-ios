@@ -48,6 +48,24 @@
     return trimmedBody;
 }
 
+- (NSString*)modifiedAtDescription
+{
+    NSTimeInterval interval = -[self.modifiedAt timeIntervalSinceNow];
+    if (interval < 2) {
+        return [NSString stringWithFormat:NSLocalizedString(@"now", @""), interval];
+    } else if (interval < 60) {
+        return [NSString stringWithFormat:NSLocalizedString(@"%.0lfs", @""), interval];
+    } else if (interval < 3600) {
+        return [NSString stringWithFormat:NSLocalizedString(@"%.0lfm", @""), interval / 60];
+    } else if (interval < 86400) {
+        return [NSString stringWithFormat:NSLocalizedString(@"%.0lfh", @""), interval / 3600];
+    } else if (interval < 31556926) {
+        return [NSString stringWithFormat:NSLocalizedString(@"%.0lfd", @""), interval / 86400];
+    } else {
+        return [NSString stringWithFormat:NSLocalizedString(@"%.0lfy", @""), interval / 31556926];
+    }
+}
+
 - (NSString*)title
 {
     if (!self.text) return nil;

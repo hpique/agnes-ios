@@ -11,11 +11,13 @@
 
 static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
-@implementation HPNoteTableViewCell
+@implementation HPNoteTableViewCell {
+    NSTimer *_modifiedAtDisplayCriteriaTimer;
+}
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
-    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    self = [super initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseIdentifier];
     if (self) {
         // Initialization code
     }
@@ -24,7 +26,8 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)dealloc
 {
-    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
+    [_modifiedAtDisplayCriteriaTimer invalidate];
+    [self removeNoteObserver];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -43,11 +46,24 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)setNote:(HPNote *)note
 {
-    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
+    [self removeNoteObserver];
     _note = note;
     
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(text)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
+    [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(modifiedAt)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self displayNote];
+}
+
+- (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria
+{
+    [_modifiedAtDisplayCriteriaTimer invalidate];
+    _displayCriteria = displayCriteria;
+    [self displayDetail];
+    if (_displayCriteria == HPNoteDisplayCriteriaModifiedAt)
+    {
+        static NSTimeInterval updateDetailDelay = 30;
+        _modifiedAtDisplayCriteriaTimer = [NSTimer scheduledTimerWithTimeInterval:updateDetailDelay target:self selector:@selector(displayDetail) userInfo:nil repeats:YES];
+    }
 }
 
 #pragma mark - Private
@@ -55,7 +71,27 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 - (void)displayNote
 {
     self.textLabel.text = self.note.title;
+    [self displayDetail];
 }
 
+- (void)displayDetail
+{
+    NSString *detailText = @"";
+    switch (self.displayCriteria)
+    {
+        case HPNoteDisplayCriteriaModifiedAt:
+            detailText = self.note.modifiedAtDescription;
+            break;
+        default:
+            break;
+    }
+    self.detailTextLabel.text = detailText;
+}
+
+- (void)removeNoteObserver
+{
+    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
+    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(modifiedAt))];
+}
 
 @end
