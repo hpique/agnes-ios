@@ -133,9 +133,8 @@
 {
     if (!self.note)
     {
-        self.note = [HPNote note];
+        self.note = [[HPNoteManager sharedManager] blankNote];
         self.note.views++;
-        [[HPNoteManager sharedManager] addNote:self.note];
     }
     else
     {

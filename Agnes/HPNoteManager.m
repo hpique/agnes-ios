@@ -32,11 +32,35 @@
     [_notes addObject:note];
 }
 
+- (HPNote*)blankNote
+{
+    HPNote *note = [HPNote note];
+    note.order = self.nextOrder;
+    [_notes addObject:note];
+    return note;
+}
+
+- (NSInteger)nextOrder
+{
+    __block NSInteger maxOrder = 0;
+    [_notes enumerateObjectsUsingBlock:^(HPNote *note, NSUInteger idx, BOOL *stop)
+    {
+        if (note.order > maxOrder)
+        {
+            maxOrder = note.order;
+        }
+    }];
+    return maxOrder + 1;
+}
+
 - (NSArray*)sortedNotesWithCriteria:(HPNoteDisplayCriteria)criteria
 {
     NSSortDescriptor *sortDescriptor;
     switch (criteria)
     {
+        case HPNoteDisplayCriteriaOrder:
+            sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(order)) ascending:NO];
+            break;
         case HPNoteDisplayCriteriaAlphabetical:
             sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(title)) ascending:YES];
             break;
@@ -47,7 +71,8 @@
             sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(views)) ascending:NO];
             break;
     }
-    return [self.notes sortedArrayUsingDescriptors:@[sortDescriptor]];
+    NSSortDescriptor *modifiedAtSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
+    return [self.notes sortedArrayUsingDescriptors:@[sortDescriptor, modifiedAtSortDescriptor]];
 }
 
 - (void)removeNote:(HPNote*)note

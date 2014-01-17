@@ -10,20 +10,24 @@
 @class HPNote;
 
 typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
-    HPNoteDisplayCriteriaAlphabetical,
+    HPNoteDisplayCriteriaOrder,
     HPNoteDisplayCriteriaModifiedAt,
+    HPNoteDisplayCriteriaAlphabetical,
     HPNoteDisplayCriteriaViews,
 };
 
 @interface HPNoteManager : NSObject
 
 @property (nonatomic, readonly) NSArray *notes;
+@property (nonatomic, readonly) NSInteger nextOrder;
 
 - (void)addNote:(HPNote*)note;
 
-- (NSArray*)sortedNotesWithCriteria:(HPNoteDisplayCriteria)criteria;
+- (HPNote*)blankNote;
 
 - (void)removeNote:(HPNote*)note;
+
+- (NSArray*)sortedNotesWithCriteria:(HPNoteDisplayCriteria)criteria;
 
 + (HPNoteManager*)sharedManager;
 

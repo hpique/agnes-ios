@@ -18,7 +18,7 @@
 
 @implementation HPNoteListViewController {
     __weak IBOutlet UITableView *_tableView;
-    NSArray *_notes;
+    NSMutableArray *_notes;
     
     BOOL _searching;
     NSString *_searchString;
@@ -29,6 +29,7 @@
     __weak IBOutlet UILabel *_titleLabel;
     
     HPNoteDisplayCriteria _displayCriteria;
+    BOOL _userChangedDisplayCriteria;
 }
 
 - (void)viewDidLoad
@@ -40,11 +41,12 @@
     UIBarButtonItem *addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     self.navigationItem.rightBarButtonItem = addNoteBarButtonItem;
     [_tableView registerClass:[HPNoteTableViewCell class] forCellReuseIdentifier:@"cell"];
+    _tableView.editing = YES;
     
     self.navigationItem.titleView = _titleView;
     _titleLabel.text = self.title;
     
-    _displayCriteria = HPNoteDisplayCriteriaModifiedAt;
+    _displayCriteria = HPNoteDisplayCriteriaOrder;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -56,7 +58,8 @@
 - (void)updateNotes
 {
     NSArray *previousNotes = _notes;
-    _notes = [[HPNoteManager sharedManager] sortedNotesWithCriteria:_displayCriteria];
+    NSArray *notes = [[HPNoteManager sharedManager] sortedNotesWithCriteria:_displayCriteria];
+    _notes = [NSMutableArray arrayWithArray:notes];
     _displayCriteriaLabel.text = [self descriptionForDisplayCriteria:_displayCriteria];
     
     [self updateTableView:_tableView previousData:previousNotes updatedData:_notes];
@@ -77,10 +80,11 @@
 
 - (IBAction)tapTitleView:(id)sender
 {
+    _userChangedDisplayCriteria = YES;
     static NSArray *values;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        values = @[@(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
+        values = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
     });
     
     NSInteger index = [values indexOfObject:@(_displayCriteria)];
@@ -138,6 +142,7 @@
 {
     switch (criteria)
     {
+        case HPNoteDisplayCriteriaOrder: return _userChangedDisplayCriteria ? NSLocalizedString(@"Custom", @"") : @"";
         case HPNoteDisplayCriteriaAlphabetical: return NSLocalizedString(@"A-Z", @"");
         case HPNoteDisplayCriteriaModifiedAt: return NSLocalizedString(@"By date", @"");
         case HPNoteDisplayCriteriaViews: return NSLocalizedString(@"Most viewed", @"");
@@ -165,6 +170,21 @@
     HPNote *note = [objects objectAtIndex:indexPath.row];
     cell.note = note;
     return cell;
+}
+
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
+{
+    NSInteger index = sourceIndexPath.row;
+    id object = _notes[index];
+    [_notes removeObjectAtIndex:sourceIndexPath.row];
+    [_notes insertObject:object atIndex:destinationIndexPath.row];
+    
+    NSInteger notesCount = _notes.count;
+    for (NSInteger i = 0; i < notesCount; i++)
+    {
+        HPNote *note = _notes[i];
+        note.order = notesCount - i;
+    }
 }
 
 #pragma mark - UITableViewDelegate
