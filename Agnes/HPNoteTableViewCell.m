@@ -24,7 +24,7 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)dealloc
 {
-    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(body))];
+    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -43,10 +43,10 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)setNote:(HPNote *)note
 {
-    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(body))];
+    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
     _note = note;
     
-    [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(body)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
+    [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(text)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self displayNote];
 }
 

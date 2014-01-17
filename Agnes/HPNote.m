@@ -10,6 +10,11 @@
 
 @implementation HPNote
 
+- (NSString*)debugDescription
+{
+    return self.title;
+}
+
 + (HPNote*)note
 {
     HPNote *note = [[HPNote alloc] init];

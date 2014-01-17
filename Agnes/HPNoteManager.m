@@ -7,6 +7,7 @@
 //
 
 #import "HPNoteManager.h"
+#import "HPNote.h"
 
 @implementation HPNoteManager {
     NSMutableArray *_notes;
@@ -29,6 +30,24 @@
 - (void)addNote:(HPNote *)note
 {
     [_notes addObject:note];
+}
+
+- (NSArray*)sortedNotesWithCriteria:(HPNoteDisplayCriteria)criteria
+{
+    NSSortDescriptor *sortDescriptor;
+    switch (criteria)
+    {
+        case HPNoteDisplayCriteriaAlphabetical:
+            sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(title)) ascending:YES];
+            break;
+        case HPNoteDisplayCriteriaModifiedAt:
+            sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
+            break;
+        case HPNoteDisplayCriteriaViews:
+            sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(views)) ascending:NO];
+            break;
+    }
+    return [self.notes sortedArrayUsingDescriptors:@[sortDescriptor]];
 }
 
 - (void)removeNote:(HPNote*)note

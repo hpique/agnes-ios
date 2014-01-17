@@ -6,7 +6,10 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HPNoteListViewController">
             <connections>
+                <outlet property="_displayCriteriaLabel" destination="RlL-rH-NfW" id="Ukm-V2-6vm"/>
                 <outlet property="_tableView" destination="6Ye-Ag-F8Q" id="ALp-no-jqO"/>
+                <outlet property="_titleLabel" destination="Bi5-Eh-5QO" id="SZ3-yV-M83"/>
+                <outlet property="_titleView" destination="jTE-Aa-Rve" id="c3r-jh-O5e"/>
                 <outlet property="searchDisplayController" destination="Nwp-7R-4x2" id="EZX-5f-4tN"/>
                 <outlet property="view" destination="1" id="zdJ-cQ-i5U"/>
             </connections>
@@ -53,5 +56,43 @@
                 <outlet property="searchResultsDelegate" destination="-1" id="fPs-0d-HNO"/>
             </connections>
         </searchDisplayController>
+        <view contentMode="scaleToFill" id="jTE-Aa-Rve">
+            <rect key="frame" x="0.0" y="0.0" width="227" height="35"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bi5-Eh-5QO">
+                    <rect key="frame" x="97" y="0.0" width="32" height="20"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Display criteria" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RlL-rH-NfW">
+                    <rect key="frame" x="72" y="20" width="83" height="15"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+            <gestureRecognizers/>
+            <constraints>
+                <constraint firstAttribute="centerX" secondItem="Bi5-Eh-5QO" secondAttribute="centerX" id="7K0-ta-FTX"/>
+                <constraint firstItem="Bi5-Eh-5QO" firstAttribute="top" secondItem="jTE-Aa-Rve" secondAttribute="top" id="irQ-Sj-yX0"/>
+                <constraint firstItem="RlL-rH-NfW" firstAttribute="top" secondItem="Bi5-Eh-5QO" secondAttribute="bottom" id="rw6-34-MWr"/>
+                <constraint firstAttribute="centerX" secondItem="RlL-rH-NfW" secondAttribute="centerX" id="w6B-I2-ska"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outletCollection property="gestureRecognizers" destination="niI-pX-2h1" appends="YES" id="wc0-ac-Hft"/>
+            </connections>
+        </view>
+        <tapGestureRecognizer id="niI-pX-2h1">
+            <connections>
+                <action selector="tapTitleView:" destination="-1" id="Tfx-3n-Qog"/>
+            </connections>
+        </tapGestureRecognizer>
     </objects>
 </document>

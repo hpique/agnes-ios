@@ -23,6 +23,12 @@
     BOOL _searching;
     NSString *_searchString;
     NSArray *_searchResults;
+    
+    IBOutlet UIView *_titleView;
+    __weak IBOutlet UILabel *_displayCriteriaLabel;
+    __weak IBOutlet UILabel *_titleLabel;
+    
+    HPNoteDisplayCriteria _displayCriteria;
 }
 
 - (void)viewDidLoad
@@ -34,6 +40,11 @@
     UIBarButtonItem *addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     self.navigationItem.rightBarButtonItem = addNoteBarButtonItem;
     [_tableView registerClass:[HPNoteTableViewCell class] forCellReuseIdentifier:@"cell"];
+    
+    self.navigationItem.titleView = _titleView;
+    _titleLabel.text = self.title;
+    
+    _displayCriteria = HPNoteDisplayCriteriaModifiedAt;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -45,8 +56,9 @@
 - (void)updateNotes
 { // TODO: This should be a notification.
     NSArray *previousNotes = _notes;
-    _notes = [HPNoteManager sharedManager].notes;
-
+    _notes = [[HPNoteManager sharedManager] sortedNotesWithCriteria:_displayCriteria];
+    _displayCriteriaLabel.text = [self descriptionForDisplayCriteria:_displayCriteria];
+    
     [self updateTableView:_tableView previousData:previousNotes updatedData:_notes];
     if (_searching && _searchString != nil)
     {
@@ -63,15 +75,54 @@
     [self showNote:nil];
 }
 
+- (IBAction)tapTitleView:(id)sender
+{
+    static NSArray *values;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        values = @[@(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
+    });
+    
+    NSInteger index = [values indexOfObject:@(_displayCriteria)];
+    index = (index + 1) % values.count;
+    _displayCriteria = [values[index] intValue];
+    [self updateNotes];
+}
+
 #pragma mark - Private
 
 - (void)updateTableView:(UITableView*)tableView previousData:(NSArray*)previousData updatedData:(NSArray*)updatedData
 {
-    NSArray *indexPathsToDelete = [self indexPathsOfArray:previousData notInArray:updatedData];
-    NSArray *indexPathsToInsert = [self indexPathsOfArray:updatedData notInArray:previousData];
-    
+    NSMutableArray *indexPathsToDelete = [NSMutableArray array];
+    [previousData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
+     {
+         // TODO: Use dictionaries
+         if (![updatedData containsObject:obj])
+         {
+             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+             [indexPathsToDelete addObject:indexPath];
+         }
+     }];
+
     [tableView beginUpdates];
     [tableView deleteRowsAtIndexPaths:indexPathsToDelete withRowAnimation:UITableViewRowAnimationAutomatic];
+    NSMutableArray *indexPathsToInsert = [NSMutableArray array];
+    [updatedData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
+     {
+         // TODO: Use dictionaries
+         NSUInteger previousIndex = [previousData indexOfObject:obj];
+         if (previousIndex == NSNotFound)
+         {
+             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+             [indexPathsToInsert addObject:indexPath];
+         }
+         else if (previousIndex != idx)
+         {
+             NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:previousIndex inSection:0];
+             NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+             [tableView moveRowAtIndexPath:fromIndexPath toIndexPath:toIndexPath];
+         }
+     }];
     [tableView insertRowsAtIndexPaths:indexPathsToInsert withRowAnimation:UITableViewRowAnimationAutomatic];
     [tableView endUpdates];
 }
@@ -83,47 +134,20 @@
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
+- (NSString*)descriptionForDisplayCriteria:(HPNoteDisplayCriteria)criteria
+{
+    switch (criteria)
+    {
+        case HPNoteDisplayCriteriaAlphabetical: return NSLocalizedString(@"A-Z", @"");
+        case HPNoteDisplayCriteriaModifiedAt: return NSLocalizedString(@"By date", @"");
+        case HPNoteDisplayCriteriaViews: return NSLocalizedString(@"Most viewed", @"");
+    }
+}
+
 - (NSArray*)notesWithSearchString:(NSString*)searchString
 {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.text contains[cd] %@", searchString];
     return [_notes filteredArrayUsingPredicate:predicate];
-}
-
-- (NSArray*)indexPathsOfArray:(NSArray*)objectsA notInArray:(NSArray*)objectsB
-{ // TODO: Profile performance with many objects. Can this be done in O(n+m) with dictionaries?
-    NSInteger countA = objectsA.count;
-    NSInteger countB = objectsB.count;
-    NSMutableArray *indexPaths = [NSMutableArray array];
-    for (NSInteger i = 0, j = 0; i < countA; i++)
-    {
-        if (j >= countB)
-        {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
-            [indexPaths addObject:indexPath];
-            continue;
-        }
-        
-        id objectA = objectsA[i];
-        
-        BOOL found = NO;
-        for (NSInteger k = j; k < countB; k++)
-        {
-            id objectB = objectsB[k];
-            if (objectA == objectB)
-            {
-                j++;
-                found = YES;
-                break;
-            }
-        }
-        
-        if (!found)
-        {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
-            [indexPaths addObject:indexPath];
-        }
-    }
-    return indexPaths;
 }
 
 #pragma mark - UITableViewDataSource
