@@ -10,6 +10,7 @@
 
 @implementation HPBaseTextStorage {
     NSMutableAttributedString *_backingStore;
+    BOOL _needsUpdate;
 }
 
 - (id)init
@@ -33,6 +34,7 @@
 
 - (void)replaceCharactersInRange:(NSRange)range withString:(NSString *)str
 {
+    _needsUpdate = YES;
     [_backingStore replaceCharactersInRange:range withString:str];
     [self edited:NSTextStorageEditedCharacters | NSTextStorageEditedAttributes range:range changeInLength:str.length - range.length];
 }
@@ -45,7 +47,27 @@
 
 - (void)processEditing
 {
-    [_backingStore addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:self.editedRange];
+    if (_needsUpdate)
+    {
+        _needsUpdate = NO;
+        UIFontDescriptor *bodyFontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
+        UIFont *bodyFont = [UIFont fontWithDescriptor:bodyFontDescriptor size:0];
+        UIFontDescriptor *boldBodyFontDescriptor = [bodyFontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold];
+        UIFont *boldBodyFont = [UIFont fontWithDescriptor:boldBodyFontDescriptor size:0];
+        
+        NSRange range = NSMakeRange(0, _backingStore.string.length);
+        __block NSInteger i = 0;
+        // TODO: Do we really need to enumerate all lines?
+        [_backingStore.string enumerateSubstringsInRange:range options:NSStringEnumerationByParagraphs usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+            NSString *trimmed = [substring stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            if (i == 0 && trimmed.length == 0) return; // Skip first empty lines, if any
+
+            UIFont *font = i == 0 ? boldBodyFont : bodyFont;
+            [_backingStore addAttribute:NSFontAttributeName value:font range:substringRange];
+            i++;
+        }];
+
+    }
     [super processEditing];
 }
 
