@@ -9,6 +9,7 @@
 #import "HPNoteViewController.h"
 #import "HPNote.h"
 #import "HPNoteManager.h"
+#import "HPBaseTextStorage.h"
 #import "PSPDFTextView.h"
 
 @interface HPNoteViewController () <UITextViewDelegate>
@@ -18,10 +19,12 @@
 @implementation HPNoteViewController {
     UITextView *_bodyTextView;
     UIEdgeInsets _originalBodyTextViewInset;
+    NSTextStorage *_bodyTextStorage;
 
     UIBarButtonItem *_addNoteBarButtonItem;
     UIBarButtonItem *_doneBarButtonItem;
     UIBarButtonItem *_trashBarButtonItem;
+    
 }
 
 - (void)viewDidLoad
@@ -38,12 +41,22 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShowNotification:) name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
  
-    _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds];
-    _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    _bodyTextView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-    _bodyTextView.dataDetectorTypes = UIDataDetectorTypeLink | UIDataDetectorTypePhoneNumber;
-    _bodyTextView.delegate = self;
-    [self.view addSubview:_bodyTextView];
+    {
+        _bodyTextStorage= [HPBaseTextStorage new];
+        NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
+        CGSize containerSize = CGSizeMake(self.view.bounds.size.width,  CGFLOAT_MAX);
+        NSTextContainer *container = [[NSTextContainer alloc] initWithSize:containerSize];
+        container.widthTracksTextView = YES;
+        [layoutManager addTextContainer:container];
+        [_bodyTextStorage addLayoutManager:layoutManager];
+        
+        _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
+        _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _bodyTextView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+        _bodyTextView.dataDetectorTypes = UIDataDetectorTypeLink | UIDataDetectorTypePhoneNumber;
+        _bodyTextView.delegate = self;
+        [self.view addSubview:_bodyTextView];
+    }
     
     [self displayNote];
 }
