@@ -26,4 +26,6 @@
 
 + (HPNote*)noteWithText:(NSString*)text;
 
++ (NSRegularExpression*)tagRegularExpression;
+
 @end

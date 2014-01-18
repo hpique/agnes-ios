@@ -30,6 +30,17 @@
     return note;
 }
 
++ (NSRegularExpression*)tagRegularExpression
+{
+    static NSRegularExpression *instance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSString* pattern = @"#\\w+";
+        instance = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
+    });
+    return instance;
+}
+
 #pragma mark - Properties
 
 - (BOOL)empty

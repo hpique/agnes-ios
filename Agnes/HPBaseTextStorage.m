@@ -7,6 +7,7 @@
 //
 
 #import "HPBaseTextStorage.h"
+#import "HPNote.h"
 
 @implementation HPBaseTextStorage {
     NSMutableAttributedString *_backingStore;
@@ -66,9 +67,36 @@
             [_backingStore addAttribute:NSFontAttributeName value:font range:substringRange];
             i++;
         }];
-
+        [self performReplacementsForRange:self.editedRange];
     }
     [super processEditing];
+}
+
+#pragma mark - Private
+
+- (void)performReplacementsForRange:(NSRange)changedRange
+{
+    NSRange extendedRange = NSUnionRange(changedRange, [_backingStore.string lineRangeForRange:NSMakeRange(changedRange.location, 0)]);
+    extendedRange = NSUnionRange(changedRange, [_backingStore.string lineRangeForRange:NSMakeRange(NSMaxRange(changedRange), 0)]);
+    [self applyStylesToRange:extendedRange];
+}
+
+- (void)applyStylesToRange:(NSRange)searchRange
+{
+    NSRegularExpression* regex = [HPNote tagRegularExpression];
+    UIColor *color = [UIApplication sharedApplication].keyWindow.tintColor;
+    NSDictionary* attributes = @{ NSForegroundColorAttributeName : color };
+    
+    [self removeAttribute:NSForegroundColorAttributeName range:searchRange];
+    
+    [regex enumerateMatchesInString:_backingStore.string
+                            options:0
+                              range:searchRange
+                         usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
+    {
+        NSRange matchRange = [match rangeAtIndex:0];
+        [self addAttributes:attributes range:matchRange];
+    }];
 }
 
 @end
