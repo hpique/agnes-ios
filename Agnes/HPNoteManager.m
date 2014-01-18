@@ -53,7 +53,24 @@
     return maxOrder + 1;
 }
 
-- (NSArray*)sortedNotesWithCriteria:(HPNoteDisplayCriteria)criteria
+- (void)removeNote:(HPNote*)note
+{
+    [_notes removeObject:note];
+}
+
+#pragma mark - Class
+
++ (HPNoteManager*)sharedManager
+{
+    static HPNoteManager *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[HPNoteManager alloc] init];
+    });
+    return instance;
+}
+
++ (NSArray*)sortedNotes:(NSArray*)notes criteria:(HPNoteDisplayCriteria)criteria;
 {
     NSSortDescriptor *sortDescriptor;
     switch (criteria)
@@ -72,22 +89,7 @@
             break;
     }
     NSSortDescriptor *modifiedAtSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
-    return [self.notes sortedArrayUsingDescriptors:@[sortDescriptor, modifiedAtSortDescriptor]];
-}
-
-- (void)removeNote:(HPNote*)note
-{
-    [_notes removeObject:note];
-}
-
-+ (HPNoteManager*)sharedManager
-{
-    static HPNoteManager *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [[HPNoteManager alloc] init];
-    });
-    return instance;
+    return [notes sortedArrayUsingDescriptors:@[sortDescriptor, modifiedAtSortDescriptor]];
 }
 
 @end

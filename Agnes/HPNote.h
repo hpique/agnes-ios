@@ -15,6 +15,7 @@
 @property (nonatomic, copy) NSDate *createdAt;
 @property (nonatomic, assign) NSInteger views;
 @property (nonatomic, assign) NSInteger order;
+@property (nonatomic, assign) BOOL archived;
 
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) BOOL empty;

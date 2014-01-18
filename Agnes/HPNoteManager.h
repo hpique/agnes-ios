@@ -27,8 +27,8 @@ typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
 
 - (void)removeNote:(HPNote*)note;
 
-- (NSArray*)sortedNotesWithCriteria:(HPNoteDisplayCriteria)criteria;
-
 + (HPNoteManager*)sharedManager;
+
++ (NSArray*)sortedNotes:(NSArray*)notes criteria:(HPNoteDisplayCriteria)criteria;
 
 @end

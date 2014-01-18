@@ -22,6 +22,7 @@
     NSTextStorage *_bodyTextStorage;
 
     UIBarButtonItem *_actionBarButtonItem;
+    UIBarButtonItem *_archiveBarButtonItem;
     UIBarButtonItem *_addNoteBarButtonItem;
     UIBarButtonItem *_doneBarButtonItem;
     UIBarButtonItem *_trashBarButtonItem;
@@ -34,12 +35,14 @@
     [super viewDidLoad];
 
     _actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionBarButtonItemAction:)];
+    _archiveBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemOrganize target:self action:@selector(archiveBarButtomItemAction:)];
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     _doneBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneBarButtonItemAction:)];
     _trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(trashBarButtonItemAction:)];
 
     self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem, _actionBarButtonItem];
-    self.toolbarItems = @[_trashBarButtonItem];
+    UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    self.toolbarItems = @[_trashBarButtonItem, flexibleSpace, _archiveBarButtonItem];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShowNotification:) name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
@@ -140,6 +143,11 @@
     NSArray *activityItems = @[self.note.text];
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
     [self presentViewController:activityViewController animated:YES completion:nil];
+}
+
+- (void)archiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
+{
+    self.note.archived = YES;
 }
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem

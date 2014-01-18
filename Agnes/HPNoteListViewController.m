@@ -12,6 +12,10 @@
 #import "HPNote.h"
 #import "HPNoteTableViewCell.h"
 #import "HPNoteSearchTableViewCell.h"
+#import "HPIndexItem.h"
+#import "MMDrawerController.h"
+#import "MMDrawerBarButtonItem.h"
+#import "UIViewController+MMDrawerController.h"
 
 @interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -37,12 +41,13 @@
 {
     [super viewDidLoad];
     
-    self.title = NSLocalizedString(@"All Notes", @"");
-    
     UIBarButtonItem *addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     self.navigationItem.rightBarButtonItem = addNoteBarButtonItem;
     [_tableView registerClass:[HPNoteTableViewCell class] forCellReuseIdentifier:@"cell"];
     _tableView.editing = YES;
+    
+    MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
+    self.navigationItem.leftBarButtonItem = drawerBarButton;
     
     self.navigationItem.titleView = _titleView;
     _titleLabel.text = self.title;
@@ -60,7 +65,10 @@
 - (void)updateNotes:(BOOL)animated
 {
     NSArray *previousNotes = _notes;
-    NSArray *notes = [[HPNoteManager sharedManager] sortedNotesWithCriteria:_displayCriteria];
+    HPNoteManager *manager = [HPNoteManager sharedManager];
+    NSArray *notes = manager.notes;
+    notes = [notes filteredArrayUsingPredicate:self.indexItem.predicate];
+    notes = [HPNoteManager sortedNotes:notes criteria:_displayCriteria];
     _notes = [NSMutableArray arrayWithArray:notes];
     
     if (animated)
@@ -111,11 +119,32 @@
     }];
 }
 
+#pragma mark - Public
+
+- (void)setIndexItem:(HPIndexItem *)indexItem
+{
+    _indexItem = indexItem;
+    self.title = self.indexItem.title;
+}
+
++ (UIViewController*)controllerWithIndexItem:(HPIndexItem*)indexItem
+{
+    HPNoteListViewController *noteListViewController = [[HPNoteListViewController alloc] init];
+    noteListViewController.indexItem = indexItem;
+    UINavigationController *controller = [[UINavigationController alloc] initWithRootViewController:noteListViewController];
+    return controller;
+}
+
 #pragma mark - Actions
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [self showNote:nil in:_notes];
+}
+
+- (void)drawerBarButtonAction:(MMDrawerBarButtonItem*)barButtonItem
+{
+    [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
 
 - (IBAction)tapTitleView:(id)sender
@@ -138,6 +167,12 @@
 
 - (void)updateTableView:(UITableView*)tableView previousData:(NSArray*)previousData updatedData:(NSArray*)updatedData
 {
+    if (!previousData)
+    {
+        [tableView reloadData];
+        return;
+    }
+    
     NSMutableArray *indexPathsToDelete = [NSMutableArray array];
     [previousData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
      {
@@ -193,7 +228,7 @@
 
 - (NSArray*)notesWithSearchString:(NSString*)searchString
 {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.text contains[cd] %@", searchString];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ contains[cd] %@", NSStringFromSelector(@selector(text)), searchString];
     NSArray *notes = [_notes filteredArrayUsingPredicate:predicate];
     NSArray *rankedNotes = [notes sortedArrayUsingComparator:^NSComparisonResult(HPNote *obj1, HPNote *obj2)
     {

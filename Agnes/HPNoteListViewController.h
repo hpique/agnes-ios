@@ -7,7 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+@class HPIndexItem;
 
 @interface HPNoteListViewController : UIViewController
+
+@property (nonatomic, strong) HPIndexItem *indexItem;
+
++ (UIViewController*)controllerWithIndexItem:(HPIndexItem*)indexItem;
 
 @end
