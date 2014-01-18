@@ -22,10 +22,11 @@
     NSTextStorage *_bodyTextStorage;
 
     UIBarButtonItem *_actionBarButtonItem;
-    UIBarButtonItem *_archiveBarButtonItem;
     UIBarButtonItem *_addNoteBarButtonItem;
+    UIBarButtonItem *_archiveBarButtonItem;
     UIBarButtonItem *_doneBarButtonItem;
     UIBarButtonItem *_trashBarButtonItem;
+    UIBarButtonItem *_unarchiveBarButtonItem;
     
     NSInteger _noteIndex;
 }
@@ -35,14 +36,13 @@
     [super viewDidLoad];
 
     _actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionBarButtonItemAction:)];
-    _archiveBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemOrganize target:self action:@selector(archiveBarButtomItemAction:)];
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
+    _archiveBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemOrganize target:self action:@selector(archiveBarButtomItemAction:)];
     _doneBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneBarButtonItemAction:)];
     _trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(trashBarButtonItemAction:)];
+    _unarchiveBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemUndo target:self action:@selector(unarchiveBarButtomItemAction:)];
 
     self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem, _actionBarButtonItem];
-    UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    self.toolbarItems = @[_trashBarButtonItem, flexibleSpace, _archiveBarButtonItem];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShowNotification:) name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
@@ -112,6 +112,12 @@
 {
     _bodyTextView.text = self.note.text;
     self.note.views++;
+    [self updateToolbar:NO /* animated */];
+}
+
+- (void)finishEditing
+{
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)trashNote
@@ -132,9 +138,26 @@
 - (void)emptyNote
 {
     _note = nil;
+    if (self.notes != nil && _noteIndex < self.notes.count)
+    {
+        _noteIndex++;
+    }
     [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
 }
 
+- (void)updateToolbar:(BOOL)animated
+{
+    NSArray *toolbarItems;
+    if (self.note)
+    {
+        UIBarButtonItem *rightBarButtonItem = self.note.archived ? _unarchiveBarButtonItem : _archiveBarButtonItem;
+        UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+        toolbarItems = @[_trashBarButtonItem, flexibleSpace, rightBarButtonItem];
+    } else {
+        toolbarItems = @[_trashBarButtonItem];
+    }
+    [self setToolbarItems:toolbarItems animated:animated];
+}
 
 #pragma mark - Actions
 
@@ -148,6 +171,7 @@
 - (void)archiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
     self.note.archived = YES;
+    [self updateToolbar:YES /* animated */];
 }
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
@@ -203,9 +227,10 @@
     }
 }
 
-- (void)finishEditing
+- (void)unarchiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
-    [self.navigationController popViewControllerAnimated:YES];
+    self.note.archived = NO;
+    [self updateToolbar:YES /* animated */];
 }
 
 #pragma mark - UITextViewDelegate
@@ -216,16 +241,13 @@
     {
         _note = [[HPNoteManager sharedManager] blankNote];
         self.note.views++;
-        if (self.notes.count > 0)
-        {
-            _noteIndex++;
-        }
-        else
+        if (self.notes.count == 0)
         {
              _notes = [NSMutableArray array];
             _noteIndex = 0;
         }
         [self.notes insertObject:self.note atIndex:_noteIndex];
+        [self updateToolbar:YES /* animated */];
     }
     else
     {
