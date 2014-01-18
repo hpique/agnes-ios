@@ -25,6 +25,8 @@
     UIBarButtonItem *_addNoteBarButtonItem;
     UIBarButtonItem *_doneBarButtonItem;
     UIBarButtonItem *_trashBarButtonItem;
+    
+    NSInteger _noteIndex;
 }
 
 - (void)viewDidLoad
@@ -84,6 +86,23 @@
     }
 }
 
+#pragma mark - Public
+
+- (void)setNote:(HPNote *)note
+{
+    _note = note;
+    _noteIndex = [self.notes indexOfObject:self.note];
+}
+
+- (void)setNotes:(NSMutableArray *)notes
+{
+    _notes = notes;
+    if (self.note)
+    {
+        _noteIndex = [self.notes indexOfObject:self.note];
+    }
+}
+
 #pragma mark - Private
 
 - (void)displayNote
@@ -95,8 +114,24 @@
 - (void)trashNote
 {
     [[HPNoteManager sharedManager] removeNote:self.note];
-    [self.navigationController popViewControllerAnimated:YES];
+    [self finishEditing];
 }
+
+- (void)changeNoteWithTransitionOptions:(UIViewAnimationOptions)options
+{
+    [self.view endEditing:YES];
+    [UIView transitionWithView:self.view duration:1.0 options:options animations:^{
+        [self displayNote];
+    } completion:^(BOOL finished) {
+    }];
+}
+
+- (void)emptyNote
+{
+    _note = nil;
+    [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
+}
+
 
 #pragma mark - Actions
 
@@ -109,13 +144,42 @@
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    self.note = nil;
-    [self displayNote];
+    [self emptyNote];
 }
 
 - (void)doneBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [self.view endEditing:YES];
+}
+
+- (IBAction)swipeRightAction:(id)sender
+{
+    if (self.notes != nil && _noteIndex > 0)
+    {
+        NSInteger previousIndex = _noteIndex - 1;
+        _note = self.notes[previousIndex];
+        _noteIndex = previousIndex;
+        [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlDown];
+    }
+    else
+    {
+        [self finishEditing];
+    }
+}
+
+- (IBAction)swipeLeftAction:(id)sender
+{
+    NSInteger nextIndex = _noteIndex + 1;
+    if (self.notes != nil && nextIndex < self.notes.count)
+    {
+        _note = self.notes[nextIndex];
+        _noteIndex = nextIndex;
+        [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
+    }
+    else
+    {
+        [self emptyNote];
+    }
 }
 
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
@@ -131,14 +195,29 @@
     }
 }
 
+- (void)finishEditing
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 #pragma mark - UITextViewDelegate
 
 - (void)textViewDidChange:(UITextView *)textView
 {
     if (!self.note)
     {
-        self.note = [[HPNoteManager sharedManager] blankNote];
+        _note = [[HPNoteManager sharedManager] blankNote];
         self.note.views++;
+        if (self.notes.count > 0)
+        {
+            _noteIndex++;
+        }
+        else
+        {
+             _notes = [NSMutableArray array];
+            _noteIndex = 0;
+        }
+        [self.notes insertObject:self.note atIndex:_noteIndex];
     }
     else
     {

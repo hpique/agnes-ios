@@ -115,7 +115,7 @@
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    [self showNote:nil];
+    [self showNote:nil in:_notes];
 }
 
 - (IBAction)tapTitleView:(id)sender
@@ -172,10 +172,11 @@
     [tableView endUpdates];
 }
 
-- (void)showNote:(HPNote*)note
+- (void)showNote:(HPNote*)note in:(NSArray*)notes
 {
     HPNoteViewController *noteViewController = [[HPNoteViewController alloc] init];
     noteViewController.note = note;
+    noteViewController.notes = [NSMutableArray arrayWithArray:notes];
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
@@ -271,7 +272,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 {
     NSArray *objects = self.searchDisplayController.searchResultsTableView == tableView ? _searchResults : _notes;
     HPNote *note = [objects objectAtIndex:indexPath.row];
-    [self showNote:note];
+    [self showNote:note in:objects];
 }
 
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath

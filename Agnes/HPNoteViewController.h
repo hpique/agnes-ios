@@ -13,4 +13,6 @@
 
 @property (nonatomic, strong) HPNote *note;
 
+@property (nonatomic, strong) NSMutableArray *notes;
+
 @end
