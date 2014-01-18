@@ -268,6 +268,10 @@
 
 - (void)textViewDidChange:(UITextView *)textView
 {
+    if (![self isEmptyNote:self.note] && !self.note.managed)
+    {
+        [[HPNoteManager sharedManager] addNote:self.note];
+    }
     [self updateToolbar:YES /* animated */];
     self.note.modifiedAt = [NSDate date];
     self.note.text = textView.text;

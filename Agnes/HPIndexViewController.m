@@ -35,8 +35,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:HPNoteManagerDidUpdateTagsNotification];
-}
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPNoteManagerDidUpdateTagsNotification object:[HPNoteManager sharedManager]];}
 
 - (void)viewDidLoad
 {

@@ -16,6 +16,7 @@ typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
     HPNoteDisplayCriteriaViews,
 };
 
+extern NSString* const HPNoteManagerDidUpdateNotesNotification;
 extern NSString* const HPNoteManagerDidUpdateTagsNotification;
 
 @interface HPNoteManager : NSObject

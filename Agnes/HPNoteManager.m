@@ -10,6 +10,7 @@
 #import "HPNote.h"
 
 static void *HPNoteManagerContext = &HPNoteManagerContext;
+NSString* const HPNoteManagerDidUpdateNotesNotification = @"HPNoteManagerDidUpdateNotesNotification";
 NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdateTagsNotification";
 
 @implementation HPNoteManager {
@@ -59,6 +60,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     [_notes addObject:note];
     [note addObserver:self forKeyPath:NSStringFromSelector(@selector(text)) options:NSKeyValueObservingOptionNew context:HPNoteManagerContext];
     [self addTagsOfNote:note];
+    [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateNotesNotification object:self];
 }
 
 - (NSInteger)nextOrderInTag:(NSString*)tag;
@@ -84,7 +86,13 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     }
     else
     {
-        return [set allObjects];
+        NSArray *notes = [set allObjects];
+        static NSPredicate *predicate = nil;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            predicate = [NSPredicate predicateWithFormat:@"SELF.%@ == NO", NSStringFromSelector(@selector(archived))];
+        });
+        return [notes filteredArrayUsingPredicate:predicate];
     }
 }
 
@@ -94,6 +102,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     [_notes removeObject:note];
     [note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
     [self removeTagsOfNote:note];
+    [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateNotesNotification object:self];
 }
 
 - (NSArray*)tags

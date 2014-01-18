@@ -41,6 +41,11 @@
     UIBarButtonItem *_addNoteBarButtonItem;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPNoteManagerDidUpdateNotesNotification object:[HPNoteManager sharedManager]];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -55,15 +60,64 @@
     self.navigationItem.titleView = _titleView;
     
     [_tableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:YES]; // TODO: Use autolayout?
-    
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateNotesNotification:) name:HPNoteManagerDidUpdateNotesNotification object:[HPNoteManager sharedManager]];
+
+    [self updateNotes:NO /* animated */];
     [self updateIndexItem];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self updateNotes:animated]; // TODO: This should be triggered by a notification from the note manager.
+    [self updateNotes:animated];
 }
+
+#pragma mark - Public
+
+- (void)setIndexItem:(HPIndexItem *)indexItem
+{
+    _indexItem = indexItem;
+    [self updateIndexItem];
+}
+
++ (UIViewController*)controllerWithIndexItem:(HPIndexItem*)indexItem
+{
+    HPNoteListViewController *noteListViewController = [[HPNoteListViewController alloc] init];
+    noteListViewController.indexItem = indexItem;
+    UINavigationController *controller = [[UINavigationController alloc] initWithRootViewController:noteListViewController];
+    return controller;
+}
+
+#pragma mark - Actions
+
+- (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:_notes tag:self.indexItem.tag];
+    [self.navigationController pushViewController:noteViewController animated:YES];
+}
+
+- (void)didUpdateNotesNotification:(NSNotification*)notification
+{
+    [self updateNotes:YES /* animated */];
+}
+
+- (void)drawerBarButtonAction:(MMDrawerBarButtonItem*)barButtonItem
+{
+    [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+}
+
+- (IBAction)tapTitleView:(id)sender
+{
+    _userChangedDisplayCriteria = YES;
+    NSInteger index = [_displayCriteriaValues indexOfObject:@(_displayCriteria)];
+    index = (index + 1) % _displayCriteriaValues.count;
+    _displayCriteria = [_displayCriteriaValues[index] intValue];
+    [self updateNotes:YES /* animated */];
+    [self updateDisplayCriteria:NO /* animated */];
+}
+
+#pragma mark - Private
 
 - (void)updateNotes:(BOOL)animated
 {
@@ -81,14 +135,14 @@
         [_tableView reloadData];
     }
     if (!_searching || _searchString == nil) return;
-
+    
     UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
     if (animated)
     {
         NSArray *previousSearchResults = _searchResults;
         _searchResults = [self notesWithSearchString:_searchString archived:NO];
         [self updateTableView:searchTableView previousData:previousSearchResults updatedData:_searchResults section:0];
-
+        
         NSArray *previousArchivedSearchResults = _archivedSearchResults;
         _archivedSearchResults = [self notesWithSearchString:_searchString archived:YES];
         [self updateTableView:searchTableView previousData:previousArchivedSearchResults updatedData:_archivedSearchResults section:1];
@@ -103,7 +157,7 @@
 {
     self.title = self.indexItem.title;
     _titleLabel.text = self.title;
-
+    
     if (self.indexItem.protectedList)
     {
         self.navigationItem.rightBarButtonItem = nil;
@@ -142,47 +196,6 @@
         cell.displayCriteria = _displayCriteria;
     }];
 }
-
-#pragma mark - Public
-
-- (void)setIndexItem:(HPIndexItem *)indexItem
-{
-    _indexItem = indexItem;
-    [self updateIndexItem];
-}
-
-+ (UIViewController*)controllerWithIndexItem:(HPIndexItem*)indexItem
-{
-    HPNoteListViewController *noteListViewController = [[HPNoteListViewController alloc] init];
-    noteListViewController.indexItem = indexItem;
-    UINavigationController *controller = [[UINavigationController alloc] initWithRootViewController:noteListViewController];
-    return controller;
-}
-
-#pragma mark - Actions
-
-- (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:_notes tag:self.indexItem.tag];
-    [self.navigationController pushViewController:noteViewController animated:YES];
-}
-
-- (void)drawerBarButtonAction:(MMDrawerBarButtonItem*)barButtonItem
-{
-    [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
-}
-
-- (IBAction)tapTitleView:(id)sender
-{
-    _userChangedDisplayCriteria = YES;
-    NSInteger index = [_displayCriteriaValues indexOfObject:@(_displayCriteria)];
-    index = (index + 1) % _displayCriteriaValues.count;
-    _displayCriteria = [_displayCriteriaValues[index] intValue];
-    [self updateNotes:YES /* animated */];
-    [self updateDisplayCriteria:NO /* animated */];
-}
-
-#pragma mark - Private
 
 - (void)updateTableView:(UITableView*)tableView previousData:(NSArray*)previousData updatedData:(NSArray*)updatedData section:(NSUInteger)section
 {
