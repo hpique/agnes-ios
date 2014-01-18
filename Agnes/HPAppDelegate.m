@@ -19,7 +19,7 @@
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor whiteColor];
 
-    UIViewController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem allNotesIndexItem]];
+    UIViewController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
     HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
     UINavigationController *leftNavigationController = [[UINavigationController alloc] initWithRootViewController:indexViewController];
     MMDrawerController *drawerController = [[MMDrawerController alloc] initWithCenterViewController:centerController leftDrawerViewController:leftNavigationController];

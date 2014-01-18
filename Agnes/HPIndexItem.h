@@ -15,6 +15,6 @@
 
 + (HPIndexItem*)indexItemWithTitle:(NSString*)title predictate:(NSPredicate*)predicate;
 
-+ (HPIndexItem*)allNotesIndexItem;
++ (HPIndexItem*)inboxIndexItem;
 
 @end

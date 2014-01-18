@@ -19,13 +19,13 @@
     return item;
 }
 
-+ (HPIndexItem*)allNotesIndexItem
++ (HPIndexItem*)inboxIndexItem
 {
     static HPIndexItem *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ == NO", NSStringFromSelector(@selector(archived))];
-        instance = [HPIndexItem indexItemWithTitle:NSLocalizedString(@"All Notes", @"") predictate:predicate];
+        instance = [HPIndexItem indexItemWithTitle:NSLocalizedString(@"Inbox", @"") predictate:predicate];
     });
     return instance;
 }

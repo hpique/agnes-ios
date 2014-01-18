@@ -39,7 +39,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
     NSString *archivedName = NSStringFromSelector(@selector(archived));
     NSPredicate *archivePredicate = [NSPredicate predicateWithFormat:@"SELF.%@ == YES", archivedName];
-    _items = @[[HPIndexItem allNotesIndexItem],
+    _items = @[[HPIndexItem inboxIndexItem],
                [HPIndexItem indexItemWithTitle:NSLocalizedString(@"Archive", @"") predictate:archivePredicate]];
     
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:HPIndexCellIdentifier];
