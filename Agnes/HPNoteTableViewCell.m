@@ -11,6 +11,9 @@
 
 static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
+static UIFont *_titleFont;
+static UIFont *_archivedTitleFont;
+
 @implementation HPNoteTableViewCell {
     NSTimer *_modifiedAtDisplayCriteriaTimer;
 }
@@ -49,6 +52,7 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [self removeNoteObserver];
     _note = note;
     
+    [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(archived)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(text)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(modifiedAt)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self displayNote];
@@ -70,6 +74,15 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)displayNote
 {
+    if (!_titleFont)
+    {
+        UIFontDescriptor *fontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleHeadline];
+        UIFontDescriptor *italicFontDescriptor = [fontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitItalic];
+        _titleFont = [UIFont fontWithDescriptor:fontDescriptor size:0];
+        _archivedTitleFont = [UIFont fontWithDescriptor:italicFontDescriptor size:0];
+    }
+    
+    self.textLabel.font = self.note.archived ? _archivedTitleFont : _titleFont;
     self.textLabel.text = self.note.title;
     [self displayDetail];
 }
@@ -90,6 +103,7 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)removeNoteObserver
 {
+    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(archived))];
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(modifiedAt))];
 }
