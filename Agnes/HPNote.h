@@ -25,6 +25,10 @@
 @property (nonatomic, readonly) NSSet *removedTags;
 @property (nonatomic, readonly) NSSet *addedTags;
 
+- (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
+
+- (NSInteger)orderInTag:(NSString*)tag;
+
 + (HPNote*)note;
 
 + (HPNote*)noteWithText:(NSString*)text;

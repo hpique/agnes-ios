@@ -15,6 +15,8 @@
     NSSet *_addedTags;
     NSArray *_tags;
     NSSet *_removedTags;
+    
+    NSMutableDictionary *_orderInTags;
 }
 
 - (id)init
@@ -23,6 +25,7 @@
     {
         _addedTags = [NSSet set];
         _removedTags = [NSSet set];
+        _orderInTags = [NSMutableDictionary dictionary];
     }
     return self;
 }
@@ -30,6 +33,32 @@
 - (NSString*)debugDescription
 {
     return self.title;
+}
+
+#pragma mark - Public
+
+- (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
+{
+    if (!tag)
+    {
+        self.order = order;
+    }
+    else
+    {
+        [_orderInTags setObject:@(order) forKey:tag];
+    }
+}
+
+- (NSInteger)orderInTag:(NSString*)tag
+{
+    if (!tag)
+    {
+        return self.order;
+    }
+    else
+    {
+        return [[_orderInTags objectForKey:tag] integerValue];
+    }
 }
 
 + (HPNote*)note

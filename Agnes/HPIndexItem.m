@@ -65,6 +65,11 @@
     return [[HPNoteManager sharedManager] notesWithTag:self.title];
 }
 
+- (NSString*)tag
+{
+    return self.title;
+}
+
 @end
 
 @implementation HPIndexItemPredicate

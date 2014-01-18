@@ -54,6 +54,8 @@
     
     self.navigationItem.titleView = _titleView;
     
+    [_tableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:YES]; // TODO: Use autolayout?
+    
     [self updateIndexItem];
 }
 
@@ -67,7 +69,7 @@
 {
     NSArray *previousNotes = _notes;
     NSArray *notes = self.indexItem.notes;
-    notes = [HPNoteManager sortedNotes:notes criteria:_displayCriteria];
+    notes = [HPNoteManager sortedNotes:notes criteria:_displayCriteria tag:self.indexItem.tag];
     _notes = [NSMutableArray arrayWithArray:notes];
     
     if (animated)
@@ -341,7 +343,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     for (NSInteger i = 0; i < notesCount; i++)
     {
         HPNote *note = _notes[i];
-        note.order = notesCount - i;
+        [note setOrder:notesCount - i inTag:self.indexItem.tag];
     }
 }
 

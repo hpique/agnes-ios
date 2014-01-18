@@ -112,26 +112,33 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     return instance;
 }
 
-+ (NSArray*)sortedNotes:(NSArray*)notes criteria:(HPNoteDisplayCriteria)criteria;
++ (NSArray*)sortedNotes:(NSArray*)notes criteria:(HPNoteDisplayCriteria)criteria tag:(NSString*)tag
 {
     NSSortDescriptor *sortDescriptor;
     switch (criteria)
     {
         case HPNoteDisplayCriteriaOrder:
-            sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(order)) ascending:NO];
+        {
+            return [notes sortedArrayWithOptions:0 usingComparator:^NSComparisonResult(HPNote *note1, HPNote *note2) {
+                NSInteger order1 = [note1 orderInTag:tag];
+                NSInteger order2 = [note2 orderInTag:tag];
+                if (order2 < order1) return NSOrderedAscending;
+                if (order2 > order1) return NSOrderedDescending;
+                return [note2.modifiedAt compare:note1.modifiedAt];
+            }];
+        }
             break;
         case HPNoteDisplayCriteriaAlphabetical:
-            sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(title)) ascending:YES];
+            return [HPNoteManager sortedNotes:notes selector:@selector(title) ascending:YES];
             break;
         case HPNoteDisplayCriteriaModifiedAt:
+            return [HPNoteManager sortedNotes:notes selector:@selector(modifiedAt) ascending:NO];
             sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
             break;
         case HPNoteDisplayCriteriaViews:
-            sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(views)) ascending:NO];
+            return [HPNoteManager sortedNotes:notes selector:@selector(views) ascending:NO];
             break;
     }
-    NSSortDescriptor *modifiedAtSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
-    return [notes sortedArrayUsingDescriptors:@[sortDescriptor, modifiedAtSortDescriptor]];
 }
 
 #pragma mark - Private
@@ -201,6 +208,17 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
         }
     }
     return YES;
+}
+
++ (NSArray*)sortedNotes:(NSArray*)notes selector:(SEL)selector ascending:(BOOL)ascending
+{
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(selector) ascending:ascending];
+    static NSSortDescriptor *modifiedAtSortDescriptor = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        modifiedAtSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
+    });
+    return [notes sortedArrayUsingDescriptors:@[sortDescriptor, modifiedAtSortDescriptor]];
 }
 
 - (void)updateTagsOfNote:(HPNote*)note

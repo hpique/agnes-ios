@@ -11,6 +11,7 @@
 @interface HPIndexItem : NSObject
 
 @property (nonatomic, copy) NSString *title;
+@property (nonatomic, readonly) NSString *tag;
 @property (nonatomic, readonly) NSArray *notes;
 @property (nonatomic, readonly) BOOL protectedList;
 
