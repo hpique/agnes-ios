@@ -22,50 +22,22 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
     return self;
 }
 
-- (void)dealloc
-{
-    [self removeNoteObserver];
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-    if (context == HPNoteSearchTableViewCellContext)
-    {
-        [self displayNote];
-    }
-    else
-    {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
-}
-
-#pragma mark - Public
-
-- (void)setNote:(HPNote *)note
-{
-    [self removeNoteObserver];
-    _note = note;
-    
-    [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(text)) options:NSKeyValueObservingOptionNew context:HPNoteSearchTableViewCellContext];
-    [self displayNote];
-}
-
 #pragma mark - Private
 
 - (void)displayNote
 {
-    [self setText:self.note.title inSearchResultlabel:self.textLabel];
-    [self setText:self.note.body inSearchResultlabel:self.detailTextLabel];
+    [super displayNote];
+    [self setText:self.note.title inSearchResultlabel:self.textLabel fontDescriptor:self.titleFontDescriptor];
+    [self setText:self.note.body inSearchResultlabel:self.detailTextLabel fontDescriptor:self.detailFontDescriptor];
 }
 
-- (void)setText:(NSString*)text inSearchResultlabel:(UILabel*)label
+- (void)setText:(NSString*)text inSearchResultlabel:(UILabel*)label fontDescriptor:(UIFontDescriptor*)fontDescriptor
 {
     NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:text];
     NSRange searchRange = NSMakeRange(0, text.length);
     NSRange foundRange;
     
-    UIFontDescriptor *fontDescriptor = label.font.fontDescriptor;
-    UIFontDescriptor *boldFontDescriptor = [fontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold];
+    UIFontDescriptor *boldFontDescriptor = [fontDescriptor fontDescriptorWithSymbolicTraits:fontDescriptor.symbolicTraits | UIFontDescriptorTraitBold];
     UIFont *boldFont = [UIFont fontWithDescriptor:boldFontDescriptor size:0];
     
     while (searchRange.location < text.length)
@@ -79,11 +51,6 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
         } else break;
     }
     label.attributedText = attributedText;
-}
-
-- (void)removeNoteObserver
-{
-    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
 }
 
 @end

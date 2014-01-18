@@ -7,11 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-@class HPNote;
+#import "HPNoteTableViewCell.h"
 
-@interface HPNoteSearchTableViewCell : UITableViewCell
+@interface HPNoteSearchTableViewCell : HPNoteTableViewCell
 
 @property (nonatomic, copy) NSString *searchText;
-@property (nonatomic, strong) HPNote *note;
 
 @end

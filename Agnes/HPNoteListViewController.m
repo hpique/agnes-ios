@@ -10,7 +10,7 @@
 #import "HPNoteViewController.h"
 #import "HPNoteManager.h"
 #import "HPNote.h"
-#import "HPNoteTableViewCell.h"
+#import "HPNoteListTableViewCell.h"
 #import "HPNoteSearchTableViewCell.h"
 #import "HPIndexItem.h"
 #import "MMDrawerController.h"
@@ -28,6 +28,7 @@
     BOOL _searching;
     NSString *_searchString;
     NSArray *_searchResults;
+    NSArray *_archivedSearchResults;
     
     IBOutlet UIView *_titleView;
     __weak IBOutlet UILabel *_displayCriteriaLabel;
@@ -43,7 +44,7 @@
     
     UIBarButtonItem *addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     self.navigationItem.rightBarButtonItem = addNoteBarButtonItem;
-    [_tableView registerClass:[HPNoteTableViewCell class] forCellReuseIdentifier:@"cell"];
+    [_tableView registerClass:[HPNoteListTableViewCell class] forCellReuseIdentifier:@"cell"];
     _tableView.editing = YES;
     
     MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
@@ -73,7 +74,7 @@
     
     if (animated)
     {
-        [self updateTableView:_tableView previousData:previousNotes updatedData:_notes];
+        [self updateTableView:_tableView previousData:previousNotes updatedData:_notes section:0];
     }
     else
     {
@@ -82,11 +83,15 @@
     if (!_searching || _searchString == nil) return;
 
     UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
-    NSArray *previousSearchResults = _searchResults;
-    _searchResults = [self notesWithSearchString:_searchString];
     if (animated)
     {
-        [self updateTableView:searchTableView previousData:previousSearchResults updatedData:_searchResults];
+        NSArray *previousSearchResults = _searchResults;
+        _searchResults = [self notesWithSearchString:_searchString archived:NO];
+        [self updateTableView:searchTableView previousData:previousSearchResults updatedData:_searchResults section:0];
+
+        NSArray *previousArchivedSearchResults = _archivedSearchResults;
+        _archivedSearchResults = [self notesWithSearchString:_searchString archived:YES];
+        [self updateTableView:searchTableView previousData:previousArchivedSearchResults updatedData:_archivedSearchResults section:1];
     }
     else
     {
@@ -114,7 +119,7 @@
     }
     _displayCriteriaLabel.text = criteriaDescription;
     
-    [_tableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteTableViewCell *cell, NSUInteger idx, BOOL *stop) {
+    [_tableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
         cell.displayCriteria = _displayCriteria;
     }];
 }
@@ -165,7 +170,7 @@
 
 #pragma mark - Private
 
-- (void)updateTableView:(UITableView*)tableView previousData:(NSArray*)previousData updatedData:(NSArray*)updatedData
+- (void)updateTableView:(UITableView*)tableView previousData:(NSArray*)previousData updatedData:(NSArray*)updatedData section:(NSUInteger)section
 {
     if (!previousData)
     {
@@ -179,7 +184,7 @@
          // TODO: Use dictionaries
          if (![updatedData containsObject:obj])
          {
-             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:section];
              [indexPathsToDelete addObject:indexPath];
          }
      }];
@@ -193,13 +198,13 @@
          NSUInteger previousIndex = [previousData indexOfObject:obj];
          if (previousIndex == NSNotFound)
          {
-             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:section];
              [indexPathsToInsert addObject:indexPath];
          }
          else if (previousIndex != idx)
          {
-             NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:previousIndex inSection:0];
-             NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+             NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:previousIndex inSection:section];
+             NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:section];
              [tableView moveRowAtIndexPath:fromIndexPath toIndexPath:toIndexPath];
          }
      }];
@@ -226,11 +231,16 @@
     }
 }
 
-- (NSArray*)notesWithSearchString:(NSString*)searchString
+- (NSArray*)notesWithSearchString:(NSString*)searchString archived:(BOOL)archived
 {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ contains[cd] %@", NSStringFromSelector(@selector(text)), searchString];
-    NSArray *notes = [_notes filteredArrayUsingPredicate:predicate];
-    NSArray *rankedNotes = [notes sortedArrayUsingComparator:^NSComparisonResult(HPNote *obj1, HPNote *obj2)
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ contains[cd] %@ && SELF.%@ == %d",
+                              NSStringFromSelector(@selector(text)),
+                              searchString,
+                              NSStringFromSelector(@selector(archived)),
+                              archived ? 1 : 0];
+    NSArray *unfilteredNotes = archived ? [HPNoteManager sharedManager].notes : _notes;
+    NSArray *filteredNotes = [unfilteredNotes filteredArrayUsingPredicate:predicate];
+    NSArray *rankedNotes = [filteredNotes sortedArrayUsingComparator:^NSComparisonResult(HPNote *obj1, HPNote *obj2)
     {
         NSComparisonResult result = HPCompareSearchResults(obj1.title, obj2.title, searchString);
         if (result != NSOrderedSame) return result;
@@ -252,28 +262,45 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     return NSOrderedSame;
 }
 
+- (NSArray*)tableView:(UITableView*)tableView notesInSection:(NSInteger)section
+{
+    NSArray *notes = self.searchDisplayController.searchResultsTableView == tableView ? (section == 0 ? _searchResults : _archivedSearchResults) : _notes;
+    return notes;
+}
+
 #pragma mark - UITableViewDataSource
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return self.searchDisplayController.searchResultsTableView == tableView ? (_archivedSearchResults.count > 0 ? 2 : 1) : 1;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    return section == 1 ? NSLocalizedString(@"Archived", @"") : nil;
+}
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    NSArray *objects = self.searchDisplayController.searchResultsTableView == tableView ? _searchResults : _notes;
+    NSArray *objects = [self tableView:tableView notesInSection:section];
     return objects.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+    NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     if (self.searchDisplayController.searchResultsTableView == tableView)
     {
         HPNoteSearchTableViewCell *searchCell = (HPNoteSearchTableViewCell*)cell;
-        HPNote *note = [_searchResults objectAtIndex:indexPath.row];
+        HPNote *note = [objects objectAtIndex:indexPath.row];
         searchCell.searchText = _searchString;
         searchCell.note = note;
     }
     else
     {
-        HPNoteTableViewCell *noteCell = (HPNoteTableViewCell*)cell;
-        HPNote *note = [_notes objectAtIndex:indexPath.row];
+        HPNoteListTableViewCell *noteCell = (HPNoteListTableViewCell*)cell;
+        HPNote *note = [objects objectAtIndex:indexPath.row];
         noteCell.note = note;
         noteCell.displayCriteria = _displayCriteria;
     }
@@ -305,7 +332,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSArray *objects = self.searchDisplayController.searchResultsTableView == tableView ? _searchResults : _notes;
+    NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     HPNote *note = [objects objectAtIndex:indexPath.row];
     [self showNote:note in:objects];
 }
@@ -335,7 +362,8 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
     _searchString = searchString;
-    _searchResults = [self notesWithSearchString:searchString];
+    _searchResults = [self notesWithSearchString:searchString archived:NO];
+    _archivedSearchResults = [self notesWithSearchString:searchString archived:YES];
     return YES;
 }
 

@@ -2,7 +2,7 @@
 //  HPNoteTableViewCell.m
 //  Agnes
 //
-//  Created by Hermes on 17/01/14.
+//  Created by Hermes on 18/01/14.
 //  Copyright (c) 2014 Hermes Pique. All rights reserved.
 //
 
@@ -11,25 +11,15 @@
 
 static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
-static UIFont *_titleFont;
-static UIFont *_archivedTitleFont;
+static UIFontDescriptor *_titleFontDescriptor;
+static UIFontDescriptor *_archivedTitleFontDescriptor;
+static UIFontDescriptor *_detailFontDescriptor;
+static UIFontDescriptor *_archivedDetailFontDescriptor;
 
-@implementation HPNoteTableViewCell {
-    NSTimer *_modifiedAtDisplayCriteriaTimer;
-}
-
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
-{
-    self = [super initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseIdentifier];
-    if (self) {
-        // Initialization code
-    }
-    return self;
-}
+@implementation HPNoteTableViewCell
 
 - (void)dealloc
 {
-    [_modifiedAtDisplayCriteriaTimer invalidate];
     [self removeNoteObserver];
 }
 
@@ -58,47 +48,32 @@ static UIFont *_archivedTitleFont;
     [self displayNote];
 }
 
-- (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria
+- (UIFontDescriptor*)detailFontDescriptor
 {
-    [_modifiedAtDisplayCriteriaTimer invalidate];
-    _displayCriteria = displayCriteria;
-    [self displayDetail];
-    if (_displayCriteria == HPNoteDisplayCriteriaModifiedAt)
+    if (!_detailFontDescriptor)
     {
-        static NSTimeInterval updateDetailDelay = 30;
-        _modifiedAtDisplayCriteriaTimer = [NSTimer scheduledTimerWithTimeInterval:updateDetailDelay target:self selector:@selector(displayDetail) userInfo:nil repeats:YES];
+        _detailFontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleSubheadline];
+        _archivedDetailFontDescriptor = [_detailFontDescriptor fontDescriptorWithSymbolicTraits:_detailFontDescriptor.symbolicTraits | UIFontDescriptorTraitItalic];
     }
+    return self.note.archived ? _archivedDetailFontDescriptor : _detailFontDescriptor;
+}
+
+- (UIFontDescriptor*)titleFontDescriptor
+{
+    if (!_titleFontDescriptor)
+    {
+        _titleFontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleHeadline];
+        _archivedTitleFontDescriptor = [_titleFontDescriptor fontDescriptorWithSymbolicTraits:_titleFontDescriptor.symbolicTraits | UIFontDescriptorTraitItalic];
+    }
+    return self.note.archived ? _archivedTitleFontDescriptor : _titleFontDescriptor;
 }
 
 #pragma mark - Private
 
 - (void)displayNote
 {
-    if (!_titleFont)
-    {
-        UIFontDescriptor *fontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleHeadline];
-        UIFontDescriptor *italicFontDescriptor = [fontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitItalic];
-        _titleFont = [UIFont fontWithDescriptor:fontDescriptor size:0];
-        _archivedTitleFont = [UIFont fontWithDescriptor:italicFontDescriptor size:0];
-    }
-    
-    self.textLabel.font = self.note.archived ? _archivedTitleFont : _titleFont;
-    self.textLabel.text = self.note.title;
-    [self displayDetail];
-}
-
-- (void)displayDetail
-{
-    NSString *detailText = @"";
-    switch (self.displayCriteria)
-    {
-        case HPNoteDisplayCriteriaModifiedAt:
-            detailText = self.note.modifiedAtDescription;
-            break;
-        default:
-            break;
-    }
-    self.detailTextLabel.text = detailText;
+    self.textLabel.font = [UIFont fontWithDescriptor:self.titleFontDescriptor size:0];
+    self.detailTextLabel.font =  [UIFont fontWithDescriptor:self.detailFontDescriptor size:0];
 }
 
 - (void)removeNoteObserver
