@@ -16,14 +16,19 @@ typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
     HPNoteDisplayCriteriaViews,
 };
 
+extern NSString* const HPNoteManagerDidUpdateTagsNotification;
+
 @interface HPNoteManager : NSObject
 
 @property (nonatomic, readonly) NSArray *notes;
 @property (nonatomic, readonly) NSInteger nextOrder;
+@property (nonatomic, readonly) NSArray *tags;
 
 - (void)addNote:(HPNote*)note;
 
 - (HPNote*)blankNote;
+
+- (NSArray*)notesWithTag:(NSString*)tag;
 
 - (void)removeNote:(HPNote*)note;
 

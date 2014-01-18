@@ -8,6 +8,7 @@
 
 #import "HPIndexViewController.h"
 #import "HPNoteListViewController.h"
+#import "HPNoteManager.h"
 #import "HPIndexItem.h"
 #import "HPNote.h"
 #import "MMDrawerController.h"
@@ -32,17 +33,42 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     return self;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:HPNoteManagerDidUpdateTagsNotification];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     self.title = NSLocalizedString(@"Agnes", "Index title");
-
-    NSString *archivedName = NSStringFromSelector(@selector(archived));
-    NSPredicate *archivePredicate = [NSPredicate predicateWithFormat:@"SELF.%@ == YES", archivedName];
-    _items = @[[HPIndexItem inboxIndexItem],
-               [HPIndexItem indexItemWithTitle:NSLocalizedString(@"Archive", @"") predictate:archivePredicate]];
     
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:HPIndexCellIdentifier];
+    
+    [self reloadData];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateTagsNotification:) name:HPNoteManagerDidUpdateTagsNotification object:[HPNoteManager sharedManager]];
+}
+
+#pragma mark - Private
+
+- (void)reloadData
+{
+    NSMutableArray *items = [NSMutableArray array];
+    [items addObject:[HPIndexItem inboxIndexItem]];
+    
+    NSArray *tags = [HPNoteManager sharedManager].tags;
+    tags = [tags sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    for (NSString *tag in tags)
+    {
+        HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag];
+        [items addObject:indexItem];
+    }
+    
+    [items addObject:[HPIndexItem archiveIndexItem]];
+    
+    _items = items;
+    [self.tableView reloadData];
 }
 
 #pragma mark - Table view data source
@@ -72,6 +98,13 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     HPIndexItem *item = [_items objectAtIndex:indexPath.row];
     UIViewController *centerViewController = [HPNoteListViewController controllerWithIndexItem:item];
     [self.mm_drawerController setCenterViewController:centerViewController withCloseAnimation:YES completion:nil];
+}
+
+#pragma mark - Actions
+
+- (void)didUpdateTagsNotification:(NSNotification*)notification
+{
+    [self reloadData];
 }
 
 @end

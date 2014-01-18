@@ -10,6 +10,7 @@
 #import "HPNote.h"
 
 static void *HPNoteManagerContext = &HPNoteManagerContext;
+NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdateTagsNotification";
 
 @implementation HPNoteManager {
     NSMutableArray *_notes;
@@ -31,7 +32,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 {
     if (context == HPNoteManagerContext)
     {
-        [self updateTagsWithNote:object];
+        [self updateTagsOfNote:object];
     }
     else
     {
@@ -49,11 +50,8 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)addNote:(HPNote *)note
 {
     [_notes addObject:note];
-    for (NSString *tag in note.tags)
-    {
-        [self addNote:note forTag:tag];
-    }
     [note addObserver:self forKeyPath:NSStringFromSelector(@selector(text)) options:NSKeyValueObservingOptionNew context:HPNoteManagerContext];
+    [self addTagsOfNote:note];
 }
 
 - (HPNote*)blankNote
@@ -77,14 +75,29 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     return maxOrder + 1;
 }
 
+- (NSArray*)notesWithTag:(NSString*)tag
+{
+    NSSet *set = [_tags objectForKey:tag];
+    if (!set)
+    {
+        return [NSArray array];
+    }
+    else
+    {
+        return [set allObjects];
+    }
+}
+
 - (void)removeNote:(HPNote*)note
 {
-    [note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
-    for (NSString *tag in note.tags)
-    {
-        [self removeNote:note forTag:tag];
-    }
     [_notes removeObject:note];
+    [note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
+    [self removeTagsOfNote:note];
+}
+
+- (NSArray*)tags
+{
+    return [_tags allKeys];
 }
 
 #pragma mark - Class
@@ -134,37 +147,76 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }
 }
 
-- (void)addNote:(HPNote*)note forTag:(NSString*)tag
+- (void)addTagsOfNote:(HPNote*)note
 {
+    BOOL updated = NO;
+    for (NSString *tag in note.tags)
+    {
+        updated |= [self addNote:note forTag:tag];
+    }
+    if (updated)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateTagsNotification object:self];
+    }
+}
+
+- (BOOL)addNote:(HPNote*)note forTag:(NSString*)tag
+{
+    BOOL updated = NO;
     NSMutableSet *notes = [_tags objectForKey:tag];
     if (!notes)
     {
         notes = [NSMutableSet set];
         [_tags setObject:notes forKey:tag];
+        updated = YES;
     };
     [notes addObject:note];
+    return updated;
 }
 
-- (void)removeNote:(HPNote*)note forTag:(NSString*)tag
+- (void)removeTagsOfNote:(HPNote*)note
 {
-    NSMutableSet *notes = [_tags objectForKey:tag];
-    if (!notes) return;
-    [notes removeObject:note];
-    if (notes.count == 0)
+    BOOL updated = NO;
+    for (NSString *tag in note.tags)
     {
-        [_tags removeObjectForKey:tag];
+        updated |= [self removeNote:note forTag:tag];
+    }
+    if (updated)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateTagsNotification object:self];
     }
 }
 
-- (void)updateTagsWithNote:(HPNote*)note
+- (BOOL)removeNote:(HPNote*)note forTag:(NSString*)tag
 {
+    BOOL updated = NO;
+    NSMutableSet *notes = [_tags objectForKey:tag];
+    if (notes)
+    {
+        [notes removeObject:note];
+        if (notes.count == 0)
+        {
+            [_tags removeObjectForKey:tag];
+            updated = YES;
+        }
+    }
+    return YES;
+}
+
+- (void)updateTagsOfNote:(HPNote*)note
+{
+    BOOL updated = NO;
     for (NSString *tag in note.removedTags)
     {
-        [self removeNote:note forTag:tag];
+        updated |= [self removeNote:note forTag:tag];
     }
     for (NSString *tag in note.addedTags)
     {
-        [self addNote:note forTag:tag];
+        updated |= [self addNote:note forTag:tag];
+    }
+    if (updated)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateTagsNotification object:self];
     }
 }
 

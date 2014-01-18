@@ -11,10 +11,22 @@
 @interface HPIndexItem : NSObject
 
 @property (nonatomic, copy) NSString *title;
-@property (nonatomic, strong) NSPredicate *predicate;
-
-+ (HPIndexItem*)indexItemWithTitle:(NSString*)title predictate:(NSPredicate*)predicate;
+@property (nonatomic, readonly) NSArray *notes;
 
 + (HPIndexItem*)inboxIndexItem;
+
++ (HPIndexItem*)archiveIndexItem;
+
++ (HPIndexItem*)indexItemWithTag:(NSString*)tag;
+
+@end
+
+@interface HPIndexItemTag : HPIndexItem
+
+@end
+
+@interface HPIndexItemPredicate : HPIndexItem
+
+@property (nonatomic, strong) NSPredicate *predicate;
 
 @end

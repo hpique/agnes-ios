@@ -67,8 +67,7 @@
 {
     NSArray *previousNotes = _notes;
     HPNoteManager *manager = [HPNoteManager sharedManager];
-    NSArray *notes = manager.notes;
-    notes = [notes filteredArrayUsingPredicate:self.indexItem.predicate];
+    NSArray *notes = self.indexItem.notes;
     notes = [HPNoteManager sortedNotes:notes criteria:_displayCriteria];
     _notes = [NSMutableArray arrayWithArray:notes];
     
