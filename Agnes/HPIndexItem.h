@@ -12,6 +12,7 @@
 
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, readonly) NSArray *notes;
+@property (nonatomic, readonly) BOOL protectedList;
 
 + (HPIndexItem*)inboxIndexItem;
 

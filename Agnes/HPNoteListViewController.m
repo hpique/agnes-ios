@@ -36,14 +36,16 @@
     
     HPNoteDisplayCriteria _displayCriteria;
     BOOL _userChangedDisplayCriteria;
+    NSArray *_displayCriteriaValues;
+    
+    UIBarButtonItem *_addNoteBarButtonItem;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    UIBarButtonItem *addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
-    self.navigationItem.rightBarButtonItem = addNoteBarButtonItem;
+    _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     [_tableView registerClass:[HPNoteListTableViewCell class] forCellReuseIdentifier:@"cell"];
     _tableView.editing = YES;
     
@@ -51,10 +53,8 @@
     self.navigationItem.leftBarButtonItem = drawerBarButton;
     
     self.navigationItem.titleView = _titleView;
-    _titleLabel.text = self.title;
     
-    _displayCriteria = HPNoteDisplayCriteriaOrder;
-    [self updateDisplayCriteria:NO /* animated */];
+    [self updateIndexItem];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -66,7 +66,6 @@
 - (void)updateNotes:(BOOL)animated
 {
     NSArray *previousNotes = _notes;
-    HPNoteManager *manager = [HPNoteManager sharedManager];
     NSArray *notes = self.indexItem.notes;
     notes = [HPNoteManager sortedNotes:notes criteria:_displayCriteria];
     _notes = [NSMutableArray arrayWithArray:notes];
@@ -96,6 +95,25 @@
     {
         [searchTableView reloadData];
     }
+}
+
+- (void)updateIndexItem
+{
+    self.title = self.indexItem.title;
+    _titleLabel.text = self.title;
+
+    if (self.indexItem.protectedList)
+    {
+        self.navigationItem.rightBarButtonItem = nil;
+        _displayCriteriaValues =  @[@(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
+    }
+    else
+    {
+        self.navigationItem.rightBarButtonItem = _addNoteBarButtonItem;
+        _displayCriteriaValues = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
+    }
+    _displayCriteria = [_displayCriteriaValues[0] intValue];
+    [self updateDisplayCriteria:NO /* animated */];
 }
 
 - (void)updateDisplayCriteria:(BOOL)animated
@@ -128,7 +146,7 @@
 - (void)setIndexItem:(HPIndexItem *)indexItem
 {
     _indexItem = indexItem;
-    self.title = self.indexItem.title;
+    [self updateIndexItem];
 }
 
 + (UIViewController*)controllerWithIndexItem:(HPIndexItem*)indexItem

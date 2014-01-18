@@ -16,7 +16,9 @@
 
 @end
 
-@implementation HPIndexItem
+@implementation HPIndexItem {
+    BOOL _protectedList;
+}
 
 + (HPIndexItem*)inboxIndexItem
 {
@@ -37,6 +39,7 @@
         NSString *archivedName = NSStringFromSelector(@selector(archived));
         NSPredicate *archivePredicate = [NSPredicate predicateWithFormat:@"SELF.%@ == YES", archivedName];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Archive", @"") predictate:archivePredicate];
+        instance->_protectedList = YES;
     });
     return instance;
 }
@@ -46,6 +49,11 @@
     HPIndexItemTag *item = [[HPIndexItemTag alloc] init];
     item.title = tag;
     return item;
+}
+
+- (BOOL)protectedList
+{
+    return _protectedList;
 }
 
 @end

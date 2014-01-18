@@ -58,7 +58,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
 {
     HPNote *note = [HPNote note];
     note.order = self.nextOrder;
-    [_notes addObject:note];
+    [self addNote:note];
     return note;
 }
 
