@@ -10,5 +10,7 @@
 
 @interface HPBaseTextStorage : NSTextStorage
 
+@property (nonatomic, copy) NSString *tag;
+
 @end
 

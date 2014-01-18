@@ -19,7 +19,7 @@
 @implementation HPNoteViewController {
     UITextView *_bodyTextView;
     UIEdgeInsets _originalBodyTextViewInset;
-    NSTextStorage *_bodyTextStorage;
+    HPBaseTextStorage *_bodyTextStorage;
 
     UIBarButtonItem *_actionBarButtonItem;
     UIBarButtonItem *_addNoteBarButtonItem;
@@ -55,6 +55,7 @@
         container.widthTracksTextView = YES;
         [layoutManager addTextContainer:container];
         [_bodyTextStorage addLayoutManager:layoutManager];
+        _bodyTextStorage.tag = self.tag;
         
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -83,10 +84,38 @@
 {
     [super viewWillDisappear:animated];
     self.navigationController.toolbarHidden = YES;
-    if (self.note.empty)
+    for (HPNote *note in self.notes)
     {
-        [[HPNoteManager sharedManager] removeNote:self.note];
+        
+        if (note.managed)
+        {
+            if ([self isEmptyNote:note])
+            {
+                [[HPNoteManager sharedManager] removeNote:note];
+            }
+        } else if (![self isEmptyNote:note])
+        {
+            [[HPNoteManager sharedManager] addNote:note];
+        }
     }
+}
+
+#pragma mark - Class
+
++ (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes tag:(NSString*)tag
+{
+    HPNote *note = [HPNote blankNoteWithTag:tag];
+    notes = [[NSArray arrayWithObject:note] arrayByAddingObjectsFromArray:notes];
+    return [HPNoteViewController noteViewControllerWithNote:note notes:notes tag:tag];
+}
+
++ (HPNoteViewController*)noteViewControllerWithNote:(HPNote*)note notes:(NSArray*)notes tag:(NSString*)tag
+{
+    HPNoteViewController *noteViewController = [[HPNoteViewController alloc] init];
+    noteViewController.note = note;
+    noteViewController.notes = [NSMutableArray arrayWithArray:notes];
+    noteViewController.tag = tag;
+    return noteViewController;
 }
 
 #pragma mark - Public
@@ -100,10 +129,13 @@
 - (void)setNotes:(NSMutableArray *)notes
 {
     _notes = notes;
-    if (self.note)
-    {
-        _noteIndex = [self.notes indexOfObject:self.note];
-    }
+    _noteIndex = [self.notes indexOfObject:self.note];
+}
+
+- (void)setTag:(NSString *)tag
+{
+    _tag = tag;
+    _bodyTextStorage.tag = self.tag;
 }
 
 #pragma mark - Private
@@ -120,9 +152,17 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (BOOL)isEmptyNote:(HPNote*)note
+{
+    if (note.empty) return YES;
+    NSString *trimmedText = [note.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if ([self.tag isEqualToString:trimmedText]) return YES;
+    return NO;
+}
+
 - (void)trashNote
 {
-    [[HPNoteManager sharedManager] removeNote:self.note];
+    self.note.text = @""; // Note will be removed on viewWillDisappear:
     [self finishEditing];
 }
 
@@ -135,28 +175,19 @@
     }];
 }
 
-- (void)emptyNote
+- (void)changeToEmptyNote
 {
-    _note = nil;
-    if (self.notes != nil && _noteIndex < self.notes.count)
-    {
-        _noteIndex++;
-    }
+    HPNote *note = [HPNote blankNoteWithTag:self.tag];
+    [_notes insertObject:note atIndex:_noteIndex + 1];
+    self.note = note;
     [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
 }
 
 - (void)updateToolbar:(BOOL)animated
 {
-    NSArray *toolbarItems;
-    if (self.note)
-    {
-        UIBarButtonItem *rightBarButtonItem = self.note.archived ? _unarchiveBarButtonItem : _archiveBarButtonItem;
-        UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-        toolbarItems = @[_trashBarButtonItem, flexibleSpace, rightBarButtonItem];
-    } else {
-        toolbarItems = @[_trashBarButtonItem];
-    }
-    [self setToolbarItems:toolbarItems animated:animated];
+    UIBarButtonItem *rightBarButtonItem = self.note.archived ? _unarchiveBarButtonItem : _archiveBarButtonItem;
+    UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [self setToolbarItems:@[_trashBarButtonItem, flexibleSpace, rightBarButtonItem] animated:animated];
 }
 
 #pragma mark - Actions
@@ -176,7 +207,7 @@
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    [self emptyNote];
+    [self changeToEmptyNote];
 }
 
 - (void)doneBarButtonItemAction:(UIBarButtonItem*)barButtonItem
@@ -186,7 +217,7 @@
 
 - (IBAction)swipeRightAction:(id)sender
 {
-    if (self.notes != nil && _noteIndex > 0)
+    if (_noteIndex > 0)
     {
         NSInteger previousIndex = _noteIndex - 1;
         _note = self.notes[previousIndex];
@@ -202,7 +233,7 @@
 - (IBAction)swipeLeftAction:(id)sender
 {
     NSInteger nextIndex = _noteIndex + 1;
-    if (self.notes != nil && nextIndex < self.notes.count)
+    if (nextIndex < self.notes.count)
     {
         _note = self.notes[nextIndex];
         _noteIndex = nextIndex;
@@ -210,13 +241,13 @@
     }
     else
     {
-        [self emptyNote];
+        [self changeToEmptyNote];
     }
 }
 
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    if (!self.note || self.note.empty)
+    if ([self isEmptyNote:self.note])
     {
         [self trashNote];
     }
@@ -237,22 +268,8 @@
 
 - (void)textViewDidChange:(UITextView *)textView
 {
-    if (!self.note)
-    {
-        _note = [[HPNoteManager sharedManager] blankNote];
-        self.note.views++;
-        if (self.notes.count == 0)
-        {
-             _notes = [NSMutableArray array];
-            _noteIndex = 0;
-        }
-        [self.notes insertObject:self.note atIndex:_noteIndex];
-        [self updateToolbar:YES /* animated */];
-    }
-    else
-    {
-        self.note.modifiedAt = [NSDate date];
-    }
+    [self updateToolbar:YES /* animated */];
+    self.note.modifiedAt = [NSDate date];
     self.note.text = textView.text;
 }
 

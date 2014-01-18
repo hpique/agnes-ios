@@ -51,28 +51,39 @@
     if (_needsUpdate)
     {
         _needsUpdate = NO;
-        UIFontDescriptor *bodyFontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-        UIFont *bodyFont = [UIFont fontWithDescriptor:bodyFontDescriptor size:0];
-        UIFontDescriptor *boldBodyFontDescriptor = [bodyFontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold];
-        UIFont *boldBodyFont = [UIFont fontWithDescriptor:boldBodyFontDescriptor size:0];
-        
-        NSRange range = NSMakeRange(0, _backingStore.string.length);
-        __block NSInteger i = 0;
-        // TODO: Do we really need to enumerate all lines?
-        [_backingStore.string enumerateSubstringsInRange:range options:NSStringEnumerationByParagraphs usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-            NSString *trimmed = [substring stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            if (i == 0 && trimmed.length == 0) return; // Skip first empty lines, if any
-
-            UIFont *font = i == 0 ? boldBodyFont : bodyFont;
-            [_backingStore addAttribute:NSFontAttributeName value:font range:substringRange];
-            i++;
-        }];
+        [self boldTitle];
         [self performReplacementsForRange:self.editedRange];
     }
     [super processEditing];
 }
 
 #pragma mark - Private
+
+- (void)boldTitle
+{
+    UIFontDescriptor *bodyFontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
+    UIFont *bodyFont = [UIFont fontWithDescriptor:bodyFontDescriptor size:0];
+    UIFontDescriptor *boldBodyFontDescriptor = [bodyFontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold];
+    UIFont *boldBodyFont = [UIFont fontWithDescriptor:boldBodyFontDescriptor size:0];
+    
+    NSRange range = NSMakeRange(0, _backingStore.string.length);
+    __block NSInteger paragraphIndex = 0;
+    
+
+    NSString *trimmed = [_backingStore.string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if ([self.tag isEqualToString:trimmed]) return; // The tag is not the title
+
+    // TODO: Do we really need to enumerate all lines?
+    [_backingStore.string enumerateSubstringsInRange:range options:NSStringEnumerationByParagraphs usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+        NSString *trimmed = [substring stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        // Skip first empty lines, if any
+        if (paragraphIndex == 0 && trimmed.length == 0) return;
+
+        UIFont *font = paragraphIndex == 0 ? boldBodyFont : bodyFont;
+        [_backingStore addAttribute:NSFontAttributeName value:font range:substringRange];
+        paragraphIndex++;
+    }];
+}
 
 - (void)performReplacementsForRange:(NSRange)changedRange
 {

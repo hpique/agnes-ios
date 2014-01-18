@@ -25,9 +25,13 @@
 @property (nonatomic, readonly) NSSet *removedTags;
 @property (nonatomic, readonly) NSSet *addedTags;
 
+@property (nonatomic, assign) BOOL managed;
+
 - (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
 
 - (NSInteger)orderInTag:(NSString*)tag;
+
++ (HPNote*)blankNoteWithTag:(NSString*)tag;
 
 + (HPNote*)note;
 

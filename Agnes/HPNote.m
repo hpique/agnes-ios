@@ -61,6 +61,18 @@
     }
 }
 
+#pragma mark - Class
+
++ (HPNote*)blankNoteWithTag:(NSString*)tag
+{
+    HPNote *note = [HPNote note];
+    if (tag)
+    {
+        note.text = [NSString stringWithFormat:@"\n\n\n\n%@", tag];
+    }
+    return note;
+}
+
 + (HPNote*)note
 {
     HPNote *note = [[HPNote alloc] init];

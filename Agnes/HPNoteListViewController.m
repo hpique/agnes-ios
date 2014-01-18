@@ -163,7 +163,8 @@
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    [self showNote:nil in:_notes];
+    HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:_notes tag:self.indexItem.tag];
+    [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
 - (void)drawerBarButtonAction:(MMDrawerBarButtonItem*)barButtonItem
@@ -174,15 +175,9 @@
 - (IBAction)tapTitleView:(id)sender
 {
     _userChangedDisplayCriteria = YES;
-    static NSArray *values;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        values = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
-    });
-    
-    NSInteger index = [values indexOfObject:@(_displayCriteria)];
-    index = (index + 1) % values.count;
-    _displayCriteria = [values[index] intValue];
+    NSInteger index = [_displayCriteriaValues indexOfObject:@(_displayCriteria)];
+    index = (index + 1) % _displayCriteriaValues.count;
+    _displayCriteria = [_displayCriteriaValues[index] intValue];
     [self updateNotes:YES /* animated */];
     [self updateDisplayCriteria:NO /* animated */];
 }
@@ -233,17 +228,16 @@
 
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
 {
-    HPNoteViewController *noteViewController = [[HPNoteViewController alloc] init];
-    noteViewController.note = note;
-    noteViewController.notes = [NSMutableArray arrayWithArray:notes];
+    HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:_notes tag:self.indexItem.tag];
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
 - (NSString*)descriptionForDisplayCriteria:(HPNoteDisplayCriteria)criteria
 {
+    if (!_userChangedDisplayCriteria) return @"";
     switch (criteria)
     {
-        case HPNoteDisplayCriteriaOrder: return _userChangedDisplayCriteria ? NSLocalizedString(@"custom", @"") : @"";
+        case HPNoteDisplayCriteriaOrder: return NSLocalizedString(@"custom", @"");
         case HPNoteDisplayCriteriaAlphabetical: return NSLocalizedString(@"a-z", @"");
         case HPNoteDisplayCriteriaModifiedAt: return NSLocalizedString(@"by date", @"");
         case HPNoteDisplayCriteriaViews: return NSLocalizedString(@"most viewed", @"");

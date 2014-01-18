@@ -49,23 +49,23 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
 
 - (void)addNote:(HPNote *)note
 {
+    note.managed = YES;
+    note.order = [self nextOrderInTag:nil];
+    for (NSString *tag in note.tags)
+    {
+        NSInteger order = [self nextOrderInTag:tag];
+        [note setOrder:order inTag:tag];
+    }
     [_notes addObject:note];
     [note addObserver:self forKeyPath:NSStringFromSelector(@selector(text)) options:NSKeyValueObservingOptionNew context:HPNoteManagerContext];
     [self addTagsOfNote:note];
 }
 
-- (HPNote*)blankNote
-{
-    HPNote *note = [HPNote note];
-    note.order = self.nextOrder;
-    [self addNote:note];
-    return note;
-}
-
-- (NSInteger)nextOrder
+- (NSInteger)nextOrderInTag:(NSString*)tag;
 {
     __block NSInteger maxOrder = 0;
-    [_notes enumerateObjectsUsingBlock:^(HPNote *note, NSUInteger idx, BOOL *stop)
+    NSArray *notes = tag ? [self notesWithTag:tag] : _notes;
+    [notes enumerateObjectsUsingBlock:^(HPNote *note, NSUInteger idx, BOOL *stop)
     {
         if (note.order > maxOrder)
         {
@@ -90,6 +90,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
 
 - (void)removeNote:(HPNote*)note
 {
+    note.managed = NO;
     [_notes removeObject:note];
     [note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
     [self removeTagsOfNote:note];
