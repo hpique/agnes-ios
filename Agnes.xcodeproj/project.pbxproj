@@ -14,6 +14,8 @@
 		8740FAE5188A8C3F004CF099 /* HPIndexItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAE4188A8C3F004CF099 /* HPIndexItem.m */; };
 		8740FAE8188AA7DB004CF099 /* HPNoteTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAE7188AA7DB004CF099 /* HPNoteTableViewCell.m */; };
 		8740FAEB188ACEF9004CF099 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8740FAE9188ACEF9004CF099 /* Localizable.strings */; };
+		8740FAF1188B2AC5004CF099 /* HPTagSuggestionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAF0188B2AC5004CF099 /* HPTagSuggestionsView.m */; };
+		8740FAF5188B3A5A004CF099 /* NDTrie.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAF4188B3A5A004CF099 /* NDTrie.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		8763DA2B18883ACF000D9569 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2A18883ACF000D9569 /* Foundation.framework */; };
 		8763DA2D18883ACF000D9569 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2C18883ACF000D9569 /* CoreGraphics.framework */; };
 		8763DA2F18883ACF000D9569 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2E18883ACF000D9569 /* UIKit.framework */; };
@@ -58,6 +60,10 @@
 		8740FAE6188AA7DB004CF099 /* HPNoteTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteTableViewCell.h; sourceTree = "<group>"; };
 		8740FAE7188AA7DB004CF099 /* HPNoteTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteTableViewCell.m; sourceTree = "<group>"; };
 		8740FAEA188ACEF9004CF099 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8740FAEF188B2AC5004CF099 /* HPTagSuggestionsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPTagSuggestionsView.h; sourceTree = "<group>"; };
+		8740FAF0188B2AC5004CF099 /* HPTagSuggestionsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPTagSuggestionsView.m; sourceTree = "<group>"; };
+		8740FAF3188B3A5A004CF099 /* NDTrie.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDTrie.h; sourceTree = "<group>"; };
+		8740FAF4188B3A5A004CF099 /* NDTrie.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDTrie.m; sourceTree = "<group>"; };
 		8763DA2718883ACF000D9569 /* Agnes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agnes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8763DA2A18883ACF000D9569 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8763DA2C18883ACF000D9569 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -152,8 +158,19 @@
 				8763DA6418884650000D9569 /* HPNoteViewController.h */,
 				8763DA6518884650000D9569 /* HPNoteViewController.m */,
 				8763DA6618884650000D9569 /* HPNoteViewController.xib */,
+				8740FAEF188B2AC5004CF099 /* HPTagSuggestionsView.h */,
+				8740FAF0188B2AC5004CF099 /* HPTagSuggestionsView.m */,
 			);
 			name = Note;
+			sourceTree = "<group>";
+		};
+		8740FAF2188B39FC004CF099 /* External */ = {
+			isa = PBXGroup;
+			children = (
+				8740FAF3188B3A5A004CF099 /* NDTrie.h */,
+				8740FAF4188B3A5A004CF099 /* NDTrie.m */,
+			);
+			name = External;
 			sourceTree = "<group>";
 		};
 		8763DA1E18883ACF000D9569 = {
@@ -191,6 +208,7 @@
 		8763DA3018883ACF000D9569 /* Agnes */ = {
 			isa = PBXGroup;
 			children = (
+				8740FAF2188B39FC004CF099 /* External */,
 				8763DA3918883ACF000D9569 /* HPAppDelegate.h */,
 				8763DA3A18883ACF000D9569 /* HPAppDelegate.m */,
 				8763DA5E18883B8F000D9569 /* HPNote.h */,
@@ -375,6 +393,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8763DA5B18883B2B000D9569 /* HPNoteListViewController.m in Sources */,
+				8740FAF1188B2AC5004CF099 /* HPTagSuggestionsView.m in Sources */,
 				8740FAE8188AA7DB004CF099 /* HPNoteTableViewCell.m in Sources */,
 				8740FAE5188A8C3F004CF099 /* HPIndexItem.m in Sources */,
 				8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */,
@@ -382,6 +401,7 @@
 				8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */,
 				8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */,
 				8763DA6018883B8F000D9569 /* HPNote.m in Sources */,
+				8740FAF5188B3A5A004CF099 /* NDTrie.m in Sources */,
 				8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */,
 				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
 				8763DA631888420A000D9569 /* HPNoteManager.m in Sources */,

@@ -11,8 +11,9 @@
 #import "HPNoteManager.h"
 #import "HPBaseTextStorage.h"
 #import "PSPDFTextView.h"
+#import "HPTagSuggestionsView.h"
 
-@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate>
+@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate>
 
 @end
 
@@ -29,6 +30,8 @@
     UIBarButtonItem *_unarchiveBarButtonItem;
     
     NSInteger _noteIndex;
+    
+    HPTagSuggestionsView *_suggestionsView;
 }
 
 - (void)viewDidLoad
@@ -65,6 +68,9 @@
         _bodyTextView.delegate = self;
         [self.view addSubview:_bodyTextView];
     }
+    
+    _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44) inputViewStyle:UIInputViewStyleKeyboard];
+    _suggestionsView.delegate = self;
     
     [self displayNote];
 }
@@ -184,6 +190,33 @@
     [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
 }
 
+- (NSString*)selectedTagEnclosing:(BOOL)enclosing range:(NSRange*)foundRange
+{
+    NSRange selectedRange = _bodyTextView.selectedRange;
+    NSRange lineRange = [_bodyTextView.text lineRangeForRange:NSMakeRange(selectedRange.location, 0)];
+    NSInteger length = enclosing ? lineRange.length : NSMaxRange(selectedRange) - lineRange.location;
+    NSString *line = [_bodyTextView.text substringWithRange:NSMakeRange(lineRange.location, length)];
+    NSInteger cursorLocationInLine = selectedRange.location - lineRange.location;
+    NSRegularExpression *regex = [HPNote tagRegularExpression];
+    
+    __block BOOL found = NO;
+    [regex enumerateMatchesInString:line options:0 range:NSMakeRange(0, line.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+        NSRange resultRange = result.range;
+        if (!NSLocationInRange(cursorLocationInLine, resultRange) && NSMaxRange(resultRange) != cursorLocationInLine) return;
+        
+        *foundRange = resultRange;
+        found = YES;
+        *stop = YES;
+    }];
+    if (found)
+    {
+        NSString *tag = [line substringWithRange:*foundRange];
+        *foundRange = NSMakeRange(lineRange.location + (*foundRange).location, (*foundRange).length);
+        return tag;
+    }
+    return nil;
+}
+
 - (void)updateToolbar:(BOOL)animated
 {
     UIBarButtonItem *rightBarButtonItem = self.note.archived ? _unarchiveBarButtonItem : _archiveBarButtonItem;
@@ -286,6 +319,57 @@
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
     [self.navigationItem setRightBarButtonItems:@[_addNoteBarButtonItem, _actionBarButtonItem] animated:YES];
+}
+
+- (void)textViewDidChangeSelection:(UITextView *)textView
+{
+    NSRange foundRange;
+    NSString *prefix = [self selectedTagEnclosing:NO range:&foundRange];
+    if (prefix)
+    {
+        _suggestionsView.prefix = prefix;
+        if (_suggestionsView.suggestions.count > 0)
+        {
+            if (!textView.inputAccessoryView)
+            {
+                textView.inputAccessoryView = _suggestionsView;
+                [textView reloadInputViews];
+            }
+        }
+        else
+        {
+            textView.inputAccessoryView = nil;
+            [textView reloadInputViews];
+        }
+    }
+    else
+    {
+        textView.inputAccessoryView = nil;
+        [textView reloadInputViews];
+    }
+}
+
+#pragma mark - HPTagSuggestionsViewDelegate
+
+- (void)tagSuggestionsView:(HPTagSuggestionsView *)tagSuggestionsView didSelectSuggestion:(NSString*)suggestion
+{
+    NSRange foundRange;
+    NSString *tag = [self selectedTagEnclosing:YES range:&foundRange];
+    if (!tag) return;
+    
+    UITextPosition *beginning = _bodyTextView.beginningOfDocument;
+    UITextPosition *start = [_bodyTextView positionFromPosition:beginning offset:foundRange.location];
+    UITextPosition *end = [_bodyTextView positionFromPosition:start offset:foundRange.length];
+    UITextRange *textRange = [_bodyTextView textRangeFromPosition:start toPosition:end];
+    
+    // Add space if there is none
+    NSString *text = _bodyTextView.text;
+    NSInteger nextCharacterLocation = foundRange.location + foundRange.length;
+    NSString *nextCharacter = nextCharacterLocation < text.length ? [text substringWithRange:NSMakeRange(nextCharacterLocation, 1)] : @"";
+    BOOL followedBySpace = [nextCharacter isEqualToString:@" "];
+    NSString *replacement = followedBySpace ? suggestion : [NSString stringWithFormat:@"%@ ", suggestion];
+    
+    [_bodyTextView replaceRange:textRange withText:replacement];
 }
 
 #pragma mark - UIActionSheetDelegate

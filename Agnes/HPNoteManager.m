@@ -8,6 +8,7 @@
 
 #import "HPNoteManager.h"
 #import "HPNote.h"
+#import "NDTrie.h"
 
 static void *HPNoteManagerContext = &HPNoteManagerContext;
 NSString* const HPNoteManagerDidUpdateNotesNotification = @"HPNoteManagerDidUpdateNotesNotification";
@@ -16,6 +17,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
 @implementation HPNoteManager {
     NSMutableArray *_notes;
     NSMutableDictionary *_tags;
+    NDMutableTrie *_tagTrie;
 }
 
 - (id) init
@@ -24,6 +26,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     {
         _notes = [NSMutableArray array];
         _tags = [NSMutableDictionary dictionary];
+        _tagTrie = [NDMutableTrie trie];
         [self addTutorialNotes];
     }
     return self;
@@ -110,6 +113,11 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     return [_tags allKeys];
 }
 
+- (NSArray*)tagsWithPrefix:(NSString*)prefix
+{
+    return [_tagTrie everyObjectForKeyWithPrefix:prefix];
+}
+
 #pragma mark - Class
 
 + (HPNoteManager*)sharedManager
@@ -185,6 +193,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     {
         notes = [NSMutableSet set];
         [_tags setObject:notes forKey:tag];
+        [_tagTrie addString:tag];
         updated = YES;
     };
     [notes addObject:note];
@@ -214,6 +223,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
         if (notes.count == 0)
         {
             [_tags removeObjectForKey:tag];
+            [_tagTrie removeObjectForKey:tag];
             updated = YES;
         }
     }

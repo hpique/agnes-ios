@@ -36,4 +36,6 @@ extern NSString* const HPNoteManagerDidUpdateTagsNotification;
 
 + (NSArray*)sortedNotes:(NSArray*)notes criteria:(HPNoteDisplayCriteria)criteria tag:(NSString*)tag;
 
+- (NSArray*)tagsWithPrefix:(NSString*)prefix;
+
 @end
