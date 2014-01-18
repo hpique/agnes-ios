@@ -8,7 +8,24 @@
 
 #import "HPNote.h"
 
-@implementation HPNote
+@implementation HPNote {
+    NSString *_body;
+    NSString *_title;
+    
+    NSSet *_addedTags;
+    NSArray *_tags;
+    NSSet *_removedTags;
+}
+
+- (id)init
+{
+    if (self = [super init])
+    {
+        _addedTags = [NSSet set];
+        _removedTags = [NSSet set];
+    }
+    return self;
+}
 
 - (NSString*)debugDescription
 {
@@ -43,6 +60,11 @@
 
 #pragma mark - Properties
 
+- (NSSet*)addedTags
+{
+    return _addedTags;
+}
+
 - (BOOL)empty
 {
     NSString *trimmedText = [self.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
@@ -52,11 +74,13 @@
 - (NSString*)body
 {
     if (!self.text) return nil;
-
-    NSRange titleRange = [self.text rangeOfString:self.title];
-    NSString *body = [self.text stringByReplacingCharactersInRange:titleRange withString:@""];
-    NSString *trimmedBody = [body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    return trimmedBody;
+    if (!_body)
+    {
+        NSRange titleRange = [self.text rangeOfString:self.title];
+        NSString *body = [self.text stringByReplacingCharactersInRange:titleRange withString:@""];
+        _body = [body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    }
+    return _body;
 }
 
 - (NSString*)modifiedAtDescription
@@ -77,13 +101,59 @@
     }
 }
 
+- (NSSet*)removedTags
+{
+    return _removedTags;
+}
+
+- (void)setText:(NSString *)text
+{
+    NSSet *previousTags = [NSSet setWithArray:self.tags];
+    _text = text;
+    _title = nil;
+    _body = nil;
+    _tags = nil;
+    NSSet *currentTags = [NSSet setWithArray:self.tags];
+    
+    NSMutableSet *removedTags = [NSMutableSet setWithSet:previousTags];
+    [removedTags minusSet:currentTags];
+    _removedTags = removedTags;
+
+    NSMutableSet *addedTags = [NSMutableSet setWithSet:currentTags];
+    [addedTags minusSet:previousTags];
+    _addedTags = addedTags;
+}
+
+- (NSArray*)tags
+{
+    if (!_tags)
+    {
+        NSMutableArray *tags = [NSMutableArray array];
+        if (self.text)
+        {
+            NSRegularExpression *regex = [HPNote tagRegularExpression];
+            NSRange range = NSMakeRange(0, self.text.length);
+            [regex enumerateMatchesInString:self.text options:0 range:range usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
+             {
+                 NSRange matchRange = [match rangeAtIndex:0];
+                 NSString *tag = [self.text substringWithRange:matchRange];
+                 [tags addObject:tag];
+             }];
+        }
+        _tags = tags;
+    }
+    return _tags;
+}
+
 - (NSString*)title
 {
     if (!self.text) return nil;
-    
-    NSString *trimmedText = [self.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    NSString *firstLine = [trimmedText componentsSeparatedByString:@"\n"][0];
-    return firstLine;
+    if (!_title)
+    {
+        NSString *trimmedText = [self.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        _title = [trimmedText componentsSeparatedByString:@"\n"][0];
+    }
+    return _title;
 }
 
 @end

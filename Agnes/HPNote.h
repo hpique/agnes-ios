@@ -21,6 +21,9 @@
 @property (nonatomic, readonly) BOOL empty;
 @property (nonatomic, readonly) NSString *body;
 @property (nonatomic, readonly) NSString *modifiedAtDescription;
+@property (nonatomic, readonly) NSArray *tags;
+@property (nonatomic, readonly) NSSet *removedTags;
+@property (nonatomic, readonly) NSSet *addedTags;
 
 + (HPNote*)note;
 
