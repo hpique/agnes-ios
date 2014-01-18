@@ -61,6 +61,7 @@
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _bodyTextView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeLink | UIDataDetectorTypePhoneNumber;
+        _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, 10, 20, 10);
         _bodyTextView.delegate = self;
         [self.view addSubview:_bodyTextView];
     }
