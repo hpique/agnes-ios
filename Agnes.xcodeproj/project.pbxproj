@@ -13,6 +13,7 @@
 		8740FADF188A8B69004CF099 /* HPIndexViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8740FADD188A8B69004CF099 /* HPIndexViewController.xib */; };
 		8740FAE5188A8C3F004CF099 /* HPIndexItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAE4188A8C3F004CF099 /* HPIndexItem.m */; };
 		8740FAE8188AA7DB004CF099 /* HPNoteTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAE7188AA7DB004CF099 /* HPNoteTableViewCell.m */; };
+		8740FAEB188ACEF9004CF099 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8740FAE9188ACEF9004CF099 /* Localizable.strings */; };
 		8763DA2B18883ACF000D9569 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2A18883ACF000D9569 /* Foundation.framework */; };
 		8763DA2D18883ACF000D9569 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2C18883ACF000D9569 /* CoreGraphics.framework */; };
 		8763DA2F18883ACF000D9569 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2E18883ACF000D9569 /* UIKit.framework */; };
@@ -56,6 +57,7 @@
 		8740FAE4188A8C3F004CF099 /* HPIndexItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPIndexItem.m; sourceTree = "<group>"; };
 		8740FAE6188AA7DB004CF099 /* HPNoteTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteTableViewCell.h; sourceTree = "<group>"; };
 		8740FAE7188AA7DB004CF099 /* HPNoteTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteTableViewCell.m; sourceTree = "<group>"; };
+		8740FAEA188ACEF9004CF099 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8763DA2718883ACF000D9569 /* Agnes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agnes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8763DA2A18883ACF000D9569 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8763DA2C18883ACF000D9569 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -211,6 +213,7 @@
 				8763DA3318883ACF000D9569 /* InfoPlist.strings */,
 				8763DA3618883ACF000D9569 /* main.m */,
 				8763DA3818883ACF000D9569 /* Agnes-Prefix.pch */,
+				8740FAE9188ACEF9004CF099 /* Localizable.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -314,6 +317,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8740FAEB188ACEF9004CF099 /* Localizable.strings in Resources */,
 				8763DA3518883ACF000D9569 /* InfoPlist.strings in Resources */,
 				8763DA5D18883B6D000D9569 /* HPNoteListViewController.xib in Resources */,
 				8763DA6818884650000D9569 /* HPNoteViewController.xib in Resources */,
@@ -404,6 +408,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		8740FAE9188ACEF9004CF099 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8740FAEA188ACEF9004CF099 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		8763DA3318883ACF000D9569 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (

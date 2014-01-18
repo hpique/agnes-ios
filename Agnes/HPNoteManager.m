@@ -18,6 +18,7 @@
     if (self = [super init])
     {
         _notes = [NSMutableArray array];
+        [self addTutorialNotes];
     }
     return self;
 }
@@ -90,6 +91,17 @@
     }
     NSSortDescriptor *modifiedAtSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
     return [notes sortedArrayUsingDescriptors:@[sortDescriptor, modifiedAtSortDescriptor]];
+}
+
+- (void)addTutorialNotes
+{
+    for (NSInteger i = 3; i >= 1; i--)
+    {
+        NSString *key = [NSString stringWithFormat:@"tutorial%d", i];
+        NSString *text = NSLocalizedString(key, @"");
+        HPNote *note = [HPNote noteWithText:text];
+        [self addNote:note];
+    }
 }
 
 @end

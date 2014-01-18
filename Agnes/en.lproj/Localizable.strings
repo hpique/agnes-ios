@@ -1,0 +1,10 @@
+/* 
+  Localized.strings
+  Agnes
+
+  Created by Hermes on 18/01/14.
+  Copyright (c) 2014 Hermes Pique. All rights reserved.
+*/
+"tutorial1"="Welcome to Agnes\nThis is the tutorial.\n#tutorial";
+"tutorial2"="Tags\nYou can put tags anywhere.\n#tutorial";
+"tutorial3"="Sort\nTap on the title of the list to change the sort criteria of your notes.\n#tutorial";
