@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 @class HPNote;
+@class HPNote;
 
 typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
     HPNoteDisplayCriteriaOrder,
@@ -23,11 +24,7 @@ extern NSString* const HPNoteManagerDidUpdateTagsNotification;
 
 @property (nonatomic, readonly) NSArray *notes;
 @property (nonatomic, readonly) NSArray *systemNotes;
-@property (nonatomic, readonly) NSArray *tags;
-
-- (void)addNote:(HPNote*)note;
-
-- (NSInteger)nextOrderInTag:(NSString*)tag;
+@property (nonatomic, readonly) NSArray *tags2;
 
 - (NSArray*)notesWithTag:(NSString*)tag;
 
@@ -37,6 +34,11 @@ extern NSString* const HPNoteManagerDidUpdateTagsNotification;
 
 + (NSArray*)sortedNotes:(NSArray*)notes criteria:(HPNoteDisplayCriteria)criteria tag:(NSString*)tag;
 
-- (NSArray*)tagsWithPrefix:(NSString*)prefix;
+- (NSArray*)tagNamesWithPrefix:(NSString*)prefix;
+
+- (void)save;
+
+- (HPNote*)blankNoteWithTag:(NSString*)tag;
 
 @end
+

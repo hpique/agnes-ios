@@ -2,90 +2,60 @@
 //  HPNote.m
 //  Agnes
 //
-//  Created by Hermes on 16/01/14.
+//  Created by Hermes on 19/01/14.
 //  Copyright (c) 2014 Hermes Pique. All rights reserved.
 //
 
 #import "HPNote.h"
+#import "HPTag.h"
 
-@implementation HPNote {
-    NSString *_body;
-    NSString *_title;
-    
-    NSSet *_addedTags;
-    NSArray *_tags;
-    NSSet *_removedTags;
-    
-    NSMutableDictionary *_orderInTags;
-}
 
-- (id)init
-{
-    if (self = [super init])
-    {
-        _addedTags = [NSSet set];
-        _removedTags = [NSSet set];
-        _orderInTags = [NSMutableDictionary dictionary];
-    }
-    return self;
-}
+@implementation HPNote
+
+@dynamic cd_archived;
+@dynamic cd_views;
+@dynamic createdAt;
+@dynamic modifiedAt;
+@dynamic tagOrder;
+@dynamic text;
+@dynamic cd_inboxOrder;
+@dynamic cd_tags;
+
+@synthesize body = _body;
+@synthesize tags = _tags;
+@synthesize title = _title;
+
+#pragma mark - Public
 
 - (NSString*)debugDescription
 {
     return self.title;
 }
 
+#pragma mark - NSManagedObject
+
+- (void)willChangeValueForKey:(NSString *)key
+{
+    [super willChangeValueForKey:key];
+    if ([key isEqualToString:NSStringFromSelector(@selector(text))])
+    {
+        _title = nil;
+        _body = nil;
+        _tags = nil;
+    }
+}
+
 #pragma mark - Public
 
-- (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
++ (NSString *)entityName
 {
-    if (!tag)
-    {
-        self.order = order;
-    }
-    else
-    {
-        [_orderInTags setObject:@(order) forKey:tag];
-    }
+    return @"Note";
 }
 
-- (NSInteger)orderInTag:(NSString*)tag
++ (instancetype)insertNewObjectIntoContext:(NSManagedObjectContext *)context
 {
-    if (!tag)
-    {
-        return self.order;
-    }
-    else
-    {
-        return [[_orderInTags objectForKey:tag] integerValue];
-    }
-}
-
-#pragma mark - Class
-
-+ (HPNote*)blankNoteWithTag:(NSString*)tag
-{
-    HPNote *note = [HPNote note];
-    if (tag)
-    {
-        note.text = [NSString stringWithFormat:@"\n\n\n\n%@", tag];
-    }
-    return note;
-}
-
-+ (HPNote*)note
-{
-    HPNote *note = [[HPNote alloc] init];
-    note.createdAt = [NSDate date];
-    note.modifiedAt = note.createdAt;
-    return note;
-}
-
-+ (HPNote*)noteWithText:(NSString*)text
-{
-    HPNote *note = [HPNote note];
-    note.text = text;
-    return note;
+    return [NSEntityDescription insertNewObjectForEntityForName:[self entityName]
+                                         inManagedObjectContext:context];
 }
 
 + (NSRegularExpression*)tagRegularExpression
@@ -99,11 +69,14 @@
     return instance;
 }
 
-#pragma mark - Properties
-
-- (NSSet*)addedTags
++ (NSString*)textOfBlankNoteWithTag:(NSString*)tag
 {
-    return _addedTags;
+    return [NSString stringWithFormat:@"\n\n\n\n%@", tag];
+}
+
+- (BOOL)archived
+{
+    return [self.cd_archived boolValue];
 }
 
 - (BOOL)empty
@@ -127,42 +100,12 @@
 - (NSString*)modifiedAtDescription
 {
     NSTimeInterval interval = -[self.modifiedAt timeIntervalSinceNow];
-    if (interval < 2) {
-        return [NSString stringWithFormat:NSLocalizedString(@"now", @""), interval];
-    } else if (interval < 60) {
-        return [NSString stringWithFormat:NSLocalizedString(@"%.0lfs", @""), interval];
-    } else if (interval < 3600) {
-        return [NSString stringWithFormat:NSLocalizedString(@"%.0lfm", @""), interval / 60];
-    } else if (interval < 86400) {
-        return [NSString stringWithFormat:NSLocalizedString(@"%.0lfh", @""), interval / 3600];
-    } else if (interval < 31556926) {
-        return [NSString stringWithFormat:NSLocalizedString(@"%.0lfd", @""), interval / 86400];
-    } else {
-        return [NSString stringWithFormat:NSLocalizedString(@"%.0lfy", @""), interval / 31556926];
-    }
-}
-
-- (NSSet*)removedTags
-{
-    return _removedTags;
-}
-
-- (void)setText:(NSString *)text
-{
-    NSSet *previousTags = [NSSet setWithArray:self.tags];
-    _text = text;
-    _title = nil;
-    _body = nil;
-    _tags = nil;
-    NSSet *currentTags = [NSSet setWithArray:self.tags];
-    
-    NSMutableSet *removedTags = [NSMutableSet setWithSet:previousTags];
-    [removedTags minusSet:currentTags];
-    _removedTags = removedTags;
-
-    NSMutableSet *addedTags = [NSMutableSet setWithSet:currentTags];
-    [addedTags minusSet:previousTags];
-    _addedTags = addedTags;
+    if (interval < 2) return [NSString stringWithFormat:NSLocalizedString(@"now", @""), interval];
+    if (interval < 60) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfs", @""), interval];
+    if (interval < 3600) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfm", @""), interval / 60];
+    if (interval < 86400) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfh", @""), interval / 3600];
+    if (interval < 31556926) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfd", @""), interval / 86400];
+    return [NSString stringWithFormat:NSLocalizedString(@"%.0lfy", @""), interval / 31556926];
 }
 
 - (NSArray*)tags
@@ -195,6 +138,34 @@
         _title = [trimmedText componentsSeparatedByString:@"\n"][0];
     }
     return _title;
+}
+
+- (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
+{
+    if (!tag)
+    {
+        self.cd_inboxOrder = @(order);
+    }
+    else
+    {
+        NSMutableDictionary *dictionary = self.tagOrder ? [NSMutableDictionary dictionaryWithDictionary:self.tagOrder] : [NSMutableDictionary dictionary];
+        [dictionary setObject:@(order) forKey:tag];
+        self.tagOrder = dictionary;
+    }
+}
+
+- (NSInteger)orderInTag:(NSString*)tag
+{
+    NSNumber *object;
+    if (!tag)
+    {
+        object = self.cd_inboxOrder;
+    }
+    else
+    {
+        object = [self.tagOrder objectForKey:tag];
+    }
+    return object ? [object integerValue] : NSIntegerMax;
 }
 
 @end

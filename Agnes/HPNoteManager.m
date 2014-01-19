@@ -9,24 +9,30 @@
 #import "HPNoteManager.h"
 #import "HPNote.h"
 #import "NDTrie.h"
+#import "HPAppDelegate.h"
+#import "HPNote.h"
+#import "HPTag.h"
+#import <CoreData/CoreData.h>
 
 static void *HPNoteManagerContext = &HPNoteManagerContext;
 NSString* const HPNoteManagerDidUpdateNotesNotification = @"HPNoteManagerDidUpdateNotesNotification";
 NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdateTagsNotification";
 
 @implementation HPNoteManager {
-    NSMutableArray *_notes;
-    NSMutableDictionary *_tags;
     NDMutableTrie *_tagTrie;
     NSArray *_systemNotes;
+    NSManagedObjectContext *_context;
+    NSManagedObjectContext *_systemContext;
 }
 
 - (id) init
 {
     if (self = [super init])
     {
-        _notes = [NSMutableArray array];
-        _tags = [NSMutableDictionary dictionary];
+        HPAppDelegate *appDelegate = (HPAppDelegate*)[UIApplication sharedApplication].delegate;
+        _context = appDelegate.managedObjectContext;
+        _systemContext = [[NSManagedObjectContext alloc] init];
+        _systemContext.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:appDelegate.managedObjectModel];
         _tagTrie = [NDMutableTrie trie];
         [self addTutorialNotes];
     }
@@ -37,7 +43,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
 {
     if (context == HPNoteManagerContext)
     {
-        [self updateTagsOfNote:object];
+//        [self updateTagsOfNote:object];
     }
     else
     {
@@ -49,64 +55,32 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
 
 - (NSArray*)notes
 {
-    return [NSArray arrayWithArray:_notes];
-}
-
-- (void)addNote:(HPNote *)note
-{
-    note.managed = YES;
-    note.order = [self nextOrderInTag:nil];
-    for (NSString *tag in note.tags)
-    {
-        NSInteger order = [self nextOrderInTag:tag];
-        [note setOrder:order inTag:tag];
-    }
-    [_notes addObject:note];
-    [note addObserver:self forKeyPath:NSStringFromSelector(@selector(text)) options:NSKeyValueObservingOptionNew context:HPNoteManagerContext];
-    [self addTagsOfNote:note];
-    [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateNotesNotification object:self];
-}
-
-- (NSInteger)nextOrderInTag:(NSString*)tag;
-{
-    __block NSInteger maxOrder = 0;
-    NSArray *notes = tag ? [self notesWithTag:tag] : _notes;
-    [notes enumerateObjectsUsingBlock:^(HPNote *note, NSUInteger idx, BOOL *stop)
-    {
-        if (note.order > maxOrder)
-        {
-            maxOrder = note.order;
-        }
-    }];
-    return maxOrder + 1;
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Note"];
+    NSError *error;
+    NSArray *result = [_context executeFetchRequest:fetchRequest error:&error];
+    return result;
 }
 
 - (NSArray*)notesWithTag:(NSString*)tag
 {
-    NSSet *set = [_tags objectForKey:tag];
-    if (!set)
-    {
-        return [NSArray array];
-    }
-    else
-    {
-        NSArray *notes = [set allObjects];
-        static NSPredicate *predicate = nil;
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            predicate = [NSPredicate predicateWithFormat:@"SELF.%@ == NO", NSStringFromSelector(@selector(archived))];
-        });
-        return [notes filteredArrayUsingPredicate:predicate];
-    }
+    static NSFetchRequest *noteFetchRequest;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        noteFetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%@ LIKE %@", NSStringFromSelector(@selector(name)), tag];
+        noteFetchRequest.predicate = predicate;
+    });
+    NSError *error;
+    NSArray *result = [_context executeFetchRequest:noteFetchRequest error:&error];
+    NSAssert(result, @"Fetch %@ failed with error %@", noteFetchRequest, error);
+    HPTag *tagObject = [result firstObject];
+    return tag ? [tagObject.notes allObjects] : [NSArray array];
 }
 
 - (void)removeNote:(HPNote*)note
 {
-    note.managed = NO;
-    [_notes removeObject:note];
-    [note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
-    [self removeTagsOfNote:note];
-    [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateNotesNotification object:self];
+    [_context deleteObject:note];
+    [self save];
 }
 
 - (NSArray*)systemNotes
@@ -118,8 +92,10 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
         {
             NSString *key = [NSString stringWithFormat:@"system%d", i];
             NSString *text = NSLocalizedString(key, @"");
-            HPNote *note = [HPNote noteWithText:text];
-            note.managed = YES;
+            HPNote *note = [HPNote insertNewObjectIntoContext:_systemContext];
+            note.createdAt = [NSDate date];
+            note.modifiedAt = note.createdAt;
+            note.text = text;
             [notes addObject:note];
         }
         _systemNotes = notes;
@@ -129,13 +105,36 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
 
 - (NSArray*)tags
 {
-    return [_tags allKeys];
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
+    NSError *error;
+    NSArray *result = [_context executeFetchRequest:fetchRequest error:&error];
+    NSAssert(result, @"Fetch %@ failed with error %@", fetchRequest, error);
+    return result;
 }
 
-- (NSArray*)tagsWithPrefix:(NSString*)prefix
+- (NSArray*)tagNamesWithPrefix:(NSString*)prefix
 {
     return [_tagTrie everyObjectForKeyWithPrefix:prefix];
 }
+
+- (HPNote*)note
+{
+    HPNote *note = [HPNote insertNewObjectIntoContext:_context];
+    note.createdAt = [NSDate date];
+    note.modifiedAt = note.createdAt;
+    return note;
+}
+
+- (HPNote*)blankNoteWithTag:(NSString*)tag
+{
+    HPNote *note = [self note];
+    if (tag)
+    {
+        note.text = [NSString stringWithFormat:@"\n\n\n\n%@", tag];
+    }
+    return note;
+}
+
 
 #pragma mark - Class
 
@@ -173,7 +172,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
             sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
             break;
         case HPNoteDisplayCriteriaViews:
-            return [HPNoteManager sortedNotes:notes selector:@selector(views) ascending:NO];
+            return [HPNoteManager sortedNotes:notes selector:@selector(cd_views) ascending:NO];
             break;
     }
 }
@@ -186,68 +185,69 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     {
         NSString *key = [NSString stringWithFormat:@"tutorial%d", i];
         NSString *text = NSLocalizedString(key, @"");
-        HPNote *note = [HPNote noteWithText:text];
-        [self addNote:note];
+        HPNote *note = [self note];
+        note.text = text;
     }
+    [self save];
 }
 
-- (void)addTagsOfNote:(HPNote*)note
-{
-    BOOL updated = NO;
-    for (NSString *tag in note.tags)
-    {
-        updated |= [self addNote:note forTag:tag];
-    }
-    if (updated)
-    {
-        [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateTagsNotification object:self];
-    }
-}
+//- (void)addTagsOfNote:(HPNote*)note
+//{
+//    BOOL updated = NO;
+//    for (NSString *tag in note.tags)
+//    {
+//        updated |= [self addNote:note forTag:tag];
+//    }
+//    if (updated)
+//    {
+//        [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateTagsNotification object:self];
+//    }
+//}
+//
+//- (BOOL)addNote:(HPNote*)note forTag:(NSString*)tag
+//{
+//    BOOL updated = NO;
+//    NSMutableSet *notes = [_tags objectForKey:tag];
+//    if (!notes)
+//    {
+//        notes = [NSMutableSet set];
+//        [_tags setObject:notes forKey:tag];
+//        [_tagTrie addString:tag];
+//        updated = YES;
+//    };
+//    [notes addObject:note];
+//    return updated;
+//}
 
-- (BOOL)addNote:(HPNote*)note forTag:(NSString*)tag
-{
-    BOOL updated = NO;
-    NSMutableSet *notes = [_tags objectForKey:tag];
-    if (!notes)
-    {
-        notes = [NSMutableSet set];
-        [_tags setObject:notes forKey:tag];
-        [_tagTrie addString:tag];
-        updated = YES;
-    };
-    [notes addObject:note];
-    return updated;
-}
+//- (void)removeTagsOfNote:(HPNote*)note
+//{
+//    BOOL updated = NO;
+//    for (NSString *tag in note.tags)
+//    {
+//        updated |= [self removeNote:note forTag:tag];
+//    }
+//    if (updated)
+//    {
+//        [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateTagsNotification object:self];
+//    }
+//}
 
-- (void)removeTagsOfNote:(HPNote*)note
-{
-    BOOL updated = NO;
-    for (NSString *tag in note.tags)
-    {
-        updated |= [self removeNote:note forTag:tag];
-    }
-    if (updated)
-    {
-        [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateTagsNotification object:self];
-    }
-}
-
-- (BOOL)removeNote:(HPNote*)note forTag:(NSString*)tag
-{
-    BOOL updated = NO;
-    NSMutableSet *notes = [_tags objectForKey:tag];
-    if (notes)
-    {
-        [notes removeObject:note];
-        if (notes.count == 0)
-        {
-            [_tags removeObjectForKey:tag];
-            [_tagTrie removeObjectForKey:tag];
-            updated = YES;
-        }
-    }
-    return YES;
-}
+//- (BOOL)removeNote:(HPNote*)note forTag:(NSString*)tag
+//{
+//    BOOL updated = NO;
+//    NSMutableSet *notes = [_tags objectForKey:tag];
+//    if (notes)
+//    {
+//        [notes removeObject:note];
+//        if (notes.count == 0)
+//        {
+//            [_tags removeObjectForKey:tag];
+//            [_tagTrie removeObjectForKey:tag];
+//            updated = YES;
+//        }
+//    }
+//    return YES;
+//}
 
 + (NSArray*)sortedNotes:(NSArray*)notes selector:(SEL)selector ascending:(BOOL)ascending
 {
@@ -260,20 +260,29 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     return [notes sortedArrayUsingDescriptors:@[sortDescriptor, modifiedAtSortDescriptor]];
 }
 
-- (void)updateTagsOfNote:(HPNote*)note
+//- (void)updateTagsOfNote:(HPNote*)note
+//{
+//    BOOL updated = NO;
+//    for (NSString *tag in note.removedTags)
+//    {
+//        updated |= [self removeNote:note forTag:tag];
+//    }
+//    for (NSString *tag in note.addedTags)
+//    {
+//        updated |= [self addNote:note forTag:tag];
+//    }
+//    if (updated)
+//    {
+//        [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateTagsNotification object:self];
+//    }
+//}
+
+- (void)save
 {
-    BOOL updated = NO;
-    for (NSString *tag in note.removedTags)
+    NSError *error;
+    if (![_context save:&error])
     {
-        updated |= [self removeNote:note forTag:tag];
-    }
-    for (NSString *tag in note.addedTags)
-    {
-        updated |= [self addNote:note forTag:tag];
-    }
-    if (updated)
-    {
-        [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateTagsNotification object:self];
+        NSLog(@"Whoops, couldn't save: %@", error.localizedDescription);
     }
 }
 

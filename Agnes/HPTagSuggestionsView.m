@@ -45,7 +45,7 @@
 - (void)setPrefix:(NSString *)prefix
 {
     _prefix = prefix;
-    _suggestions = [[HPNoteManager sharedManager] tagsWithPrefix:prefix];
+    _suggestions = [[HPNoteManager sharedManager] tagNamesWithPrefix:prefix];
     [_suggestionsView reloadData];
 }
 

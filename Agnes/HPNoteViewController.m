@@ -100,16 +100,9 @@
     self.navigationController.toolbarHidden = YES;
     for (HPNote *note in self.notes)
     {
-        
-        if (note.managed)
+        if (!self.indexItem.disableRemove && [self isEmptyNote:note])
         {
-            if ([self isEmptyNote:note])
-            {
-                [[HPNoteManager sharedManager] removeNote:note];
-            }
-        } else if (![self isEmptyNote:note])
-        {
-            [[HPNoteManager sharedManager] addNote:note];
+            [[HPNoteManager sharedManager] removeNote:note];
         }
     }
 }
@@ -118,7 +111,7 @@
 
 + (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem *)indexItem
 {
-    HPNote *note = [HPNote blankNoteWithTag:indexItem.tag];
+    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:indexItem.tag];
     notes = [[NSArray arrayWithObject:note] arrayByAddingObjectsFromArray:notes];
     return [HPNoteViewController noteViewControllerWithNote:note notes:notes indexItem:indexItem];
 }
@@ -159,7 +152,7 @@
     NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
     [HPNoteAction applyPreActions:self.note editableText:editableText];
     _bodyTextView.text = editableText;
-    self.note.views++;
+    self.note.cd_views = @([self.note.cd_views integerValue] + 1);
     [self updateToolbar:NO /* animated */];
 }
 
@@ -171,8 +164,8 @@
 - (BOOL)isEmptyNote:(HPNote*)note
 {
     if (note.empty) return YES;
-    HPNote *blankNote = [HPNote blankNoteWithTag:self.indexItem.tag];
-    if ([note.text isEqualToString:blankNote.text]) return YES;
+    NSString *blankText = [HPNote textOfBlankNoteWithTag:self.indexItem.tag];
+    if ([note.text isEqualToString:blankText]) return YES;
     return NO;
 }
 
@@ -195,7 +188,7 @@
 {
     if (self.indexItem.disableAdd) return;
     
-    HPNote *note = [HPNote blankNoteWithTag:self.indexItem.tag];
+    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:self.indexItem.tag];
     [_notes insertObject:note atIndex:_noteIndex + 1];
     self.note = note;
     [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
@@ -246,7 +239,7 @@
 
 - (void)archiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
-    self.note.archived = YES;
+    self.note.cd_archived = @(YES);
     [self updateToolbar:YES /* animated */];
     [self finishEditing];
 }
@@ -306,7 +299,7 @@
 
 - (void)unarchiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
-    self.note.archived = NO;
+    self.note.cd_archived = @(NO);
     [self updateToolbar:YES /* animated */];
     [self finishEditing];
 }
@@ -315,10 +308,6 @@
 
 - (void)textViewDidChange:(UITextView *)textView
 {
-    if (![self isEmptyNote:self.note] && !self.note.managed)
-    {
-        [[HPNoteManager sharedManager] addNote:self.note];
-    }
     [self updateToolbar:YES /* animated */];
     self.note.modifiedAt = [NSDate date];
     self.note.text = textView.text;
@@ -331,6 +320,7 @@
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
+    [[HPNoteManager sharedManager] save];
     [self.navigationItem setRightBarButtonItems:@[_addNoteBarButtonItem, _actionBarButtonItem] animated:YES];
 }
 

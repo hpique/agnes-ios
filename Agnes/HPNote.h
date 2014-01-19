@@ -2,41 +2,52 @@
 //  HPNote.h
 //  Agnes
 //
-//  Created by Hermes on 16/01/14.
+//  Created by Hermes on 19/01/14.
 //  Copyright (c) 2014 Hermes Pique. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
 
-@interface HPNote : NSObject
+@class HPTag;
 
-@property (nonatomic, copy) NSString *text;
-@property (nonatomic, copy) NSDate *modifiedAt;
-@property (nonatomic, copy) NSDate *createdAt;
-@property (nonatomic, assign) NSInteger views;
-@property (nonatomic, assign) NSInteger order;
-@property (nonatomic, assign) BOOL archived;
+@interface HPNote : NSManagedObject
 
+@property (nonatomic, retain) NSNumber * cd_archived;
+@property (nonatomic, retain) NSNumber * cd_views;
+@property (nonatomic, retain) NSDate * createdAt;
+@property (nonatomic, retain) NSDate * modifiedAt;
+@property (nonatomic, retain) NSDictionary *tagOrder;
+@property (nonatomic, retain) NSString * text;
+@property (nonatomic, retain) NSNumber * cd_inboxOrder;
+@property (nonatomic, retain) NSSet *cd_tags;
+
+@property (nonatomic, readonly) BOOL archived;
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) BOOL empty;
 @property (nonatomic, readonly) NSString *body;
 @property (nonatomic, readonly) NSString *modifiedAtDescription;
 @property (nonatomic, readonly) NSArray *tags;
-@property (nonatomic, readonly) NSSet *removedTags;
-@property (nonatomic, readonly) NSSet *addedTags;
-
-@property (nonatomic, assign) BOOL managed;
 
 - (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
 
 - (NSInteger)orderInTag:(NSString*)tag;
 
-+ (HPNote*)blankNoteWithTag:(NSString*)tag;
++ (NSString *)entityName;
 
-+ (HPNote*)note;
-
-+ (HPNote*)noteWithText:(NSString*)text;
++ (instancetype)insertNewObjectIntoContext:(NSManagedObjectContext *)context;
 
 + (NSRegularExpression*)tagRegularExpression;
+
++ (NSString*)textOfBlankNoteWithTag:(NSString*)tag;
+
+@end
+
+@interface HPNote (CoreDataGeneratedAccessors)
+
+- (void)addCd_tagsObject:(HPTag *)value;
+- (void)removeCd_tagsObject:(HPTag *)value;
+- (void)addCd_tags:(NSSet *)values;
+- (void)removeCd_tags:(NSSet *)values;
 
 @end

@@ -42,7 +42,7 @@ static UIFontDescriptor *_archivedDetailFontDescriptor;
     [self removeNoteObserver];
     _note = note;
     
-    [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(archived)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
+    [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(cd_archived)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(text)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(modifiedAt)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self displayNote];
@@ -78,7 +78,7 @@ static UIFontDescriptor *_archivedDetailFontDescriptor;
 
 - (void)removeNoteObserver
 {
-    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(archived))];
+    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(cd_archived))];
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(modifiedAt))];
 }

@@ -11,6 +11,7 @@
 #import "HPNoteManager.h"
 #import "HPIndexItem.h"
 #import "HPNote.h"
+#import "HPTag.h"
 #import "MMDrawerController.h"
 #import "UIViewController+MMDrawerController.h"
 
@@ -56,11 +57,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSMutableArray *items = [NSMutableArray array];
     [items addObject:[HPIndexItem inboxIndexItem]];
     
-    NSArray *tags = [HPNoteManager sharedManager].tags;
-    tags = [tags sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
-    for (NSString *tag in tags)
+    NSArray *tags = [HPNoteManager sharedManager].tags2;
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(name)) ascending:YES];
+    tags = [tags sortedArrayUsingDescriptors:@[sortDescriptor]];
+    for (HPTag *tag in tags)
     {
-        HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag];
+        HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag.name];
         [items addObject:indexItem];
     }
     
