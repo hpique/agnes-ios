@@ -8,16 +8,17 @@
 
 #import <UIKit/UIKit.h>
 @class HPNote;
+@class HPIndexItem;
 
 @interface HPNoteViewController : UIViewController
 
 @property (nonatomic, strong) HPNote *note;
-@property (nonatomic, copy) NSString *tag;
+@property (nonatomic, copy) HPIndexItem *indexItem;
 @property (nonatomic, strong) NSMutableArray *notes;
 
-+ (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes tag:(NSString*)tag;
++ (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;
 
-+ (HPNoteViewController*)noteViewControllerWithNote:(HPNote*)note notes:(NSArray*)notes tag:(NSString*)tag;
++ (HPNoteViewController*)noteViewControllerWithNote:(HPNote*)note notes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;
 
 
 @end

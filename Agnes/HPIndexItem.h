@@ -7,13 +7,17 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "HPNoteManager.h"
 
 @interface HPIndexItem : NSObject
 
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, readonly) NSString *tag;
 @property (nonatomic, readonly) NSArray *notes;
-@property (nonatomic, readonly) BOOL protectedList;
+@property (nonatomic, readonly) BOOL disableAdd;
+@property (nonatomic, readonly) BOOL disableRemove;
+@property (nonatomic, assign) HPNoteDisplayCriteria defaultDisplayCriteria;
+@property (nonatomic, strong) NSArray *allowedDisplayCriteria;
 
 + (HPIndexItem*)inboxIndexItem;
 

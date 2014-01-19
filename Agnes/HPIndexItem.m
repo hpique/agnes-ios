@@ -28,7 +28,8 @@
 @end
 
 @implementation HPIndexItem {
-    BOOL _protectedList;
+    BOOL _disableAdd;
+    BOOL _disableRemove;
 }
 
 + (HPIndexItem*)inboxIndexItem
@@ -38,6 +39,8 @@
     dispatch_once(&onceToken, ^{
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ == NO", NSStringFromSelector(@selector(archived))];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Inbox", @"") predictate:predicate];
+        instance.defaultDisplayCriteria = HPNoteDisplayCriteriaOrder;
+        instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
     });
     return instance;
 }
@@ -50,7 +53,9 @@
         NSString *archivedName = NSStringFromSelector(@selector(archived));
         NSPredicate *archivePredicate = [NSPredicate predicateWithFormat:@"SELF.%@ == YES", archivedName];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Archive", @"") predictate:archivePredicate];
-        instance->_protectedList = YES;
+        instance.defaultDisplayCriteria = HPNoteDisplayCriteriaModifiedAt;
+        instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
+        instance->_disableAdd = YES;
     });
     return instance;
 }
@@ -62,7 +67,10 @@
     dispatch_once(&onceToken, ^{
         instance = [[HPIndexItemSystem alloc] init];
         instance.title = NSLocalizedString(@"Meta", @"");
-        instance->_protectedList = YES;
+        instance.defaultDisplayCriteria = HPNoteDisplayCriteriaViews;
+        instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
+        instance->_disableAdd = YES;
+        instance->_disableRemove = YES;
     });
     return instance;
 }
@@ -71,12 +79,19 @@
 {
     HPIndexItemTag *item = [[HPIndexItemTag alloc] init];
     item.title = tag;
+    item.defaultDisplayCriteria = HPNoteDisplayCriteriaOrder;
+    item.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
     return item;
 }
 
-- (BOOL)protectedList
+- (BOOL)disableAdd
 {
-    return _protectedList;
+    return _disableAdd;
+}
+
+- (BOOL)disableRemove
+{
+    return _disableRemove;
 }
 
 @end

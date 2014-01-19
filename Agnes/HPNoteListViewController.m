@@ -37,7 +37,6 @@
     
     HPNoteDisplayCriteria _displayCriteria;
     BOOL _userChangedDisplayCriteria;
-    NSArray *_displayCriteriaValues;
     
     UIBarButtonItem *_addNoteBarButtonItem;
 }
@@ -94,7 +93,7 @@
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:_notes tag:self.indexItem.tag];
+    HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:_notes indexItem:self.indexItem];
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
@@ -111,9 +110,10 @@
 - (IBAction)tapTitleView:(id)sender
 {
     _userChangedDisplayCriteria = YES;
-    NSInteger index = [_displayCriteriaValues indexOfObject:@(_displayCriteria)];
-    index = (index + 1) % _displayCriteriaValues.count;
-    _displayCriteria = [_displayCriteriaValues[index] intValue];
+    NSArray *values = self.indexItem.allowedDisplayCriteria;
+    NSInteger index = [values indexOfObject:@(_displayCriteria)];
+    index = (index + 1) % values.count;
+    _displayCriteria = [values[index] intValue];
     [[HPPreferencesManager sharedManager] setDisplayCriteria:_displayCriteria forListTitle:self.indexItem.title];
     [self updateNotes:YES /* animated */];
     [self updateDisplayCriteria:NO /* animated */];
@@ -160,18 +160,8 @@
     self.title = self.indexItem.title;
     _titleLabel.text = self.title;
     
-    if (self.indexItem.protectedList)
-    {
-        self.navigationItem.rightBarButtonItem = nil;
-        _displayCriteriaValues =  @[@(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
-    }
-    else
-    {
-        self.navigationItem.rightBarButtonItem = _addNoteBarButtonItem;
-        _displayCriteriaValues = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
-    }
-    HPNoteDisplayCriteria defaultDisplayCriteria = [_displayCriteriaValues[0] intValue];
-    _displayCriteria = [[HPPreferencesManager sharedManager] displayCriteriaForListTitle:self.indexItem.title default:defaultDisplayCriteria];
+    self.navigationItem.rightBarButtonItem = self.indexItem.disableAdd ? nil : _addNoteBarButtonItem;
+    _displayCriteria = [[HPPreferencesManager sharedManager] displayCriteriaForListTitle:self.indexItem.title default:self.indexItem.defaultDisplayCriteria];
     [self updateDisplayCriteria:NO /* animated */];
 }
 
@@ -244,7 +234,7 @@
 
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
 {
-    HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:_notes tag:self.indexItem.tag];
+    HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:_notes indexItem:self.indexItem];
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 

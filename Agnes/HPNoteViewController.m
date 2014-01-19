@@ -10,9 +10,10 @@
 #import "HPNote.h"
 #import "HPNoteManager.h"
 #import "HPBaseTextStorage.h"
-#import "PSPDFTextView.h"
 #import "HPTagSuggestionsView.h"
 #import "HPNoteAction.h"
+#import "HPIndexItem.h"
+#import "PSPDFTextView.h"
 
 @interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate>
 
@@ -45,7 +46,12 @@
     _doneBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneBarButtonItemAction:)];
     _trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(trashBarButtonItemAction:)];
     _unarchiveBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemUndo target:self action:@selector(unarchiveBarButtomItemAction:)];
-
+    
+    _addNoteBarButtonItem.enabled = !self.indexItem.disableAdd;
+    _archiveBarButtonItem.enabled = !self.indexItem.disableRemove;
+    _trashBarButtonItem.enabled = !self.indexItem.disableRemove;
+    _unarchiveBarButtonItem.enabled = !self.indexItem.disableRemove;
+    
     self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem, _actionBarButtonItem];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShowNotification:) name:UIKeyboardDidShowNotification object:nil];
@@ -59,7 +65,7 @@
         container.widthTracksTextView = YES;
         [layoutManager addTextContainer:container];
         [_bodyTextStorage addLayoutManager:layoutManager];
-        _bodyTextStorage.tag = self.tag;
+        _bodyTextStorage.tag = self.indexItem.tag;
         
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -110,19 +116,19 @@
 
 #pragma mark - Class
 
-+ (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes tag:(NSString*)tag
++ (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem *)indexItem
 {
-    HPNote *note = [HPNote blankNoteWithTag:tag];
+    HPNote *note = [HPNote blankNoteWithTag:indexItem.tag];
     notes = [[NSArray arrayWithObject:note] arrayByAddingObjectsFromArray:notes];
-    return [HPNoteViewController noteViewControllerWithNote:note notes:notes tag:tag];
+    return [HPNoteViewController noteViewControllerWithNote:note notes:notes indexItem:indexItem];
 }
 
-+ (HPNoteViewController*)noteViewControllerWithNote:(HPNote*)note notes:(NSArray*)notes tag:(NSString*)tag
++ (HPNoteViewController*)noteViewControllerWithNote:(HPNote*)note notes:(NSArray*)notes indexItem:(HPIndexItem *)indexItem
 {
     HPNoteViewController *noteViewController = [[HPNoteViewController alloc] init];
     noteViewController.note = note;
     noteViewController.notes = [NSMutableArray arrayWithArray:notes];
-    noteViewController.tag = tag;
+    noteViewController.indexItem = indexItem;
     return noteViewController;
 }
 
@@ -140,10 +146,10 @@
     _noteIndex = [self.notes indexOfObject:self.note];
 }
 
-- (void)setTag:(NSString *)tag
+- (void)setIndexItem:(HPIndexItem *)indexItem
 {
-    _tag = tag;
-    _bodyTextStorage.tag = self.tag;
+    _indexItem = indexItem;
+    _bodyTextStorage.tag = self.indexItem.tag;
 }
 
 #pragma mark - Private
@@ -165,7 +171,7 @@
 - (BOOL)isEmptyNote:(HPNote*)note
 {
     if (note.empty) return YES;
-    HPNote *blankNote = [HPNote blankNoteWithTag:self.tag];
+    HPNote *blankNote = [HPNote blankNoteWithTag:self.indexItem.tag];
     if ([note.text isEqualToString:blankNote.text]) return YES;
     return NO;
 }
@@ -187,7 +193,9 @@
 
 - (void)changeToEmptyNote
 {
-    HPNote *note = [HPNote blankNoteWithTag:self.tag];
+    if (self.indexItem.disableAdd) return;
+    
+    HPNote *note = [HPNote blankNoteWithTag:self.indexItem.tag];
     [_notes insertObject:note atIndex:_noteIndex + 1];
     self.note = note;
     [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
