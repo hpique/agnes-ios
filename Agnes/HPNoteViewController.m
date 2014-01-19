@@ -237,6 +237,7 @@
 {
     self.note.archived = YES;
     [self updateToolbar:YES /* animated */];
+    [self finishEditing];
 }
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
@@ -296,6 +297,7 @@
 {
     self.note.archived = NO;
     [self updateToolbar:YES /* animated */];
+    [self finishEditing];
 }
 
 #pragma mark - UITextViewDelegate

@@ -16,6 +16,7 @@
 #import "MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
 #import "UIViewController+MMDrawerController.h"
+#import "HPPreferencesManager.h"
 
 @interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -113,6 +114,7 @@
     NSInteger index = [_displayCriteriaValues indexOfObject:@(_displayCriteria)];
     index = (index + 1) % _displayCriteriaValues.count;
     _displayCriteria = [_displayCriteriaValues[index] intValue];
+    [[HPPreferencesManager sharedManager] setDisplayCriteria:_displayCriteria forListTitle:self.indexItem.title];
     [self updateNotes:YES /* animated */];
     [self updateDisplayCriteria:NO /* animated */];
 }
@@ -168,7 +170,8 @@
         self.navigationItem.rightBarButtonItem = _addNoteBarButtonItem;
         _displayCriteriaValues = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
     }
-    _displayCriteria = [_displayCriteriaValues[0] intValue];
+    HPNoteDisplayCriteria defaultDisplayCriteria = [_displayCriteriaValues[0] intValue];
+    _displayCriteria = [[HPPreferencesManager sharedManager] displayCriteriaForListTitle:self.indexItem.title default:defaultDisplayCriteria];
     [self updateDisplayCriteria:NO /* animated */];
 }
 
