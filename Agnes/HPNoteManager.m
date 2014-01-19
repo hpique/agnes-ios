@@ -18,6 +18,7 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     NSMutableArray *_notes;
     NSMutableDictionary *_tags;
     NDMutableTrie *_tagTrie;
+    NSArray *_systemNotes;
 }
 
 - (id) init
@@ -106,6 +107,24 @@ NSString* const HPNoteManagerDidUpdateTagsNotification = @"HPNoteManagerDidUpdat
     [note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
     [self removeTagsOfNote:note];
     [[NSNotificationCenter defaultCenter] postNotificationName:HPNoteManagerDidUpdateNotesNotification object:self];
+}
+
+- (NSArray*)systemNotes
+{
+    if (!_systemNotes)
+    {
+        NSMutableArray *notes = [NSMutableArray array];
+        for (NSInteger i = 3; i >= 1; i--)
+        {
+            NSString *key = [NSString stringWithFormat:@"system%d", i];
+            NSString *text = NSLocalizedString(key, @"");
+            HPNote *note = [HPNote noteWithText:text];
+            note.managed = YES;
+            [notes addObject:note];
+        }
+        _systemNotes = notes;
+    }
+    return _systemNotes;
 }
 
 - (NSArray*)tags

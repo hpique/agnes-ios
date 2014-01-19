@@ -10,7 +10,18 @@
 #import "HPNote.h"
 #import "HPNoteManager.h"
 
-@interface HPIndexItemPredicate()
+
+@interface HPIndexItemTag : HPIndexItem
+
+@end
+
+@interface HPIndexItemSystem : HPIndexItem
+
+@end
+
+@interface HPIndexItemPredicate : HPIndexItem
+
+@property (nonatomic, strong) NSPredicate *predicate;
 
 + (HPIndexItemPredicate*)indexItemWithTitle:(NSString*)title predictate:(NSPredicate *)predicate;
 
@@ -39,6 +50,18 @@
         NSString *archivedName = NSStringFromSelector(@selector(archived));
         NSPredicate *archivePredicate = [NSPredicate predicateWithFormat:@"SELF.%@ == YES", archivedName];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Archive", @"") predictate:archivePredicate];
+        instance->_protectedList = YES;
+    });
+    return instance;
+}
+
++ (HPIndexItem*)systemIndexItem
+{
+    static HPIndexItem *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[HPIndexItemSystem alloc] init];
+        instance.title = NSLocalizedString(@"Meta", @"");
         instance->_protectedList = YES;
     });
     return instance;
@@ -86,6 +109,15 @@
 {
     NSArray *notes = [HPNoteManager sharedManager].notes;
     return [notes filteredArrayUsingPredicate:self.predicate];
+}
+
+@end
+
+@implementation HPIndexItemSystem
+
+- (NSArray*)notes
+{
+    return [HPNoteManager sharedManager].systemNotes;
 }
 
 @end

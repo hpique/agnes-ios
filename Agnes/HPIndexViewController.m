@@ -65,6 +65,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     }
     
     [items addObject:[HPIndexItem archiveIndexItem]];
+    [items addObject:[HPIndexItem systemIndexItem]];
     
     _items = items;
     [self.tableView reloadData];

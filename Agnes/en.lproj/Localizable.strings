@@ -8,3 +8,7 @@
 "tutorial1"="Welcome to Agnes\n\nThis is the tutorial.\n\n#tutorial";
 "tutorial2"="Organise with tags\n\nUse hashtags to categorise your notes. It's as simple as that. For example, these notes are tagged #tutorial.";
 "tutorial3"="Order or sort\n\nTap and hold to order your notes at your leisure. Or tap on the list title to sort them by various criteria.\n\n#tutorial";
+
+"system1"="Settings\n\nIn Agnes everything is a note, even settings.\n\nfontFamily={$fontFamily}\ntintColor={$tintColor}.\n\n";
+"system2"="About\n\nFor Inés.\n\n{$agnes-appName} {$agnes-appVersion}";
+"system3"="Get in touch\n\nSend support or feature requests to hpiqueapps@gmail.com.";

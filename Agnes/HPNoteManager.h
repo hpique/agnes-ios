@@ -22,6 +22,7 @@ extern NSString* const HPNoteManagerDidUpdateTagsNotification;
 @interface HPNoteManager : NSObject
 
 @property (nonatomic, readonly) NSArray *notes;
+@property (nonatomic, readonly) NSArray *systemNotes;
 @property (nonatomic, readonly) NSArray *tags;
 
 - (void)addNote:(HPNote*)note;

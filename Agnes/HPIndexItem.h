@@ -21,14 +21,6 @@
 
 + (HPIndexItem*)indexItemWithTag:(NSString*)tag;
 
-@end
-
-@interface HPIndexItemTag : HPIndexItem
-
-@end
-
-@interface HPIndexItemPredicate : HPIndexItem
-
-@property (nonatomic, strong) NSPredicate *predicate;
++ (HPIndexItem*)systemIndexItem;
 
 @end

@@ -12,6 +12,7 @@
 #import "HPBaseTextStorage.h"
 #import "PSPDFTextView.h"
 #import "HPTagSuggestionsView.h"
+#import "HPNoteAction.h"
 
 @interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate>
 
@@ -63,7 +64,7 @@
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _bodyTextView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-        _bodyTextView.dataDetectorTypes = UIDataDetectorTypeLink | UIDataDetectorTypePhoneNumber;
+        _bodyTextView.dataDetectorTypes = UIDataDetectorTypeAll;
         _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, 10, 20, 10);
         _bodyTextView.delegate = self;
         [self.view addSubview:_bodyTextView];
@@ -149,7 +150,9 @@
 
 - (void)displayNote
 {
-    _bodyTextView.text = self.note.text;
+    NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
+    [HPNoteAction applyPreActions:self.note editableText:editableText];
+    _bodyTextView.text = editableText;
     self.note.views++;
     [self updateToolbar:NO /* animated */];
 }
@@ -162,8 +165,8 @@
 - (BOOL)isEmptyNote:(HPNote*)note
 {
     if (note.empty) return YES;
-    NSString *trimmedText = [note.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    if ([self.tag isEqualToString:trimmedText]) return YES;
+    HPNote *blankNote = [HPNote blankNoteWithTag:self.tag];
+    if ([note.text isEqualToString:blankNote.text]) return YES;
     return NO;
 }
 
