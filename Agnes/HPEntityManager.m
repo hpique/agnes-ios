@@ -31,17 +31,6 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSManagedObjectContextObjectsDidChangeNotification object:_context];
 }
 
-- (void)didInsertObject:(id)object {}
-
-- (void)didUpdateObject:(id)object {}
-
-- (void)didDeleteObject:(id)object {}
-
-- (NSString*)entityName
-{
-    @throw NSInternalInconsistencyException;
-}
-
 - (NSArray*)objects
 {
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
@@ -108,5 +97,38 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     }
 }
 
+- (void)performModelUpdateBlock:(void (^)())block actionName:(NSString*)actionName;
+{
+    [self.context.undoManager beginUndoGrouping];
+    [self.context.undoManager setActionName:NSLocalizedString(actionName, @"")];
+    block();
+    [self save];
+    [self.context.undoManager endUndoGrouping];
+}
+
+- (void)performNoUndoModelUpdateBlock:(void (^)())block
+{
+    [self.context processPendingChanges];
+    [self.context.undoManager disableUndoRegistration];
+    block();
+    [self save];
+    [self.context processPendingChanges];
+    [self.context.undoManager enableUndoRegistration];
+}
+
+@end
+
+@implementation HPEntityManager(Subclassing)
+
+- (void)didInsertObject:(id)object {}
+
+- (void)didUpdateObject:(id)object {}
+
+- (void)didDeleteObject:(id)object {}
+
+- (NSString*)entityName
+{
+    @throw NSInternalInconsistencyException;
+}
 
 @end

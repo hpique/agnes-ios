@@ -17,9 +17,17 @@ extern NSString* const HPEntityManagerObjectsDidChangeNotification;
 
 - (id)initWithManagedObjectContext:(NSManagedObjectContext*)context;
 
-- (NSString*)entityName;
-
 - (void)save;
+
+- (void)performModelUpdateBlock:(void (^)())block actionName:(NSString*)actionName;
+
+- (void)performNoUndoModelUpdateBlock:(void (^)())block;
+
+@end
+
+@interface HPEntityManager (Subclassing)
+
+- (NSString*)entityName;
 
 - (void)didInsertObject:(id)object;
 

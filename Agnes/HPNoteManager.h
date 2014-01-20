@@ -36,9 +36,9 @@ typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
 
 - (HPNote*)blankNoteWithTag:(NSString*)tag;
 
-- (void)editNote:(HPNote*)note;
+- (void)editNote:(HPNote*)note text:(NSString*)text;
 
-- (void)increaseViewsOfNote:(HPNote*)note;
+- (void)viewNote:(HPNote*)note;
 
 - (void)unarchiveNote:(HPNote*)note;
 

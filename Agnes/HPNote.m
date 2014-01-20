@@ -37,17 +37,22 @@
 - (void)setText:(NSString *)text
 {
     static NSString *key;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        key = NSStringFromSelector(@selector(text));
-    });
+    if (!key) key = NSStringFromSelector(@selector(text));
     [self willChangeValueForKey:key];
     [self setPrimitiveText:text];
-    [self didChangeValueForKey:key];
     _title = nil;
     _body = nil;
     _tags = nil;
     [self updateTags];
+    [self didChangeValueForKey:key];
+}
+
+- (void)awakeFromSnapshotEvents:(NSSnapshotEventType)flags
+{
+    _title = nil;
+    _body = nil;
+    _tags = nil;
+    [super awakeFromSnapshotEvents:flags];
 }
 
 #pragma mark - Public

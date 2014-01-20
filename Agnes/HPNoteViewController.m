@@ -153,7 +153,7 @@
     NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
     [HPNoteAction applyPreActions:self.note editableText:editableText];
     _bodyTextView.text = editableText;
-    self.note.views++;
+    [[HPNoteManager sharedManager] viewNote:self.note];
     [self updateToolbar:NO /* animated */];
 }
 
@@ -172,7 +172,8 @@
 
 - (void)trashNote
 {
-    self.note.text = @""; // Note will be removed on viewWillDisappear:
+    [[HPNoteManager sharedManager] trashNote:self.note];
+    [_notes removeObject:self.note];
     [self finishEditing];
 }
 
@@ -310,9 +311,6 @@
 - (void)textViewDidChange:(UITextView *)textView
 {
     _bodyTextViewChanged = YES;
-    [self updateToolbar:YES /* animated */];
-    self.note.modifiedAt = [NSDate date];
-    self.note.text = textView.text;
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
@@ -324,7 +322,8 @@
 {
     if (_bodyTextViewChanged)
     {
-        [[HPNoteManager sharedManager] editNote:self.note];
+        [[HPNoteManager sharedManager] editNote:self.note text:_bodyTextView.text];
+        [self updateToolbar:YES /* animated */];
         _bodyTextViewChanged = NO;
     }
     [self.navigationItem setRightBarButtonItems:@[_addNoteBarButtonItem, _actionBarButtonItem] animated:YES];

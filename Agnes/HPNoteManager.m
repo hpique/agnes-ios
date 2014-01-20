@@ -39,6 +39,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)addTutorialNotes
 {
+    [self.context.undoManager disableUndoRegistration];
     for (NSInteger i = 3; i >= 1; i--)
     {
         NSString *key = [NSString stringWithFormat:@"tutorial%d", i];
@@ -48,6 +49,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }
     [self.context.undoManager setActionName:NSLocalizedString(@"Add Notes", @"")];
     [self save];
+    [self.context.undoManager enableUndoRegistration];
 }
 
 - (NSArray*)systemNotes
@@ -139,41 +141,49 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)archiveNote:(HPNote*)note
 {
-    [self.context.undoManager setActionName:NSLocalizedString(@"Archive Note", @"")];
-    note.archived = YES;
-    [self save];
+    [self performModelUpdateBlock:^{
+        note.archived = YES;
+    } actionName:@"Archive Note"];
 }
 
 - (HPNote*)blankNoteWithTag:(NSString*)tag
 {
-    HPNote *note = [self note];
-    note.text = tag ? [NSString stringWithFormat:@"\n\n\n\n%@", tag] : @"";
+    __block HPNote *note;
+    [self performNoUndoModelUpdateBlock:^{
+        note = [self note];
+        note.text = tag ? [NSString stringWithFormat:@"\n\n\n\n%@", tag] : @"";
+    }];
     return note;
 }
 
-- (void)editNote:(HPNote*)note
+- (void)editNote:(HPNote*)note text:(NSString*)text;
 {
-    [self.context.undoManager setActionName:NSLocalizedString(@"Edit Note", @"")];
-    [self save];
+    [self performModelUpdateBlock:^{
+        note.text = text;
+        note.modifiedAt = [NSDate date];
+    } actionName:@"Edit Note"];
 }
 
-- (void)increaseViewsOfNote:(HPNote*)note
+- (void)viewNote:(HPNote*)note
 {
-    
+    [self performNoUndoModelUpdateBlock:^{
+        note.views++;
+    }];
 }
 
 - (void)unarchiveNote:(HPNote*)note
 {
-    [self.context.undoManager setActionName:NSLocalizedString(@"Unarchive Note", @"")];
-    note.archived = NO;
-    [self save];
+    [self performModelUpdateBlock:^{
+        note.archived = NO;
+    } actionName:@"Unarchive Note"];
 }
 
 - (void)trashNote:(HPNote*)note
 {
-    [self.context.undoManager setActionName:NSLocalizedString(@"Trash Note", @"")];
-    [self.context deleteObject:note];
-    [self save];
+    // TODO: Trash blank notes without undo
+    [self performModelUpdateBlock:^{
+        [self.context deleteObject:note];
+    } actionName:@"Trash Note"];
 }
 
 @end
