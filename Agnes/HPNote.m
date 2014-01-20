@@ -202,11 +202,9 @@
 
 - (BOOL)archived
 {
-    static NSString *key;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        key = NSStringFromSelector(@selector(archived));
-    });
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(archived));
+    
     [self willAccessValueForKey:key];
     NSNumber *value = self.cd_archived;
     [self didAccessValueForKey:key];
@@ -215,11 +213,9 @@
 
 - (void)setArchived:(BOOL)archived
 {
-    static NSString *key;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        key = NSStringFromSelector(@selector(archived));
-    });
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(archived));
+    
     NSNumber *value = @(archived);
     [self willChangeValueForKey:key];
     self.cd_archived = value;
@@ -228,11 +224,9 @@
 
 - (NSInteger)views
 {
-    static NSString *key;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        key = NSStringFromSelector(@selector(views));
-    });
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(views));
+    
     [self willAccessValueForKey:key];
     NSNumber *value = self.cd_views;
     [self didAccessValueForKey:key];
@@ -241,11 +235,9 @@
 
 - (void)setViews:(NSInteger)views
 {
-    static NSString *key;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        key = NSStringFromSelector(@selector(archived));
-    });
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(views));
+    
     NSNumber *value = @(views);
     [self willChangeValueForKey:key];
     self.cd_views = value;
@@ -254,11 +246,9 @@
 
 - (NSInteger)inboxOrder
 {
-    static NSString *key;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        key = NSStringFromSelector(@selector(inboxOrder));
-    });
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(inboxOrder));
+    
     [self willAccessValueForKey:key];
     NSNumber *value = self.cd_inboxOrder;
     [self didAccessValueForKey:key];
@@ -267,11 +257,9 @@
 
 - (void)setInboxOrder:(NSInteger)inboxOrder
 {
-    static NSString *key;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        key = NSStringFromSelector(@selector(inboxOrder));
-    });
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(inboxOrder));
+
     NSNumber *value = @(inboxOrder);
     [self willChangeValueForKey:key];
     self.cd_inboxOrder = value;
