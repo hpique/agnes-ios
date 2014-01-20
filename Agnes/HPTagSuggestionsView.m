@@ -7,7 +7,7 @@
 //
 
 #import "HPTagSuggestionsView.h"
-#import "HPNoteManager.h"
+#import "HPTagManager.h"
 
 @interface HPTagSuggestionCell : UICollectionViewCell
 
@@ -45,7 +45,7 @@
 - (void)setPrefix:(NSString *)prefix
 {
     _prefix = prefix;
-    _suggestions = [[HPNoteManager sharedManager] tagNamesWithPrefix:prefix];
+    _suggestions = [[HPTagManager sharedManager] tagNamesWithPrefix:prefix];
     [_suggestionsView reloadData];
 }
 

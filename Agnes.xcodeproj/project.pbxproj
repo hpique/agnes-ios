@@ -41,6 +41,8 @@
 		87E37EE4188BEF81000333EA /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E37EE3188BEF81000333EA /* CoreData.framework */; };
 		87E37EE7188C413C000333EA /* HPNote.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EE6188C413C000333EA /* HPNote.m */; };
 		87E37EEA188C413D000333EA /* HPTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EE9188C413D000333EA /* HPTag.m */; };
+		87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EED188CA0D0000333EA /* HPEntityManager.m */; };
+		87E37EF1188CA5F5000333EA /* HPTagManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EF0188CA5F5000333EA /* HPTagManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,6 +109,10 @@
 		87E37EE6188C413C000333EA /* HPNote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNote.m; sourceTree = "<group>"; };
 		87E37EE8188C413D000333EA /* HPTag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPTag.h; sourceTree = "<group>"; };
 		87E37EE9188C413D000333EA /* HPTag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPTag.m; sourceTree = "<group>"; };
+		87E37EEC188CA0D0000333EA /* HPEntityManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPEntityManager.h; sourceTree = "<group>"; };
+		87E37EED188CA0D0000333EA /* HPEntityManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPEntityManager.m; sourceTree = "<group>"; };
+		87E37EEF188CA5F5000333EA /* HPTagManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPTagManager.h; sourceTree = "<group>"; };
+		87E37EF0188CA5F5000333EA /* HPTagManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPTagManager.m; sourceTree = "<group>"; };
 		9553C6822D1E4B5082F74644 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -225,12 +231,11 @@
 		8763DA3018883ACF000D9569 /* Agnes */ = {
 			isa = PBXGroup;
 			children = (
+				87E37EEB188CA099000333EA /* Utils */,
 				87E37E89188BE369000333EA /* Model */,
 				8740FAF2188B39FC004CF099 /* External */,
 				8763DA3918883ACF000D9569 /* HPAppDelegate.h */,
 				8763DA3A18883ACF000D9569 /* HPAppDelegate.m */,
-				8763DA611888420A000D9569 /* HPNoteManager.h */,
-				8763DA621888420A000D9569 /* HPNoteManager.m */,
 				87E37E3C188B57C0000333EA /* HPPreferencesManager.h */,
 				87E37E3D188B57C0000333EA /* HPPreferencesManager.m */,
 				8763DA3C18883ACF000D9569 /* Images.xcassets */,
@@ -278,10 +283,23 @@
 			children = (
 				87E37EE5188C413C000333EA /* HPNote.h */,
 				87E37EE6188C413C000333EA /* HPNote.m */,
+				8763DA611888420A000D9569 /* HPNoteManager.h */,
+				8763DA621888420A000D9569 /* HPNoteManager.m */,
 				87E37EE8188C413D000333EA /* HPTag.h */,
 				87E37EE9188C413D000333EA /* HPTag.m */,
+				87E37EEF188CA5F5000333EA /* HPTagManager.h */,
+				87E37EF0188CA5F5000333EA /* HPTagManager.m */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		87E37EEB188CA099000333EA /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				87E37EEC188CA0D0000333EA /* HPEntityManager.h */,
+				87E37EED188CA0D0000333EA /* HPEntityManager.m */,
+			);
+			name = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -437,9 +455,11 @@
 				87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */,
 				8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */,
 				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
+				87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */,
 				8763DA631888420A000D9569 /* HPNoteManager.m in Sources */,
 				8763DA3718883ACF000D9569 /* main.m in Sources */,
 				87E37EE7188C413C000333EA /* HPNote.m in Sources */,
+				87E37EF1188CA5F5000333EA /* HPTagManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

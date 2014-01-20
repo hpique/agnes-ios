@@ -8,18 +8,18 @@
 
 #import "HPNote.h"
 #import "HPTag.h"
-
+#import "HPTagManager.h"
 
 @implementation HPNote
 
 @dynamic cd_archived;
+@dynamic cd_inboxOrder;
 @dynamic cd_views;
+@dynamic cd_tags;
 @dynamic createdAt;
 @dynamic modifiedAt;
 @dynamic tagOrder;
 @dynamic text;
-@dynamic cd_inboxOrder;
-@dynamic cd_tags;
 
 @synthesize body = _body;
 @synthesize tags = _tags;
@@ -34,15 +34,20 @@
 
 #pragma mark - NSManagedObject
 
-- (void)willChangeValueForKey:(NSString *)key
+- (void)setText:(NSString *)text
 {
-    [super willChangeValueForKey:key];
-    if ([key isEqualToString:NSStringFromSelector(@selector(text))])
-    {
-        _title = nil;
-        _body = nil;
-        _tags = nil;
-    }
+    static NSString *key;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        key = NSStringFromSelector(@selector(text));
+    });
+    [self willChangeValueForKey:key];
+    [self setPrimitiveText:text];
+    [self didChangeValueForKey:key];
+    _title = nil;
+    _body = nil;
+    _tags = nil;
+    [self updateTags];
 }
 
 #pragma mark - Public
@@ -72,11 +77,6 @@
 + (NSString*)textOfBlankNoteWithTag:(NSString*)tag
 {
     return [NSString stringWithFormat:@"\n\n\n\n%@", tag];
-}
-
-- (BOOL)archived
-{
-    return [self.cd_archived boolValue];
 }
 
 - (BOOL)empty
@@ -144,7 +144,7 @@
 {
     if (!tag)
     {
-        self.cd_inboxOrder = @(order);
+        self.inboxOrder = order;
     }
     else
     {
@@ -166,6 +166,116 @@
         object = [self.tagOrder objectForKey:tag];
     }
     return object ? [object integerValue] : NSIntegerMax;
+}
+
+#pragma mark - Private
+
+- (void)updateTags
+{
+    NSArray *currentTagNames = self.tags;
+    NSMutableSet *currentTags = [NSMutableSet set];
+    HPTagManager *manager = [HPTagManager sharedManager];
+    for (NSString *name in currentTagNames)
+    {
+        HPTag *tag = [manager tagWithName:name];
+        [currentTags addObject:tag];
+    }
+    NSMutableSet *previousTags = [NSMutableSet setWithSet:self.cd_tags];
+    [previousTags minusSet:currentTags]; // Removed
+    [currentTags minusSet:self.cd_tags]; // Added
+    [self removeCd_tags:previousTags];
+    
+    // TODO: Find a better place for this logic
+    for (HPTag *tag in previousTags)
+    {
+        if (tag.notes.count == 0)
+        {
+            [manager.context deleteObject:tag];
+        }
+    }
+    [self addCd_tags:currentTags];
+}
+
+@end
+
+@implementation HPNote(Transient)
+
+- (BOOL)archived
+{
+    static NSString *key;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        key = NSStringFromSelector(@selector(archived));
+    });
+    [self willAccessValueForKey:key];
+    NSNumber *value = self.cd_archived;
+    [self didAccessValueForKey:key];
+    return [value boolValue];
+}
+
+- (void)setArchived:(BOOL)archived
+{
+    static NSString *key;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        key = NSStringFromSelector(@selector(archived));
+    });
+    NSNumber *value = @(archived);
+    [self willChangeValueForKey:key];
+    self.cd_archived = value;
+    [self willChangeValueForKey:key];
+}
+
+- (NSInteger)views
+{
+    static NSString *key;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        key = NSStringFromSelector(@selector(views));
+    });
+    [self willAccessValueForKey:key];
+    NSNumber *value = self.cd_views;
+    [self didAccessValueForKey:key];
+    return [value integerValue];
+}
+
+- (void)setViews:(NSInteger)views
+{
+    static NSString *key;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        key = NSStringFromSelector(@selector(archived));
+    });
+    NSNumber *value = @(views);
+    [self willChangeValueForKey:key];
+    self.cd_views = value;
+    [self willChangeValueForKey:key];
+}
+
+- (NSInteger)inboxOrder
+{
+    static NSString *key;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        key = NSStringFromSelector(@selector(inboxOrder));
+    });
+    [self willAccessValueForKey:key];
+    NSNumber *value = self.cd_inboxOrder;
+    [self didAccessValueForKey:key];
+    return [value integerValue];
+}
+
+- (void)setInboxOrder:(NSInteger)inboxOrder
+{
+    static NSString *key;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        key = NSStringFromSelector(@selector(inboxOrder));
+    });
+    NSNumber *value = @(inboxOrder);
+    [self willChangeValueForKey:key];
+    self.cd_inboxOrder = value;
+    [self willChangeValueForKey:key];
 }
 
 @end

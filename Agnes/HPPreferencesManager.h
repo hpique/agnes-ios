@@ -17,4 +17,8 @@
 
 - (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria forListTitle:(NSString*)title;
 
+- (void)setNoninitialRun;
+
+- (BOOL)isNoninitialRun;
+
 @end

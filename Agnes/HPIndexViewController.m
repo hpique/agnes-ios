@@ -9,6 +9,7 @@
 #import "HPIndexViewController.h"
 #import "HPNoteListViewController.h"
 #import "HPNoteManager.h"
+#import "HPTagManager.h"
 #import "HPIndexItem.h"
 #import "HPNote.h"
 #import "HPTag.h"
@@ -36,7 +37,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPNoteManagerDidUpdateTagsNotification object:[HPNoteManager sharedManager]];}
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];}
 
 - (void)viewDidLoad
 {
@@ -47,7 +48,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     
     [self reloadData];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateTagsNotification:) name:HPNoteManagerDidUpdateTagsNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 }
 
 #pragma mark - Private
@@ -57,7 +58,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSMutableArray *items = [NSMutableArray array];
     [items addObject:[HPIndexItem inboxIndexItem]];
     
-    NSArray *tags = [HPNoteManager sharedManager].tags2;
+    NSArray *tags = [HPTagManager sharedManager].objects;
     NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(name)) ascending:YES];
     tags = [tags sortedArrayUsingDescriptors:@[sortDescriptor]];
     for (HPTag *tag in tags)
@@ -104,7 +105,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 #pragma mark - Actions
 
-- (void)didUpdateTagsNotification:(NSNotification*)notification
+- (void)tagsDidChangeNotification:(NSNotification*)notification
 {
     [self reloadData];
 }

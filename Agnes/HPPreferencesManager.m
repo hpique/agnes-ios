@@ -8,7 +8,8 @@
 
 #import "HPPreferencesManager.h"
 
-NSString *const HPAgnesUserDefaultsKeyDisplayCriteria = @"HPAgnesUserDefaultsKeyDisplayCriteria";
+NSString *const HPAgnesUserDefaultsKeyDisplayCriteria = @"HPAgnesDisplayCriteria";
+NSString *const HPAgnesUserDefaultsKeyNoninitialRun = @"HPAgnesNoninitialRun";
 
 @implementation HPPreferencesManager
 
@@ -36,6 +37,17 @@ NSString *const HPAgnesUserDefaultsKeyDisplayCriteria = @"HPAgnesUserDefaultsKey
     NSMutableDictionary *updatedDictionary = dictionary ? [NSMutableDictionary dictionaryWithDictionary:dictionary] : [NSMutableDictionary dictionary];
     [updatedDictionary setObject:@(displayCriteria) forKey:title];
     [userDefaults setObject:updatedDictionary forKey:HPAgnesUserDefaultsKeyDisplayCriteria];
+}
+
+- (void)setNoninitialRun
+{
+    [[NSUserDefaults standardUserDefaults] setObject:@(YES) forKey:HPAgnesUserDefaultsKeyNoninitialRun];
+}
+
+- (BOOL)isNoninitialRun
+{
+    NSNumber *object = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesUserDefaultsKeyNoninitialRun];
+    return [object boolValue];
 }
 
 @end

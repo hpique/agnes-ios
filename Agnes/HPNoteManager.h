@@ -7,8 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "HPEntityManager.h"
 @class HPNote;
-@class HPNote;
+@class HPTag;
 
 typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
     HPNoteDisplayCriteriaOrder,
@@ -17,26 +18,17 @@ typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
     HPNoteDisplayCriteriaViews,
 };
 
-extern NSString* const HPNoteManagerDidUpdateNotesNotification;
-extern NSString* const HPNoteManagerDidUpdateTagsNotification;
+@interface HPNoteManager : HPEntityManager
 
-@interface HPNoteManager : NSObject
-
-@property (nonatomic, readonly) NSArray *notes;
 @property (nonatomic, readonly) NSArray *systemNotes;
-@property (nonatomic, readonly) NSArray *tags2;
 
-- (NSArray*)notesWithTag:(NSString*)tag;
+- (void)addTutorialNotes;
 
 - (void)removeNote:(HPNote*)note;
 
 + (HPNoteManager*)sharedManager;
 
 + (NSArray*)sortedNotes:(NSArray*)notes criteria:(HPNoteDisplayCriteria)criteria tag:(NSString*)tag;
-
-- (NSArray*)tagNamesWithPrefix:(NSString*)prefix;
-
-- (void)save;
 
 - (HPNote*)blankNoteWithTag:(NSString*)tag;
 

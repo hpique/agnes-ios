@@ -43,7 +43,7 @@
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPNoteManagerDidUpdateNotesNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 }
 
 - (void)viewDidLoad
@@ -61,7 +61,7 @@
     
     [_tableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:YES]; // TODO: Use autolayout?
 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateNotesNotification:) name:HPNoteManagerDidUpdateNotesNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 
     [self updateNotes:NO /* animated */];
     [self updateIndexItem];
@@ -97,7 +97,7 @@
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
-- (void)didUpdateNotesNotification:(NSNotification*)notification
+- (void)notesDidChangeNotification:(NSNotification*)notification
 {
     [self updateNotes:YES /* animated */];
 }
@@ -252,12 +252,13 @@
 
 - (NSArray*)notesWithSearchString:(NSString*)searchString archived:(BOOL)archived
 {
+    // TODO: Move to HPNoteManager
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ contains[cd] %@ && SELF.%@ == %d",
                               NSStringFromSelector(@selector(text)),
                               searchString,
                               NSStringFromSelector(@selector(archived)),
                               archived ? 1 : 0];
-    NSArray *unfilteredNotes = archived ? [HPNoteManager sharedManager].notes : _notes;
+    NSArray *unfilteredNotes = archived ? [HPNoteManager sharedManager].objects : _notes;
     NSArray *filteredNotes = [unfilteredNotes filteredArrayUsingPredicate:predicate];
     NSArray *rankedNotes = [filteredNotes sortedArrayUsingComparator:^NSComparisonResult(HPNote *obj1, HPNote *obj2)
     {

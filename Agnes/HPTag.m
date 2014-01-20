@@ -9,10 +9,24 @@
 #import "HPTag.h"
 #import "HPNote.h"
 
-
 @implementation HPTag
 
 @dynamic name;
 @dynamic notes;
+
+@end
+
+@implementation HPTag (Convenience)
+
++ (NSString *)entityName
+{
+    return @"Tag";
+}
+
++ (instancetype)insertNewObjectIntoContext:(NSManagedObjectContext *)context
+{
+    return [NSEntityDescription insertNewObjectForEntityForName:[self entityName]
+                                         inManagedObjectContext:context];
+}
 
 @end

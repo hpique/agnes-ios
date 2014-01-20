@@ -9,7 +9,8 @@
 #import "HPIndexItem.h"
 #import "HPNote.h"
 #import "HPNoteManager.h"
-
+#import "HPTagManager.h"
+#import "HPtag.h"
 
 @interface HPIndexItemTag : HPIndexItem
 
@@ -37,7 +38,7 @@
     static HPIndexItem *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ == NO", NSStringFromSelector(@selector(cd_archived))];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ == NO", NSStringFromSelector(@selector(archived))];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Inbox", @"") predictate:predicate];
         instance.defaultDisplayCriteria = HPNoteDisplayCriteriaOrder;
         instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
@@ -100,7 +101,8 @@
 
 - (NSArray*)notes
 {
-    return [[HPNoteManager sharedManager] notesWithTag:self.title];
+    HPTag *tag = [[HPTagManager sharedManager] tagWithName:self.tag];
+    return [tag.notes allObjects];
 }
 
 - (NSString*)tag
@@ -122,7 +124,7 @@
 
 - (NSArray*)notes
 {
-    NSArray *notes = [HPNoteManager sharedManager].notes;
+    NSArray *notes = [HPNoteManager sharedManager].objects;
     return [notes filteredArrayUsingPredicate:self.predicate];
 }
 

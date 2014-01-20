@@ -152,7 +152,7 @@
     NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
     [HPNoteAction applyPreActions:self.note editableText:editableText];
     _bodyTextView.text = editableText;
-    self.note.cd_views = @([self.note.cd_views integerValue] + 1);
+    self.note.views++;
     [self updateToolbar:NO /* animated */];
 }
 
@@ -239,7 +239,7 @@
 
 - (void)archiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
-    self.note.cd_archived = @(YES);
+    self.note.archived = YES;
     [self updateToolbar:YES /* animated */];
     [self finishEditing];
 }
@@ -299,7 +299,7 @@
 
 - (void)unarchiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
-    self.note.cd_archived = @(NO);
+    self.note.archived = NO;
     [self updateToolbar:YES /* animated */];
     [self finishEditing];
 }

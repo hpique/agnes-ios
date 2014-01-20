@@ -10,6 +10,7 @@
 #import "HPNoteListViewController.h"
 #import "HPIndexViewController.h"
 #import "HPIndexItem.h"
+#import "HPPreferencesManager.h"
 #import "MMDrawerController.h"
 #import <CoreData/CoreData.h>
 
@@ -24,6 +25,11 @@
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor whiteColor];
 
+    if (![[HPPreferencesManager sharedManager] isNoninitialRun])
+    {
+        [[HPNoteManager sharedManager] addTutorialNotes];
+    }
+    
     UIViewController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
     HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
     UINavigationController *leftNavigationController = [[UINavigationController alloc] initWithRootViewController:indexViewController];
@@ -38,6 +44,8 @@
 {
     // Saves changes in the application's managed object context before the application terminates.
     [self saveContext];
+    
+    [[HPPreferencesManager sharedManager] setNoninitialRun];    
 }
 
 - (void)saveContext

@@ -25,3 +25,11 @@
 - (void)removeNotes:(NSSet *)values;
 
 @end
+
+@interface HPTag (Convenience)
+
++ (NSString *)entityName;
+
++ (instancetype)insertNewObjectIntoContext:(NSManagedObjectContext *)context;
+
+@end

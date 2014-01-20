@@ -15,14 +15,13 @@
 
 @property (nonatomic, retain) NSNumber * cd_archived;
 @property (nonatomic, retain) NSNumber * cd_views;
+@property (nonatomic, retain) NSNumber * cd_inboxOrder;
+@property (nonatomic, retain) NSSet *cd_tags;
 @property (nonatomic, retain) NSDate * createdAt;
 @property (nonatomic, retain) NSDate * modifiedAt;
 @property (nonatomic, retain) NSDictionary *tagOrder;
 @property (nonatomic, retain) NSString * text;
-@property (nonatomic, retain) NSNumber * cd_inboxOrder;
-@property (nonatomic, retain) NSSet *cd_tags;
 
-@property (nonatomic, readonly) BOOL archived;
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) BOOL empty;
 @property (nonatomic, readonly) NSString *body;
@@ -49,5 +48,19 @@
 - (void)removeCd_tagsObject:(HPTag *)value;
 - (void)addCd_tags:(NSSet *)values;
 - (void)removeCd_tags:(NSSet *)values;
+
+@end
+
+@interface HPNote (CoreDataGeneratedPrimitiveAccessors)
+
+- (void)setPrimitiveText:(NSString *)value;
+
+@end
+
+@interface HPNote (Transient)
+
+@property (nonatomic, assign) BOOL archived;
+@property (nonatomic, assign) NSInteger views;
+@property (nonatomic, assign) NSInteger inboxOrder;
 
 @end
