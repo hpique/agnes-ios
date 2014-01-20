@@ -43,6 +43,7 @@
 		87E37EEA188C413D000333EA /* HPTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EE9188C413D000333EA /* HPTag.m */; };
 		87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EED188CA0D0000333EA /* HPEntityManager.m */; };
 		87E37EF1188CA5F5000333EA /* HPTagManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EF0188CA5F5000333EA /* HPTagManager.m */; };
+		87E37EF4188CB169000333EA /* HPRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EF3188CB169000333EA /* HPRootViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,6 +114,8 @@
 		87E37EED188CA0D0000333EA /* HPEntityManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPEntityManager.m; sourceTree = "<group>"; };
 		87E37EEF188CA5F5000333EA /* HPTagManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPTagManager.h; sourceTree = "<group>"; };
 		87E37EF0188CA5F5000333EA /* HPTagManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPTagManager.m; sourceTree = "<group>"; };
+		87E37EF2188CB169000333EA /* HPRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPRootViewController.h; sourceTree = "<group>"; };
+		87E37EF3188CB169000333EA /* HPRootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPRootViewController.m; sourceTree = "<group>"; };
 		9553C6822D1E4B5082F74644 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -244,6 +247,8 @@
 				8740FAE2188A8BA2004CF099 /* Note */,
 				8763DA3118883ACF000D9569 /* Supporting Files */,
 				87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */,
+				87E37EF2188CB169000333EA /* HPRootViewController.h */,
+				87E37EF3188CB169000333EA /* HPRootViewController.m */,
 			);
 			path = Agnes;
 			sourceTree = "<group>";
@@ -453,6 +458,7 @@
 				87E37E88188BDFA6000333EA /* Agnes.xcdatamodeld in Sources */,
 				8740FAF5188B3A5A004CF099 /* NDTrie.m in Sources */,
 				87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */,
+				87E37EF4188CB169000333EA /* HPRootViewController.m in Sources */,
 				8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */,
 				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
 				87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */,

@@ -11,7 +11,7 @@
 #import "HPIndexViewController.h"
 #import "HPIndexItem.h"
 #import "HPPreferencesManager.h"
-#import "MMDrawerController.h"
+#import "HPRootViewController.h"
 #import <CoreData/CoreData.h>
 
 @implementation HPAppDelegate
@@ -22,6 +22,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    application.applicationSupportsShakeToEdit = YES;
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor whiteColor];
 
@@ -33,7 +35,7 @@
     UIViewController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
     HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
     UINavigationController *leftNavigationController = [[UINavigationController alloc] initWithRootViewController:indexViewController];
-    MMDrawerController *drawerController = [[MMDrawerController alloc] initWithCenterViewController:centerController leftDrawerViewController:leftNavigationController];
+    HPRootViewController *drawerController = [[HPRootViewController alloc] initWithCenterViewController:centerController leftDrawerViewController:leftNavigationController];
 
     self.window.rootViewController = drawerController;
     [self.window makeKeyAndVisible];
@@ -75,6 +77,7 @@
             _managedObjectContext = [[NSManagedObjectContext alloc] init];
             _managedObjectContext.persistentStoreCoordinator = coordinator;
         }
+        _managedObjectContext.undoManager = [[NSUndoManager alloc] init];
     }
     return _managedObjectContext;
 }

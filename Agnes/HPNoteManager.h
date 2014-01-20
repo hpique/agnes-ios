@@ -24,13 +24,24 @@ typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
 
 - (void)addTutorialNotes;
 
-- (void)removeNote:(HPNote*)note;
-
 + (HPNoteManager*)sharedManager;
 
 + (NSArray*)sortedNotes:(NSArray*)notes criteria:(HPNoteDisplayCriteria)criteria tag:(NSString*)tag;
 
-- (HPNote*)blankNoteWithTag:(NSString*)tag;
-
 @end
 
+@interface HPNoteManager(Actions)
+
+- (void)archiveNote:(HPNote*)note;
+
+- (HPNote*)blankNoteWithTag:(NSString*)tag;
+
+- (void)editNote:(HPNote*)note;
+
+- (void)increaseViewsOfNote:(HPNote*)note;
+
+- (void)unarchiveNote:(HPNote*)note;
+
+- (void)trashNote:(HPNote*)note;
+
+@end

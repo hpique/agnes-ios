@@ -46,12 +46,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         HPNote *note = [self note];
         note.text = text;
     }
-    [self save];
-}
-
-- (void)removeNote:(HPNote*)note
-{
-    [self.context deleteObject:note];
+    [self.context.undoManager setActionName:NSLocalizedString(@"Add Notes", @"")];
     [self save];
 }
 
@@ -80,16 +75,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     HPNote *note = [HPNote insertNewObjectIntoContext:self.context];
     note.createdAt = [NSDate date];
     note.modifiedAt = note.createdAt;
-    return note;
-}
-
-- (HPNote*)blankNoteWithTag:(NSString*)tag
-{
-    HPNote *note = [self note];
-    if (tag)
-    {
-        note.text = [NSString stringWithFormat:@"\n\n\n\n%@", tag];
-    }
     return note;
 }
 
@@ -146,6 +131,49 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         modifiedAtSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
     });
     return [notes sortedArrayUsingDescriptors:@[sortDescriptor, modifiedAtSortDescriptor]];
+}
+
+@end
+
+@implementation HPNoteManager(Actions)
+
+- (void)archiveNote:(HPNote*)note
+{
+    [self.context.undoManager setActionName:NSLocalizedString(@"Archive Note", @"")];
+    note.archived = YES;
+    [self save];
+}
+
+- (HPNote*)blankNoteWithTag:(NSString*)tag
+{
+    HPNote *note = [self note];
+    note.text = tag ? [NSString stringWithFormat:@"\n\n\n\n%@", tag] : @"";
+    return note;
+}
+
+- (void)editNote:(HPNote*)note
+{
+    [self.context.undoManager setActionName:NSLocalizedString(@"Edit Note", @"")];
+    [self save];
+}
+
+- (void)increaseViewsOfNote:(HPNote*)note
+{
+    
+}
+
+- (void)unarchiveNote:(HPNote*)note
+{
+    [self.context.undoManager setActionName:NSLocalizedString(@"Unarchive Note", @"")];
+    note.archived = NO;
+    [self save];
+}
+
+- (void)trashNote:(HPNote*)note
+{
+    [self.context.undoManager setActionName:NSLocalizedString(@"Trash Note", @"")];
+    [self.context deleteObject:note];
+    [self save];
 }
 
 @end

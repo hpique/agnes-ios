@@ -20,6 +20,7 @@
 @end
 
 @implementation HPNoteViewController {
+    BOOL _bodyTextViewChanged;
     UITextView *_bodyTextView;
     UIEdgeInsets _originalBodyTextViewInset;
     HPBaseTextStorage *_bodyTextStorage;
@@ -102,7 +103,7 @@
     {
         if (!self.indexItem.disableRemove && [self isEmptyNote:note])
         {
-            [[HPNoteManager sharedManager] removeNote:note];
+            [[HPNoteManager sharedManager] trashNote:note];
         }
     }
 }
@@ -239,7 +240,7 @@
 
 - (void)archiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
-    self.note.archived = YES;
+    [[HPNoteManager sharedManager] archiveNote:self.note];
     [self updateToolbar:YES /* animated */];
     [self finishEditing];
 }
@@ -299,7 +300,7 @@
 
 - (void)unarchiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
-    self.note.archived = NO;
+    [[HPNoteManager sharedManager] unarchiveNote:self.note];
     [self updateToolbar:YES /* animated */];
     [self finishEditing];
 }
@@ -308,6 +309,7 @@
 
 - (void)textViewDidChange:(UITextView *)textView
 {
+    _bodyTextViewChanged = YES;
     [self updateToolbar:YES /* animated */];
     self.note.modifiedAt = [NSDate date];
     self.note.text = textView.text;
@@ -320,7 +322,11 @@
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-    [[HPNoteManager sharedManager] save];
+    if (_bodyTextViewChanged)
+    {
+        [[HPNoteManager sharedManager] editNote:self.note];
+        _bodyTextViewChanged = NO;
+    }
     [self.navigationItem setRightBarButtonItems:@[_addNoteBarButtonItem, _actionBarButtonItem] animated:YES];
 }
 
