@@ -24,6 +24,7 @@
     UITextView *_bodyTextView;
     UIEdgeInsets _originalBodyTextViewInset;
     HPBaseTextStorage *_bodyTextStorage;
+    UITapGestureRecognizer *_textTapGestureRecognizer;
 
     UIBarButtonItem *_actionBarButtonItem;
     UIBarButtonItem *_addNoteBarButtonItem;
@@ -71,10 +72,13 @@
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _bodyTextView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-        _bodyTextView.dataDetectorTypes = UIDataDetectorTypeAll;
+        _bodyTextView.keyboardType = UIKeyboardTypeTwitter;
         _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, 10, 20, 10);
         _bodyTextView.delegate = self;
         [self.view addSubview:_bodyTextView];
+        
+        _textTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(textTagGestureRecognizer:)];
+        [_bodyTextView addGestureRecognizer:_textTapGestureRecognizer];
     }
     
     _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44) inputViewStyle:UIInputViewStyleKeyboard];
@@ -286,6 +290,36 @@
     }
 }
 
+- (void)textTagGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
+{
+    UITextView *textView = (UITextView*) gestureRecognizer.view;
+    NSLayoutManager *layoutManager = _bodyTextView.layoutManager;
+    CGPoint location = [gestureRecognizer locationInView:textView];
+    location.x -= textView.textContainerInset.left;
+    location.y -= textView.textContainerInset.top;
+    
+    NSUInteger characterIndex;
+    characterIndex = [layoutManager characterIndexForPoint:location inTextContainer:textView.textContainer fractionOfDistanceBetweenInsertionPoints:nil];
+    
+    if (characterIndex >= textView.textStorage.length)
+    {
+        [textView becomeFirstResponder];
+        return;
+    }
+    
+    NSRange range;
+    NSURL *url = [textView.attributedText attribute:NSLinkAttributeName atIndex:characterIndex effectiveRange:&range];
+    if (url)
+    {
+        NSLog(@"%@", url);
+    }
+    else
+    {
+        [textView setSelectedRange:NSMakeRange(characterIndex, 0)];
+        [textView becomeFirstResponder];
+    }
+}
+
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     if ([self isEmptyNote:self.note])
@@ -315,11 +349,13 @@
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
 {
+    _textTapGestureRecognizer.enabled = NO;
     [self.navigationItem setRightBarButtonItems:@[_doneBarButtonItem, _actionBarButtonItem] animated:YES];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
+    _textTapGestureRecognizer.enabled = YES;
     if (_bodyTextViewChanged)
     {
         [[HPNoteManager sharedManager] editNote:self.note text:_bodyTextView.text];

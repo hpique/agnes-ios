@@ -34,6 +34,8 @@
 
 #pragma mark - NSManagedObject
 
+// See: http://stackoverflow.com/questions/21231908/calculated-properties-in-core-data
+
 - (void)setText:(NSString *)text
 {
     static NSString *key;
@@ -49,10 +51,21 @@
 
 - (void)awakeFromSnapshotEvents:(NSSnapshotEventType)flags
 {
-    _title = nil;
-    _body = nil;
-    _tags = nil;
     [super awakeFromSnapshotEvents:flags];
+    [self updateTags];
+}
+
+- (void)willChangeValueForKey:(NSString *)key
+{
+    [super willChangeValueForKey:key];
+    static NSString *textKey;
+    if (!textKey) textKey = NSStringFromSelector(@selector(text));
+    if ([key isEqualToString:textKey])
+    {
+        _title = nil;
+        _body = nil;
+        _tags = nil;
+    }
 }
 
 #pragma mark - Public

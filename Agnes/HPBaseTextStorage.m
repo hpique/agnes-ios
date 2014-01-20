@@ -51,6 +51,7 @@
     if (_needsUpdate)
     {
         _needsUpdate = NO;
+        [self addLinks];
         [self boldTitle];
         [self performReplacementsForRange:self.editedRange];
     }
@@ -58,6 +59,38 @@
 }
 
 #pragma mark - Private
+
+- (void)addLinks
+{
+    NSString *text = _backingStore.string;
+    NSRange textRange = NSMakeRange(0, text.length);
+    [_backingStore removeAttribute:NSLinkAttributeName range:textRange];
+    
+    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink urlFormat:@"mailto:%@" containing:@"@"];
+    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink urlFormat:@"agnes-link://%@" containing:nil];
+    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypePhoneNumber urlFormat:@"tel://%@" containing:nil];
+}
+
+- (void)addLinksToMatchesOfDataDetectorType:(NSTextCheckingType)type urlFormat:(NSString*)format containing:(NSString*)extra
+{
+    NSError *error = nil;
+    NSDataDetector *detector = [NSDataDetector dataDetectorWithTypes:type error:&error];
+    NSAssert(detector, @"Data detector error %@", error);
+    NSString *text = _backingStore.string;
+    [detector enumerateMatchesInString:text options:kNilOptions range:NSMakeRange(0, text.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
+     {
+         NSRange range = result.range;
+         NSURL *previousUrl = [_backingStore attribute:NSLinkAttributeName atIndex:range.location effectiveRange:nil];
+         if (previousUrl) return;
+         
+         NSString *substring = [text substringWithRange:range];
+         if (extra != nil && [substring rangeOfString:extra].location == NSNotFound) return;
+
+         NSString *link = [NSString stringWithFormat:format, [substring stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+         NSURL *url = [NSURL URLWithString:link];
+         [_backingStore addAttribute:NSLinkAttributeName value:url range:result.range];
+     }];
+}
 
 - (void)boldTitle
 {
