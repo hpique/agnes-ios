@@ -15,11 +15,8 @@
 #import "HPIndexItem.h"
 #import "PSPDFTextView.h"
 #import "HPBrowserViewController.h"
-#import <MessageUI/MessageUI.h>
-#import <AddressBook/AddressBook.h>
-#import <AddressBookUI/AddressBookUI.h>
 
-@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
+@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate>
 
 @end
 
@@ -37,15 +34,7 @@
     UIBarButtonItem *_trashBarButtonItem;
     UIBarButtonItem *_unarchiveBarButtonItem;
     
-    NSURL *_selectedURL;
-    NSString *_selectedPhoneNumber;
     UIActionSheet *_deleteNoteActionSheet;
-    UIActionSheet *_emailActionSheet;
-    UIActionSheet *_phoneNumberActionSheet;
-    NSInteger _phoneNumberActionSheetCallIndex;
-    NSInteger _phoneNumberActionSheetMessageIndex;
-    NSInteger _phoneNumberActionSheetContactsIndex;
-    NSInteger _phoneNumberActionSheetCopyIndex;
     
     NSInteger _noteIndex;
     
@@ -167,33 +156,6 @@
 
 #pragma mark - Private
 
-- (void)addContactWithEmail:(NSString*)email phoneNumber:(NSString*)phoneNumber
-{
-    ABRecordRef person = ABPersonCreate();
-        
-    if (email)
-    {
-        ABMutableMultiValueRef emailMultiValue = ABMultiValueCreateMutable(kABMultiStringPropertyType);
-        ABMultiValueAddValueAndLabel(emailMultiValue, (__bridge CFStringRef) email, kABWorkLabel, NULL);
-        ABRecordSetValue(person, kABPersonEmailProperty, emailMultiValue, nil);
-        CFRelease(emailMultiValue);
-    }
-    
-    if (phoneNumber)
-    {
-        ABMutableMultiValueRef phoneNumberMultiValue = ABMultiValueCreateMutable(kABMultiStringPropertyType);
-        ABMultiValueAddValueAndLabel(phoneNumberMultiValue, (__bridge CFStringRef) phoneNumber, kABPersonPhoneMainLabel, NULL);
-        ABRecordSetValue(person, kABPersonPhoneProperty, phoneNumberMultiValue, nil);
-        CFRelease(phoneNumberMultiValue);
-    }
-    
-    ABUnknownPersonViewController *controller = [[ABUnknownPersonViewController alloc] init];
-    controller.displayedPerson = person;
-    controller.allowsAddingToAddressBook = YES;
-    [self.navigationController pushViewController:controller animated:YES];
-    CFRelease(person);
-}
-
 - (void)displayNote
 {
     NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
@@ -244,20 +206,14 @@
 
 - (void)handleURL:(NSURL*)url
 {
-    _selectedURL = url;
     NSString *scheme = url.scheme;
     if ([scheme hasPrefix:@"http"])
     {
         [self openBrowserURL:url];
     }
-    else if ([scheme isEqualToString:@"mailto"])
+    else
     {
-        [self showEmailActionSheet];
-    }
-    else if ([scheme isEqualToString:@"tel"])
-    {
-        NSString *phoneNumber = url.host;
-        [self showActionSheetForPhoneNumber:phoneNumber];
+        [self showActionSheetForURL:url];
     }
 }
 
@@ -266,27 +222,6 @@
     HPBrowserViewController *vc = [[HPBrowserViewController alloc] init];
     vc.url = url;
     [self.navigationController pushViewController:vc animated:YES];
-}
-
-- (void)sendEmail:(NSString*)recipient
-{
-    if (![MFMailComposeViewController canSendMail]) return;
-
-    MFMailComposeViewController* mailVC = [[MFMailComposeViewController alloc] initWithNibName:nil bundle:nil];
-    mailVC.mailComposeDelegate = self;
-    [mailVC setToRecipients:@[recipient]];
-    mailVC.modalPresentationStyle = UIModalPresentationFormSheet;
-    mailVC.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    [self presentViewController:mailVC animated:YES completion:nil];
-}
-
-- (void)sendMessage:(NSString*)phoneNumber
-{
-    if (![MFMessageComposeViewController canSendText]) return;
-    MFMessageComposeViewController *messageComposer = [[MFMessageComposeViewController alloc] init];
-    messageComposer.recipients = @[phoneNumber];
-    messageComposer.messageComposeDelegate = self;
-    [self presentViewController:messageComposer animated:YES completion:nil];
 }
 
 - (NSString*)selectedTagEnclosing:(BOOL)enclosing range:(NSRange*)foundRange
@@ -314,46 +249,6 @@
         return tag;
     }
     return nil;
-}
-
-- (void)setPasteboard:(NSString*)value
-{
-    [UIPasteboard generalPasteboard].string = value;
-}
-
-- (void)showEmailActionSheet
-{
-    if ([MFMailComposeViewController canSendMail])
-    {
-        _emailActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"New Message", @""), NSLocalizedString(@"Add to Contacts", @""), NSLocalizedString(@"Copy", @""), nil];
-    } else {
-        _emailActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Add to Contacts", @""), NSLocalizedString(@"Copy", @""), nil];
-    }
-    [_emailActionSheet showInView:self.view];
-}
-
-- (void)showActionSheetForPhoneNumber:(NSString*)phoneNumber
-{
-    _selectedPhoneNumber = phoneNumber;
-    _phoneNumberActionSheet = [[UIActionSheet alloc] init];
-    _phoneNumberActionSheet.delegate = self;
-    const BOOL canMakeCalls = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tel://"]];
-    _phoneNumberActionSheetCallIndex = -1;
-    if (canMakeCalls)
-    {
-        NSString *title = [NSString stringWithFormat:NSLocalizedString(@"Call %@", phoneNumber)];
-        _phoneNumberActionSheetCallIndex = [_phoneNumberActionSheet addButtonWithTitle:title];
-    }
-    _phoneNumberActionSheetMessageIndex = -1;
-    if ([MFMessageComposeViewController canSendText])
-    {
-        _phoneNumberActionSheetMessageIndex = [_phoneNumberActionSheet addButtonWithTitle:NSLocalizedString(@"Send Message", @"")];
-    }
-    _phoneNumberActionSheetContactsIndex = [_phoneNumberActionSheet addButtonWithTitle:NSLocalizedString(@"Add to Contacts", @"")];
-    _phoneNumberActionSheetCopyIndex = [_phoneNumberActionSheet addButtonWithTitle:NSLocalizedString(@"Copy", @"")];
-    NSInteger cancelButtonIndex = [_phoneNumberActionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
-    _phoneNumberActionSheet.cancelButtonIndex = cancelButtonIndex;
-    [_phoneNumberActionSheet showInView:self.view];
 }
 
 - (void)updateToolbar:(BOOL)animated
@@ -557,44 +452,9 @@
         }
         _deleteNoteActionSheet = nil;
     }
-    else if (_emailActionSheet == actionSheet)
+    else
     {
-        NSString *email = [_selectedURL.absoluteString stringByReplacingOccurrencesOfString:@"mailto:" withString:@""];
-        email = [email stringByRemovingPercentEncoding];
-        buttonIndex += 4 - actionSheet.numberOfButtons;
-        switch (buttonIndex) {
-            case 0:
-                [self sendEmail:email];
-                break;
-            case 1:
-                [self addContactWithEmail:email phoneNumber:nil];
-                break;
-            case 2:
-                [self setPasteboard:email];
-                break;
-            default:
-                break;
-        }
-    }
-    else if (_phoneNumberActionSheet == actionSheet)
-    {
-        if (buttonIndex == _phoneNumberActionSheetCallIndex)
-        {
-            [[UIApplication sharedApplication] openURL:_selectedURL];
-        }
-        else if (buttonIndex == _phoneNumberActionSheetMessageIndex)
-        {
-            [self sendMessage:_selectedPhoneNumber];
-        }
-        else if (buttonIndex == _phoneNumberActionSheetContactsIndex)
-        {
-            [self addContactWithEmail:nil phoneNumber:_selectedPhoneNumber];
-            
-        }
-        else if (buttonIndex == _phoneNumberActionSheetCopyIndex)
-        {
-            [self setPasteboard:_selectedPhoneNumber];
-        }
+        [super actionSheet:actionSheet clickedButtonAtIndex:buttonIndex];
     }
 }
 
@@ -614,20 +474,6 @@
 {
     _bodyTextView.contentInset = _originalBodyTextViewInset;
     _bodyTextView.scrollIndicatorInsets = UIEdgeInsetsZero;
-}
-
-#pragma mark - MFMailComposeViewControllerDelegate
-
--(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
-{
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
-
-#pragma mark - MFMessageComposeViewControllerDelegate
-
-- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
-{
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end

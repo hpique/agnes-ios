@@ -49,6 +49,7 @@
 		87E37EFB188D97F3000333EA /* HPBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */; };
 		87E37EFD188DA9B1000333EA /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E37EFC188DA9B1000333EA /* AddressBook.framework */; };
 		87E37EFF188DA9B5000333EA /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E37EFE188DA9B5000333EA /* AddressBookUI.framework */; };
+		87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37F01188DB2E7000333EA /* HPDataActionViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -127,6 +128,8 @@
 		87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPBrowserViewController.xib; sourceTree = "<group>"; };
 		87E37EFC188DA9B1000333EA /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		87E37EFE188DA9B5000333EA /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = System/Library/Frameworks/AddressBookUI.framework; sourceTree = SDKROOT; };
+		87E37F00188DB2E7000333EA /* HPDataActionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDataActionViewController.h; sourceTree = "<group>"; };
+		87E37F01188DB2E7000333EA /* HPDataActionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDataActionViewController.m; sourceTree = "<group>"; };
 		9553C6822D1E4B5082F74644 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -323,6 +326,8 @@
 				87E37EF7188D97F3000333EA /* HPBrowserViewController.h */,
 				87E37EF8188D97F3000333EA /* HPBrowserViewController.m */,
 				87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */,
+				87E37F00188DB2E7000333EA /* HPDataActionViewController.h */,
+				87E37F01188DB2E7000333EA /* HPDataActionViewController.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -483,6 +488,7 @@
 				87E37EF4188CB169000333EA /* HPRootViewController.m in Sources */,
 				8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */,
 				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
+				87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */,
 				87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */,
 				8763DA631888420A000D9569 /* HPNoteManager.m in Sources */,
 				8763DA3718883ACF000D9569 /* main.m in Sources */,

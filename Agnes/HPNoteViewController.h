@@ -7,10 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HPDataActionViewController.h"
 @class HPNote;
 @class HPIndexItem;
 
-@interface HPNoteViewController : UIViewController
+@interface HPNoteViewController : HPDataActionViewController
 
 @property (nonatomic, strong) HPNote *note;
 @property (nonatomic, copy) HPIndexItem *indexItem;
