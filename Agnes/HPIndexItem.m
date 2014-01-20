@@ -38,7 +38,7 @@
     static HPIndexItem *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ == NO", NSStringFromSelector(@selector(archived))];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(cd_archived))];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Inbox", @"") predictate:predicate];
         instance.defaultDisplayCriteria = HPNoteDisplayCriteriaOrder;
         instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
@@ -51,8 +51,8 @@
     static HPIndexItem *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString *archivedName = NSStringFromSelector(@selector(archived));
-        NSPredicate *archivePredicate = [NSPredicate predicateWithFormat:@"SELF.%@ == YES", archivedName];
+        NSString *archivedName = NSStringFromSelector(@selector(cd_archived));
+        NSPredicate *archivePredicate = [NSPredicate predicateWithFormat:@"%K == YES", archivedName];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Archive", @"") predictate:archivePredicate];
         instance.defaultDisplayCriteria = HPNoteDisplayCriteriaModifiedAt;
         instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
@@ -102,7 +102,9 @@
 - (NSArray*)notes
 {
     HPTag *tag = [[HPTagManager sharedManager] tagWithName:self.tag];
-    return [tag.notes allObjects];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(cd_archived))];
+    NSSet *notes = [tag.notes filteredSetUsingPredicate:predicate];
+    return [notes allObjects];
 }
 
 - (NSString*)tag
