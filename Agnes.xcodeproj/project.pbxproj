@@ -47,6 +47,8 @@
 		87E37EF6188D9166000333EA /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E37EF5188D9166000333EA /* MessageUI.framework */; };
 		87E37EFA188D97F3000333EA /* HPBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EF8188D97F3000333EA /* HPBrowserViewController.m */; };
 		87E37EFB188D97F3000333EA /* HPBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */; };
+		87E37EFD188DA9B1000333EA /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E37EFC188DA9B1000333EA /* AddressBook.framework */; };
+		87E37EFF188DA9B5000333EA /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E37EFE188DA9B5000333EA /* AddressBookUI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,6 +125,8 @@
 		87E37EF7188D97F3000333EA /* HPBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPBrowserViewController.h; sourceTree = "<group>"; };
 		87E37EF8188D97F3000333EA /* HPBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPBrowserViewController.m; sourceTree = "<group>"; };
 		87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPBrowserViewController.xib; sourceTree = "<group>"; };
+		87E37EFC188DA9B1000333EA /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
+		87E37EFE188DA9B5000333EA /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = System/Library/Frameworks/AddressBookUI.framework; sourceTree = SDKROOT; };
 		9553C6822D1E4B5082F74644 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -131,6 +135,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87E37EFF188DA9B5000333EA /* AddressBookUI.framework in Frameworks */,
+				87E37EFD188DA9B1000333EA /* AddressBook.framework in Frameworks */,
 				87E37EF6188D9166000333EA /* MessageUI.framework in Frameworks */,
 				87E37EE4188BEF81000333EA /* CoreData.framework in Frameworks */,
 				8763DA2D18883ACF000D9569 /* CoreGraphics.framework in Frameworks */,
@@ -229,6 +235,8 @@
 		8763DA2918883ACF000D9569 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				87E37EFE188DA9B5000333EA /* AddressBookUI.framework */,
+				87E37EFC188DA9B1000333EA /* AddressBook.framework */,
 				87E37EF5188D9166000333EA /* MessageUI.framework */,
 				87E37EE3188BEF81000333EA /* CoreData.framework */,
 				8763DA2A18883ACF000D9569 /* Foundation.framework */,

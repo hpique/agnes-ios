@@ -52,7 +52,7 @@
     if (_needsUpdate)
     {
         _needsUpdate = NO;
-        // [self addLinks];
+        [self addLinks];
         [self boldTitle];
         [self performReplacementsForRange:self.editedRange];
     }
@@ -69,13 +69,13 @@
     
     if ([MFMailComposeViewController canSendMail])
     {
-        [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink urlFormat:@"mailto:%@" containing:@"@"];
+        [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink scheme:@"mailto" urlFormat:@"%@:%@" containing:@"@"];
     }
-    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink urlFormat:@"%@" containing:nil];
-    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypePhoneNumber urlFormat:@"tel://%@" containing:nil];
+    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink scheme:@"http" urlFormat:@"%@://%@" containing:nil];
+    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypePhoneNumber scheme:@"tel" urlFormat:@"%@://%@" containing:nil];
 }
 
-- (void)addLinksToMatchesOfDataDetectorType:(NSTextCheckingType)type urlFormat:(NSString*)format containing:(NSString*)extra
+- (void)addLinksToMatchesOfDataDetectorType:(NSTextCheckingType)type scheme:(NSString*)scheme urlFormat:(NSString*)format containing:(NSString*)extra
 {
     NSError *error = nil;
     NSDataDetector *detector = [NSDataDetector dataDetectorWithTypes:type error:&error];
@@ -90,8 +90,11 @@
          NSString *substring = [text substringWithRange:range];
          if (extra != nil && [substring rangeOfString:extra].location == NSNotFound) return;
 
-         NSString *link = [NSString stringWithFormat:format, [substring stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-         NSURL *url = [NSURL URLWithString:link];
+         if (![substring hasPrefix:scheme])
+         {
+             substring = [NSString stringWithFormat:format, scheme, [substring stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+         }
+         NSURL *url = [NSURL URLWithString:substring];
          [_backingStore addAttribute:NSLinkAttributeName value:url range:result.range];
      }];
 }

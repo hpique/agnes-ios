@@ -183,7 +183,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     // TODO: Trash blank notes without undo
     [self performModelUpdateBlock:^{
         [self.context deleteObject:note];
-    } actionName:@"Trash Note"];
+    } actionName:@"Delete Note"];
 }
 
 @end
