@@ -59,6 +59,8 @@
     
     self.navigationItem.titleView = _titleView;
     
+    self.searchDisplayController.searchBar.keyboardType = UIKeyboardTypeTwitter;
+    
     [_tableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:YES]; // TODO: Use autolayout?
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];

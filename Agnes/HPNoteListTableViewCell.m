@@ -58,8 +58,6 @@
         case HPNoteDisplayCriteriaModifiedAt:
             detailText = self.note.modifiedAtDescription;
             break;
-        case HPNoteDisplayCriteriaViews:
-            detailText = [NSString stringWithFormat:@"%ld", (long)self.note.views];
         default:
             break;
     }

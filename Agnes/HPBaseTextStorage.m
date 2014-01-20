@@ -8,6 +8,7 @@
 
 #import "HPBaseTextStorage.h"
 #import "HPNote.h"
+#import <MessageUI/MessageUI.h>
 
 @implementation HPBaseTextStorage {
     NSMutableAttributedString *_backingStore;
@@ -51,7 +52,7 @@
     if (_needsUpdate)
     {
         _needsUpdate = NO;
-        [self addLinks];
+        // [self addLinks];
         [self boldTitle];
         [self performReplacementsForRange:self.editedRange];
     }
@@ -66,8 +67,11 @@
     NSRange textRange = NSMakeRange(0, text.length);
     [_backingStore removeAttribute:NSLinkAttributeName range:textRange];
     
-    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink urlFormat:@"mailto:%@" containing:@"@"];
-    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink urlFormat:@"agnes-link://%@" containing:nil];
+    if ([MFMailComposeViewController canSendMail])
+    {
+        [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink urlFormat:@"mailto:%@" containing:@"@"];
+    }
+    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink urlFormat:@"%@" containing:nil];
     [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypePhoneNumber urlFormat:@"tel://%@" containing:nil];
 }
 

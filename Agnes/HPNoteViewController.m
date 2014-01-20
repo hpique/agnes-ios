@@ -14,8 +14,10 @@
 #import "HPNoteAction.h"
 #import "HPIndexItem.h"
 #import "PSPDFTextView.h"
+#import "HPBrowserViewController.h"
+#import <MessageUI/MessageUI.h>
 
-@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate>
+@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, MFMailComposeViewControllerDelegate>
 
 @end
 
@@ -75,6 +77,8 @@
         _bodyTextView.keyboardType = UIKeyboardTypeTwitter;
         _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, 10, 20, 10);
         _bodyTextView.delegate = self;
+        _bodyTextView.editable = NO;
+        _bodyTextView.dataDetectorTypes = UIDataDetectorTypeAll;
         [self.view addSubview:_bodyTextView];
         
         _textTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(textTagGestureRecognizer:)];
@@ -200,6 +204,40 @@
     [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
 }
 
+- (void)handleURL:(NSURL*)url
+{
+    NSString *scheme = url.scheme;
+    if ([scheme hasPrefix:@"http"])
+    {
+        [self openBrowserURL:url];
+    }
+    else if ([scheme isEqualToString:@"mailto"])
+    {
+        NSString *recipient = [url.absoluteString stringByReplacingOccurrencesOfString:@"mailto:" withString:@""];
+        [self sendEmail:recipient];
+    }
+}
+
+- (void)openBrowserURL:(NSURL*)url
+{
+    HPBrowserViewController *vc = [[HPBrowserViewController alloc] init];
+    vc.url = url;
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (void)sendEmail:(NSString*)recipient
+{
+    if (![MFMailComposeViewController canSendMail]) return;
+
+    MFMailComposeViewController* mailVC = [[MFMailComposeViewController alloc] initWithNibName:nil bundle:nil];
+    mailVC.mailComposeDelegate = self;
+    [mailVC setToRecipients:@[recipient]];
+    mailVC.modalPresentationStyle = UIModalPresentationFormSheet;
+    mailVC.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    [self presentViewController:mailVC animated:YES completion:nil];
+}
+
+
 - (NSString*)selectedTagEnclosing:(BOOL)enclosing range:(NSRange*)foundRange
 {
     NSRange selectedRange = _bodyTextView.selectedRange;
@@ -311,7 +349,7 @@
     NSURL *url = [textView.attributedText attribute:NSLinkAttributeName atIndex:characterIndex effectiveRange:&range];
     if (url)
     {
-        NSLog(@"%@", url);
+        [self handleURL:url];
     }
     else
     {
@@ -442,6 +480,13 @@
 {
     _bodyTextView.contentInset = _originalBodyTextViewInset;
     _bodyTextView.scrollIndicatorInsets = UIEdgeInsetsZero;
+}
+
+#pragma mark - MFMailComposeViewControllerDelegate
+
+-(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end
