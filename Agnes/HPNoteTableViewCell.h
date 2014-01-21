@@ -7,9 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MCSwipeTableViewCell.h"
 @class HPNote;
 
-@interface HPNoteTableViewCell : UITableViewCell
+@interface HPNoteTableViewCell : MCSwipeTableViewCell
 
 @property (nonatomic, strong) HPNote *note;
 @property (nonatomic, readonly) UIFontDescriptor *titleFontDescriptor;

@@ -99,6 +99,22 @@
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
+- (void)archiveNoteInCell:(HPNoteListTableViewCell*)cell
+{
+    NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
+    [_notes removeObjectAtIndex:indexPath.row];
+    [_tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [[HPNoteManager sharedManager] archiveNote:cell.note];
+}
+
+- (void)unarchiveNoteInCell:(HPNoteListTableViewCell*)cell
+{
+    NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
+    [_notes removeObjectAtIndex:indexPath.row];
+    [_tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [[HPNoteManager sharedManager] unarchiveNote:cell.note];
+}
+
 - (void)notesDidChangeNotification:(NSNotification*)notification
 {
     [self updateNotes:YES /* animated */];
@@ -211,9 +227,8 @@
          }
      }];
 
-    [tableView beginUpdates];
-    [tableView deleteRowsAtIndexPaths:indexPathsToDelete withRowAnimation:UITableViewRowAnimationAutomatic];
     NSMutableArray *indexPathsToInsert = [NSMutableArray array];
+    NSMutableArray *indexPathsToMove = [NSMutableArray array];
     [updatedData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
      {
          // TODO: Use dictionaries
@@ -227,11 +242,21 @@
          {
              NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:previousIndex inSection:section];
              NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:section];
-             [tableView moveRowAtIndexPath:fromIndexPath toIndexPath:toIndexPath];
+             [indexPathsToMove addObject:@[fromIndexPath, toIndexPath]];
          }
      }];
-    [tableView insertRowsAtIndexPaths:indexPathsToInsert withRowAnimation:UITableViewRowAnimationAutomatic];
-    [tableView endUpdates];
+    
+    if (indexPathsToDelete.count > 0 || indexPathsToMove.count > 0 || indexPathsToInsert.count > 0)
+    {
+        [tableView beginUpdates];
+        [tableView deleteRowsAtIndexPaths:indexPathsToDelete withRowAnimation:UITableViewRowAnimationAutomatic];
+        for (NSArray *indexPaths in indexPathsToMove)
+        {
+            [tableView moveRowAtIndexPath:indexPaths[0] toIndexPath:indexPaths[1]];
+        }
+        [tableView insertRowsAtIndexPaths:indexPathsToInsert withRowAnimation:UITableViewRowAnimationAutomatic];
+        [tableView endUpdates];
+    }
 }
 
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
@@ -325,6 +350,24 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
         HPNote *note = [objects objectAtIndex:indexPath.row];
         noteCell.note = note;
         noteCell.displayCriteria = _displayCriteria;
+        noteCell.separatorInset = UIEdgeInsetsZero;
+
+        
+        UIView *swipeView = [[UIView alloc] init];
+        if (note.archived)
+        {
+            __weak id weakNoteCell = noteCell;
+            [noteCell setSwipeGestureWithView:swipeView color:[UIColor greenColor] mode:MCSwipeTableViewCellModeExit state:MCSwipeTableViewCellState1 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
+             {
+                 [self unarchiveNoteInCell:weakNoteCell];
+             }];
+        } else {
+            __weak id weakNoteCell = noteCell;
+            [noteCell setSwipeGestureWithView:swipeView color:[UIColor redColor] mode:MCSwipeTableViewCellModeExit state:MCSwipeTableViewCellState3 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
+             {
+                 [self archiveNoteInCell:weakNoteCell];
+             }];
+        }
     }
     return cell;
 }

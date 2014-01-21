@@ -1,4 +1,5 @@
 PODS:
+  - MCSwipeTableViewCell (2.0.0)
   - MMDrawerController (0.5.1):
     - MMDrawerController/Core
     - MMDrawerController/MMDrawerBarButtonItem
@@ -14,6 +15,7 @@ PODS:
   - PSPDFTextView (1.1.0)
 
 DEPENDENCIES:
+  - MCSwipeTableViewCell (~> 2.0)
   - MMDrawerController (~> 0.5)
   - PSPDFTextView (from `https://github.com/steipete/PSPDFTextView.git`)
 
@@ -22,6 +24,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/steipete/PSPDFTextView.git
 
 SPEC CHECKSUMS:
+  MCSwipeTableViewCell: b80c32bc0cc9f678aaa6bc39c848c454d65f2c02
   MMDrawerController: 3e22aec684dbee5307ff9d1e76523003a3303a2d
   PSPDFTextView: 778b967396e062389f9963b43b860af2e1fe9055
 
