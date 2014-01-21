@@ -27,8 +27,8 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
 - (void)displayNote
 {
     [super displayNote];
-    [self setText:self.note.title inSearchResultlabel:self.textLabel fontDescriptor:self.titleFontDescriptor];
-    [self setText:self.note.body inSearchResultlabel:self.detailTextLabel fontDescriptor:self.detailFontDescriptor];
+    [self setText:self.note.title inSearchResultlabel:self.titleLabel fontDescriptor:self.titleFontDescriptor];
+    [self setText:self.note.body inSearchResultlabel:self.bodyLabel fontDescriptor:self.detailFontDescriptor];
 }
 
 - (void)setText:(NSString*)text inSearchResultlabel:(UILabel*)label fontDescriptor:(UIFontDescriptor*)fontDescriptor

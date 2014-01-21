@@ -18,6 +18,8 @@
 #import "UIViewController+MMDrawerController.h"
 #import "HPPreferencesManager.h"
 
+static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
+
 @interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource>
 
 @end
@@ -51,7 +53,8 @@
     [super viewDidLoad];
     
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
-    [_tableView registerClass:[HPNoteListTableViewCell class] forCellReuseIdentifier:@"cell"];
+    UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
+    [_tableView registerNib:nib forCellReuseIdentifier:HPNoteListTableViewCellReuseIdentifier];
     _tableView.editing = YES;
     
     MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
@@ -72,6 +75,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [_tableView deselectRowAtIndexPath:[_tableView indexPathForSelectedRow] animated:animated];
     [self updateNotes:animated];
 }
 
@@ -335,7 +339,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:HPNoteListTableViewCellReuseIdentifier];
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     if (self.searchDisplayController.searchResultsTableView == tableView)
     {
@@ -395,6 +399,12 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 #pragma mark - UITableViewDelegate
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 80;
+}
+
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
@@ -421,7 +431,8 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void)searchDisplayController:(UISearchDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView
 {
-    [tableView registerClass:[HPNoteSearchTableViewCell class] forCellReuseIdentifier:@"cell"];
+    UINib *nib = [UINib nibWithNibName:@"HPNoteSearchTableViewCell" bundle:nil];
+    [tableView registerNib:nib forCellReuseIdentifier:HPNoteListTableViewCellReuseIdentifier];
 }
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString

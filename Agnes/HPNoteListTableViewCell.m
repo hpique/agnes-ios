@@ -46,7 +46,8 @@
 - (void)displayNote
 {
     [super displayNote];
-    self.textLabel.text = self.note.title;
+    self.titleLabel.text = self.note.title;
+    self.bodyLabel.text = self.note.body;
     [self displayDetail];
 }
 
@@ -61,7 +62,7 @@
         default:
             break;
     }
-    self.detailTextLabel.text = detailText;
+    self.detailLabel.text = detailText;
 }
 
 @end

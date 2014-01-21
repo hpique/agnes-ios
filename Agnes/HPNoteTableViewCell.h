@@ -15,6 +15,9 @@
 @property (nonatomic, strong) HPNote *note;
 @property (nonatomic, readonly) UIFontDescriptor *titleFontDescriptor;
 @property (nonatomic, readonly) UIFontDescriptor *detailFontDescriptor;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *bodyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *detailLabel;
 
 - (void)displayNote;
 

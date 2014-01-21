@@ -73,8 +73,18 @@ static UIFontDescriptor *_archivedDetailFontDescriptor;
 
 - (void)displayNote
 {
-    self.textLabel.font = [UIFont fontWithDescriptor:self.titleFontDescriptor size:0];
-    self.detailTextLabel.font =  [UIFont fontWithDescriptor:self.detailFontDescriptor size:0];
+    self.titleLabel.font = [UIFont fontWithDescriptor:self.titleFontDescriptor size:0];
+    self.bodyLabel.font =  [UIFont fontWithDescriptor:self.detailFontDescriptor size:0];
+    
+    NSDictionary *attributes = @{NSFontAttributeName: self.titleLabel.font};
+    
+    NSString *title = self.note.title;
+    CGRect titleRect = [title boundingRectWithSize:CGSizeMake(CGRectGetWidth(self.bounds), CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil];
+    CGRect singleLineRect = [@"" boundingRectWithSize:CGSizeMake(CGRectGetWidth(self.bounds), CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil];
+    NSInteger lines = round(titleRect.size.height / singleLineRect.size.height);
+    NSInteger maximumBodyLines = self.titleLabel.numberOfLines - lines;
+    self.bodyLabel.hidden = maximumBodyLines == 0;
+    self.bodyLabel.numberOfLines = maximumBodyLines;
 }
 
 - (void)removeNoteObserver

@@ -35,6 +35,8 @@
 		8763DA6818884650000D9569 /* HPNoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA6618884650000D9569 /* HPNoteViewController.xib */; };
 		8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */; };
 		8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */; };
+		87AD2F83188E900B0065EEBA /* HPNoteListTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */; };
+		87AD2F85188E94450065EEBA /* HPNoteSearchTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AD2F84188E94450065EEBA /* HPNoteSearchTableViewCell.xib */; };
 		87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E3D188B57C0000333EA /* HPPreferencesManager.m */; };
 		87E37E41188B6158000333EA /* HPNoteAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E40188B6158000333EA /* HPNoteAction.m */; };
 		87E37E88188BDFA6000333EA /* Agnes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */; };
@@ -107,6 +109,8 @@
 		8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPBaseTextStorage.m; sourceTree = "<group>"; };
 		8763DA6C18897982000D9569 /* HPNoteListTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteListTableViewCell.h; sourceTree = "<group>"; };
 		8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListTableViewCell.m; sourceTree = "<group>"; };
+		87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteListTableViewCell.xib; sourceTree = "<group>"; };
+		87AD2F84188E94450065EEBA /* HPNoteSearchTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteSearchTableViewCell.xib; sourceTree = "<group>"; };
 		87E37E3C188B57C0000333EA /* HPPreferencesManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPPreferencesManager.h; sourceTree = "<group>"; };
 		87E37E3D188B57C0000333EA /* HPPreferencesManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPPreferencesManager.m; sourceTree = "<group>"; };
 		87E37E3F188B6158000333EA /* HPNoteAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteAction.h; sourceTree = "<group>"; };
@@ -180,13 +184,15 @@
 		8740FAE1188A8B87004CF099 /* List */ = {
 			isa = PBXGroup;
 			children = (
-				8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */,
-				8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */,
 				8763DA6C18897982000D9569 /* HPNoteListTableViewCell.h */,
 				8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */,
+				87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */,
 				8763DA5918883B2B000D9569 /* HPNoteListViewController.h */,
 				8763DA5A18883B2B000D9569 /* HPNoteListViewController.m */,
 				8763DA5C18883B6D000D9569 /* HPNoteListViewController.xib */,
+				8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */,
+				8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */,
+				87AD2F84188E94450065EEBA /* HPNoteSearchTableViewCell.xib */,
 				8740FAE6188AA7DB004CF099 /* HPNoteTableViewCell.h */,
 				8740FAE7188AA7DB004CF099 /* HPNoteTableViewCell.m */,
 			);
@@ -418,7 +424,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87AD2F85188E94450065EEBA /* HPNoteSearchTableViewCell.xib in Resources */,
 				8740FAEB188ACEF9004CF099 /* Localizable.strings in Resources */,
+				87AD2F83188E900B0065EEBA /* HPNoteListTableViewCell.xib in Resources */,
 				87E37EFB188D97F3000333EA /* HPBrowserViewController.xib in Resources */,
 				8763DA3518883ACF000D9569 /* InfoPlist.strings in Resources */,
 				8763DA5D18883B6D000D9569 /* HPNoteListViewController.xib in Resources */,

@@ -5,7 +5,7 @@
   Created by Hermes on 18/01/14.
   Copyright (c) 2014 Hermes Pique. All rights reserved.
 */
-"tutorial1"="Welcome to Agnes\n\nLet's get started! Slide this note to the left to archive it. Like email.{$agnes-break}\n\nThat applies to lists. From here, you can tap the Archive button.\n\n#tutorial";
+"tutorial1"="Welcome to Agnes\n\nLet's get started! Slide this note to the left to archive it. Like email.\n\nThat applies to lists. From here, you can tap the Archive button.\n\n#tutorial";
 "tutorial2"="Organise with tags\n\nUse hashtags to categorise your notes. For example, these notes are tagged #tutorial.";
 "tutorial3"="Order or sort\n\nTap and hold to order your notes. Or tap on the list title to sort them automagically.\n\n#tutorial";
 "tutorial4"="Discover simplicity\n\nAgnes is full of features and very few buttons. Here are some of them.\n\n#tutorial";
