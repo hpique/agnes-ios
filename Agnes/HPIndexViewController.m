@@ -37,7 +37,9 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];}
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+}
 
 - (void)viewDidLoad
 {
@@ -48,7 +50,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     
     [self reloadData];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
 }
 
 #pragma mark - Private
@@ -59,6 +62,10 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [items addObject:[HPIndexItem inboxIndexItem]];
     
     NSArray *tags = [HPTagManager sharedManager].objects;
+    { // Remove tags with only archived notes
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == 1", NSStringFromSelector(@selector(hasInboxNotes))];
+        tags = [tags filteredArrayUsingPredicate:predicate];
+    }
     NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(name)) ascending:YES];
     tags = [tags sortedArrayUsingDescriptors:@[sortDescriptor]];
     for (HPTag *tag in tags)
@@ -104,6 +111,15 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 }
 
 #pragma mark - Actions
+
+- (void)notesDidChangeNotification:(NSNotification*)notification
+{
+    NSSet *updated = [notification.userInfo objectForKey:NSUpdatedObjectsKey];
+    if (updated.count > 0)
+    { // Catch archived / unarchived changes
+        [self reloadData];
+    }
+}
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {

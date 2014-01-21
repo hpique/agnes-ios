@@ -14,6 +14,15 @@
 @dynamic name;
 @dynamic notes;
 
+- (BOOL)hasInboxNotes
+{
+    for (HPNote *note in self.notes)
+    {
+        if (!note.archived) return YES;
+    }
+    return NO;
+}
+
 @end
 
 @implementation HPTag (Convenience)

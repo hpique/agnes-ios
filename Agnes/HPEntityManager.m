@@ -52,49 +52,35 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
 - (void)objectsDidChangeNotification:(NSNotification*)notification
 {
     NSDictionary *userInfo = notification.userInfo;
-    BOOL found = NO;
+    
+    NSSet *inserted = [self filterUserInfo:userInfo key:NSInsertedObjectsKey selector:@selector(didInsertObject:)];
+    NSSet *updated = [self filterUserInfo:userInfo key:NSUpdatedObjectsKey selector:@selector(didUpdateObject:)];
+    NSSet *deleted = [self filterUserInfo:userInfo key:NSDeletedObjectsKey selector:@selector(didDeleteObject:)];
+    
+    if (inserted.count > 0 || updated.count > 0 || deleted.count > 0)
+    {
+        NSDictionary *userInfo = @{NSInsertedObjectsKey : inserted, NSUpdatedObjectsKey : updated, NSDeletedObjectsKey : deleted};
+        [[NSNotificationCenter defaultCenter] postNotificationName:HPEntityManagerObjectsDidChangeNotification object:self userInfo:userInfo];
+    }
+}
+
+- (NSSet*)filterUserInfo:(NSDictionary*)userInfo key:(NSString*)key selector:(SEL)selector
+{
     NSString *entityName = [self entityName];
-    
+    NSMutableSet *filtered = [NSMutableSet set];
+    NSSet *changedObjects = [userInfo objectForKey:key];
+    for (NSManagedObject *object in changedObjects)
     {
-        NSSet *insertedObjects = [userInfo objectForKey:NSInsertedObjectsKey];
-        for (NSManagedObject *object in insertedObjects)
+        if ([object.entity.name isEqualToString:entityName])
         {
-            if ([object.entity.name isEqualToString:entityName])
-            {
-                found = YES;
-                [self didInsertObject:object];
-            }
+            [filtered addObject:object];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            [self performSelector:selector withObject:object];
+#pragma clang diagnostic pop
         }
     }
-    
-    {
-        NSSet *updatedObjects = [userInfo objectForKey:NSUpdatedObjectsKey];
-        for (NSManagedObject *object in updatedObjects)
-        {
-            if ([object.entity.name isEqualToString:entityName])
-            {
-                found = YES;
-                [self didUpdateObject:object];
-            }
-        }
-    }
-    
-    {
-        NSSet *deletedObjects = [userInfo objectForKey:NSDeletedObjectsKey];
-        for (NSManagedObject *object in deletedObjects)
-        {
-            if ([object.entity.name isEqualToString:entityName])
-            {
-                found = YES;
-                [self didDeleteObject:object];
-            }
-        }
-    }
-    
-    if (found)
-    {
-        [[NSNotificationCenter defaultCenter] postNotificationName:HPEntityManagerObjectsDidChangeNotification object:self];
-    }
+    return filtered;
 }
 
 - (void)performModelUpdateBlock:(void (^)())block actionName:(NSString*)actionName;

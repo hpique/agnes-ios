@@ -24,6 +24,8 @@
 - (void)addNotes:(NSSet *)values;
 - (void)removeNotes:(NSSet *)values;
 
+@property (nonatomic, readonly) BOOL hasInboxNotes;
+
 @end
 
 @interface HPTag (Convenience)
