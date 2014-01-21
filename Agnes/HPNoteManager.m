@@ -40,7 +40,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)addTutorialNotes
 {
     [self.context.undoManager disableUndoRegistration];
-    for (NSInteger i = 3; i >= 1; i--)
+    for (NSInteger i = 4; i >= 1; i--)
     {
         NSString *key = [NSString stringWithFormat:@"tutorial%d", i];
         NSString *text = NSLocalizedString(key, @"");
@@ -57,7 +57,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     if (!_systemNotes)
     {
         NSMutableArray *notes = [NSMutableArray array];
-        for (NSInteger i = 3; i >= 1; i--)
+        for (NSInteger i = 1; i >= 1; i--)
         {
             NSString *key = [NSString stringWithFormat:@"system%d", i];
             NSString *text = NSLocalizedString(key, @"");

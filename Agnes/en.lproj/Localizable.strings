@@ -5,10 +5,12 @@
   Created by Hermes on 18/01/14.
   Copyright (c) 2014 Hermes Pique. All rights reserved.
 */
-"tutorial1"="Welcome to Agnes\n\nThis is the tutorial.\nwww.google.com\nhermespique@gmail.com\n2013-01-01\n+34 800 700 600\n#tutorial";
-"tutorial2"="Organise with tags\n\nUse hashtags to categorise your notes. It's as simple as that. For example, these notes are tagged #tutorial.";
-"tutorial3"="Order or sort\n\nTap and hold to order your notes at your leisure. Or tap on the list title to sort them by various criteria.\n\n#tutorial";
+"tutorial1"="Welcome to Agnes\n\nLet's get started! Slide this note to the left to archive it. Like email.{$agnes-break}\n\nThat applies to lists. From here, you can tap the Archive button.\n\n#tutorial";
+"tutorial2"="Organise with tags\n\nUse hashtags to categorise your notes. For example, these notes are tagged #tutorial.";
+"tutorial3"="Order or sort\n\nTap and hold to order your notes. Or tap on the list title to sort them automagically.\n\n#tutorial";
+"tutorial4"="Discover simplicity\n\nAgnes is full of features and very few buttons. Here are some of them.\n\n#tutorial";
 
-"system1"="Settings\n\nIn Agnes everything is a note, even settings.\n\nfontFamily={$fontFamily}\ntintColor={$tintColor}.\n\n";
-"system2"="About\n\nFor Inés.\n\n{$agnes-appName} {$agnes-appVersion}";
+
+"system1"="About\n\nFor Inés.\n\n{$agnes-appName} {$agnes-appVersion}";
+"system2"="Settings\n\nIn Agnes everything is a note, even settings.\n\nfontFamily={$fontFamily}\ntintColor={$tintColor}.\n\n";
 "system3"="Get in touch\n\nSend support or feature requests to hpiqueapps@gmail.com.";

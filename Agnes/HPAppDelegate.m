@@ -25,6 +25,8 @@
     application.applicationSupportsShakeToEdit = YES;
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+    self.window.tintColor = [UIColor colorWithRed:198.0f/255.0f green:67.0f/255.0f blue:252.0f/255.0f alpha:1.0];
     self.window.backgroundColor = [UIColor whiteColor];
 
     if (![[HPPreferencesManager sharedManager] isNoninitialRun])

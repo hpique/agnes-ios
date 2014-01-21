@@ -33,6 +33,9 @@
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-appVersion}" replacementBlock:^NSString *{
             return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
         }]];
+        [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-break}" replacementBlock:^NSString *{
+            return @"";
+        }]];
         instance = actions;
     });
     return instance;
