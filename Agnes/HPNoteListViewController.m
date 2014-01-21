@@ -17,10 +17,12 @@
 #import "MMDrawerBarButtonItem.h"
 #import "UIViewController+MMDrawerController.h"
 #import "HPPreferencesManager.h"
+#import "HPNoteExporter.h"
+#import <MessageUI/MessageUI.h>
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
-@interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource>
+@interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
 
 @end
 
@@ -41,12 +43,28 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     BOOL _userChangedDisplayCriteria;
     
     UIBarButtonItem *_addNoteBarButtonItem;
+    
+    IBOutlet UIView *_footerView;
+    HPNoteExporter *_noteExporter;
 }
 
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 }
+
+//- (void)updateFooterView
+//{
+//    CGRect frame = _tableView.frame;
+//    CGSize contentSize = _tableView.contentSize;
+//    CGFloat height = frame.size.height - contentSize.height;
+//    if (height > 72)
+//    {
+//        CGRect footerFrame = _footerView.frame;
+//        _footerView.frame = CGRectMake(footerFrame.origin.x, footerFrame.origin.y, footerFrame.size.width, height);
+//    }
+//    //    _tableView.tableFooterView = _footerView;
+//}
 
 - (void)viewDidLoad
 {
@@ -56,6 +74,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
     [_tableView registerNib:nib forCellReuseIdentifier:HPNoteListTableViewCellReuseIdentifier];
     _tableView.editing = YES;
+    _tableView.tableFooterView = _footerView;
     
     MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
     self.navigationItem.leftBarButtonItem = drawerBarButton;
@@ -111,6 +130,18 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [[HPNoteManager sharedManager] archiveNote:cell.note];
 }
 
+- (void)exportNotes
+{
+    _noteExporter = [[HPNoteExporter alloc] init];
+    [_noteExporter exportNotes:_notes name:self.indexItem.exportPrefix success:^(NSURL *fileURL) {
+        [self exportFileURL:fileURL];
+    } failure:^(NSError *error) {
+        NSString *message = error ? [error localizedDescription] : NSLocalizedString(@"Unknown error", @"");
+        [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:message];
+        _noteExporter = nil;
+    }];
+}
+
 - (void)unarchiveNoteInCell:(HPNoteListTableViewCell*)cell
 {
     NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
@@ -129,6 +160,13 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
 
+- (IBAction)optionsButtonAction:(id)sender
+{
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Export", @""), nil];
+    [actionSheet showInView:self.view];
+}
+
+
 - (IBAction)tapTitleView:(id)sender
 {
     _userChangedDisplayCriteria = YES;
@@ -142,6 +180,43 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 }
 
 #pragma mark - Private
+
+- (void)alertErrorWithTitle:(NSString*)title message:(NSString*)message
+{
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:NSLocalizedString(@"OK", @"") otherButtonTitles:nil];
+    [alertView show];
+}
+
+- (void)exportFileURL:(NSURL*)fileURL
+{
+    if ([MFMailComposeViewController canSendMail])
+    {
+        NSData *data = [NSData dataWithContentsOfURL:fileURL];
+        if (data)
+        {
+            MFMailComposeViewController *vc = [[MFMailComposeViewController alloc] init];
+            vc.mailComposeDelegate = self;
+            NSString *subject = [NSString stringWithFormat:NSLocalizedString(@"Agnes %@ export", @""), self.indexItem.title];
+            [vc setSubject:subject];
+            [vc addAttachmentData:data mimeType:@"application/zip" fileName:@"notes.zip"];
+            [self presentViewController:vc animated:YES completion:nil];
+        }
+        else
+        {
+            [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:NSLocalizedString(@"Unable to read zip file", @"")];
+        }
+    }
+    else if ([[UIApplication sharedApplication] canOpenURL:fileURL])
+    {
+        UIDocumentInteractionController *documentController = [UIDocumentInteractionController interactionControllerWithURL:fileURL];
+        [documentController presentOpenInMenuFromRect:CGRectZero inView:self.view animated:YES];
+    }
+    else
+    {
+        [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:NSLocalizedString(@"A functioning email client is required", @"")];
+    }
+    _noteExporter = nil;
+}
 
 - (void)updateNotes:(BOOL)animated
 {
@@ -158,6 +233,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     {
         [_tableView reloadData];
     }
+    
     if (!_searching || _searchString == nil) return;
     
     UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
@@ -404,7 +480,6 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     return 80;
 }
 
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
@@ -452,5 +527,23 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 {
     _searching = NO;
 }
+
+#pragma mark - UIActionSheetDelegate
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == actionSheet.firstOtherButtonIndex)
+    {
+        [self exportNotes];
+    }
+}
+
+#pragma mark - MFMailComposeViewControllerDelegate
+
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 
 @end

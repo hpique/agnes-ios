@@ -7,6 +7,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HPNoteListViewController">
             <connections>
                 <outlet property="_displayCriteriaLabel" destination="RlL-rH-NfW" id="Ukm-V2-6vm"/>
+                <outlet property="_footerView" destination="fYC-Uv-G39" id="Cv9-UQ-hVc"/>
                 <outlet property="_tableView" destination="6Ye-Ag-F8Q" id="ALp-no-jqO"/>
                 <outlet property="_titleLabel" destination="Bi5-Eh-5QO" id="SZ3-yV-M83"/>
                 <outlet property="_titleView" destination="jTE-Aa-Rve" id="c3r-jh-O5e"/>
@@ -94,5 +95,29 @@
                 <action selector="tapTitleView:" destination="-1" id="Tfx-3n-Qog"/>
             </connections>
         </tapGestureRecognizer>
+        <view contentMode="scaleToFill" id="fYC-Uv-G39">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="72"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9VM-M1-8z3">
+                    <rect key="frame" x="0.0" y="20" width="320" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <state key="normal" title="#">
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="optionsButtonAction:" destination="-1" eventType="touchUpInside" id="Y2p-47-hnn"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="9VM-M1-8z3" secondAttribute="trailing" id="JK7-Is-I51"/>
+                <constraint firstItem="9VM-M1-8z3" firstAttribute="leading" secondItem="fYC-Uv-G39" secondAttribute="leading" id="Rbg-xI-XPs"/>
+                <constraint firstAttribute="bottom" secondItem="9VM-M1-8z3" secondAttribute="bottom" constant="20" symbolic="YES" id="uPZ-St-5WE"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+        </view>
     </objects>
 </document>

@@ -37,6 +37,7 @@
 		8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */; };
 		87AD2F83188E900B0065EEBA /* HPNoteListTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */; };
 		87AD2F85188E94450065EEBA /* HPNoteSearchTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AD2F84188E94450065EEBA /* HPNoteSearchTableViewCell.xib */; };
+		87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 87D02E18188ECBA600273DEC /* HPNoteExporter.m */; };
 		87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E3D188B57C0000333EA /* HPPreferencesManager.m */; };
 		87E37E41188B6158000333EA /* HPNoteAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E40188B6158000333EA /* HPNoteAction.m */; };
 		87E37E88188BDFA6000333EA /* Agnes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */; };
@@ -111,6 +112,8 @@
 		8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListTableViewCell.m; sourceTree = "<group>"; };
 		87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteListTableViewCell.xib; sourceTree = "<group>"; };
 		87AD2F84188E94450065EEBA /* HPNoteSearchTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteSearchTableViewCell.xib; sourceTree = "<group>"; };
+		87D02E17188ECBA600273DEC /* HPNoteExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteExporter.h; sourceTree = "<group>"; };
+		87D02E18188ECBA600273DEC /* HPNoteExporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteExporter.m; sourceTree = "<group>"; };
 		87E37E3C188B57C0000333EA /* HPPreferencesManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPPreferencesManager.h; sourceTree = "<group>"; };
 		87E37E3D188B57C0000333EA /* HPPreferencesManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPPreferencesManager.m; sourceTree = "<group>"; };
 		87E37E3F188B6158000333EA /* HPNoteAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteAction.h; sourceTree = "<group>"; };
@@ -263,6 +266,7 @@
 		8763DA3018883ACF000D9569 /* Agnes */ = {
 			isa = PBXGroup;
 			children = (
+				87D02E16188ECB8600273DEC /* Logic */,
 				87E37EEB188CA099000333EA /* Utils */,
 				87E37E89188BE369000333EA /* Model */,
 				8740FAF2188B39FC004CF099 /* External */,
@@ -310,6 +314,15 @@
 				8763DA4C18883ACF000D9569 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		87D02E16188ECB8600273DEC /* Logic */ = {
+			isa = PBXGroup;
+			children = (
+				87D02E17188ECBA600273DEC /* HPNoteExporter.h */,
+				87D02E18188ECBA600273DEC /* HPNoteExporter.m */,
+			);
+			name = Logic;
 			sourceTree = "<group>";
 		};
 		87E37E89188BE369000333EA /* Model */ = {
@@ -494,6 +507,7 @@
 				87E37EFA188D97F3000333EA /* HPBrowserViewController.m in Sources */,
 				87E37EEA188C413D000333EA /* HPTag.m in Sources */,
 				8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */,
+				87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */,
 				8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */,
 				87E37E88188BDFA6000333EA /* Agnes.xcdatamodeld in Sources */,
 				8740FAF5188B3A5A004CF099 /* NDTrie.m in Sources */,

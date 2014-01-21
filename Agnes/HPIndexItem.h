@@ -18,6 +18,7 @@
 @property (nonatomic, readonly) BOOL disableRemove;
 @property (nonatomic, assign) HPNoteDisplayCriteria defaultDisplayCriteria;
 @property (nonatomic, strong) NSArray *allowedDisplayCriteria;
+@property (nonatomic, readonly) NSString *exportPrefix;
 
 + (HPIndexItem*)inboxIndexItem;
 

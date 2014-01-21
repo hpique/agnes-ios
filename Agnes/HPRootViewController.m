@@ -12,6 +12,12 @@
 
 @implementation HPRootViewController
 
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    self.closeDrawerGestureModeMask = MMCloseDrawerGestureModeAll;
+}
+
 - (BOOL)canBecomeFirstResponder
 {
     return YES;

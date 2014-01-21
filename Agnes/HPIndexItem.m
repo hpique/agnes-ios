@@ -95,6 +95,11 @@
     return _disableRemove;
 }
 
+- (NSString*)exportPrefix
+{
+    return self.title;
+}
+
 @end
 
 @implementation HPIndexItemTag
@@ -110,6 +115,11 @@
 - (NSString*)tag
 {
     return self.title;
+}
+
+- (NSString*)exportPrefix
+{
+    return [self.tag stringByReplacingOccurrencesOfString:@"#" withString:@""];
 }
 
 @end
