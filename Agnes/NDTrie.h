@@ -302,8 +302,6 @@
  */
 - (NSUInteger)count;
 
-- (BOOL)isCaseInsensitive;
-
 /*!
 	@method containsObjectForKey:
 	@abstract test if trie contains a string

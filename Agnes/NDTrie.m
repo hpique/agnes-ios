@@ -35,7 +35,7 @@ struct getObjectsCountData
 	id								* objects;
 };
 
-static struct trieNode * findNode( struct trieNode *, id, NSUInteger, BOOL, struct trieNode **, NSUInteger *, NSUInteger (*)( id, NSUInteger, BOOL* ));
+static struct trieNode * findNode( struct trieNode *, id, NSUInteger, BOOL, struct trieNode **, NSUInteger *, BOOL caseSensitive);
 static BOOL removeObjectForKey( struct trieNode *, id, NSUInteger, BOOL *, NSUInteger (*)( id, NSUInteger, BOOL* ) );
 static NSUInteger removeAllChildren( struct trieNode *);
 static NSUInteger removeChild( struct trieNode *, id, NSUInteger (*)( id, NSUInteger, BOOL* ) );
@@ -52,6 +52,17 @@ static NSUInteger depthOfNode( struct trieNode * aNode );
 //static struct trieNode * nextNode( struct trieNode * );
 static BOOL getObjectsFunc( id, void * );
 
+static BOOL NDTrieKeyEquals(NSUInteger key1, NSUInteger key2, BOOL caseSensitive)
+{
+    if (caseSensitive) return key1 == key2;
+
+    unichar char1 = key1;
+    unichar char2 = key2;
+    NSString *s1 = [NSString stringWithFormat:@"%c", char1];
+    NSString *s2 = [NSString stringWithFormat:@"%c", char2];
+    return [s1 caseInsensitiveCompare:s2] == NSOrderedSame;
+}
+
 @interface NDTrieEnumerator : NSEnumerator
 {
 	id			* _everyObject;
@@ -63,20 +74,6 @@ static BOOL getObjectsFunc( id, void * );
 - (id)initWithTrie:(NDTrie *)trie node:(struct trieNode*)node;
 
 @end
-
-static NSUInteger keyComponentCaseInsensitiveForString( id anObject, NSUInteger anIndex, BOOL * anEnd )
-{
-	if( anIndex < [anObject length] )
-	{
-		NSUInteger	theResult = [anObject characterAtIndex:anIndex];
-		if( theResult >= 'a' && theResult <= 'z' )
-			theResult = theResult + 'A' - 'a';
-		return theResult;
-	}
-
-	*anEnd = YES;
-	return 0;
-}
 
 static NSUInteger keyComponentForString( id anObject, NSUInteger anIndex, BOOL * anEnd )
 {
@@ -102,7 +99,6 @@ static BOOL _addTrieFunc( NSString * aString, void * aContext )
 	void		* _rootNode;
 @protected
 	NSUInteger	_count;
-	BOOL		_caseInsensitive;
 }
 
 @property(readonly,nonatomic)		struct trieNode	* rootNode;
@@ -122,7 +118,6 @@ enum NDTriePListElelemt
 	enum NDTriePListElelemt		_foundRootElement;
 	struct trieNode				* _rootNode;
 	NSUInteger					_count;
-	BOOL						_caseInsensitive;
 }
 - (id)initWithCaseInsensitive:(BOOL)aCaseInsensitive trieRoot:(struct trieNode*)root;
 - (BOOL)parseContentsOfURL:(NSURL *)url;
@@ -173,7 +168,6 @@ enum NDTriePListElelemt
 	if( (self = [super init]) != nil )
 	{
 		_rootNode = calloc( 1, sizeof(struct trieNode) );
-		_caseInsensitive = aCaseInsensitive;
 	}
 	return self;
 }
@@ -183,7 +177,7 @@ enum NDTriePListElelemt
 {
 	if( (self = [self initWithCaseInsensitive:aCaseInsensitive]) != nil )
 	{
-		NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+		NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 #ifdef NDFastEnumerationAvailable
 		for( NSString * theString in anArray )
 #else
@@ -207,7 +201,7 @@ enum NDTriePListElelemt
 {
 	if( (self = [self initWithCaseInsensitive:aCaseInsensitive]) != nil )
 	{
-		NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+		NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 #ifndef NDFastEnumerationAvailable
 		NSArray		* theKeysArray = [aDictionary allKeys];
 		for( NSUInteger i = 0, c = [theKeysArray count]; i < c; i++ )
@@ -303,7 +297,7 @@ enum NDTriePListElelemt
 {
 	if( (self = [self initWithCaseInsensitive:aCaseInsensitive]) != nil )
 	{
-		NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+		NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 		for( NSUInteger i = 0; i < aCount; i++ )
 			_count += setObjectForKey( self.rootNode, anObjects[i], aKeys[i], theKeyComponentForString );
 	}
@@ -316,7 +310,7 @@ enum NDTriePListElelemt
 	if( (self = [self initWithCaseInsensitive:aCaseInsensitive]) != nil )
 	{
 		NSString	* theString = aFirstString;
-		NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+		NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 		do
 		{
 			if( ![theString isKindOfClass:[NSString class]] )
@@ -335,7 +329,7 @@ enum NDTriePListElelemt
 	if( (self = [self initWithCaseInsensitive:aCaseInsensitive]) != nil )
 	{
 		NSString	* theObject = aFirstObject;
-		NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+		NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 		do
 		{
 			NSString	* theKey = va_arg( anArguments, NSString * );
@@ -366,23 +360,22 @@ enum NDTriePListElelemt
 }
 
 - (NSUInteger)count { return _count; }
-- (BOOL)isCaseInsensitive { return _caseInsensitive; }
 
 - (BOOL)containsObjectForKey:(NSString *)aString
 {
-	struct trieNode		* theNode = findNode( (struct trieNode *)_rootNode, aString, 0, NO, NULL, NULL, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+	struct trieNode		* theNode = findNode( (struct trieNode *)_rootNode, aString, 0, NO, NULL, NULL, YES );
 	return theNode != NULL && theNode->object != nil;
 }
 
 - (BOOL)containsObjectForKeyWithPrefix:(NSString *)aString
 {
-	struct trieNode		* theNode = findNode( (struct trieNode *)_rootNode, aString, 0, NO, NULL, NULL, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+	struct trieNode		* theNode = findNode( (struct trieNode *)_rootNode, aString, 0, NO, NULL, NULL, NO );
 	return theNode != NULL;
 }
 
 - (id)objectForKey:(NSString *)aKey
 {
-	struct trieNode		* theNode = findNode( (struct trieNode *)_rootNode, aKey, 0, NO, NULL, NULL, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+	struct trieNode		* theNode = findNode( (struct trieNode *)_rootNode, aKey, 0, NO, NULL, NULL, YES );
 	return theNode != NULL ? theNode->object : nil;
 }
 
@@ -403,7 +396,7 @@ static BOOL _addToArrayFunc( id anObject, void * anArray )
 	NSMutableArray		* theResult = [NSMutableArray arrayWithCapacity:[self count]];
 	struct trieNode		* theNode = self.rootNode;
 	if( aPrefix != nil && [aPrefix length] > 0 )
-		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, NO );
 	if( theNode != nil )
 		forEveryObjectFromNode( theNode, _addToArrayFunc, theResult );
 	return theResult;
@@ -421,7 +414,7 @@ static BOOL _addToArrayFunc( id anObject, void * anArray )
 {
 	struct trieNode		* theNode = self.rootNode;
 	if( aPrefix != nil && [aPrefix length] > 0 )
-		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, NO );
 
 	return [NDTrieEnumerator trieEnumeratorWithTrie:self node:theNode];
 }
@@ -443,7 +436,7 @@ static BOOL _addToArrayFunc( id anObject, void * anArray )
 {
 	struct trieNode		* theNode = self.rootNode;
 	if( aPrefix != nil && [aPrefix length] > 0 )
-		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, NO );
 	if( theNode != nil )
 		forEveryObjectFromNode( theNode, (BOOL(*)(NSString*,void*))aFunc, NULL );
 }
@@ -457,7 +450,7 @@ static BOOL _addToArrayFunc( id anObject, void * anArray )
 {
 	struct trieNode		* theNode = self.rootNode;
 	if( aPrefix != nil && [aPrefix length] > 0 )
-		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, NO );
 	if( theNode != nil )
 		forEveryObjectFromNode( theNode, aFunc, aContext );
 }
@@ -479,7 +472,7 @@ BOOL enumerateFunc( NSString * aString, void * aContext )
 	struct trieNode		* theNode = self.rootNode;
 	BOOL				theStop = NO;
 	if( aPrefix != nil && [aPrefix length] > 0 )
-		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, NO );
 	if( theNode != nil )
 		forEveryObjectWithBlockFromNode( theNode, (void*)aBlock, &theStop );
 }
@@ -509,7 +502,7 @@ BOOL testFunc( id anObject, void * aContext )
 	struct testData		theData = { [NSMutableArray array], aPredicate };
 	struct trieNode		* theNode = self.rootNode;
 	if( aPrefix != nil && [aPrefix length] > 0 )
-		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+		theNode = findNode( theNode, aPrefix, 0, NO, NULL, NULL, NO );
 	if( theNode != nil )
 		forEveryObjectFromNode( theNode, testFunc, (void*)&theData );
 	return theData.array;;
@@ -574,7 +567,7 @@ BOOL testFunc( id anObject, void * aContext )
 
 - (id)objectForKeyedSubscript:(id)aKey
 {
-	struct trieNode		* theNode = findNode( (struct trieNode *)_rootNode, aKey, 0, NO, NULL, NULL, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+	struct trieNode		* theNode = findNode( (struct trieNode *)_rootNode, aKey, 0, NO, NULL, NULL, YES );
 	return theNode != NULL ? theNode->object : nil;
 }
 
@@ -586,7 +579,7 @@ BOOL testFunc( id anObject, void * aContext )
 
 - (void)setObject:(id)anObject forKey:(NSString *)aString
 {
-	_count += setObjectForKey( self.rootNode, anObject, aString, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+	_count += setObjectForKey( self.rootNode, anObject, aString, keyComponentForString );
 }
 
 - (void)addStrings:(NSString *)aFirstString, ...
@@ -595,7 +588,7 @@ BOOL testFunc( id anObject, void * aContext )
 	NSString	* theString = aFirstString;
 
 	va_start( theArgList, aFirstString );
-	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 	do
 	{
 		if( ![theString isKindOfClass:[NSString class]] )
@@ -614,7 +607,7 @@ BOOL testFunc( id anObject, void * aContext )
 	id			theObject = aFirstObject;
 	
 	va_start( theArgList, aFirstObject );
-	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 
 	do
 	{
@@ -633,14 +626,14 @@ BOOL testFunc( id anObject, void * aContext )
 
 - (void)addStrings:(NSString **)aStrings count:(NSUInteger)aCount
 {
-	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 	for( NSUInteger i = 0; i < aCount; i++ )
 		_count += setObjectForKey( self.rootNode, aStrings[i], aStrings[i], theKeyComponentForString );
 }
 
 - (void)setObjects:(id *)anObjects forKeys:(NSString **)aKeys count:(NSUInteger)aCount
 {
-	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 	for( NSUInteger i = 0; i < aCount; i++ )
 		_count += setObjectForKey( self.rootNode, anObjects[i], aKeys[i], theKeyComponentForString );
 }
@@ -649,7 +642,7 @@ BOOL testFunc( id anObject, void * aContext )
 
 - (void)addArray:(NSArray *)anArray
 {
-	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 #ifdef NDFastEnumerationAvailable
 	for( NSString * theString in anArray )
 #else
@@ -668,7 +661,7 @@ BOOL testFunc( id anObject, void * aContext )
 - (void)addDictionay:(NSDictionary *)aDictionary
 {
 	NSArray		* theKeysArray = [aDictionary allKeys];
-	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString;
+	NSUInteger (*theKeyComponentForString)( id, NSUInteger, BOOL * ) = keyComponentForString;
 #ifdef NDFastEnumerationAvailable
 	for( NSString * theKey in theKeysArray )
 #else
@@ -687,7 +680,7 @@ BOOL testFunc( id anObject, void * aContext )
 - (void)removeObjectForKey:(NSString *)aString
 {
 	BOOL	theFoundNode = NO;
-	removeObjectForKey( self.rootNode, aString, 0, &theFoundNode, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+	removeObjectForKey( self.rootNode, aString, 0, &theFoundNode, keyComponentForString );
 	if( theFoundNode )
 		_count--;
 }
@@ -704,16 +697,16 @@ BOOL testFunc( id anObject, void * aContext )
 	{
 		NSUInteger			thePosition = 0;
 		struct trieNode		* theParent = nil,
-							* theNode = findNode( self.rootNode, aPrefix, 0, NO, &theParent, &thePosition, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+							* theNode = findNode( self.rootNode, aPrefix, 0, NO, &theParent, &thePosition, NO );
 
 		if( theNode != NULL && theParent != NULL )
-			_count -= removeChild( self.rootNode, aPrefix, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+			_count -= removeChild( self.rootNode, aPrefix, keyComponentForString );
 	}
 	else
 		removeAllChildren( self.rootNode );
 }
 
-- (id)copyWithZone:(NSZone *)aZone { return [[NDTrie allocWithZone:aZone] initWithCaseInsensitive:self.isCaseInsensitive trie:self]; }
+- (id)copyWithZone:(NSZone *)aZone { return [[NDTrie allocWithZone:aZone] initWithCaseInsensitive:YES trie:self]; }
 
 #pragma mark - Dictionary-Style subscripting
 
@@ -721,7 +714,7 @@ BOOL testFunc( id anObject, void * aContext )
 {
 	if( ![aString isKindOfClass:[NSString class]] )
 		@throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"The key subscript must of of kind NSString" userInfo:nil];
-	_count += setObjectForKey( self.rootNode, anObject, aString, self.isCaseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+	_count += setObjectForKey( self.rootNode, anObject, aString, keyComponentForString );
 }
 
 @end
@@ -777,7 +770,6 @@ BOOL testFunc( id anObject, void * aContext )
 {
 	if( (self = [super init]) != nil )
 	{
-		_caseInsensitive = aCaseInsensitive;
 		_rootNode = aRoot;
 	}
 	return self;
@@ -827,7 +819,7 @@ BOOL testFunc( id anObject, void * aContext )
 			_foundRootElement = NDTriePListElelemtNone;
 		else if( [anElementName isEqualToString:kStringPListElementName] )
 		{
-			_count += setObjectForKey( _rootNode, _currentString, [_currentString description], _caseInsensitive ? keyComponentCaseInsensitiveForString : keyComponentForString );
+			_count += setObjectForKey( _rootNode, _currentString, [_currentString description], keyComponentForString );
 			[_currentString release];
 			_currentString = nil;
 		}
@@ -914,19 +906,25 @@ inline static NSUInteger _indexForChild( struct trieNode * aNode, NSUInteger aKe
 	Finds a node, if aCreate == YES nodes are created as needed but the final node is not set to terminal node
 	Should not return NULL if aCreate == YES
  */
-static struct trieNode * findNode( struct trieNode * aNode, id aKey, NSUInteger anIndex, BOOL aCreate, struct trieNode ** aParent, NSUInteger * anPosition, NSUInteger (*aKeyComponentFunc)( id, NSUInteger, BOOL * ) )
+static struct trieNode * findNode( struct trieNode * aNode, id aKey, NSUInteger anIndex, BOOL aCreate, struct trieNode ** aParent, NSUInteger * anPosition, BOOL caseSensitive)
 {
 	if( aKey == nil )
 		@throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"objectForKey: key cannot be nil" userInfo:nil];
 
 	struct trieNode		* theNode = NULL;
 	BOOL				theEnd = NO;
-	NSUInteger			theKeyComponent = aKeyComponentFunc( aKey, anIndex, &theEnd );
+    
+    NSUInteger theKeyComponent = 0, theLength = [aKey length];
+	if( anIndex < theLength )
+    {
+		theKeyComponent = [aKey characterAtIndex:anIndex];
+    }
+	theEnd = (anIndex + 1) == theLength;
 
 	if( aNode->children != NULL )
 	{
 		NSUInteger		theIndex = _indexForChild( aNode, theKeyComponent );
-		if( theIndex >= aNode->count || aNode->children[theIndex]->key != theKeyComponent )
+		if( theIndex >= aNode->count || !NDTrieKeyEquals(aNode->children[theIndex]->key, theKeyComponent, caseSensitive) )
 		{
 			if( aCreate )
 			{
@@ -971,7 +969,7 @@ static struct trieNode * findNode( struct trieNode * aNode, id aKey, NSUInteger 
 
 	anIndex++;
 	if( theNode != NULL && !theEnd )
-		theNode = findNode( theNode, aKey, anIndex, aCreate, aParent, anPosition, aKeyComponentFunc );
+		theNode = findNode( theNode, aKey, anIndex, aCreate, aParent, anPosition, caseSensitive );
 
 	return theNode;
 }
@@ -1049,7 +1047,7 @@ NSUInteger removeChild( struct trieNode * aRoot, id aPrefix, NSUInteger (*aKeyCo
 
 	NSUInteger			thePosition = 0;
 	struct trieNode		* theParent = nil,
-						* theNode = findNode( aRoot, aPrefix, 0, NO, &theParent, &thePosition, aKeyComponentFunc );
+						* theNode = findNode( aRoot, aPrefix, 0, NO, &theParent, &thePosition, YES );
 
 	NSCParameterAssert( theParent != theNode );
 	
@@ -1072,7 +1070,7 @@ BOOL setObjectForKey( struct trieNode * aNode, id anObject, id aKey, NSUInteger 
 		@throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"setObjectForKey: object cannot be nil" userInfo:[NSDictionary dictionaryWithObject:aKey forKey:@"key"]];
 
 	BOOL				theNewString = NO;
-	struct trieNode		* theNode = findNode( aNode, aKey, 0, YES, NULL, NULL, aKeyComponentFunc );
+	struct trieNode		* theNode = findNode( aNode, aKey, 0, YES, NULL, NULL, YES );
 	NSCParameterAssert( theNode != NULL );
 
 	theNewString = theNode->object == nil;

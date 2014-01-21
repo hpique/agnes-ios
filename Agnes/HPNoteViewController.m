@@ -82,10 +82,11 @@
         
         _textTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(textTagGestureRecognizer:)];
         [_bodyTextView addGestureRecognizer:_textTapGestureRecognizer];
+        
+        _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44) inputViewStyle:UIInputViewStyleKeyboard];
+        _suggestionsView.delegate = self;
+        _bodyTextView.inputAccessoryView = _suggestionsView;
     }
-    
-    _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44) inputViewStyle:UIInputViewStyleKeyboard];
-    _suggestionsView.delegate = self;
     
     [self displayNote];
 }
@@ -250,6 +251,15 @@
     return nil;
 }
 
+UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
+{
+    UITextPosition *beginning = textView.beginningOfDocument;
+    UITextPosition *start = [textView positionFromPosition:beginning offset:range.location];
+    UITextPosition *end = [textView positionFromPosition:start offset:range.length];
+    UITextRange *textRange = [textView textRangeFromPosition:start toPosition:end];
+    return textRange;
+}
+
 - (void)updateToolbar:(BOOL)animated
 {
     UIBarButtonItem *rightBarButtonItem = self.note.archived ? _unarchiveBarButtonItem : _archiveBarButtonItem;
@@ -392,28 +402,7 @@
 {
     NSRange foundRange;
     NSString *prefix = [self selectedTagEnclosing:NO range:&foundRange];
-    if (prefix)
-    {
-        _suggestionsView.prefix = prefix;
-        if (_suggestionsView.suggestions.count > 0)
-        {
-            if (!textView.inputAccessoryView)
-            {
-                textView.inputAccessoryView = _suggestionsView;
-                [textView reloadInputViews];
-            }
-        }
-        else
-        {
-            textView.inputAccessoryView = nil;
-            [textView reloadInputViews];
-        }
-    }
-    else
-    {
-        textView.inputAccessoryView = nil;
-        [textView reloadInputViews];
-    }
+    _suggestionsView.prefix = prefix;
 }
 
 #pragma mark - HPTagSuggestionsViewDelegate
@@ -424,10 +413,7 @@
     NSString *tag = [self selectedTagEnclosing:YES range:&foundRange];
     if (!tag) return;
     
-    UITextPosition *beginning = _bodyTextView.beginningOfDocument;
-    UITextPosition *start = [_bodyTextView positionFromPosition:beginning offset:foundRange.location];
-    UITextPosition *end = [_bodyTextView positionFromPosition:start offset:foundRange.length];
-    UITextRange *textRange = [_bodyTextView textRangeFromPosition:start toPosition:end];
+    UITextRange *textRange = UITextRangeFromNSRange(_bodyTextView, foundRange);
     
     // Add space if there is none
     NSString *text = _bodyTextView.text;
@@ -437,6 +423,14 @@
     NSString *replacement = followedBySpace ? suggestion : [NSString stringWithFormat:@"%@ ", suggestion];
     
     [_bodyTextView replaceRange:textRange withText:replacement];
+}
+
+- (void)tagSuggestionsView:(HPTagSuggestionsView *)tagSuggestionsView didSelectKey:(NSString *)key
+{
+    NSRange replacementRange = _bodyTextView.selectedRange;
+    UITextRange *textRange = UITextRangeFromNSRange(_bodyTextView, replacementRange);
+    
+    [_bodyTextView replaceRange:textRange withText:key];
 }
 
 #pragma mark - UIActionSheetDelegate

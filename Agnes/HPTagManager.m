@@ -70,7 +70,7 @@
 {
     if (!_tagTrie)
     {
-        _tagTrie = [[NDMutableTrie alloc] init];
+        _tagTrie = [[NDMutableTrie alloc] initWithCaseInsensitive:YES];
         for (HPTag *tag in self.objects)
         {
             [_tagTrie addString:tag.name];
