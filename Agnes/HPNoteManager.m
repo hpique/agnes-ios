@@ -18,6 +18,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 @implementation HPNoteManager {
     NSArray *_systemNotes;
     NSManagedObjectContext *_systemContext;
+    NSManagedObjectContext *_tempContext;
 }
 
 - (id) initWithManagedObjectContext:(NSManagedObjectContext *)context
@@ -26,6 +27,8 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     {
         _systemContext = [[NSManagedObjectContext alloc] init];
         _systemContext.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:context.persistentStoreCoordinator.managedObjectModel];
+        _tempContext = [[NSManagedObjectContext alloc] init];
+        _tempContext.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:context.persistentStoreCoordinator.managedObjectModel];
     }
     return self;
 }
@@ -39,17 +42,17 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)addTutorialNotes
 {
-    [self.context.undoManager disableUndoRegistration];
-    for (NSInteger i = 4; i >= 1; i--)
-    {
-        NSString *key = [NSString stringWithFormat:@"tutorial%d", i];
-        NSString *text = NSLocalizedString(key, @"");
-        HPNote *note = [self note];
-        note.text = text;
-    }
-    [self.context.undoManager setActionName:NSLocalizedString(@"Add Notes", @"")];
-    [self save];
-    [self.context.undoManager enableUndoRegistration];
+    [self performNoUndoModelUpdateBlock:^{
+        for (int i = 4; i >= 1; i--)
+        {
+            NSString *key = [NSString stringWithFormat:@"tutorial%d", i];
+            NSString *text = NSLocalizedString(key, @"");
+            HPNote *note = [HPNote insertNewObjectIntoContext:self.context];
+            note.createdAt = [NSDate date];
+            note.modifiedAt = note.createdAt;
+            note.text = text;
+        }
+    }];
 }
 
 - (NSArray*)systemNotes
@@ -57,7 +60,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     if (!_systemNotes)
     {
         NSMutableArray *notes = [NSMutableArray array];
-        for (NSInteger i = 1; i >= 1; i--)
+        for (int i = 1; i >= 1; i--)
         {
             NSString *key = [NSString stringWithFormat:@"system%d", i];
             NSString *text = NSLocalizedString(key, @"");
@@ -70,14 +73,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         _systemNotes = notes;
     }
     return _systemNotes;
-}
-
-- (HPNote*)note
-{
-    HPNote *note = [HPNote insertNewObjectIntoContext:self.context];
-    note.createdAt = [NSDate date];
-    note.modifiedAt = note.createdAt;
-    return note;
 }
 
 #pragma mark - Class
@@ -148,20 +143,26 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (HPNote*)blankNoteWithTag:(NSString*)tag
 {
-    __block HPNote *note;
-    [self performNoUndoModelUpdateBlock:^{
-        note = [self note];
-        note.text = tag ? [NSString stringWithFormat:@"\n\n\n\n%@", tag] : @"";
-    }];
+    NSEntityDescription *entityDescription = [NSEntityDescription entityForName:[self entityName] inManagedObjectContext:self.context];
+    HPNote *note = [[HPNote alloc] initWithEntity:entityDescription insertIntoManagedObjectContext:nil];
+    note.createdAt = [NSDate date];
+    note.modifiedAt = note.createdAt;
+    note.text = tag ? [NSString stringWithFormat:@"\n\n\n\n%@", tag] : @"";
     return note;
 }
 
 - (void)editNote:(HPNote*)note text:(NSString*)text;
 {
+    BOOL isNew = note.managedObjectContext == nil;
+    NSString *actionName = isNew ? @"Add Note" : @"Edit Note";
     [self performModelUpdateBlock:^{
         note.text = text;
         note.modifiedAt = [NSDate date];
-    } actionName:@"Edit Note"];
+        if (isNew)
+        {
+            [self.context insertObject:note];
+        }
+    } actionName:actionName];
 }
 
 - (void)viewNote:(HPNote*)note
@@ -180,7 +181,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)trashNote:(HPNote*)note
 {
-    // TODO: Trash blank notes without undo
+    if (note.managedObjectContext == nil) return;
     [self performModelUpdateBlock:^{
         [self.context deleteObject:note];
     } actionName:@"Delete Note"];

@@ -97,7 +97,6 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     [self.context processPendingChanges];
     [self.context.undoManager disableUndoRegistration];
     block();
-    [self save];
     [self.context processPendingChanges];
     [self.context.undoManager enableUndoRegistration];
 }

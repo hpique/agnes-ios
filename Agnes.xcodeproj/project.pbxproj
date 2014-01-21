@@ -266,22 +266,16 @@
 		8763DA3018883ACF000D9569 /* Agnes */ = {
 			isa = PBXGroup;
 			children = (
+				87D02E1A188EE7DC00273DEC /* UI */,
 				87D02E16188ECB8600273DEC /* Logic */,
 				87E37EEB188CA099000333EA /* Utils */,
 				87E37E89188BE369000333EA /* Model */,
 				8740FAF2188B39FC004CF099 /* External */,
 				8763DA3918883ACF000D9569 /* HPAppDelegate.h */,
 				8763DA3A18883ACF000D9569 /* HPAppDelegate.m */,
-				87E37E3C188B57C0000333EA /* HPPreferencesManager.h */,
-				87E37E3D188B57C0000333EA /* HPPreferencesManager.m */,
 				8763DA3C18883ACF000D9569 /* Images.xcassets */,
-				8740FAE0188A8B79004CF099 /* Index */,
-				8740FAE1188A8B87004CF099 /* List */,
-				8740FAE2188A8BA2004CF099 /* Note */,
 				8763DA3118883ACF000D9569 /* Supporting Files */,
 				87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */,
-				87E37EF2188CB169000333EA /* HPRootViewController.h */,
-				87E37EF3188CB169000333EA /* HPRootViewController.m */,
 			);
 			path = Agnes;
 			sourceTree = "<group>";
@@ -320,9 +314,23 @@
 			isa = PBXGroup;
 			children = (
 				87D02E17188ECBA600273DEC /* HPNoteExporter.h */,
+				87E37E3C188B57C0000333EA /* HPPreferencesManager.h */,
+				87E37E3D188B57C0000333EA /* HPPreferencesManager.m */,
 				87D02E18188ECBA600273DEC /* HPNoteExporter.m */,
 			);
 			name = Logic;
+			sourceTree = "<group>";
+		};
+		87D02E1A188EE7DC00273DEC /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				87E37EF2188CB169000333EA /* HPRootViewController.h */,
+				87E37EF3188CB169000333EA /* HPRootViewController.m */,
+				8740FAE0188A8B79004CF099 /* Index */,
+				8740FAE1188A8B87004CF099 /* List */,
+				8740FAE2188A8BA2004CF099 /* Note */,
+			);
+			name = UI;
 			sourceTree = "<group>";
 		};
 		87E37E89188BE369000333EA /* Model */ = {
