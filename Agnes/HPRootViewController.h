@@ -8,6 +8,12 @@
 
 #import "MMDrawerController.h"
 
-@interface HPRootViewController : MMDrawerController
+@interface HPRootViewController : MMDrawerController<UINavigationControllerDelegate>
+
+@end
+
+@interface UIViewController(HPRootViewController)
+
+@property(nonatomic, strong, readonly) HPRootViewController* hp_rootViewController;
 
 @end

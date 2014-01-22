@@ -1,5 +1,5 @@
 //
-//  HPAnimatedTransition.h
+//  HPNoteListDetailTransitionAnimator.h
 //  Agnes
 //
 //  Created by Hermes on 22/01/14.
@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface HPAnimatedTransition : NSObject<UIViewControllerAnimatedTransitioning>
+@interface HPNoteListDetailTransitionAnimator : NSObject<UIViewControllerAnimatedTransitioning>
 
 @end

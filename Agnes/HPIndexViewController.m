@@ -14,6 +14,7 @@
 #import "HPNote.h"
 #import "HPTag.h"
 #import "MMDrawerController.h"
+#import "HPRootViewController.h"
 #import "UIViewController+MMDrawerController.h"
 
 @interface HPIndexViewController ()
@@ -106,7 +107,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     HPIndexItem *item = [_items objectAtIndex:indexPath.row];
-    UIViewController *centerViewController = [HPNoteListViewController controllerWithIndexItem:item];
+    UINavigationController *centerViewController = [HPNoteListViewController controllerWithIndexItem:item];
+    centerViewController.delegate = [self hp_rootViewController];
     [self.mm_drawerController setCenterViewController:centerViewController withCloseAnimation:YES completion:nil];
 }
 

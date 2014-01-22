@@ -13,15 +13,15 @@
 #import "HPNoteListTableViewCell.h"
 #import "HPNoteSearchTableViewCell.h"
 #import "HPIndexItem.h"
-#import "MMDrawerController.h"
-#import "MMDrawerBarButtonItem.h"
-#import "UIViewController+MMDrawerController.h"
 #import "HPPreferencesManager.h"
 #import "HPNoteExporter.h"
 #import "HPReorderTableView.h"
+#import "MMDrawerController.h"
+#import "MMDrawerBarButtonItem.h"
+#import "UIViewController+MMDrawerController.h"
 #import "UIColor+iOS7Colors.h"
 #import <MessageUI/MessageUI.h>
-#import "HPAnimatedTransition.h"
+#import "HPNoteListDetailTransitionAnimator.h"
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
@@ -30,7 +30,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 @end
 
 @implementation HPNoteListViewController {
-    __weak HPReorderTableView *_tableView;
+    __weak IBOutlet HPReorderTableView *_notesTableView;
     NSMutableArray *_notes;
     
     BOOL _searching;
@@ -54,8 +54,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     NSInteger _optionsActionSheetRedoIndex;
     NSInteger _optionsActionSheetExportIndex;
 }
-
-@synthesize tableView = _tableView;
 
 - (void)dealloc
 {
@@ -81,9 +79,9 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
-    [_tableView registerNib:nib forCellReuseIdentifier:HPNoteListTableViewCellReuseIdentifier];
-    _tableView.tableFooterView = _footerView;
-    _tableView.delegate = self;
+    [_notesTableView registerNib:nib forCellReuseIdentifier:HPNoteListTableViewCellReuseIdentifier];
+    _notesTableView.tableFooterView = _footerView;
+    _notesTableView.delegate = self;
     
     MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
     self.navigationItem.leftBarButtonItem = drawerBarButton;
@@ -92,7 +90,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     self.searchDisplayController.searchBar.keyboardType = UIKeyboardTypeTwitter;
     
-    [_tableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:YES]; // TODO: Use autolayout?
+    [_notesTableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:YES]; // TODO: Use autolayout?
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 
@@ -103,7 +101,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [_tableView deselectRowAtIndexPath:[_tableView indexPathForSelectedRow] animated:animated];
+    [_notesTableView deselectRowAtIndexPath:[_notesTableView indexPathForSelectedRow] animated:animated];
     [self updateNotes:animated];
 }
 
@@ -115,7 +113,12 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [self updateIndexItem];
 }
 
-+ (UIViewController*)controllerWithIndexItem:(HPIndexItem*)indexItem
+- (UITableView*)tableView
+{
+    return _searching ? self.searchDisplayController.searchResultsTableView : _notesTableView;
+}
+
++ (UINavigationController*)controllerWithIndexItem:(HPIndexItem*)indexItem
 {
     HPNoteListViewController *noteListViewController = [[HPNoteListViewController alloc] init];
     noteListViewController.indexItem = indexItem;
@@ -133,9 +136,9 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)archiveNoteInCell:(HPNoteListTableViewCell*)cell
 {
-    NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
+    NSIndexPath *indexPath = [_notesTableView indexPathForCell:cell];
     [_notes removeObjectAtIndex:indexPath.row];
-    [_tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [_notesTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
     [[HPNoteManager sharedManager] archiveNote:cell.note];
 }
 
@@ -153,9 +156,9 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)unarchiveNoteInCell:(HPNoteListTableViewCell*)cell
 {
-    NSIndexPath *indexPath = [_tableView indexPathForCell:cell];
+    NSIndexPath *indexPath = [_notesTableView indexPathForCell:cell];
     [_notes removeObjectAtIndex:indexPath.row];
-    [_tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [_notesTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
     [[HPNoteManager sharedManager] unarchiveNote:cell.note];
 }
 
@@ -252,11 +255,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     if (animated)
     {
-        [self updateTableView:_tableView previousData:previousNotes updatedData:_notes section:0];
+        [self updateTableView:_notesTableView previousData:previousNotes updatedData:_notes section:0];
     }
     else
     {
-        [_tableView reloadData];
+        [_notesTableView reloadData];
     }
     
     if (!_searching || _searchString == nil) return;
@@ -307,7 +310,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }
     _displayCriteriaLabel.text = criteriaDescription;
     
-    [_tableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
+    [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
         cell.displayCriteria = _displayCriteria;
     }];
 }
@@ -366,18 +369,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
 {
     HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:_notes indexItem:self.indexItem];
-    self.navigationController.delegate = self;
     [self.navigationController pushViewController:noteViewController animated:YES];
-}
-
-#pragma mark - UINavigationControllerDelegate
-
-- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
-                                   animationControllerForOperation:(UINavigationControllerOperation)operation
-                                                fromViewController:(UIViewController *)fromVC
-                                                  toViewController:(UIViewController *)toVC
-{
-    return [[HPAnimatedTransition alloc] init];
 }
 
 - (NSString*)descriptionForDisplayCriteria:(HPNoteDisplayCriteria)criteria
@@ -602,7 +594,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-    if (gestureRecognizer == _tableView.reorderGestureRecognizer)
+    if (gestureRecognizer == _notesTableView.reorderGestureRecognizer)
     {
         return _displayCriteria == HPNoteDisplayCriteriaOrder;
     }

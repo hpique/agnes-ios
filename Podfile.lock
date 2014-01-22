@@ -20,7 +20,7 @@ PODS:
 DEPENDENCIES:
   - HPReorderTableView (from `https://github.com/hpique/HPReorderTableView.git`)
   - iOS7Colors (~> 2.0.0)
-  - MCSwipeTableViewCell (~> 2.0)
+  - MCSwipeTableViewCell (from `https://github.com/hpique/MCSwipeTableViewCell`, commit `acf5f4be0b9a9634cc2667d7fa17c1f8c50c6453`)
   - MMDrawerController (~> 0.5)
   - PSPDFTextView (from `https://github.com/steipete/PSPDFTextView.git`)
   - SSZipArchive (~> 0.3)
@@ -28,13 +28,16 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   HPReorderTableView:
     :git: https://github.com/hpique/HPReorderTableView.git
+  MCSwipeTableViewCell:
+    :commit: acf5f4be0b9a9634cc2667d7fa17c1f8c50c6453
+    :git: https://github.com/hpique/MCSwipeTableViewCell
   PSPDFTextView:
     :git: https://github.com/steipete/PSPDFTextView.git
 
 SPEC CHECKSUMS:
   HPReorderTableView: ed45d7dcd241f0a989ea259ffe8a1523e2a82650
   iOS7Colors: 80d700ca0fe4415eeea1cfb74d4d790ffa0375ab
-  MCSwipeTableViewCell: b80c32bc0cc9f678aaa6bc39c848c454d65f2c02
+  MCSwipeTableViewCell: 40d2d91d618ed5248d20b7d75018a4a33b0477dc
   MMDrawerController: 3e22aec684dbee5307ff9d1e76523003a3303a2d
   PSPDFTextView: 778b967396e062389f9963b43b860af2e1fe9055
   SSZipArchive: 47d0589a15452311749a4eeecb97e12800d127de

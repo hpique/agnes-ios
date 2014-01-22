@@ -8,6 +8,9 @@
 
 #import "HPRootViewController.h"
 #import "HPNoteManager.h"
+#import "HPNoteListDetailTransitionAnimator.h"
+#import "HPNoteListViewController.h"
+#import "HPNoteViewController.h"
 #import <CoreData/CoreData.h>
 
 @implementation HPRootViewController
@@ -28,4 +31,38 @@
     return [HPNoteManager sharedManager].context.undoManager;
 }
 
+#pragma mark - UINavigationControllerDelegate
+
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    if (([fromVC isKindOfClass:[HPNoteListViewController class]] && [toVC isKindOfClass:[HPNoteViewController class]]) /* ||
+        ([fromVC isKindOfClass:[HPNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]])*/)
+    {
+        return [[HPNoteListDetailTransitionAnimator alloc] init];
+    }
+    return nil;
+}
+
 @end
+
+@implementation UIViewController(HPRootViewController)
+
+-(HPRootViewController*)hp_rootViewController
+{
+    UIViewController *parentViewController = self.parentViewController;
+    while (parentViewController != nil)
+    {
+        if ([parentViewController isKindOfClass:[HPRootViewController class]])
+        {
+            return (HPRootViewController *)parentViewController;
+        }
+        parentViewController = parentViewController.parentViewController;
+    }
+    return nil;
+}
+
+@end
+

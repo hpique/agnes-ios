@@ -1,17 +1,17 @@
 //
-//  HPAnimatedTransition.m
+//  HPNoteListDetailTransitionAnimator.m
 //  Agnes
 //
 //  Created by Hermes on 22/01/14.
 //  Copyright (c) 2014 Hermes Pique. All rights reserved.
 //
 
-#import "HPAnimatedTransition.h"
+#import "HPNoteListDetailTransitionAnimator.h"
 #import "HPNoteListViewController.h"
 #import "HPNoteViewController.h"
 #import "HPNoteTableViewCell.h"
 
-@implementation HPAnimatedTransition
+@implementation HPNoteListDetailTransitionAnimator
 
 - (NSTimeInterval)transitionDuration:(id <UIViewControllerContextTransitioning>)transitionContext
 {
@@ -32,7 +32,6 @@
     }
 }
 
-
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext fromList:(HPNoteListViewController*)fromViewController toDetail:(HPNoteViewController*)toViewController
 {
     [transitionContext.containerView addSubview:toViewController.view];
@@ -48,7 +47,7 @@
     cellReplacement.backgroundColor = [UIColor whiteColor];
     [transitionContext.containerView addSubview:cellReplacement];
 
-    UIView *toViewPlaceholder = [self coverView:toViewController.view withColor:[UIColor whiteColor] inContext:transitionContext];
+    UIView *backgroundView = [self coverView:toViewController.view withColor:[UIColor whiteColor] inContext:transitionContext];
     [transitionContext.containerView bringSubviewToFront:toViewController.view];
     [transitionContext.containerView bringSubviewToFront:fromViewController.view];
     
@@ -59,7 +58,9 @@
     UITextView *noteTextView = toViewController.noteTextView;
     toViewController.view.alpha = 0;
     NSTimeInterval duration = [self transitionDuration:transitionContext];
-    [UIView animateWithDuration:duration / 2 animations:^{
+    NSTimeInterval firstDuration = duration * 2.0/3.0;
+    NSTimeInterval secondDuration = duration - firstDuration;
+    [UIView animateWithDuration:firstDuration animations:^{
         CGPoint titleOrigin = [self originForLabel:cell.titleLabel inTextView:noteTextView context:transitionContext];
         CGPoint bodyOrigin = [self originForLabel:cell.bodyLabel inTextView:noteTextView context:transitionContext];
         titleLabelPlaceholder.frame = CGRectMake(titleOrigin.x, titleOrigin.y, titleLabelPlaceholder.frame.size.width, titleLabelPlaceholder.frame.size.height);
@@ -68,13 +69,13 @@
         fromViewController.view.alpha = 0;
     } completion:^(BOOL finished) {
         [cellPlaceholder removeFromSuperview];
-        [UIView animateWithDuration:duration / 2 animations:^{
+        [UIView animateWithDuration:secondDuration animations:^{
             titleLabelPlaceholder.alpha = 0;
             bodyLabelPlaceholder.alpha = 0;
             toViewController.view.alpha = 1;
         } completion:^(BOOL finished) {
             [cellPlaceholder removeFromSuperview];
-            [toViewPlaceholder removeFromSuperview];
+            [backgroundView removeFromSuperview];
             [titleLabelPlaceholder removeFromSuperview];
             [bodyLabelPlaceholder removeFromSuperview];
             [transitionContext completeTransition:YES];
@@ -136,13 +137,34 @@
 
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext fromDetail:(HPNoteViewController*)fromViewController toList:(HPNoteListViewController*)toViewController
 {
-    toViewController.view.alpha = 1;
-    [transitionContext.containerView addSubview:toViewController.view];
-    [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
-        fromViewController.view.tintAdjustmentMode = UIViewTintAdjustmentModeDimmed;
-    } completion:^(BOOL finished) {
-        [transitionContext completeTransition:YES];
-    }];
+//    [transitionContext.containerView addSubview:toViewController.view];
+//    toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
+//    
+//    UIView *backgroundView = [self coverView:toViewController.view withColor:[UIColor whiteColor] inContext:transitionContext];
+//    [transitionContext.containerView bringSubviewToFront:toViewController.view];
+//    [transitionContext.containerView bringSubviewToFront:fromViewController.view];
+// 
+//    toViewController.view.alpha = 0;
+//    toViewController.view.alpha = 0;
+//    NSTimeInterval duration = [self transitionDuration:transitionContext];
+//    NSTimeInterval firstDuration = duration * 2.0/3.0;
+//    NSTimeInterval secondDuration = duration - firstDuration;
+//    
+//    [UIView animateWithDuration:firstDuration animations:^{
+//        fromViewController.view.alpha = 0;
+//    } completion:^(BOOL finished) {
+//        [UIView animateWithDuration:secondDuration animations:^{
+//            titleLabelPlaceholder.alpha = 0;
+//            bodyLabelPlaceholder.alpha = 0;
+//            toViewController.view.alpha = 1;
+//        } completion:^(BOOL finished) {
+//            [cellPlaceholder removeFromSuperview];
+//            [backgroundView removeFromSuperview];
+//            [titleLabelPlaceholder removeFromSuperview];
+//            [bodyLabelPlaceholder removeFromSuperview];
+//            [transitionContext completeTransition:YES];
+//        }];
+//    }];
 }
 
 @end
