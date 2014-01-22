@@ -8,13 +8,9 @@
 
 #import "HPNoteTableViewCell.h"
 #import "HPNote.h"
+#import "HPFontManager.h"
 
 static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
-
-static UIFontDescriptor *_titleFontDescriptor;
-static UIFontDescriptor *_archivedTitleFontDescriptor;
-static UIFontDescriptor *_detailFontDescriptor;
-static UIFontDescriptor *_archivedDetailFontDescriptor;
 
 @implementation HPNoteTableViewCell
 
@@ -49,32 +45,12 @@ static UIFontDescriptor *_archivedDetailFontDescriptor;
     [self displayNote];
 }
 
-- (UIFontDescriptor*)detailFontDescriptor
-{
-    if (!_detailFontDescriptor)
-    {
-        _detailFontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleSubheadline];
-        _archivedDetailFontDescriptor = [_detailFontDescriptor fontDescriptorWithSymbolicTraits:_detailFontDescriptor.symbolicTraits | UIFontDescriptorTraitItalic];
-    }
-    return self.note.archived ? _archivedDetailFontDescriptor : _detailFontDescriptor;
-}
-
-- (UIFontDescriptor*)titleFontDescriptor
-{
-    if (!_titleFontDescriptor)
-    {
-        _titleFontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleHeadline];
-        _archivedTitleFontDescriptor = [_titleFontDescriptor fontDescriptorWithSymbolicTraits:_titleFontDescriptor.symbolicTraits | UIFontDescriptorTraitItalic];
-    }
-    return self.note.archived ? _archivedTitleFontDescriptor : _titleFontDescriptor;
-}
-
 #pragma mark - Private
 
 - (void)displayNote
 {
-    self.titleLabel.font = [UIFont fontWithDescriptor:self.titleFontDescriptor size:0];
-    self.bodyLabel.font =  [UIFont fontWithDescriptor:self.detailFontDescriptor size:0];
+    self.titleLabel.font = [[HPFontManager sharedManager] fontForTitleOfNote:self.note];
+    self.bodyLabel.font =  [[HPFontManager sharedManager] fontForBodyOfNote:self.note];
     
     NSDictionary *attributes = @{NSFontAttributeName: self.titleLabel.font};
     

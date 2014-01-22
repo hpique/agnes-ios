@@ -8,6 +8,7 @@
 
 #import "HPBaseTextStorage.h"
 #import "HPNote.h"
+#import "HPFontManager.h"
 #import <MessageUI/MessageUI.h>
 
 @implementation HPBaseTextStorage {
@@ -101,10 +102,8 @@
 
 - (void)boldTitle
 {
-    UIFontDescriptor *bodyFontDescriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-    UIFont *bodyFont = [UIFont fontWithDescriptor:bodyFontDescriptor size:0];
-    UIFontDescriptor *boldBodyFontDescriptor = [bodyFontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold];
-    UIFont *boldBodyFont = [UIFont fontWithDescriptor:boldBodyFontDescriptor size:0];
+    UIFont *bodyFont = [[HPFontManager sharedManager] fontForNoteBody];
+    UIFont *titleFont = [[HPFontManager sharedManager] fontForNoteTitle];
     
     NSRange range = NSMakeRange(0, _backingStore.string.length);
     __block NSInteger paragraphIndex = 0;
@@ -119,7 +118,7 @@
         // Skip first empty lines, if any
         if (paragraphIndex == 0 && trimmed.length == 0) return;
 
-        UIFont *font = paragraphIndex == 0 ? boldBodyFont : bodyFont;
+        UIFont *font = paragraphIndex == 0 ? titleFont : bodyFont;
         [_backingStore addAttribute:NSFontAttributeName value:font range:substringRange];
         paragraphIndex++;
     }];

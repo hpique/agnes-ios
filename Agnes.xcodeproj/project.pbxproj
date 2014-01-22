@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		3980E9A5F51A4472B7514BF4 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9553C6822D1E4B5082F74644 /* libPods.a */; };
+		870B5AEE18902B0B009A11AB /* HPAnimatedTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 870B5AED18902B0B009A11AB /* HPAnimatedTransition.m */; };
+		870B5AF118903BE4009A11AB /* HPFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 870B5AF018903BE4009A11AB /* HPFontManager.m */; };
 		8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */; };
 		8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FADC188A8B69004CF099 /* HPIndexViewController.m */; };
 		8740FADF188A8B69004CF099 /* HPIndexViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8740FADD188A8B69004CF099 /* HPIndexViewController.xib */; };
@@ -68,6 +70,10 @@
 
 /* Begin PBXFileReference section */
 		09E94F643D944B4DAEA256D1 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
+		870B5AEC18902B0B009A11AB /* HPAnimatedTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAnimatedTransition.h; sourceTree = "<group>"; };
+		870B5AED18902B0B009A11AB /* HPAnimatedTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAnimatedTransition.m; sourceTree = "<group>"; };
+		870B5AEF18903BE4009A11AB /* HPFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPFontManager.h; sourceTree = "<group>"; };
+		870B5AF018903BE4009A11AB /* HPFontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPFontManager.m; sourceTree = "<group>"; };
 		8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteSearchTableViewCell.h; sourceTree = "<group>"; };
 		8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteSearchTableViewCell.m; sourceTree = "<group>"; };
 		8740FADB188A8B69004CF099 /* HPIndexViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPIndexViewController.h; sourceTree = "<group>"; };
@@ -198,6 +204,8 @@
 				87AD2F84188E94450065EEBA /* HPNoteSearchTableViewCell.xib */,
 				8740FAE6188AA7DB004CF099 /* HPNoteTableViewCell.h */,
 				8740FAE7188AA7DB004CF099 /* HPNoteTableViewCell.m */,
+				870B5AEC18902B0B009A11AB /* HPAnimatedTransition.h */,
+				870B5AED18902B0B009A11AB /* HPAnimatedTransition.m */,
 			);
 			name = List;
 			sourceTree = "<group>";
@@ -317,6 +325,8 @@
 				87E37E3C188B57C0000333EA /* HPPreferencesManager.h */,
 				87E37E3D188B57C0000333EA /* HPPreferencesManager.m */,
 				87D02E18188ECBA600273DEC /* HPNoteExporter.m */,
+				870B5AEF18903BE4009A11AB /* HPFontManager.h */,
+				870B5AF018903BE4009A11AB /* HPFontManager.m */,
 			);
 			name = Logic;
 			sourceTree = "<group>";
@@ -511,6 +521,7 @@
 				8740FAE5188A8C3F004CF099 /* HPIndexItem.m in Sources */,
 				8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */,
 				87E37E41188B6158000333EA /* HPNoteAction.m in Sources */,
+				870B5AF118903BE4009A11AB /* HPFontManager.m in Sources */,
 				8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */,
 				87E37EFA188D97F3000333EA /* HPBrowserViewController.m in Sources */,
 				87E37EEA188C413D000333EA /* HPTag.m in Sources */,
@@ -528,6 +539,7 @@
 				87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */,
 				8763DA631888420A000D9569 /* HPNoteManager.m in Sources */,
 				8763DA3718883ACF000D9569 /* main.m in Sources */,
+				870B5AEE18902B0B009A11AB /* HPAnimatedTransition.m in Sources */,
 				87E37EE7188C413C000333EA /* HPNote.m in Sources */,
 				87E37EF1188CA5F5000333EA /* HPTagManager.m in Sources */,
 			);

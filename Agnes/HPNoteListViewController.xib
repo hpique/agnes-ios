@@ -8,10 +8,10 @@
             <connections>
                 <outlet property="_displayCriteriaLabel" destination="RlL-rH-NfW" id="Ukm-V2-6vm"/>
                 <outlet property="_footerView" destination="fYC-Uv-G39" id="Cv9-UQ-hVc"/>
-                <outlet property="_tableView" destination="6Ye-Ag-F8Q" id="ALp-no-jqO"/>
                 <outlet property="_titleLabel" destination="Bi5-Eh-5QO" id="SZ3-yV-M83"/>
                 <outlet property="_titleView" destination="jTE-Aa-Rve" id="c3r-jh-O5e"/>
                 <outlet property="searchDisplayController" destination="Nwp-7R-4x2" id="EZX-5f-4tN"/>
+                <outlet property="tableView" destination="6Ye-Ag-F8Q" id="eeT-kZ-YLf"/>
                 <outlet property="view" destination="1" id="zdJ-cQ-i5U"/>
             </connections>
         </placeholder>

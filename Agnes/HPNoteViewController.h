@@ -16,6 +16,7 @@
 @property (nonatomic, strong) HPNote *note;
 @property (nonatomic, copy) HPIndexItem *indexItem;
 @property (nonatomic, strong) NSMutableArray *notes;
+@property (nonatomic, strong) UITextView *noteTextView;
 
 + (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;
 

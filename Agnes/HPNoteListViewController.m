@@ -21,6 +21,7 @@
 #import "HPReorderTableView.h"
 #import "UIColor+iOS7Colors.h"
 #import <MessageUI/MessageUI.h>
+#import "HPAnimatedTransition.h"
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
@@ -29,7 +30,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 @end
 
 @implementation HPNoteListViewController {
-    __weak IBOutlet HPReorderTableView *_tableView;
+    __weak HPReorderTableView *_tableView;
     NSMutableArray *_notes;
     
     BOOL _searching;
@@ -53,6 +54,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     NSInteger _optionsActionSheetRedoIndex;
     NSInteger _optionsActionSheetExportIndex;
 }
+
+@synthesize tableView = _tableView;
 
 - (void)dealloc
 {
@@ -363,7 +366,18 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
 {
     HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:_notes indexItem:self.indexItem];
+    self.navigationController.delegate = self;
     [self.navigationController pushViewController:noteViewController animated:YES];
+}
+
+#pragma mark - UINavigationControllerDelegate
+
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    return [[HPAnimatedTransition alloc] init];
 }
 
 - (NSString*)descriptionForDisplayCriteria:(HPNoteDisplayCriteria)criteria
@@ -437,6 +451,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:HPNoteListTableViewCellReuseIdentifier];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     if (self.searchDisplayController.searchResultsTableView == tableView)
     {

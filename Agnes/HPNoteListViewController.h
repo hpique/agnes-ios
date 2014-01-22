@@ -12,6 +12,7 @@
 @interface HPNoteListViewController : UIViewController
 
 @property (nonatomic, strong) HPIndexItem *indexItem;
+@property (nonatomic, weak) IBOutlet UITableView *tableView;
 
 + (UIViewController*)controllerWithIndexItem:(HPIndexItem*)indexItem;
 
