@@ -266,16 +266,16 @@
 		8763DA3018883ACF000D9569 /* Agnes */ = {
 			isa = PBXGroup;
 			children = (
-				87D02E1A188EE7DC00273DEC /* UI */,
-				87D02E16188ECB8600273DEC /* Logic */,
-				87E37EEB188CA099000333EA /* Utils */,
-				87E37E89188BE369000333EA /* Model */,
+				87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */,
 				8740FAF2188B39FC004CF099 /* External */,
 				8763DA3918883ACF000D9569 /* HPAppDelegate.h */,
 				8763DA3A18883ACF000D9569 /* HPAppDelegate.m */,
 				8763DA3C18883ACF000D9569 /* Images.xcassets */,
+				87D02E16188ECB8600273DEC /* Logic */,
+				87E37E89188BE369000333EA /* Model */,
 				8763DA3118883ACF000D9569 /* Supporting Files */,
-				87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */,
+				87D02E1A188EE7DC00273DEC /* UI */,
+				87E37EEB188CA099000333EA /* Utils */,
 			);
 			path = Agnes;
 			sourceTree = "<group>";
