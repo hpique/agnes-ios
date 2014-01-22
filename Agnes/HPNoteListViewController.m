@@ -19,6 +19,7 @@
 #import "HPPreferencesManager.h"
 #import "HPNoteExporter.h"
 #import "HPReorderTableView.h"
+#import "UIColor+iOS7Colors.h"
 #import <MessageUI/MessageUI.h>
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
@@ -452,24 +453,46 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
         noteCell.displayCriteria = _displayCriteria;
         noteCell.separatorInset = UIEdgeInsetsZero;
 
+        noteCell.shouldAnimateIcons = NO;
         
-        UIView *swipeView = [[UIView alloc] init];
         if (note.archived)
         {
+            UILabel *swipeView = [self swipeViewWithTitle:@"Inbox"];
+            swipeView.center = CGPointMake(swipeView.center.x + 20, swipeView.center.y);
             __weak id weakNoteCell = noteCell;
-            [noteCell setSwipeGestureWithView:swipeView color:[UIColor greenColor] mode:MCSwipeTableViewCellModeExit state:MCSwipeTableViewCellState1 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
+            [noteCell setSwipeGestureWithView:swipeView color:[UIColor iOS7greenColor] mode:MCSwipeTableViewCellModeExit state:MCSwipeTableViewCellState1 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
              {
-                 [self unarchiveNoteInCell:weakNoteCell];
+                 swipeView.text = NSLocalizedString(@"Inboxed", @"");
+                 [swipeView sizeToFit];
+                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
+                     [self unarchiveNoteInCell:weakNoteCell];
+                 });
              }];
         } else {
+             UILabel *swipeView = [self swipeViewWithTitle:@"Archive"];
+            swipeView.center = CGPointMake(swipeView.center.x - 20, swipeView.center.y);
             __weak id weakNoteCell = noteCell;
-            [noteCell setSwipeGestureWithView:swipeView color:[UIColor redColor] mode:MCSwipeTableViewCellModeExit state:MCSwipeTableViewCellState3 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
+            [noteCell setSwipeGestureWithView:swipeView color:[UIColor iOS7orangeColor] mode:MCSwipeTableViewCellModeExit state:MCSwipeTableViewCellState3 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
              {
-                 [self archiveNoteInCell:weakNoteCell];
+                 swipeView.text = NSLocalizedString(@"Archived", @"");
+                 [swipeView sizeToFit];
+                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
+                     [self archiveNoteInCell:weakNoteCell];
+                 });
              }];
         }
     }
     return cell;
+}
+
+- (UILabel*)swipeViewWithTitle:(NSString*)title
+{
+    UILabel *swipeView = [[UILabel alloc] init];
+    swipeView.textColor = [UIColor whiteColor];
+    swipeView.font = [UIFont systemFontOfSize:[UIFont buttonFontSize]];
+    swipeView.text = NSLocalizedString(title, @"");
+    [swipeView sizeToFit];
+    return swipeView;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath

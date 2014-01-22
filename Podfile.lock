@@ -1,5 +1,6 @@
 PODS:
   - HPReorderTableView (0.0.1)
+  - iOS7Colors (2.0.0)
   - MCSwipeTableViewCell (2.0.0)
   - MMDrawerController (0.5.1):
     - MMDrawerController/Core
@@ -18,6 +19,7 @@ PODS:
 
 DEPENDENCIES:
   - HPReorderTableView (from `https://github.com/hpique/HPReorderTableView.git`)
+  - iOS7Colors (~> 2.0.0)
   - MCSwipeTableViewCell (~> 2.0)
   - MMDrawerController (~> 0.5)
   - PSPDFTextView (from `https://github.com/steipete/PSPDFTextView.git`)
@@ -31,6 +33,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   HPReorderTableView: ed45d7dcd241f0a989ea259ffe8a1523e2a82650
+  iOS7Colors: 80d700ca0fe4415eeea1cfb74d4d790ffa0375ab
   MCSwipeTableViewCell: b80c32bc0cc9f678aaa6bc39c848c454d65f2c02
   MMDrawerController: 3e22aec684dbee5307ff9d1e76523003a3303a2d
   PSPDFTextView: 778b967396e062389f9963b43b860af2e1fe9055

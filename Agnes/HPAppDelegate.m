@@ -41,6 +41,9 @@
 
     self.window.rootViewController = drawerController;
     [self.window makeKeyAndVisible];
+#if DEBUG
+    [[HPPreferencesManager sharedManager] setNoninitialRun];
+#endif
     return YES;
 }
 
