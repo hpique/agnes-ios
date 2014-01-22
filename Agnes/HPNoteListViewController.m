@@ -18,16 +18,17 @@
 #import "UIViewController+MMDrawerController.h"
 #import "HPPreferencesManager.h"
 #import "HPNoteExporter.h"
+#import "HPReorderTableView.h"
 #import <MessageUI/MessageUI.h>
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
-@interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
+@interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate>
 
 @end
 
 @implementation HPNoteListViewController {
-    __weak IBOutlet UITableView *_tableView;
+    __weak IBOutlet HPReorderTableView *_tableView;
     NSMutableArray *_notes;
     
     BOOL _searching;
@@ -46,6 +47,10 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     IBOutlet UIView *_footerView;
     HPNoteExporter *_noteExporter;
+    
+    NSInteger _optionsActionSheetUndoIndex;
+    NSInteger _optionsActionSheetRedoIndex;
+    NSInteger _optionsActionSheetExportIndex;
 }
 
 - (void)dealloc
@@ -74,6 +79,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
     [_tableView registerNib:nib forCellReuseIdentifier:HPNoteListTableViewCellReuseIdentifier];
     _tableView.tableFooterView = _footerView;
+    _tableView.delegate = self;
     
     MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
     self.navigationItem.leftBarButtonItem = drawerBarButton;
@@ -161,10 +167,26 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (IBAction)optionsButtonAction:(id)sender
 {
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Export", @""), nil];
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] init];
+    actionSheet.delegate = self;
+    NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+    _optionsActionSheetUndoIndex = -1;
+    if ([undoManager canUndo])
+    {
+        _optionsActionSheetUndoIndex = [actionSheet addButtonWithTitle:[undoManager undoMenuItemTitle]];
+    }
+    
+    _optionsActionSheetRedoIndex = -1;
+    if ([undoManager canRedo])
+    {
+        _optionsActionSheetRedoIndex = [actionSheet addButtonWithTitle:[undoManager redoMenuItemTitle]];
+    }
+    
+    _optionsActionSheetExportIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Export", @"")];
+    NSInteger cancelIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
+    actionSheet.cancelButtonIndex = cancelIndex;
     [actionSheet showInView:self.view];
 }
-
 
 - (IBAction)tapTitleView:(id)sender
 {
@@ -463,12 +485,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     [_notes removeObjectAtIndex:sourceIndexPath.row];
     [_notes insertObject:object atIndex:destinationIndexPath.row];
     
-    NSInteger notesCount = _notes.count;
-    for (NSInteger i = 0; i < notesCount; i++)
-    {
-        HPNote *note = _notes[i];
-        [note setOrder:notesCount - i inTag:self.indexItem.tag];
-    }
+    [[HPNoteManager sharedManager] reorderNotes:_notes tagName:self.indexItem.tag];
 }
 
 #pragma mark - UITableViewDelegate
@@ -520,9 +537,19 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if (buttonIndex == actionSheet.firstOtherButtonIndex)
+    if (buttonIndex == _optionsActionSheetExportIndex)
     {
         [self exportNotes];
+    }
+    else if (buttonIndex == _optionsActionSheetRedoIndex)
+    {
+        NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+        [undoManager redo];
+    }
+    else if (buttonIndex == _optionsActionSheetUndoIndex)
+    {
+        NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+        [undoManager undo];
     }
 }
 
@@ -531,6 +558,17 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - UIGestureRecognizerDelegate
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (gestureRecognizer == _tableView.reorderGestureRecognizer)
+    {
+        return _displayCriteria == HPNoteDisplayCriteriaOrder;
+    }
+    return NO;
 }
 
 

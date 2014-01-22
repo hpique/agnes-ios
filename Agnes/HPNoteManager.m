@@ -165,6 +165,18 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     } actionName:actionName];
 }
 
+- (void)reorderNotes:(NSArray*)notes tagName:(NSString*)tagName
+{
+    [self performModelUpdateBlock:^{
+        NSInteger notesCount = notes.count;
+        for (NSInteger i = 0; i < notesCount; i++)
+        {
+            HPNote *note = notes[i];
+            [note setOrder:notesCount - i inTag:tagName];
+        }
+    } actionName:@"Reorder"];
+}
+
 - (void)viewNote:(HPNote*)note
 {
     [self performNoUndoModelUpdateBlock:^{
