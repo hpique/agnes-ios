@@ -5,12 +5,21 @@
   Created by Hermes on 18/01/14.
   Copyright (c) 2014 Hermes Pique. All rights reserved.
 */
-"tutorial1"="Welcome to Agnes\n\nLet's get started! Slide this note to the left to archive it. Like email.\n\nThat applies to lists. From here, you can tap the Archive button.\n\n#tutorial";
-"tutorial2"="Organise with tags\n\nUse hashtags to categorise your notes. For example, these notes are tagged #tutorial.";
-"tutorial3"="Order or sort\n\nTap and hold to order your notes. Or tap on the list title to sort them automagically.\n\n#tutorial";
-"tutorial4"="Discover simplicity\n\nAgnes is full of features and very few buttons. Here are some of them.\n\n#tutorial";
-
+"tutorial1"="Welcome to Agnes\n\nLet’s get started! Tap on this note to learn more.\n\nThis is the Note view. From here you can read, write, edit and share notes. What anyone would expect from a Note app and certainly nothing worth paying for.\n\nNow return to Inbox and I’ll show you what really makes Agnes special. ;-)\n\n#tutorial";
+"tutorial2"="Slide to archive\n\nWhen you are done with a note slide it to the left to archive it. Ah, gestures!\n\nThe Archive is where you put the notes that don’t need your attention but don’t want to delete. Very much like Mail.\n\nYou can access the Archive from the Index. To return a note to the Inbox, just slide it to the right.\n\n#tutorial";
+"tutorial3"="Organise with hashtags\n\nUse hashtags to categorise your notes. These are all tagged #tutorial.\n\nYou can use hashtags anywhere. As soon as you add one it will appear in the Index. From there you can tap on a Hashtag to see all of its unarchived notes.\n\nIf you are starting from a Hashtag list, the + button will automatically add it to your new notes. And if you start typing one manually, Agnes will suggest it. She’s helpful like that.";
+"tutorial4"="Reorder, sort, search\n\nTap & hold to order your notes. Or tap on the List title to sort them automagically.\n\nAgnes will remember the sort criteria of each List independently. For example, you might want to sort notes about people alphabetically, or things to do by date.\n\nThen there is Search. Pull up down any List to search on it. If you search from the Inbox, you will search all notes.\n\n#tutorial
+";
+"tutorial5"="Discover simplicity\n\nAgnes has very few buttons but is full of features. Here are some of them.\n\nSwipe navigation: From the Note view, swipe left or right to browse other notes.\n\nIntelligent notes: Emails, links and phone numbers are highlighted automatically and can be interacted with when the keyboard is down. If you’re like me, you’ll start adding contacts directly from Agnes!\n\nUndo anything: Tap the ornament at the end of any list to undo any change. If the ornament is too far away, you can also shake the device.\n\nExport lists: Each note will be saved as a text file and zipped to your email. Again, find the list ornament to enable this feature.\n\n#tutorial";
 
 "system1"="About\n\nFor Inés.\n\n{$agnes-appName} {$agnes-appVersion}";
 "system2"="Settings\n\nIn Agnes everything is a note, even settings.\n\nfontFamily={$fontFamily}\ntintColor={$tintColor}.\n\n";
 "system3"="Get in touch\n\nSend support or feature requests to hpiqueapps@gmail.com.";
+
+
+
+
+
+
+
+

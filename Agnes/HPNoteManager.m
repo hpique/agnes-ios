@@ -43,10 +43,17 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)addTutorialNotes
 {
     [self performNoUndoModelUpdateBlock:^{
-        for (int i = 4; i >= 1; i--)
+        NSString *text;
+        long i = 1;
+        NSMutableArray *texts = [NSMutableArray array];
+        while ((text = [self stringWithFormat:@"tutorial%ld" index:i]))
         {
-            NSString *key = [NSString stringWithFormat:@"tutorial%d", i];
-            NSString *text = NSLocalizedString(key, @"");
+            [texts addObject:text];
+            i++;
+        };
+        for (i = texts.count - 1; i >= 0; i--)
+        {
+            NSString *text = texts[i];
             HPNote *note = [HPNote insertNewObjectIntoContext:self.context];
             note.createdAt = [NSDate date];
             note.modifiedAt = note.createdAt;
@@ -118,6 +125,13 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 }
 
 #pragma mark - Private
+
+- (NSString*)stringWithFormat:(NSString*)format index:(long)i
+{
+    NSString *key = [NSString stringWithFormat:format, i];
+    NSString *value = NSLocalizedString(key, @"");
+    return [value isEqualToString:key] ? nil : value;
+}
 
 + (NSArray*)sortedNotes:(NSArray*)notes selector:(SEL)selector ascending:(BOOL)ascending
 {

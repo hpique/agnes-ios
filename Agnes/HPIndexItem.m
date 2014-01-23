@@ -114,7 +114,17 @@
 
 - (UIImage*)icon
 {
-    UIImage *image = [UIImage imageNamed:_imageName];
+    NSInteger count = self.notes.count;
+    UIImage *image = nil;
+    if (count > 0)
+    {
+        NSString *fullImageName = [NSString stringWithFormat:@"%@-full", _imageName];
+        image = [UIImage imageNamed:fullImageName];
+    }
+    if (!image)
+    {
+        image = [UIImage imageNamed:_imageName];
+    }
     image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     return image;
 }

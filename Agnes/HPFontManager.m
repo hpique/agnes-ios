@@ -25,14 +25,14 @@
 {
     UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
     descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | UIFontDescriptorTraitBold];
-    UIFont *font = [UIFont fontWithDescriptor:descriptor size:0];
+    UIFont *font = [UIFont fontWithDescriptor:descriptor size:15];
     return font;
 }
 
 - (UIFont*)fontForNoteBody
 {
     UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-    UIFont *font = [UIFont fontWithDescriptor:descriptor size:0];
+    UIFont *font = [UIFont fontWithDescriptor:descriptor size:15];
     return font;
 }
 
@@ -40,7 +40,7 @@
 {
     UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
     descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | UIFontDescriptorTraitBold | UIFontDescriptorTraitItalic];
-    UIFont *font = [UIFont fontWithDescriptor:descriptor size:0];
+    UIFont *font = [UIFont fontWithDescriptor:descriptor size:15];
     return font;
 }
 
@@ -48,7 +48,7 @@
 {
     UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
     descriptor = [descriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitItalic];
-    UIFont *font = [UIFont fontWithDescriptor:descriptor size:0];
+    UIFont *font = [UIFont fontWithDescriptor:descriptor size:15];
     return font;
 }
 
