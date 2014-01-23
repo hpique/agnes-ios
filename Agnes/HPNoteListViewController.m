@@ -337,7 +337,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _displayCriteriaLabel.text = criteriaDescription;
     
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
-        cell.displayCriteria = _displayCriteria;
+        [cell setDisplayCriteria:_displayCriteria animated:animated];
     }];
 }
 
@@ -395,6 +395,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
 {
     HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:_notes indexItem:self.indexItem];
+    noteViewController.showDetail = _displayCriteria == HPNoteDisplayCriteriaModifiedAt;
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
@@ -483,31 +484,30 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
         HPNoteListTableViewCell *noteCell = (HPNoteListTableViewCell*)cell;
         HPNote *note = [objects objectAtIndex:indexPath.row];
         noteCell.note = note;
-        noteCell.displayCriteria = _displayCriteria;
+        [noteCell setDisplayCriteria:_displayCriteria animated:NO];
         noteCell.separatorInset = UIEdgeInsetsZero;
 
         noteCell.shouldAnimateIcons = NO;
         
         if (note.archived)
         {
-            UILabel *swipeView = [self swipeViewWithTitle:@"Inbox"];
+            UIImageView *swipeView = [self swipeViewWithImageNamed:@"icon-inbox"];
             swipeView.center = CGPointMake(swipeView.center.x + 20, swipeView.center.y);
             __weak id weakNoteCell = noteCell;
             [noteCell setSwipeGestureWithView:swipeView color:[UIColor iOS7greenColor] mode:MCSwipeTableViewCellModeExit state:MCSwipeTableViewCellState1 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
              {
-                 swipeView.text = NSLocalizedString(@"Inboxed", @"");
-                 [swipeView sizeToFit];
+                 swipeView.image = [[UIImage imageNamed:@"icon-checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
                  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
                      [self unarchiveNoteInCell:weakNoteCell];
                  });
              }];
         } else {
-             UILabel *swipeView = [self swipeViewWithTitle:@"Archive"];
+             UIImageView *swipeView = [self swipeViewWithImageNamed:@"icon-archive"];
             swipeView.center = CGPointMake(swipeView.center.x - 20, swipeView.center.y);
             __weak id weakNoteCell = noteCell;
             [noteCell setSwipeGestureWithView:swipeView color:[UIColor iOS7orangeColor] mode:MCSwipeTableViewCellModeExit state:MCSwipeTableViewCellState3 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
              {
-                 swipeView.text = NSLocalizedString(@"Archived", @"");
+                 swipeView.image = [[UIImage imageNamed:@"icon-checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
                  [swipeView sizeToFit];
                  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
                      [self archiveNoteInCell:weakNoteCell];
@@ -518,14 +518,13 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     return cell;
 }
 
-- (UILabel*)swipeViewWithTitle:(NSString*)title
+- (UIImageView*)swipeViewWithImageNamed:(NSString*)imageName
 {
-    UILabel *swipeView = [[UILabel alloc] init];
-    swipeView.textColor = [UIColor whiteColor];
-    swipeView.font = [UIFont systemFontOfSize:[UIFont buttonFontSize]];
-    swipeView.text = NSLocalizedString(title, @"");
-    [swipeView sizeToFit];
-    return swipeView;
+    UIImage *image = [UIImage imageNamed:imageName];
+    image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+    imageView.tintColor = [UIColor whiteColor];
+    return imageView;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
@@ -548,7 +547,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 80;
+    return 90;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

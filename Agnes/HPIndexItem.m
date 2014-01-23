@@ -28,9 +28,17 @@
 
 @end
 
+@interface HPIndexItem ()
+
+@property (nonatomic, copy) NSString *imageName;
+
+@end
+
+
 @implementation HPIndexItem {
     BOOL _disableAdd;
     BOOL _disableRemove;
+    NSString *_imageName;
 }
 
 + (HPIndexItem*)inboxIndexItem
@@ -40,6 +48,7 @@
     dispatch_once(&onceToken, ^{
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(cd_archived))];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Inbox", @"") predictate:predicate];
+        instance.imageName = @"icon-inbox";
         instance.defaultDisplayCriteria = HPNoteDisplayCriteriaOrder;
         instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
     });
@@ -54,6 +63,7 @@
         NSString *archivedName = NSStringFromSelector(@selector(cd_archived));
         NSPredicate *archivePredicate = [NSPredicate predicateWithFormat:@"%K == YES", archivedName];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Archive", @"") predictate:archivePredicate];
+        instance.imageName = @"icon-archive";
         instance.defaultDisplayCriteria = HPNoteDisplayCriteriaModifiedAt;
         instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
         instance->_disableAdd = YES;
@@ -68,6 +78,7 @@
     dispatch_once(&onceToken, ^{
         instance = [[HPIndexItemSystem alloc] init];
         instance.title = NSLocalizedString(@"Meta", @"");
+        instance.imageName = @"icon-gear";
         instance.defaultDisplayCriteria = HPNoteDisplayCriteriaViews;
         instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
         instance->_disableAdd = YES;
@@ -80,6 +91,7 @@
 {
     HPIndexItemTag *item = [[HPIndexItemTag alloc] init];
     item.title = tag;
+    item.imageName = @"icon-hashtag";
     item.defaultDisplayCriteria = HPNoteDisplayCriteriaOrder;
     item.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
     return item;
@@ -100,6 +112,18 @@
     return self.title;
 }
 
+- (UIImage*)icon
+{
+    UIImage *image = [UIImage imageNamed:_imageName];
+    image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    return image;
+}
+
+- (NSString*)indexTitle
+{
+    return self.title;
+}
+
 @end
 
 @implementation HPIndexItemTag
@@ -110,6 +134,11 @@
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(cd_archived))];
     NSSet *notes = [tag.notes filteredSetUsingPredicate:predicate];
     return [notes allObjects];
+}
+
+- (NSString*)indexTitle
+{
+    return [self.tag stringByReplacingOccurrencesOfString:@"#" withString:@""];
 }
 
 - (NSString*)tag

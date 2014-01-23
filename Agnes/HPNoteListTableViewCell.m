@@ -63,7 +63,7 @@
 
 #pragma mark - Public
 
-- (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria
+- (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria animated:(BOOL)animated
 {
     [_modifiedAtDisplayCriteriaTimer invalidate];
     _displayCriteria = displayCriteria;
@@ -74,9 +74,16 @@
         _modifiedAtDisplayCriteriaTimer = [NSTimer scheduledTimerWithTimeInterval:updateDetailDelay target:self selector:@selector(displayDetail) userInfo:nil repeats:YES];
     }
     [self setNeedsUpdateConstraints];
-    [UIView animateWithDuration:0.2 animations:^{
-        [self layoutIfNeeded]; // TODO: This doesn't animate the layout change. Why?
-    }];
+    if (animated)
+    {
+        [UIView animateWithDuration:0.2 animations:^{
+            [self layoutIfNeeded]; // TODO: This doesn't animate the layout change. Why?
+        }];
+    }
+    else
+    {
+        [self layoutIfNeeded]; // TODO: Is this necessary?
+    }
 }
 
 #pragma mark - Private

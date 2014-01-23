@@ -79,6 +79,11 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     UIView *cellCover = [self coverView:cell rect:cell.bounds color:[UIColor whiteColor] context:transitionContext];
     UIView *titleLabelPlaceholder = [self fakeView:cell.titleLabel rect:cell.titleLabel.bounds context:transitionContext];
     UIView *bodyLabelPlaceholder = [self fakeView:cell.bodyLabel rect:cell.bodyLabel.bounds context:transitionContext];
+    UIView *detailLabelPlaceholder = nil;
+    if (!cell.detailLabel.hidden)
+    {
+        detailLabelPlaceholder = [self fakeView:cell.detailLabel rect:cell.detailLabel.bounds context:transitionContext];
+    }
     
     UITextView *noteTextView = toViewController.noteTextView;
     toViewController.view.alpha = 0;
@@ -88,20 +93,27 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     [UIView animateWithDuration:firstDuration animations:^{
         CGPoint titleOrigin = [self originForLabel:cell.titleLabel inTextView:noteTextView context:transitionContext];
         CGPoint bodyOrigin = [self originForLabel:cell.bodyLabel inTextView:noteTextView context:transitionContext];
+        UILabel *detailLabel = toViewController.detailLabel;
+        if (detailLabelPlaceholder)
+        {
+            CGPoint detailOrigin = [transitionContext.containerView convertPoint:detailLabel.bounds.origin fromView:detailLabel];
+            detailLabelPlaceholder.frame = CGRectMake(detailLabelPlaceholder.frame.origin.x, detailOrigin.y, detailLabelPlaceholder.frame.size.width, detailLabelPlaceholder.frame.size.height);
+        }
         titleLabelPlaceholder.frame = CGRectMake(titleOrigin.x, titleOrigin.y, titleLabelPlaceholder.frame.size.width, titleLabelPlaceholder.frame.size.height);
         bodyLabelPlaceholder.frame = CGRectMake(bodyOrigin.x, bodyOrigin.y, bodyLabelPlaceholder.frame.size.width, bodyLabelPlaceholder.frame.size.height);
-        
         fromViewController.view.alpha = 0;
     } completion:^(BOOL finished) {
         [cellCover removeFromSuperview];
         [UIView animateWithDuration:secondDuration animations:^{
             titleLabelPlaceholder.alpha = 0;
             bodyLabelPlaceholder.alpha = 0;
+            detailLabelPlaceholder.alpha = 0;
             toViewController.view.alpha = 1;
         } completion:^(BOOL finished) {
             [backgroundView removeFromSuperview];
             [titleLabelPlaceholder removeFromSuperview];
             [bodyLabelPlaceholder removeFromSuperview];
+            [detailLabelPlaceholder removeFromSuperview];
             [transitionContext completeTransition:YES];
             fromViewController.view.alpha = 1;
         }];

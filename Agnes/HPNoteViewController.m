@@ -49,10 +49,10 @@
 
     _actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionBarButtonItemAction:)];
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
-    _archiveBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemOrganize target:self action:@selector(archiveBarButtomItemAction:)];
-    _doneBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneBarButtonItemAction:)];
+    _archiveBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-archive"] style:UIBarButtonItemStylePlain target:self action:@selector(archiveBarButtomItemAction:)];
+    _doneBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-keyboard"] style:UIBarButtonItemStylePlain target:self action:@selector(doneBarButtonItemAction:)];
     _trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(trashBarButtonItemAction:)];
-    _unarchiveBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemUndo target:self action:@selector(unarchiveBarButtomItemAction:)];
+    _unarchiveBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-inbox"] style:UIBarButtonItemStylePlain target:self action:@selector(unarchiveBarButtomItemAction:)];
     
     _addNoteBarButtonItem.enabled = !self.indexItem.disableAdd;
     _archiveBarButtonItem.enabled = !self.indexItem.disableRemove;
@@ -81,6 +81,7 @@
         _bodyTextView.delegate = self;
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
         [self.view addSubview:_bodyTextView];
+        [self.view bringSubviewToFront:self.detailLabel];
         
         _textTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(textTagGestureRecognizer:)];
         [_bodyTextView addGestureRecognizer:_textTapGestureRecognizer];
@@ -163,6 +164,15 @@
     NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
     [HPNoteAction applyPreActions:self.note editableText:editableText];
     _bodyTextView.text = editableText;
+    if (self.showDetail)
+    {
+        self.detailLabel.hidden = NO;
+        self.detailLabel.text = self.note.modifiedAtLongDescription;
+    }
+    else
+    {
+        self.detailLabel.hidden = YES;
+    }
     [[HPNoteManager sharedManager] viewNote:self.note];
     [self updateToolbar:NO /* animated */];
 }

@@ -48,6 +48,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     self.title = NSLocalizedString(@"Agnes", "Index title");
     
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:HPIndexCellIdentifier];
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.tableView.contentInset = UIEdgeInsetsMake(10, 0, 10, 0);
     
     [self reloadData];
     
@@ -98,7 +100,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:HPIndexCellIdentifier];
     HPIndexItem *item = [_items objectAtIndex:indexPath.row];
-    cell.textLabel.text = item.title;
+    cell.textLabel.text = item.indexTitle;
+    cell.imageView.image = item.icon;
     return cell;
 }
 

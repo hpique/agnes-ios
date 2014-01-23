@@ -126,6 +126,19 @@
     return [NSString stringWithFormat:NSLocalizedString(@"%.0lfy", @""), interval / 31556926];
 }
 
+- (NSString*)modifiedAtLongDescription
+{
+    static NSDateFormatter *formatter;
+    if (!formatter)
+    {
+        formatter = [[NSDateFormatter alloc] init];
+        formatter.dateStyle = NSDateFormatterLongStyle;
+        formatter.doesRelativeDateFormatting = YES;
+        formatter.locale = [NSLocale currentLocale];
+    }
+    return [formatter stringFromDate:self.modifiedAt];
+}
+
 - (NSArray*)tags
 {
     if (!_tags)

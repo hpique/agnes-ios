@@ -19,6 +19,11 @@
 @implementation HPBrowserViewController {
 //    CGPoint _previousOffset;
 //    BOOL _canToggleNavigationBar;
+    UIBarButtonItem *_backBarButtonItem;
+    UIBarButtonItem *_forwardBarButtonItem;
+    UIBarButtonItem *_shareBarButtonItem;
+    UIBarButtonItem *_safariBarButtonItem;
+
 }
 
 - (void)viewDidLoad
@@ -26,10 +31,28 @@
     [super viewDidLoad];
 	[self.webView loadRequest:[NSURLRequest requestWithURL:self.url]];
     self.navigationController.navigationBar.topItem.title = @"";
-//    self.webView.scrollView.delegate = self;
+    
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneBarButtonItemAction:)];
+
+    _backBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-previous"] landscapeImagePhone:nil style:UIBarButtonItemStylePlain target:self action:@selector(backBarButtonItemAction:)];
+    _backBarButtonItem.enabled = NO;
+    _forwardBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-next"] landscapeImagePhone:nil style:UIBarButtonItemStylePlain target:self action:@selector(forwardBarButtonItemAction:)];
+    _forwardBarButtonItem.enabled = NO;
+    _safariBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-safari"] landscapeImagePhone:nil style:UIBarButtonItemStylePlain target:self action:@selector(safariBarButtonItemAction:)];
+    _shareBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareBarButtonItemAction:)];
+    UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    self.toolbarItems = @[_backBarButtonItem, flexibleSpace, _forwardBarButtonItem, flexibleSpace, _shareBarButtonItem, flexibleSpace, _safariBarButtonItem];
+    
+    //    self.webView.scrollView.delegate = self;
 //    _previousOffset = self.webView.scrollView.contentOffset;
 //    _canToggleNavigationBar = YES;
 
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.navigationController.toolbarHidden = NO;
 }
 
 #pragma mark - Public
@@ -38,6 +61,35 @@
 {
     _url = url;
     self.title = self.url.host;
+}
+
+#pragma mark - Actions
+
+- (void)doneBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)backBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    [self.webView goBack];
+}
+
+- (void)forwardBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    [self.webView goForward];
+}
+
+- (void)safariBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    [[UIApplication sharedApplication] openURL:self.url];
+}
+
+- (void)shareBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    NSArray *activityItems = @[self.url];
+    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
+    [self presentViewController:activityViewController animated:YES completion:nil];
 }
 
 #pragma mark - UIWebViewDelegate
@@ -57,6 +109,12 @@
         _url = url;
         self.title = self.url.host;
     }
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    _backBarButtonItem.enabled = [webView canGoBack];
+    _forwardBarButtonItem.enabled = [webView canGoForward];
 }
 
 #pragma mark - UIScrollViewDelegate

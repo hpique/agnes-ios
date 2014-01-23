@@ -17,6 +17,8 @@
 @property (nonatomic, copy) HPIndexItem *indexItem;
 @property (nonatomic, strong) NSMutableArray *notes;
 @property (nonatomic, strong) UITextView *noteTextView;
+@property (nonatomic, assign) BOOL showDetail;
+@property (weak, nonatomic) IBOutlet UILabel *detailLabel;
 
 + (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;
 

@@ -14,6 +14,8 @@
 @interface HPNoteListTableViewCell : HPNoteTableViewCell
 
 @property (nonatomic, strong) HPNote *note;
-@property (nonatomic, assign) HPNoteDisplayCriteria displayCriteria;
+@property (nonatomic, readonly) HPNoteDisplayCriteria displayCriteria;
+
+- (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria animated:(BOOL)animated;
 
 @end
