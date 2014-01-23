@@ -425,6 +425,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     if (self.searchDisplayController.searchResultsTableView == tableView)
     {
         HPNoteSearchTableViewCell *searchCell = (HPNoteSearchTableViewCell*)cell;
+        searchCell.tintColor = self.view.tintColor; // Workaround for wrong tintColor in first search
         HPNote *note = [objects objectAtIndex:indexPath.row];
         searchCell.searchText = _searchString;
         searchCell.note = note;
