@@ -117,9 +117,10 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     UIView *titleLabelPlaceholder = [self fakeView:cell.titleLabel rect:cell.titleLabel.bounds context:transitionContext];
     UIView *bodyLabelPlaceholder = [self fakeView:cell.bodyLabel rect:cell.bodyLabel.bounds context:transitionContext];
     UIView *detailLabelPlaceholder = nil;
-    if (!cell.detailLabel.hidden)
+    UILabel *detailLabel = cell.detailLabel;
+    if (detailLabel != nil && !detailLabel.hidden && detailLabel.text.length > 0)
     {
-        detailLabelPlaceholder = [self fakeView:cell.detailLabel rect:cell.detailLabel.bounds context:transitionContext];
+        detailLabelPlaceholder = [self fakeView:detailLabel rect:detailLabel.bounds context:transitionContext];
     }
     
     UITextView *noteTextView = toViewController.noteTextView;
