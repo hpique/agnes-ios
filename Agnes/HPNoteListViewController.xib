@@ -62,7 +62,7 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bi5-Eh-5QO">
-                    <rect key="frame" x="64" y="12" width="32" height="20"/>
+                    <rect key="frame" x="0.0" y="12" width="160" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
@@ -80,7 +80,8 @@
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
             <gestureRecognizers/>
             <constraints>
-                <constraint firstAttribute="centerX" secondItem="Bi5-Eh-5QO" secondAttribute="centerX" id="7K0-ta-FTX"/>
+                <constraint firstAttribute="trailing" secondItem="Bi5-Eh-5QO" secondAttribute="trailing" id="A72-0n-iv0"/>
+                <constraint firstItem="Bi5-Eh-5QO" firstAttribute="leading" secondItem="jTE-Aa-Rve" secondAttribute="leading" id="AXS-Gg-Y2e"/>
                 <constraint firstAttribute="centerY" secondItem="Bi5-Eh-5QO" secondAttribute="centerY" id="DEa-k1-lQ3"/>
                 <constraint firstItem="RlL-rH-NfW" firstAttribute="top" secondItem="Bi5-Eh-5QO" secondAttribute="bottom" constant="-4" id="rw6-34-MWr"/>
                 <constraint firstAttribute="centerX" secondItem="RlL-rH-NfW" secondAttribute="centerX" id="w6B-I2-ska"/>
