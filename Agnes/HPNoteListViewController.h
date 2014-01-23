@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 @class HPIndexItem;
+@class HPNote;
 
 @interface HPNoteListViewController : UIViewController
 
@@ -15,5 +16,7 @@
 @property (nonatomic, readonly) UITableView *tableView;
 
 + (UINavigationController*)controllerWithIndexItem:(HPIndexItem*)indexItem;
+
+- (BOOL)selectNote:(HPNote*)note;
 
 @end

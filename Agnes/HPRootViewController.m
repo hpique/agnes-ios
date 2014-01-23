@@ -38,10 +38,19 @@
                                                 fromViewController:(UIViewController *)fromVC
                                                   toViewController:(UIViewController *)toVC
 {
-    if (([fromVC isKindOfClass:[HPNoteListViewController class]] && [toVC isKindOfClass:[HPNoteViewController class]]) /* ||
-        ([fromVC isKindOfClass:[HPNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]])*/)
+    if ([fromVC isKindOfClass:[HPNoteListViewController class]] && [toVC isKindOfClass:[HPNoteViewController class]])
     {
         return [[HPNoteListDetailTransitionAnimator alloc] init];
+    }
+    if ([fromVC isKindOfClass:[HPNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]])
+    {
+        HPNoteViewController *noteViewController = (HPNoteViewController*) fromVC;
+        HPNoteListViewController *listViewController = (HPNoteListViewController*) toVC;
+        BOOL selected = [listViewController selectNote:noteViewController.note];
+        if (selected)
+        {
+            return [[HPNoteListDetailTransitionAnimator alloc] init];
+        }
     }
     return nil;
 }

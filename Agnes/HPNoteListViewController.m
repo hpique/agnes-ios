@@ -101,11 +101,20 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [_notesTableView deselectRowAtIndexPath:[_notesTableView indexPathForSelectedRow] animated:animated];
+    // [_notesTableView deselectRowAtIndexPath:[_notesTableView indexPathForSelectedRow] animated:animated]; // Do not deselect the selected row of the animator will not know where to return
     [self updateNotes:animated];
 }
 
 #pragma mark - Public
+
+- (BOOL)selectNote:(HPNote*)note
+{
+    NSIndexPath *indexPath = [self indexPathOfNote:note];
+    if (!indexPath) return NO;
+    [self.tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+    return YES;
+}
 
 - (void)setIndexItem:(HPIndexItem *)indexItem
 {
@@ -244,6 +253,23 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:NSLocalizedString(@"A functioning email client is required", @"")];
     }
     _noteExporter = nil;
+}
+
+- (NSIndexPath*)indexPathOfNote:(HPNote*)note
+{
+    if (self.tableView == _notesTableView)
+    {
+        NSUInteger row = [_notes indexOfObject:note];
+        return row == NSNotFound ? nil : [NSIndexPath indexPathForRow:row inSection:0];
+    }
+    else
+    {
+        NSUInteger row = [_searchResults indexOfObject:note];
+        if (row != NSNotFound) return [NSIndexPath indexPathForRow:row inSection:0];
+        row = [_archivedSearchResults indexOfObject:note];
+        if (row != NSNotFound) return [NSIndexPath indexPathForRow:row inSection:1];
+    }
+    return nil;
 }
 
 - (void)updateNotes:(BOOL)animated
