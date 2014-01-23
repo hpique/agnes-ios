@@ -97,6 +97,11 @@
     return [NSString stringWithFormat:@"\n\n\n\n%@", tag];
 }
 
+- (BOOL)isNew
+{
+    return self.managedObjectContext == nil;
+}
+
 - (BOOL)empty
 {
     NSString *trimmedText = [self.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
@@ -215,16 +220,16 @@
     [previousTags minusSet:currentTags]; // Removed
     [currentTags minusSet:self.cd_tags]; // Added
     [self removeCd_tags:previousTags];
+    [self addCd_tags:currentTags];
     
     // TODO: Find a better place for this logic
     for (HPTag *tag in previousTags)
     {
-        if (tag.notes.count == 0)
+        if (tag.cd_notes.count == 0)
         {
             [manager.context deleteObject:tag];
         }
     }
-    [self addCd_tags:currentTags];
 }
 
 @end

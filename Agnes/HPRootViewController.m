@@ -9,8 +9,6 @@
 #import "HPRootViewController.h"
 #import "HPNoteManager.h"
 #import "HPNoteListDetailTransitionAnimator.h"
-#import "HPNoteListViewController.h"
-#import "HPNoteViewController.h"
 #import <CoreData/CoreData.h>
 
 @implementation HPRootViewController
@@ -38,19 +36,11 @@
                                                 fromViewController:(UIViewController *)fromVC
                                                   toViewController:(UIViewController *)toVC
 {
-    if ([fromVC isKindOfClass:[HPNoteListViewController class]] && [toVC isKindOfClass:[HPNoteViewController class]])
+    if ([HPNoteListDetailTransitionAnimator canTransitionFromViewController:fromVC toViewController:toVC])
     {
-        return [[HPNoteListDetailTransitionAnimator alloc] init];
-    }
-    if ([fromVC isKindOfClass:[HPNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]])
-    {
-        HPNoteViewController *noteViewController = (HPNoteViewController*) fromVC;
-        HPNoteListViewController *listViewController = (HPNoteListViewController*) toVC;
-        BOOL selected = [listViewController selectNote:noteViewController.note];
-        if (selected)
-        {
-            return [[HPNoteListDetailTransitionAnimator alloc] init];
-        }
+        HPNoteListDetailTransitionAnimator *animator = [[HPNoteListDetailTransitionAnimator alloc] init];
+        [animator prepareForTransition:fromVC];
+        return animator;
     }
     return nil;
 }

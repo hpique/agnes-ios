@@ -19,6 +19,7 @@
 @property (nonatomic, strong) UITextView *noteTextView;
 @property (nonatomic, assign) BOOL showDetail;
 @property (weak, nonatomic) IBOutlet UILabel *detailLabel;
+@property (nonatomic, assign) BOOL willTransitionToList;
 
 + (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;
 

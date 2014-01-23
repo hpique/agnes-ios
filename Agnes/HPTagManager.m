@@ -62,6 +62,7 @@
     {
         tag = [HPTag insertNewObjectIntoContext:self.context];
         tag.name = name;
+        tag.order = NSIntegerMax;
     }
     return tag;
 }
@@ -77,6 +78,17 @@
         }
     }
     return [_tagTrie everyObjectForKeyWithPrefix:prefix];
+}
+
+- (void)reorderTagsWithNames:(NSArray*)names
+{
+    [self performModelUpdateWithName:@"Reorder" save:NO block:^{
+        NSInteger count = names.count;
+        [names enumerateObjectsUsingBlock:^(NSString *name, NSUInteger idx, BOOL *stop) {
+            HPTag *tag = [self tagWithName:name];
+            tag.order = count - idx;
+        }];
+    }];
 }
 
 @end

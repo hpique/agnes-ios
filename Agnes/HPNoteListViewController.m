@@ -16,6 +16,7 @@
 #import "HPPreferencesManager.h"
 #import "HPNoteExporter.h"
 #import "HPReorderTableView.h"
+#import "UITableView+hp_reloadChanges.h"
 #import "MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
 #import "UIViewController+MMDrawerController.h"
@@ -281,7 +282,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     if (animated)
     {
-        [self updateTableView:_notesTableView previousData:previousNotes updatedData:_notes section:0];
+        [_notesTableView hp_reloadChangesInSection:0 previousData:previousNotes updatedData:_notes];
     }
     else
     {
@@ -295,11 +296,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     {
         NSArray *previousSearchResults = _searchResults;
         _searchResults = [self notesWithSearchString:_searchString archived:NO];
-        [self updateTableView:searchTableView previousData:previousSearchResults updatedData:_searchResults section:0];
+        [searchTableView hp_reloadChangesInSection:0 previousData:previousSearchResults updatedData:_searchResults];
         
         NSArray *previousArchivedSearchResults = _archivedSearchResults;
         _archivedSearchResults = [self notesWithSearchString:_searchString archived:YES];
-        [self updateTableView:searchTableView previousData:previousArchivedSearchResults updatedData:_archivedSearchResults section:1];
+        [searchTableView hp_reloadChangesInSection:1 previousData:previousArchivedSearchResults updatedData:_archivedSearchResults];
     }
     else
     {
@@ -339,57 +340,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
         [cell setDisplayCriteria:_displayCriteria animated:animated];
     }];
-}
-
-- (void)updateTableView:(UITableView*)tableView previousData:(NSArray*)previousData updatedData:(NSArray*)updatedData section:(NSUInteger)section
-{
-    if (!previousData)
-    {
-        [tableView reloadData];
-        return;
-    }
-    
-    NSMutableArray *indexPathsToDelete = [NSMutableArray array];
-    [previousData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
-     {
-         // TODO: Use dictionaries
-         if (![updatedData containsObject:obj])
-         {
-             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:section];
-             [indexPathsToDelete addObject:indexPath];
-         }
-     }];
-
-    NSMutableArray *indexPathsToInsert = [NSMutableArray array];
-    NSMutableArray *indexPathsToMove = [NSMutableArray array];
-    [updatedData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
-     {
-         // TODO: Use dictionaries
-         NSUInteger previousIndex = [previousData indexOfObject:obj];
-         if (previousIndex == NSNotFound)
-         {
-             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:section];
-             [indexPathsToInsert addObject:indexPath];
-         }
-         else if (previousIndex != idx)
-         {
-             NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:previousIndex inSection:section];
-             NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:section];
-             [indexPathsToMove addObject:@[fromIndexPath, toIndexPath]];
-         }
-     }];
-    
-    if (indexPathsToDelete.count > 0 || indexPathsToMove.count > 0 || indexPathsToInsert.count > 0)
-    {
-        [tableView beginUpdates];
-        [tableView deleteRowsAtIndexPaths:indexPathsToDelete withRowAnimation:UITableViewRowAnimationAutomatic];
-        for (NSArray *indexPaths in indexPathsToMove)
-        {
-            [tableView moveRowAtIndexPath:indexPaths[0] toIndexPath:indexPaths[1]];
-        }
-        [tableView insertRowsAtIndexPaths:indexPathsToInsert withRowAnimation:UITableViewRowAnimationAutomatic];
-        [tableView endUpdates];
-    }
 }
 
 - (void)showNote:(HPNote*)note in:(NSArray*)notes

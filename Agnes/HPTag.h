@@ -14,17 +14,17 @@
 @interface HPTag : NSManagedObject
 
 @property (nonatomic, retain) NSString * name;
-@property (nonatomic, retain) NSSet *notes;
+@property (nonatomic, retain) NSSet *cd_notes;
+@property (nonatomic, retain) NSNumber *cd_order;
+
 @end
 
 @interface HPTag (CoreDataGeneratedAccessors)
 
-- (void)addNotesObject:(HPNote *)value;
-- (void)removeNotesObject:(HPNote *)value;
-- (void)addNotes:(NSSet *)values;
-- (void)removeNotes:(NSSet *)values;
-
-@property (nonatomic, readonly) BOOL hasInboxNotes;
+- (void)addCd_notesObject:(HPNote *)value;
+- (void)removeCd_notesObject:(HPNote *)value;
+- (void)addCd_notes:(NSSet *)values;
+- (void)removeCd_notes:(NSSet *)values;
 
 @end
 
@@ -33,5 +33,11 @@
 + (NSString *)entityName;
 
 + (instancetype)insertNewObjectIntoContext:(NSManagedObjectContext *)context;
+
+@end
+
+@interface HPTag(Transient)
+
+@property (nonatomic, assign) NSInteger order;
 
 @end

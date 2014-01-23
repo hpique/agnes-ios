@@ -18,4 +18,6 @@
 
 + (HPTagManager*)sharedManager;
 
+- (void)reorderTagsWithNames:(NSArray*)names;
+
 @end

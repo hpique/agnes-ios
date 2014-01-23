@@ -142,7 +142,7 @@
 {
     HPTag *tag = [[HPTagManager sharedManager] tagWithName:self.tag];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(cd_archived))];
-    NSSet *notes = [tag.notes filteredSetUsingPredicate:predicate];
+    NSSet *notes = [tag.cd_notes filteredSetUsingPredicate:predicate];
     return [notes allObjects];
 }
 

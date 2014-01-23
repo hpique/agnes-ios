@@ -19,7 +19,7 @@ extern NSString* const HPEntityManagerObjectsDidChangeNotification;
 
 - (void)save;
 
-- (void)performModelUpdateBlock:(void (^)())block actionName:(NSString*)actionName;
+- (void)performModelUpdateWithName:(NSString*)actionName save:(BOOL)save block:(void (^)())block;
 
 - (void)performNoUndoModelUpdateBlock:(void (^)())block;
 

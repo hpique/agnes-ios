@@ -10,6 +10,7 @@
 #import "HPNoteListViewController.h"
 #import "HPNoteViewController.h"
 #import "HPNoteTableViewCell.h"
+#import "HPNote.h"
 
 @interface UIView(Utils)
 
@@ -52,6 +53,42 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     } else if ([fromViewController isKindOfClass:[HPNoteViewController class]] && [toViewController isKindOfClass:[HPNoteListViewController class]])
     {
         [self animateTransition:transitionContext fromDetail:fromViewController toList:toViewController];
+    }
+}
+
+#pragma mark - Public
+
++ (BOOL)canTransitionFromViewController:(UIViewController *)fromVC
+                       toViewController:(UIViewController *)toVC
+{
+    if ([fromVC isKindOfClass:[HPNoteListViewController class]] && [toVC isKindOfClass:[HPNoteViewController class]])
+    {
+        HPNoteViewController *noteViewController = (HPNoteViewController*) toVC;
+        HPNote *note = noteViewController.note;
+        if (!note.isNew)
+        {
+            return YES;
+        }
+    }
+    if ([fromVC isKindOfClass:[HPNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]])
+    {
+        HPNoteViewController *noteViewController = (HPNoteViewController*) fromVC;
+        HPNoteListViewController *listViewController = (HPNoteListViewController*) toVC;
+        BOOL selected = [listViewController selectNote:noteViewController.note];
+        if (selected)
+        {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (void)prepareForTransition:(UIViewController*)fromVC
+{
+    if ([fromVC isKindOfClass:[HPNoteViewController class]])
+    {
+        HPNoteViewController *noteViewController = (HPNoteViewController*) fromVC;
+        noteViewController.willTransitionToList = YES;
     }
 }
 
@@ -140,15 +177,27 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     HPNoteTableViewCell *cell = (HPNoteTableViewCell*)[tableView cellForRowAtIndexPath:selectedIndexPath];
     
     UITextView *noteTextView = fromViewController.noteTextView;
-
     UILabel *titleLabel = cell.titleLabel;
     UILabel *bodyLabel = cell.bodyLabel;
-    CGRect titleRect = [self rectForLabel:titleLabel inTextView:noteTextView];
-    CGRect bodyRect = [self rectForLabel:bodyLabel inTextView:noteTextView];
+    const BOOL handleBody = bodyLabel.text.length > 0;
+    const CGRect titleRect = [self rectForLabel:titleLabel inTextView:noteTextView];
     UIView *titleCover = [self coverView:noteTextView rect:titleRect color:[UIColor whiteColor] context:transitionContext];
-    UIView *bodyCover = [self coverView:noteTextView rect:bodyRect color:[UIColor whiteColor] context:transitionContext];
+
+    CGRect bodyRect;
+    UIView *bodyCover;
+    if (handleBody)
+    {
+        bodyRect = [self rectForLabel:bodyLabel inTextView:noteTextView];
+        bodyCover = [self coverView:noteTextView rect:bodyRect color:[UIColor whiteColor] context:transitionContext];
+    }
+
     UIView *titlePlaceholder = [self fakeView:noteTextView rect:titleRect context:transitionContext];
-    UIView *bodyPlaceholder = [self fakeView:noteTextView rect:bodyRect context:transitionContext];
+    
+    UIView *bodyPlaceholder;
+    if (handleBody)
+    {
+        bodyPlaceholder = [self fakeView:noteTextView rect:bodyRect context:transitionContext];
+    }
     
     toViewController.view.alpha = 0;
     NSTimeInterval duration = [self transitionDuration:transitionContext];
@@ -231,7 +280,7 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     {
         visibleRange = [textView.text lineRangeForRange:NSMakeRange(0, 0)];
     }
-    NSString *substring = [label.text substringWithRange:visibleRange];
+    NSString *substring = label.text.length >= NSMaxRange(visibleRange) ? [label.text substringWithRange:visibleRange] : @"";
     return [self rectForText:substring inTextView:textView];
 }
 
@@ -249,36 +298,38 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
 - (NSRange)hp_visibleRange
 {
     NSString *text = self.text;
-    const NSInteger max = text.length - 1;
-    NSInteger next = max;
-    const CGSize labelSize = self.bounds.size;
-    const CGSize maxSize = CGSizeMake(labelSize.width, CGFLOAT_MAX);
     NSRange visibleRange = NSMakeRange(NSNotFound, 0);
-    NSMutableParagraphStyle *paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-    paragraphStyle.lineBreakMode = self.lineBreakMode;
-    NSDictionary * attributes = @{NSFontAttributeName:self.font, NSParagraphStyleAttributeName:paragraphStyle};
-    NSInteger right;
-    NSInteger best = 0;
-    do
+    const NSInteger max = text.length - 1;
+    if (max >= 0)
     {
-        right = next;
-        NSRange range = NSMakeRange(0, right + 1);
-        NSString *substring = [text substringWithRange:range];
-        CGSize textSize = [substring boundingRectWithSize:maxSize
-                                                  options:NSStringDrawingUsesLineFragmentOrigin
-                                               attributes:attributes
-                                                  context:nil].size;
-        if (textSize.width <= labelSize.width && textSize.height <= labelSize.height)
+        NSInteger next = max;
+        const CGSize labelSize = self.bounds.size;
+        const CGSize maxSize = CGSizeMake(labelSize.width, CGFLOAT_MAX);
+        NSMutableParagraphStyle *paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+        paragraphStyle.lineBreakMode = self.lineBreakMode;
+        NSDictionary * attributes = @{NSFontAttributeName:self.font, NSParagraphStyleAttributeName:paragraphStyle};
+        NSInteger right;
+        NSInteger best = 0;
+        do
         {
-            visibleRange = range;
-            best = right;
-            next = right + (max - right) / 2;
-        } else if (right > 0)
-        {
-            next = right - (right - best) / 2;
-        }
-    } while (next != right);
-    
+            right = next;
+            NSRange range = NSMakeRange(0, right + 1);
+            NSString *substring = [text substringWithRange:range];
+            CGSize textSize = [substring boundingRectWithSize:maxSize
+                                                      options:NSStringDrawingUsesLineFragmentOrigin
+                                                   attributes:attributes
+                                                      context:nil].size;
+            if (textSize.width <= labelSize.width && textSize.height <= labelSize.height)
+            {
+                visibleRange = range;
+                best = right;
+                next = right + (max - right) / 2;
+            } else if (right > 0)
+            {
+                next = right - (right - best) / 2;
+            }
+        } while (next != right);
+    }
     return visibleRange;
 }
 

@@ -11,18 +11,9 @@
 
 @implementation HPTag
 
+@dynamic cd_notes;
+@dynamic cd_order;
 @dynamic name;
-@dynamic notes;
-
-- (BOOL)hasInboxNotes
-{
-    for (HPNote *note in self.notes)
-    {
-        if (!note.archived) return YES;
-    }
-    return NO;
-}
-
 @end
 
 @implementation HPTag (Convenience)
@@ -38,4 +29,30 @@
                                          inManagedObjectContext:context];
 }
 
+@end
+
+
+@implementation HPTag(Transient)
+
+- (NSInteger)order
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(order));
+    
+    [self willAccessValueForKey:key];
+    NSNumber *value = self.cd_order;
+    [self didAccessValueForKey:key];
+    return [value integerValue];
+}
+
+- (void)setOrder:(NSInteger)order
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(order));
+    
+    NSNumber *value = @(order);
+    [self willChangeValueForKey:key];
+    self.cd_order = value;
+    [self willChangeValueForKey:key];
+}
 @end

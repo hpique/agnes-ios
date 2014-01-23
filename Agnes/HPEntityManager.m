@@ -83,12 +83,15 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     return filtered;
 }
 
-- (void)performModelUpdateBlock:(void (^)())block actionName:(NSString*)actionName;
+- (void)performModelUpdateWithName:(NSString*)actionName save:(BOOL)save block:(void (^)())block ;
 {
     [self.context.undoManager beginUndoGrouping];
     [self.context.undoManager setActionName:NSLocalizedString(actionName, @"")];
     block();
-    [self save];
+    if (save)
+    {
+        [self save];
+    }
     [self.context.undoManager endUndoGrouping];
 }
 

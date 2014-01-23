@@ -22,7 +22,7 @@
 
 @implementation HPNoteViewController {
     BOOL _bodyTextViewChanged;
-    UITextView *_bodyTextView;
+    PSPDFTextView *_bodyTextView;
     UIEdgeInsets _originalBodyTextViewInset;
     HPBaseTextStorage *_bodyTextStorage;
     UITapGestureRecognizer *_textTapGestureRecognizer;
@@ -61,7 +61,7 @@
     
     self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem, _actionBarButtonItem];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShowNotification:) name:UIKeyboardDidShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShowNotification:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
  
     {
@@ -96,7 +96,7 @@
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
 }
 
@@ -465,20 +465,37 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 #pragma mark - Notifications
 
-- (void)keyboardDidShowNotification:(NSNotification*)notification
+- (void)keyboardWillShowNotification:(NSNotification*)notification
 {
     NSDictionary *info = notification.userInfo;
     CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
     
     _originalBodyTextViewInset = _bodyTextView.contentInset;
-    _bodyTextView.contentInset = UIEdgeInsetsMake(_originalBodyTextViewInset.top, _originalBodyTextViewInset.left, keyboardSize.height, _originalBodyTextViewInset.right);
-    _bodyTextView.scrollIndicatorInsets = _bodyTextView.contentInset;
+    UIEdgeInsets insets = UIEdgeInsetsMake(_originalBodyTextViewInset.top, _originalBodyTextViewInset.left, keyboardSize.height, _originalBodyTextViewInset.right);
+
+    NSTimeInterval duration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    UIViewAnimationOptions animationCurve = [[info objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
+    [UIView animateWithDuration:duration delay:0 options:animationCurve animations:^{
+        _bodyTextView.contentInset = insets;
+        _bodyTextView.scrollIndicatorInsets = insets;
+        [_bodyTextView scrollToVisibleCaretAnimated:NO];
+    } completion:^(BOOL finished) {
+    }];
 }
 
 - (void)keyboardWillHideNotification:(NSNotification*)notification
 {
-    _bodyTextView.contentInset = _originalBodyTextViewInset;
-    _bodyTextView.scrollIndicatorInsets = UIEdgeInsetsZero;
+    if (self.willTransitionToList) return; // Do not animate keyboard when animating to list
+    
+    NSDictionary *info = notification.userInfo;
+    NSTimeInterval duration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    UIViewAnimationOptions animationCurve = [[info objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
+    [UIView animateWithDuration:duration delay:0 options:animationCurve animations:^{
+        _bodyTextView.contentInset = _originalBodyTextViewInset;
+        _bodyTextView.scrollIndicatorInsets = UIEdgeInsetsZero;
+        [_bodyTextView scrollToVisibleCaretAnimated:NO];
+    } completion:^(BOOL finished) {
+    }];
 }
 
 @end

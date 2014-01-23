@@ -150,9 +150,9 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)archiveNote:(HPNote*)note
 {
-    [self performModelUpdateBlock:^{
+    [self performModelUpdateWithName:@"Archive" save:NO block:^{
         note.archived = YES;
-    } actionName:@"Archive Note"];
+    }];
 }
 
 - (HPNote*)blankNoteWithTag:(NSString*)tag
@@ -169,26 +169,26 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 {
     BOOL isNew = note.managedObjectContext == nil;
     NSString *actionName = isNew ? @"Add Note" : @"Edit Note";
-    [self performModelUpdateBlock:^{
+    [self performModelUpdateWithName:actionName save:YES block:^{
         note.text = text;
         note.modifiedAt = [NSDate date];
         if (isNew)
         {
             [self.context insertObject:note];
         }
-    } actionName:actionName];
+    }];
 }
 
 - (void)reorderNotes:(NSArray*)notes tagName:(NSString*)tagName
 {
-    [self performModelUpdateBlock:^{
+    [self performModelUpdateWithName:@"Reorder" save:NO block:^{
         NSInteger notesCount = notes.count;
         for (NSInteger i = 0; i < notesCount; i++)
         {
             HPNote *note = notes[i];
             [note setOrder:notesCount - i inTag:tagName];
         }
-    } actionName:@"Reorder"];
+    } ];
 }
 
 - (void)viewNote:(HPNote*)note
@@ -200,17 +200,17 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)unarchiveNote:(HPNote*)note
 {
-    [self performModelUpdateBlock:^{
+    [self performModelUpdateWithName:@"Unarchive" save:NO block:^{
         note.archived = NO;
-    } actionName:@"Unarchive Note"];
+    }];
 }
 
 - (void)trashNote:(HPNote*)note
 {
     if (note.managedObjectContext == nil) return;
-    [self performModelUpdateBlock:^{
+    [self performModelUpdateWithName:@"Delete Note" save:NO block:^{
         [self.context deleteObject:note];
-    } actionName:@"Delete Note"];
+    }];
 }
 
 @end

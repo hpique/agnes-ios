@@ -15,6 +15,7 @@
 #import "HPTag.h"
 #import "MMDrawerController.h"
 #import "HPRootViewController.h"
+#import "UITableView+hp_reloadChanges.h"
 #import "UIViewController+MMDrawerController.h"
 
 @interface HPIndexViewController ()
@@ -24,7 +25,7 @@
 static NSString *HPIndexCellIdentifier = @"Cell";
 
 @implementation HPIndexViewController {
-    NSArray *_items;
+    NSMutableArray *_items;
 }
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -66,11 +67,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     
     NSArray *tags = [HPTagManager sharedManager].objects;
     { // Remove tags with only archived notes
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == 1", NSStringFromSelector(@selector(hasInboxNotes))];
-        tags = [tags filteredArrayUsingPredicate:predicate];
+//        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ANY %K.cd_archived != YES", NSStringFromSelector(@selector(notes))];
+//        tags = [tags filteredArrayUsingPredicate:predicate];
     }
-    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(name)) ascending:YES];
-    tags = [tags sortedArrayUsingDescriptors:@[sortDescriptor]];
+    NSSortDescriptor *orderSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(order)) ascending:NO];
+    NSSortDescriptor *nameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(name)) ascending:YES];
+    tags = [tags sortedArrayUsingDescriptors:@[orderSortDescriptor, nameSortDescriptor]];
     for (HPTag *tag in tags)
     {
         HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag.name];
@@ -80,8 +82,10 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [items addObject:[HPIndexItem archiveIndexItem]];
     [items addObject:[HPIndexItem systemIndexItem]];
     
+    NSArray *previousItems = _items;
     _items = items;
-    [self.tableView reloadData];
+    
+    [self.tableView hp_reloadChangesInSection:0 previousData:previousItems updatedData:_items];
 }
 
 #pragma mark - Table view data source
@@ -103,6 +107,27 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     cell.textLabel.text = item.indexTitle;
     cell.imageView.image = item.icon;
     return cell;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    HPIndexItem *item = [_items objectAtIndex:indexPath.row];
+    return item.tag != nil;
+}
+
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
+{
+    [_items exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
+    NSMutableArray *tagNames = [NSMutableArray array];
+    for (HPIndexItem *item in _items)
+    {
+        NSString *tagName = item.tag;
+        if (tagName)
+        {
+            [tagNames addObject:tagName];
+        }
+    }
+    [[HPTagManager sharedManager] reorderTagsWithNames:tagNames];
 }
 
 #pragma mark - Table view delegate

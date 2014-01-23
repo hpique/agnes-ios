@@ -28,6 +28,7 @@
 @property (nonatomic, readonly) NSString *modifiedAtDescription;
 @property (nonatomic, readonly) NSString *modifiedAtLongDescription;
 @property (nonatomic, readonly) NSArray *tags;
+@property (nonatomic, readonly) BOOL isNew;
 
 - (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
 
