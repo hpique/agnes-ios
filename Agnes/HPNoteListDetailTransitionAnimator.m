@@ -11,17 +11,34 @@
 #import "HPNoteViewController.h"
 #import "HPNoteTableViewCell.h"
 
+@interface UIView(Utils)
+
+- (UIImage*)hp_imageFromRect:(CGRect)rect;
+
+@end
+
 @interface UILabel(Utils)
 
 - (NSRange)hp_visibleRange;
 
 @end
 
+static UIImage* HPImageFromColor(UIColor *color, CGSize size)
+{
+    UIGraphicsBeginImageContextWithOptions(size, YES, 0);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, color.CGColor);
+    CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
+}
+
 @implementation HPNoteListDetailTransitionAnimator
 
 - (NSTimeInterval)transitionDuration:(id <UIViewControllerContextTransitioning>)transitionContext
 {
-    return 1;
+    return 0.5;
 }
 
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext
@@ -38,6 +55,8 @@
     }
 }
 
+#pragma mark - Private
+
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext fromList:(HPNoteListViewController*)fromViewController toDetail:(HPNoteViewController*)toViewController
 {
     [transitionContext.containerView addSubview:toViewController.view];
@@ -53,13 +72,13 @@
     cellReplacement.backgroundColor = [UIColor whiteColor];
     [transitionContext.containerView addSubview:cellReplacement];
 
-    UIView *backgroundView = [self coverView:toViewController.view color:[UIColor whiteColor] inContext:transitionContext];
+    UIView *backgroundView = [self coverView:toViewController.view rect:toViewController.view.bounds color:[UIColor whiteColor] context:transitionContext];
     [transitionContext.containerView bringSubviewToFront:toViewController.view];
     [transitionContext.containerView bringSubviewToFront:fromViewController.view];
     
-    UIView *cellCover = [self coverView:cell color:[UIColor whiteColor] inContext:transitionContext];
-    UIView *titleLabelPlaceholder = [self fakeView:cell.titleLabel inContext:transitionContext];
-    UIView *bodyLabelPlaceholder = [self fakeView:cell.bodyLabel inContext:transitionContext];
+    UIView *cellCover = [self coverView:cell rect:cell.bounds color:[UIColor whiteColor] context:transitionContext];
+    UIView *titleLabelPlaceholder = [self fakeView:cell.titleLabel rect:cell.titleLabel.bounds context:transitionContext];
+    UIView *bodyLabelPlaceholder = [self fakeView:cell.bodyLabel rect:cell.bodyLabel.bounds context:transitionContext];
     
     UITextView *noteTextView = toViewController.noteTextView;
     toViewController.view.alpha = 0;
@@ -89,119 +108,23 @@
     }];
 }
 
-- (CGPoint)originForLabel:(UILabel*)label inTextView:(UITextView*)textView context:(id <UIViewControllerContextTransitioning>)context
-{
-    NSLayoutManager *layoutManager = textView.layoutManager;
-    NSRange charRange = [textView.text rangeOfString:label.text];
-    NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:charRange actualCharacterRange:nil];
-    CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textView.textContainer];
-    rect = CGRectOffset(rect, textView.textContainerInset.left, textView.textContainerInset.top);
-    rect = [context.containerView convertRect:rect fromView:textView];
-    return rect.origin;
-}
-
-- (UIView*)coverView:(UIView*)view color:(UIColor*)color inContext:(id <UIViewControllerContextTransitioning>)context
-{
-    UIGraphicsBeginImageContextWithOptions(view.bounds.size, YES, 0);
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(ctx, color.CGColor);
-    CGContextFillRect(ctx, view.bounds);
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-
-    UIView *containerView = context.containerView;
-    CGRect frame = [containerView convertRect:view.frame fromView:view.superview];
-    imageView.frame = frame;
-    [containerView addSubview:imageView];
-    return imageView;
-}
-
-- (UIImage*)imageFromView:(UIView *)view
-{
-    CGSize imageSize = view.bounds.size;
-    UIGraphicsBeginImageContextWithOptions(imageSize, view.opaque, 0);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    [view.layer.presentationLayer renderInContext:context];
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return image;
-}
-
-- (UIView*)fakeView:(UIView*)view inContext:(id <UIViewControllerContextTransitioning>)context
-{
-    UIImage *image = [self imageFromView:view];
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-    
-    UIView *containerView = context.containerView;
-    CGRect frame = [containerView convertRect:view.frame fromView:view.superview];
-    imageView.frame = frame;
-    [containerView addSubview:imageView];
-    return imageView;
-}
-
-- (UIView*)coverView:(UIView*)view rect:(CGRect)rect color:(UIColor*)color context:(id <UIViewControllerContextTransitioning>)transitionContext
-{
-    UIGraphicsBeginImageContextWithOptions(rect.size, YES, 0);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(context, color.CGColor);
-    CGContextFillRect(context, CGRectMake(0, 0, rect.size.width, rect.size.height));
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-    
-    UIView *containerView = transitionContext.containerView;
-    CGRect frame = [containerView convertRect:rect fromView:view];
-    imageView.frame = frame;
-    [containerView addSubview:imageView];
-    return imageView;
-}
-
-- (UIView*)fakeView:(UIView*)view rect:(CGRect)rect context:(id <UIViewControllerContextTransitioning>)transitionContext
-{
-    UIGraphicsBeginImageContextWithOptions(rect.size, view.opaque, 0);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextTranslateCTM(context, -rect.origin.x, -rect.origin.y);
-    [view.layer.presentationLayer renderInContext:context];
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-    UIView *containerView = transitionContext.containerView;
-    rect = [containerView convertRect:rect fromView:view];
-    imageView.frame = rect;
-    [containerView addSubview:imageView];
-    return imageView;
-}
-
-- (CGRect)rectForLabel:(UILabel*)label inTextView:(UITextView*)textView
-{
-    NSRange visibleRange = [label hp_visibleRange];
-    if (visibleRange.location == NSNotFound)
-    {
-        visibleRange = [textView.text lineRangeForRange:NSMakeRange(0, 0)];
-    }
-    NSString *substring = [label.text substringWithRange:visibleRange];
-    NSLayoutManager *layoutManager = textView.layoutManager;
-    NSRange charRange = [textView.text rangeOfString:substring];
-    NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:charRange actualCharacterRange:nil];
-    CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textView.textContainer];
-    rect = CGRectOffset(rect, textView.textContainerInset.left, textView.textContainerInset.top);
-    return CGRectMake(rect.origin.x, rect.origin.y, ceil(rect.size.width), ceil(rect.size.height));
-}
-
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext fromDetail:(HPNoteViewController*)fromViewController toList:(HPNoteListViewController*)toViewController
 {
     UIView *containerView = transitionContext.containerView;
     [containerView addSubview:toViewController.view];
     toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
     
-    UIView *backgroundView = [self coverView:toViewController.view color:[UIColor whiteColor] inContext:transitionContext];
+    UIView *backgroundView = [self coverView:toViewController.view rect:toViewController.view.bounds color:[UIColor whiteColor] context:transitionContext];
     [containerView bringSubviewToFront:toViewController.view];
     [containerView bringSubviewToFront:fromViewController.view];
 
     UITableView *tableView = toViewController.tableView;
-    NSIndexPath *selectedIndexPath = [tableView indexPathForSelectedRow]; // The note must have been selected by the UINavigationControllerDelegate
+    NSIndexPath *selectedIndexPath = [tableView indexPathForSelectedRow];
+    if (!selectedIndexPath)
+    {
+        [toViewController selectNote:fromViewController.note];
+        selectedIndexPath = [tableView indexPathForSelectedRow];
+    }
     HPNoteTableViewCell *cell = (HPNoteTableViewCell*)[tableView cellForRowAtIndexPath:selectedIndexPath];
     
     UITextView *noteTextView = fromViewController.noteTextView;
@@ -239,6 +162,65 @@
             fromViewController.view.alpha = 1;
         }];
     }];
+}
+
+#pragma mark - Utils
+
+- (UIView*)coverView:(UIView*)view rect:(CGRect)rect color:(UIColor*)color context:(id <UIViewControllerContextTransitioning>)transitionContext
+{
+    UIImage *image = HPImageFromColor(color, rect.size);
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+    
+    UIView *containerView = transitionContext.containerView;
+    CGRect frame = [containerView convertRect:rect fromView:view];
+    imageView.frame = frame;
+    [containerView addSubview:imageView];
+    return imageView;
+}
+
+- (UIView*)fakeView:(UIView*)view rect:(CGRect)rect context:(id <UIViewControllerContextTransitioning>)transitionContext
+{
+    UIImage *image = [view hp_imageFromRect:rect];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+    
+    UIView *containerView = transitionContext.containerView;
+    rect = [containerView convertRect:rect fromView:view];
+    imageView.frame = rect;
+    [containerView addSubview:imageView];
+    return imageView;
+}
+
+- (UIImage*)imageFromView:(UIView *)view
+{
+    return [view hp_imageFromRect:view.bounds];
+}
+
+- (CGPoint)originForLabel:(UILabel*)label inTextView:(UITextView*)textView context:(id <UIViewControllerContextTransitioning>)transitionContext
+{
+    CGRect rect = [self rectForText:label.text inTextView:textView];
+    rect = [transitionContext.containerView convertRect:rect fromView:textView];
+    return rect.origin;
+}
+
+- (CGRect)rectForText:(NSString*)text inTextView:(UITextView*)textView
+{
+    NSLayoutManager *layoutManager = textView.layoutManager;
+    NSRange charRange = [textView.text rangeOfString:text];
+    NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:charRange actualCharacterRange:nil];
+    CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textView.textContainer];
+    rect = CGRectOffset(rect, textView.textContainerInset.left, textView.textContainerInset.top);
+    return CGRectMake(rect.origin.x, rect.origin.y, ceil(rect.size.width), ceil(rect.size.height));
+}
+
+- (CGRect)rectForLabel:(UILabel*)label inTextView:(UITextView*)textView
+{
+    NSRange visibleRange = [label hp_visibleRange];
+    if (visibleRange.location == NSNotFound)
+    {
+        visibleRange = [textView.text lineRangeForRange:NSMakeRange(0, 0)];
+    }
+    NSString *substring = [label.text substringWithRange:visibleRange];
+    return [self rectForText:substring inTextView:textView];
 }
 
 - (void)translateView:(UIView*)fromView toView:(UIView*)toView containerView:(UIView*)containerView
@@ -286,6 +268,21 @@
     } while (next != right);
     
     return visibleRange;
+}
+
+@end
+
+@implementation UIView(Utils)
+
+- (UIImage*)hp_imageFromRect:(CGRect)rect
+{
+    UIGraphicsBeginImageContextWithOptions(rect.size, self.opaque, 0);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextTranslateCTM(context, -rect.origin.x, -rect.origin.y);
+    [self.layer.presentationLayer renderInContext:context];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
 }
 
 @end

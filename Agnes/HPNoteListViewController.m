@@ -112,7 +112,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     NSIndexPath *indexPath = [self indexPathOfNote:note];
     if (!indexPath) return NO;
     [self.tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
-    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
     return YES;
 }
 
