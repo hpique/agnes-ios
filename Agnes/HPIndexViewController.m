@@ -11,6 +11,7 @@
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPIndexItem.h"
+#import "HPIndexItemTableViewCell.h"
 #import "HPNote.h"
 #import "HPTag.h"
 #import "MMDrawerController.h"
@@ -48,7 +49,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [super viewDidLoad];
     self.title = NSLocalizedString(@"Agnes", "Index title");
     
-    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:HPIndexCellIdentifier];
+    UINib *nib = [UINib nibWithNibName:@"HPIndexItemTableViewCell" bundle:nil];
+    [self.tableView registerNib:nib forCellReuseIdentifier:HPIndexCellIdentifier];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(10, 0, 10, 0);
     
@@ -105,10 +107,9 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:HPIndexCellIdentifier];
+    HPIndexItemTableViewCell *cell = (HPIndexItemTableViewCell*)[tableView dequeueReusableCellWithIdentifier:HPIndexCellIdentifier];
     HPIndexItem *item = [_items objectAtIndex:indexPath.row];
-    cell.textLabel.text = item.indexTitle;
-    cell.imageView.image = item.icon;
+    cell.indexItem = item;
     return cell;
 }
 
