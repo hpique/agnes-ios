@@ -21,7 +21,7 @@
     _indexItem = indexItem;
     _titleView.text = self.indexItem.indexTitle;
     _iconView.image = self.indexItem.icon;
-    _detailView.text = [NSString stringWithFormat:@"%d", self.indexItem.notes.count];
+    _detailView.text = [NSString stringWithFormat:@"%ld", (long)self.indexItem.notes.count];
 }
 
 @end

@@ -88,7 +88,7 @@
     }
     else
     {
-        [self layoutIfNeeded]; // TODO: Is this necessary?
+        [self setNeedsLayout];
     }
 }
 
@@ -101,9 +101,10 @@
         NSRegularExpression* regex = [HPNote tagRegularExpression];
         NSDictionary* attributes = @{ NSForegroundColorAttributeName : preferences.tintColor };
         
+        NSInteger maxLength = MIN(HPNotTableViewCellLabelMaxLength, text.length);
         [regex enumerateMatchesInString:text
                                 options:0
-                                  range:NSMakeRange(0, text.length)
+                                  range:NSMakeRange(0, maxLength)
                              usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
          {
              NSRange matchRange = [match rangeAtIndex:0];

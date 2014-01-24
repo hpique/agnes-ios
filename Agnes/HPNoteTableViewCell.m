@@ -11,6 +11,8 @@
 #import "HPFontManager.h"
 #import "TTTAttributedLabel.h"
 
+NSInteger const HPNotTableViewCellLabelMaxLength = 150;
+
 static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 @implementation HPNoteTableViewCell

@@ -11,6 +11,8 @@
 @class HPNote;
 @class TTTAttributedLabel;
 
+extern NSInteger const HPNotTableViewCellLabelMaxLength;
+
 @interface HPNoteTableViewCell : MCSwipeTableViewCell
 
 @property (nonatomic, strong) HPNote *note;

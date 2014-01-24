@@ -9,7 +9,12 @@
 #import "HPFontManager.h"
 #import "HPNote.h"
 
-@implementation HPFontManager
+@implementation HPFontManager {
+    UIFont *_archivedNoteBodyFont;
+    UIFont *_archivedNoteTitleFont;
+    UIFont *_noteBodyFont;
+    UIFont *_noteTitleFont;
+}
 
 + (HPFontManager*)sharedManager
 {
@@ -23,33 +28,45 @@
 
 - (UIFont*)fontForNoteTitle
 {
-    UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-    descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | UIFontDescriptorTraitBold];
-    UIFont *font = [UIFont fontWithDescriptor:descriptor size:15];
-    return font;
+    if (!_noteTitleFont)
+    {
+        UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
+        descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | UIFontDescriptorTraitBold];
+        _noteTitleFont = [UIFont fontWithDescriptor:descriptor size:15];
+    }
+    return _noteTitleFont;
 }
 
 - (UIFont*)fontForNoteBody
 {
-    UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-    UIFont *font = [UIFont fontWithDescriptor:descriptor size:15];
-    return font;
+    if (!_noteBodyFont)
+    {
+        UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
+        _noteBodyFont = [UIFont fontWithDescriptor:descriptor size:15];
+    }
+    return _noteBodyFont;
 }
 
 - (UIFont*)fontForArchivedNoteTitle
 {
-    UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-    descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | UIFontDescriptorTraitBold | UIFontDescriptorTraitItalic];
-    UIFont *font = [UIFont fontWithDescriptor:descriptor size:15];
-    return font;
+    if (!_archivedNoteTitleFont)
+    {
+        UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
+        descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | UIFontDescriptorTraitBold | UIFontDescriptorTraitItalic];
+        _archivedNoteTitleFont = [UIFont fontWithDescriptor:descriptor size:15];
+    }
+    return _archivedNoteTitleFont;
 }
 
 - (UIFont*)fontForArchivedNoteBody
 {
-    UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-    descriptor = [descriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitItalic];
-    UIFont *font = [UIFont fontWithDescriptor:descriptor size:15];
-    return font;
+    if (!_archivedNoteBodyFont)
+    {
+        UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
+        descriptor = [descriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitItalic];
+        _archivedNoteBodyFont = [UIFont fontWithDescriptor:descriptor size:15];
+    }
+    return _archivedNoteBodyFont;
 }
 
 - (UIFont*)fontForTitleOfNote:(HPNote*)note
