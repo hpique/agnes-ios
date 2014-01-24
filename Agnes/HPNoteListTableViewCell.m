@@ -8,6 +8,8 @@
 
 #import "HPNoteListTableViewCell.h"
 #import "HPNote.h"
+#import "TTTAttributedLabel.h"
+#import "HPPreferencesManager.h"
 
 @implementation HPNoteListTableViewCell {
     NSTimer *_modifiedAtDisplayCriteriaTimer;
@@ -38,8 +40,12 @@
     NSDictionary *viewsDictionary = NSDictionaryOfVariableBindings(titleLabel, detailLabel);
     _firstRowForModifiedAtConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"[titleLabel]-8-[detailLabel]" options:0 metrics:nil views:viewsDictionary];
     self.detailLabel.hidden = NO;
+    
+    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    NSDictionary *highlightedAttributes = @{ NSForegroundColorAttributeName : preferences.tintColor };
+    self.titleLabel.truncationTokenStringAttributes = highlightedAttributes;
+    self.bodyLabel.truncationTokenStringAttributes =  highlightedAttributes;
 }
-
 
 - (void)dealloc
 {
@@ -88,21 +94,23 @@
 
 #pragma mark - Private
 
-- (void)setHighlightedText:(NSString*)text inLabel:(UILabel*)label
+- (void)setHighlightedText:(NSString*)text inLabel:(TTTAttributedLabel*)label
 {
-    NSRegularExpression* regex = [HPNote tagRegularExpression];
-    NSDictionary* attributes = @{ NSForegroundColorAttributeName : self.tintColor };
-
-    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:text];
-    [regex enumerateMatchesInString:text
-                            options:0
-                              range:NSMakeRange(0, text.length)
-                         usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
-     {
-         NSRange matchRange = [match rangeAtIndex:0];
-         [attributedText addAttributes:attributes range:matchRange];
-     }];
-    label.attributedText = attributedText;
+    [label setText:text afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
+        HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+        NSRegularExpression* regex = [HPNote tagRegularExpression];
+        NSDictionary* attributes = @{ NSForegroundColorAttributeName : preferences.tintColor };
+        
+        [regex enumerateMatchesInString:text
+                                options:0
+                                  range:NSMakeRange(0, text.length)
+                             usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
+         {
+             NSRange matchRange = [match rangeAtIndex:0];
+             [mutableAttributedString addAttributes:attributes range:matchRange];
+         }];
+        return mutableAttributedString;
+    }];
 }
 
 - (void)displayNote

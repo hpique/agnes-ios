@@ -22,8 +22,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
     
-    NSInteger sessionCount = [[HPPreferencesManager sharedManager] increaseSessionCount];
+    NSInteger sessionCount = [preferences increaseSessionCount];
     if (sessionCount == 1)
     {
         [[HPNoteManager sharedManager] addTutorialNotes];
@@ -32,12 +33,14 @@
     application.applicationSupportsShakeToEdit = YES;
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    
-    self.window.tintColor = [UIColor colorWithRed:198.0f/255.0f green:67.0f/255.0f blue:252.0f/255.0f alpha:1.0];
+    self.window.tintColor = preferences.tintColor;
     self.window.backgroundColor = [UIColor whiteColor];
+    
     [self.managedObjectContext save:nil];
     
-    UINavigationController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
+    HPNoteListViewController *noteListViewController = [[HPNoteListViewController alloc] init];
+    noteListViewController.indexItem = [HPIndexItem inboxIndexItem];
+    UINavigationController *centerController = [[UINavigationController alloc] initWithRootViewController:noteListViewController];
     HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
     UINavigationController *leftNavigationController = [[UINavigationController alloc] initWithRootViewController:indexViewController];
     HPRootViewController *drawerController = [[HPRootViewController alloc] initWithCenterViewController:centerController leftDrawerViewController:leftNavigationController];

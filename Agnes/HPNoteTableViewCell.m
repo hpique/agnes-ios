@@ -9,6 +9,7 @@
 #import "HPNoteTableViewCell.h"
 #import "HPNote.h"
 #import "HPFontManager.h"
+#import "TTTAttributedLabel.h"
 
 static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 

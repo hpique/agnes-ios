@@ -5,4 +5,4 @@ pod 'MCSwipeTableViewCell', :git => 'https://github.com/hpique/MCSwipeTableViewC
 pod 'SSZipArchive', '~> 0.3'
 pod 'HPReorderTableView', :git => 'https://github.com/hpique/HPReorderTableView.git'
 pod 'iOS7Colors', '~> 2.0.0'
-
+pod 'TTTAttributedLabel', :git => 'https://github.com/hpique/TTTAttributedLabel.git'

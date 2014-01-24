@@ -48,6 +48,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     UIBarButtonItem *_addNoteBarButtonItem;
     
+    __weak IBOutlet UIButton *_optionsButton;
     IBOutlet UIView *_footerView;
     HPNoteExporter *_noteExporter;
     
@@ -77,6 +78,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    UIImage *image = [[UIImage imageNamed:@"icon-more"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImage *imageAlt = [[UIImage imageNamed:@"icon-more-alt"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [_optionsButton setImage:image forState:UIControlStateNormal];
+    [_optionsButton setImage:imageAlt forState:UIControlStateHighlighted];
     
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
@@ -436,12 +442,12 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:HPNoteListTableViewCellReuseIdentifier];
+    
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     if (self.searchDisplayController.searchResultsTableView == tableView)
     {
         HPNoteSearchTableViewCell *searchCell = (HPNoteSearchTableViewCell*)cell;
-        searchCell.tintColor = self.view.tintColor; // Workaround for wrong tintColor in first search
         HPNote *note = [objects objectAtIndex:indexPath.row];
         searchCell.searchText = _searchString;
         searchCell.note = note;

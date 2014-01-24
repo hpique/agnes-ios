@@ -9,6 +9,7 @@
 #import "HPBaseTextStorage.h"
 #import "HPNote.h"
 #import "HPFontManager.h"
+#import "HPPreferencesManager.h"
 #import <MessageUI/MessageUI.h>
 
 @implementation HPBaseTextStorage {
@@ -134,7 +135,7 @@
 - (void)applyStylesToRange:(NSRange)searchRange
 {
     NSRegularExpression* regex = [HPNote tagRegularExpression];
-    UIColor *color = [UIApplication sharedApplication].keyWindow.tintColor;
+    UIColor *color = [HPPreferencesManager sharedManager].tintColor;
     NSDictionary* attributes = @{ NSForegroundColorAttributeName : color };
     
     [self removeAttribute:NSForegroundColorAttributeName range:searchRange];

@@ -20,5 +20,6 @@
 - (NSInteger)increaseSessionCount;
 
 @property (nonatomic, readonly) NSInteger sessionCount;
+@property (nonatomic, readonly) UIColor *tintColor;
 
 @end

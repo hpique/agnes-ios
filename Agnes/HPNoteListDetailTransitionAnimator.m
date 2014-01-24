@@ -11,6 +11,7 @@
 #import "HPNoteViewController.h"
 #import "HPNoteTableViewCell.h"
 #import "HPNote.h"
+#import "TTTAttributedLabel.h"
 
 @interface UIView(Utils)
 

@@ -55,4 +55,9 @@ NSString *const HPAgnesDefaultsKeySessionCount = @"HPAgnesSessionCount";
     return [value integerValue];
 }
 
+- (UIColor*)tintColor
+{
+    return [UIColor colorWithRed:198.0f/255.0f green:67.0f/255.0f blue:252.0f/255.0f alpha:1.0];
+}
+
 @end
