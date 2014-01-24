@@ -28,11 +28,11 @@
     
     self.window.tintColor = [UIColor colorWithRed:198.0f/255.0f green:67.0f/255.0f blue:252.0f/255.0f alpha:1.0];
     self.window.backgroundColor = [UIColor whiteColor];
-
+#if !(DEBUG)
     if (![[HPPreferencesManager sharedManager] isNoninitialRun])
-    {
+#endif
         [[HPNoteManager sharedManager] addTutorialNotes];
-    }
+    [self.managedObjectContext save:nil];
     
     UINavigationController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
     HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
@@ -42,9 +42,6 @@
 
     self.window.rootViewController = drawerController;
     [self.window makeKeyAndVisible];
-#if DEBUG
-    [[HPPreferencesManager sharedManager] setNoninitialRun];
-#endif
     return YES;
 }
 
@@ -54,6 +51,14 @@
     [self saveContext];
     
     [[HPPreferencesManager sharedManager] setNoninitialRun];    
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+#if DEBUG
+    NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"Agnes.sqlite"];
+    [[NSFileManager defaultManager] removeItemAtURL:storeURL error:nil];
+#endif
 }
 
 - (void)saveContext

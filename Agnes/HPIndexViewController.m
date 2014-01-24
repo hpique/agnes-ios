@@ -67,8 +67,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     
     NSArray *tags = [HPTagManager sharedManager].objects;
     { // Remove tags with only archived notes
-//        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ANY %K.cd_archived != YES", NSStringFromSelector(@selector(notes))];
-//        tags = [tags filteredArrayUsingPredicate:predicate];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ANY %K.%K == NO", NSStringFromSelector(@selector(cd_notes)), NSStringFromSelector(@selector(cd_archived))];
+        tags = [tags filteredArrayUsingPredicate:predicate];
     }
     NSSortDescriptor *orderSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(order)) ascending:NO];
     NSSortDescriptor *nameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(name)) ascending:YES];
@@ -83,9 +83,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [items addObject:[HPIndexItem systemIndexItem]];
     
     NSArray *previousItems = _items;
+    NSArray *previousData = previousItems ? @[previousItems] : nil;
     _items = items;
     
-    [self.tableView hp_reloadChangesInSection:0 previousData:previousItems updatedData:_items];
+    [self.tableView hp_reloadChangesWithPreviousData:previousData currentData:@[_items] keyBlock:^id<NSCopying>(HPIndexItem *indexItem) {
+        return indexItem.title; // TODO: Provide a real unique id for index items
+    }];
 }
 
 #pragma mark - Table view data source
@@ -130,7 +133,26 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [[HPTagManager sharedManager] reorderTagsWithNames:tagNames];
 }
 
-#pragma mark - Table view delegate
+#pragma mark - UITableViewDelegate
+
+- (NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
+{
+    NSInteger sourceRow = sourceIndexPath.row;
+    NSInteger proposedRow = proposedDestinationIndexPath.row;
+    HPIndexItem *proposedIndexItem = _items[proposedRow];
+    if (proposedIndexItem.tag)
+    {
+        return proposedDestinationIndexPath;
+    }
+    else if (proposedRow > sourceRow)
+    { // Archive
+        return [self tableView:tableView targetIndexPathForMoveFromRowAtIndexPath:sourceIndexPath toProposedIndexPath:[NSIndexPath indexPathForRow:proposedRow - 1 inSection:0]];
+    }
+    else
+    { // Inbox
+        return [self tableView:tableView targetIndexPathForMoveFromRowAtIndexPath:sourceIndexPath toProposedIndexPath:[NSIndexPath indexPathForRow:proposedRow + 1 inSection:0]];
+    }
+}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {

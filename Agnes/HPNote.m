@@ -207,7 +207,7 @@
 #pragma mark - Private
 
 - (void)updateTags
-{
+{ // TODO: Find a better place for this logic
     NSArray *currentTagNames = self.tags;
     NSMutableSet *currentTags = [NSMutableSet set];
     HPTagManager *manager = [HPTagManager sharedManager];
@@ -222,7 +222,18 @@
     [self removeCd_tags:previousTags];
     [self addCd_tags:currentTags];
     
-    // TODO: Find a better place for this logic
+    // In theory this shouldn't be necessary but I couldn't make it to work without it. See: http://stackoverflow.com/questions/21314770/core-data-does-not-update-inverse-relationship
+    for (HPTag *tag in currentTags)
+    {
+        [tag addCd_notesObject:self];
+    }
+    for (HPTag *tag in previousTags)
+    {
+        [tag removeCd_notesObject:self];
+    }
+
+
+    HPTag *tag = [currentTags anyObject];
     for (HPTag *tag in previousTags)
     {
         if (tag.cd_notes.count == 0)
