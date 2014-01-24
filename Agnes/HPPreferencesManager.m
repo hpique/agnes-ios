@@ -8,8 +8,8 @@
 
 #import "HPPreferencesManager.h"
 
-NSString *const HPAgnesUserDefaultsKeyDisplayCriteria = @"HPAgnesDisplayCriteria";
-NSString *const HPAgnesUserDefaultsKeyNoninitialRun = @"HPAgnesNoninitialRun";
+NSString *const HPAgnesDefaultsKeyDisplayCriteria = @"HPAgnesDisplayCriteria";
+NSString *const HPAgnesDefaultsKeySessionCount = @"HPAgnesSessionCount";
 
 @implementation HPPreferencesManager
 
@@ -25,7 +25,7 @@ NSString *const HPAgnesUserDefaultsKeyNoninitialRun = @"HPAgnesNoninitialRun";
 
 - (HPNoteDisplayCriteria)displayCriteriaForListTitle:(NSString*)title default:(HPNoteDisplayCriteria)defaultDisplayCriteria
 {
-    NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesUserDefaultsKeyDisplayCriteria];
+    NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeyDisplayCriteria];
     id value = [dictionary objectForKey:title];
     return value ? [value integerValue] : defaultDisplayCriteria;
 }
@@ -33,21 +33,26 @@ NSString *const HPAgnesUserDefaultsKeyNoninitialRun = @"HPAgnesNoninitialRun";
 - (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria forListTitle:(NSString*)title
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    NSDictionary *dictionary = [userDefaults objectForKey:HPAgnesUserDefaultsKeyDisplayCriteria];
+    NSDictionary *dictionary = [userDefaults objectForKey:HPAgnesDefaultsKeyDisplayCriteria];
     NSMutableDictionary *updatedDictionary = dictionary ? [NSMutableDictionary dictionaryWithDictionary:dictionary] : [NSMutableDictionary dictionary];
     [updatedDictionary setObject:@(displayCriteria) forKey:title];
-    [userDefaults setObject:updatedDictionary forKey:HPAgnesUserDefaultsKeyDisplayCriteria];
+    [userDefaults setObject:updatedDictionary forKey:HPAgnesDefaultsKeyDisplayCriteria];
 }
 
-- (void)setNoninitialRun
+- (NSInteger)increaseSessionCount
 {
-    [[NSUserDefaults standardUserDefaults] setObject:@(YES) forKey:HPAgnesUserDefaultsKeyNoninitialRun];
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *value = [userDefaults objectForKey:HPAgnesDefaultsKeySessionCount];
+    NSNumber *updatedValue = @([value integerValue] + 1);
+    [userDefaults setObject:updatedValue forKey:HPAgnesDefaultsKeySessionCount];
+    [userDefaults synchronize];
+    return [updatedValue integerValue];
 }
 
-- (BOOL)isNoninitialRun
+- (NSInteger)sessionCount
 {
-    NSNumber *object = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesUserDefaultsKeyNoninitialRun];
-    return [object boolValue];
+    NSNumber *value = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeySessionCount];
+    return [value integerValue];
 }
 
 @end

@@ -43,8 +43,7 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
 - (void)save
 {
     NSError *error;
-    BOOL result = [_context save:&error];
-    NSAssert(result, @"Context save failed with error %@", error.localizedDescription);
+    NSAssert([_context save:&error], @"Context save failed with error %@", error.localizedDescription);
 }
 
 #pragma mark - Private
@@ -95,11 +94,15 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     [self.context.undoManager endUndoGrouping];
 }
 
-- (void)performNoUndoModelUpdateBlock:(void (^)())block
+- (void)performNoUndoModelUpdateAndSave:(BOOL)save block:(void (^)())block
 {
     [self.context processPendingChanges];
     [self.context.undoManager disableUndoRegistration];
     block();
+    if (save)
+    {
+        [self save];
+    }
     [self.context processPendingChanges];
     [self.context.undoManager enableUndoRegistration];
 }

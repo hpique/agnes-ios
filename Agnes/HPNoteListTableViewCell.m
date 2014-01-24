@@ -88,11 +88,28 @@
 
 #pragma mark - Private
 
+- (void)setHighlightedText:(NSString*)text inLabel:(UILabel*)label
+{
+    NSRegularExpression* regex = [HPNote tagRegularExpression];
+    NSDictionary* attributes = @{ NSForegroundColorAttributeName : self.tintColor };
+
+    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:text];
+    [regex enumerateMatchesInString:text
+                            options:0
+                              range:NSMakeRange(0, text.length)
+                         usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
+     {
+         NSRange matchRange = [match rangeAtIndex:0];
+         [attributedText addAttributes:attributes range:matchRange];
+     }];
+    label.attributedText = attributedText;
+}
+
 - (void)displayNote
 {
     [super displayNote];
-    self.titleLabel.text = self.note.title;
-    self.bodyLabel.text = self.note.body;
+    [self setHighlightedText:self.note.title inLabel:self.titleLabel];
+    [self setHighlightedText:self.note.body inLabel:self.bodyLabel];
     [self displayDetail];
 }
 

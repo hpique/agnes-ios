@@ -232,8 +232,6 @@
         [tag removeCd_notesObject:self];
     }
 
-
-    HPTag *tag = [currentTags anyObject];
     for (HPTag *tag in previousTags)
     {
         if (tag.cd_notes.count == 0)

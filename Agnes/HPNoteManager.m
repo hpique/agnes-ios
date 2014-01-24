@@ -42,7 +42,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)addTutorialNotes
 {
-    [self performNoUndoModelUpdateBlock:^{
+    [self performNoUndoModelUpdateAndSave:YES block:^{
         NSString *text;
         long i = 1;
         NSMutableArray *texts = [NSMutableArray array];
@@ -50,7 +50,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         {
             [texts addObject:text];
             i++;
-        };
+        };            
         for (i = texts.count - 1; i >= 0; i--)
         {
             NSString *text = texts[i];
@@ -193,7 +193,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)viewNote:(HPNote*)note
 {
-    [self performNoUndoModelUpdateBlock:^{
+    [self performNoUndoModelUpdateAndSave:NO block:^{
         note.views++;
     }];
 }

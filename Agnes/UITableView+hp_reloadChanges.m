@@ -62,7 +62,8 @@
          }];
     }
     
-    if (indexPathsToDelete.count > 0 || indexPathsToMove.count > 0 || indexPathsToInsert.count > 0)
+    NSInteger changesCount = indexPathsToDelete.count + indexPathsToMove.count + indexPathsToInsert.count;
+    if (changesCount > 0)
     {
         [self beginUpdates];
         [self deleteRowsAtIndexPaths:indexPathsToDelete withRowAnimation:UITableViewRowAnimationAutomatic];

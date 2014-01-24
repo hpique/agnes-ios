@@ -17,8 +17,8 @@
 
 - (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria forListTitle:(NSString*)title;
 
-- (void)setNoninitialRun;
+- (NSInteger)increaseSessionCount;
 
-- (BOOL)isNoninitialRun;
+@property (nonatomic, readonly) NSInteger sessionCount;
 
 @end
