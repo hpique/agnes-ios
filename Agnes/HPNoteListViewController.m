@@ -164,6 +164,14 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }];
 }
 
+- (void)trashNoteInCell:(HPNoteListTableViewCell*)cell
+{
+    NSIndexPath *indexPath = [_notesTableView indexPathForCell:cell];
+    [_notes removeObjectAtIndex:indexPath.row];
+    [_notesTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [[HPNoteManager sharedManager] trashNote:cell.note];
+}
+
 - (void)unarchiveNoteInCell:(HPNoteListTableViewCell*)cell
 {
     NSIndexPath *indexPath = [_notesTableView indexPathForCell:cell];
@@ -448,33 +456,40 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
         noteCell.shouldAnimateIcons = NO;
         
+        __weak id weakSelf = self;
         if (note.archived)
         {
-            UIImageView *swipeView = [self swipeViewWithImageNamed:@"icon-inbox"];
-            swipeView.center = CGPointMake(swipeView.center.x + 20, swipeView.center.y);
-            __weak id weakNoteCell = noteCell;
-            [noteCell setSwipeGestureWithView:swipeView color:[UIColor iOS7greenColor] mode:MCSwipeTableViewCellModeExit state:MCSwipeTableViewCellState1 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
-             {
-                 swipeView.image = [[UIImage imageNamed:@"icon-checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
-                     [self unarchiveNoteInCell:weakNoteCell];
-                 });
-             }];
-        } else {
-             UIImageView *swipeView = [self swipeViewWithImageNamed:@"icon-archive"];
-            swipeView.center = CGPointMake(swipeView.center.x - 20, swipeView.center.y);
-            __weak id weakNoteCell = noteCell;
-            [noteCell setSwipeGestureWithView:swipeView color:[UIColor iOS7orangeColor] mode:MCSwipeTableViewCellModeExit state:MCSwipeTableViewCellState3 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
-             {
-                 swipeView.image = [[UIImage imageNamed:@"icon-checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-                 [swipeView sizeToFit];
-                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
-                     [self archiveNoteInCell:weakNoteCell];
-                 });
-             }];
+            [self setSwipeActionTo:noteCell imageNamed:@"icon-inbox" color:[UIColor iOS7greenColor] state:MCSwipeTableViewCellState1 block:^(HPNoteListTableViewCell *cell) {
+                [weakSelf unarchiveNoteInCell:cell];
+            }];
+            [self setSwipeActionTo:noteCell imageNamed:@"icon-trash" color:[UIColor iOS7redColor] state:MCSwipeTableViewCellState3 block:^(HPNoteListTableViewCell *cell) {
+                [weakSelf trashNoteInCell:cell];
+            }];
+        }
+        else
+        {
+            [self setSwipeActionTo:noteCell imageNamed:@"icon-archive" color:[UIColor iOS7orangeColor] state:MCSwipeTableViewCellState3 block:^(HPNoteListTableViewCell *cell) {
+                [weakSelf archiveNoteInCell:cell];
+            }];
         }
     }
     return cell;
+}
+
+- (void)setSwipeActionTo:(HPNoteListTableViewCell*)cell imageNamed:(NSString*)imageName color:(UIColor*)color state:(MCSwipeTableViewCellState)state block:(void (^)(HPNoteListTableViewCell *cell))block
+{
+    UIImageView *swipeView = [self swipeViewWithImageNamed:imageName];
+    CGFloat offsetDirection = state == MCSwipeTableViewCellState1 || state == MCSwipeTableViewCellState2 ? 1 : -1;
+    swipeView.center = CGPointMake(swipeView.center.x + 20 * offsetDirection, swipeView.center.y);
+    __weak id weakCell = cell;
+    [cell setSwipeGestureWithView:swipeView color:color mode:MCSwipeTableViewCellModeExit state:state completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode)
+     {
+         swipeView.image = [[UIImage imageNamed:@"icon-checkmark"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+         [swipeView sizeToFit];
+         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
+             block(weakCell);
+         });
+     }];
 }
 
 - (UIImageView*)swipeViewWithImageNamed:(NSString*)imageName
