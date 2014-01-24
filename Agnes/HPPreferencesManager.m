@@ -60,4 +60,9 @@ NSString *const HPAgnesDefaultsKeySessionCount = @"HPAgnesSessionCount";
     return [UIColor colorWithRed:198.0f/255.0f green:67.0f/255.0f blue:252.0f/255.0f alpha:1.0];
 }
 
+- (UIColor*)barTintColor
+{
+    return [UIColor colorWithRed:200.0f/255.0f green:110.0f/255.0f blue:223.0f/255.0f alpha:1.0];
+}
+
 @end

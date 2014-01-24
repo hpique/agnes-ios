@@ -527,7 +527,9 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 80;
+    NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
+    HPNote *note = [objects objectAtIndex:indexPath.row];
+    return [HPNoteTableViewCell heightForNote:note width:tableView.bounds.size.width];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

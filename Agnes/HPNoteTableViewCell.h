@@ -17,7 +17,10 @@
 @property (weak, nonatomic) IBOutlet TTTAttributedLabel *titleLabel;
 @property (weak, nonatomic) IBOutlet TTTAttributedLabel *bodyLabel;
 @property (weak, nonatomic) IBOutlet UILabel *detailLabel;
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *topVerticalSpaceConstraint;
 
 - (void)displayNote;
+
++ (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width;
 
 @end

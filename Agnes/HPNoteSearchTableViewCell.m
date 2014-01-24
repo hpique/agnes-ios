@@ -33,23 +33,24 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
     [self setText:self.note.body inSearchResultlabel:self.bodyLabel];
 }
 
-- (void)setText:(NSString*)text inSearchResultlabel:(UILabel*)label
+- (void)setText:(NSString*)text inSearchResultlabel:(TTTAttributedLabel*)label
 {
-    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:text];
-    NSRange searchRange = NSMakeRange(0, text.length);
-    NSRange foundRange;
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
-    while (searchRange.location < text.length)
-    {
-        searchRange.length = text.length - searchRange.location;
-        foundRange = [text rangeOfString:self.searchText options:NSCaseInsensitiveSearch range:searchRange];
-        if (foundRange.location != NSNotFound)
+    [label setText:text afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
+        NSRange searchRange = NSMakeRange(0, text.length);
+        NSRange foundRange;
+        HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+        while (searchRange.location < text.length)
         {
-            [attributedText addAttribute:NSForegroundColorAttributeName value:preferences.tintColor range:foundRange];
-            searchRange.location = foundRange.location+foundRange.length;
-        } else break;
-    }
-    label.attributedText = attributedText;
+            searchRange.length = text.length - searchRange.location;
+            foundRange = [text rangeOfString:self.searchText options:NSCaseInsensitiveSearch range:searchRange];
+            if (foundRange.location != NSNotFound)
+            {
+                [mutableAttributedString addAttribute:NSForegroundColorAttributeName value:preferences.tintColor range:foundRange];
+                searchRange.location = foundRange.location+foundRange.length;
+            } else break;
+        }
+        return mutableAttributedString;
+    }];
 }
 
 @end

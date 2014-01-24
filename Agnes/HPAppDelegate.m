@@ -30,6 +30,11 @@
         [[HPNoteManager sharedManager] addTutorialNotes];
     }
     
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    [UINavigationBar appearance].barTintColor = preferences.barTintColor;
+    [UINavigationBar appearance].tintColor = [UIColor whiteColor];
+    [UINavigationBar appearance].titleTextAttributes = @{ NSForegroundColorAttributeName : [UIColor whiteColor]};
+    
     application.applicationSupportsShakeToEdit = YES;
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];

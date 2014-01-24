@@ -49,6 +49,7 @@
                 <outlet property="bodyLabel" destination="3G4-fU-BQj" id="BVX-Oe-mMZ"/>
                 <outlet property="detailLabel" destination="dvo-eq-00b" id="N4Z-8U-IfJ"/>
                 <outlet property="titleLabel" destination="gGa-AF-l4x" id="TRd-md-m9v"/>
+                <outlet property="topVerticalSpaceConstraint" destination="kf3-Ja-acg" id="qLn-7G-8Ub"/>
             </connections>
         </tableViewCell>
     </objects>

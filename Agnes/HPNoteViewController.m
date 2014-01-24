@@ -38,10 +38,16 @@
     
     NSInteger _noteIndex;
     
+    UIColor *_previousToolbarBarTintColor;
+    
     HPTagSuggestionsView *_suggestionsView;
 }
 
 @synthesize noteTextView = _bodyTextView;
+
++ (void)initialize
+{
+}
 
 - (void)viewDidLoad
 {
@@ -104,12 +110,16 @@
 {
     [super viewWillAppear:animated];
     self.navigationController.toolbarHidden = NO;
+    self.navigationController.toolbar.barTintColor = [UIColor whiteColor];
+    self.navigationController.toolbar.clipsToBounds = YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
     self.navigationController.toolbarHidden = YES;
+    self.navigationController.toolbar.barTintColor = nil;
+    self.navigationController.toolbar.clipsToBounds = NO;
     for (HPNote *note in self.notes)
     {
         if (!self.indexItem.disableRemove && [self isEmptyNote:note])

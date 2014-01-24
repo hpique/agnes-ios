@@ -21,5 +21,6 @@
 
 @property (nonatomic, readonly) NSInteger sessionCount;
 @property (nonatomic, readonly) UIColor *tintColor;
+@property (nonatomic, readonly) UIColor *barTintColor;
 
 @end

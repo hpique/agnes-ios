@@ -46,6 +46,20 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [self displayNote];
 }
 
++ (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width
+{
+    UIFont *titleFont = [[HPFontManager sharedManager] fontForTitleOfNote:note];
+    CGFloat titleLineHeight;
+    NSInteger titleLines = [HPNoteTableViewCell linesForText:note.title font:titleFont width:width lineHeight:&titleLineHeight];
+    UIFont *bodyFont = [[HPFontManager sharedManager] fontForBodyOfNote:note];
+    CGFloat bodyLineHeight = 0;
+    NSString *body = note.body;
+    NSInteger bodyLines = body.length > 0 ? [HPNoteTableViewCell linesForText:note.body font:bodyFont width:width lineHeight:&bodyLineHeight] : 0;
+    NSInteger maximumBodyLines = 3 - titleLines;
+    bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
+    return titleLines * titleLineHeight + bodyLines * bodyLineHeight + 10 * 2;
+}
+
 #pragma mark - Private
 
 - (void)displayNote
@@ -53,15 +67,21 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     self.titleLabel.font = [[HPFontManager sharedManager] fontForTitleOfNote:self.note];
     self.bodyLabel.font =  [[HPFontManager sharedManager] fontForBodyOfNote:self.note];
     
-    NSDictionary *attributes = @{NSFontAttributeName: self.titleLabel.font};
-    
     NSString *title = self.note.title;
-    CGRect titleRect = [title boundingRectWithSize:CGSizeMake(CGRectGetWidth(self.bounds), CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil];
-    CGRect singleLineRect = [@"" boundingRectWithSize:CGSizeMake(CGRectGetWidth(self.bounds), CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil];
-    NSInteger lines = round(titleRect.size.height / singleLineRect.size.height);
+    CGFloat lineHeight;
+    NSInteger lines = [HPNoteTableViewCell linesForText:title font:self.titleLabel.font width:CGRectGetWidth(self.bounds) lineHeight:&lineHeight];
     NSInteger maximumBodyLines = self.titleLabel.numberOfLines - lines;
     self.bodyLabel.hidden = maximumBodyLines == 0;
     self.bodyLabel.numberOfLines = maximumBodyLines;
+}
+
++ (NSInteger)linesForText:(NSString*)text font:(UIFont*)font width:(CGFloat)width lineHeight:(CGFloat*)lineHeight
+{
+    NSDictionary *attributes = @{NSFontAttributeName: font};
+    CGFloat textHeight = [text boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil].size.height;
+    *lineHeight = [@"" boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil].size.height;
+    NSInteger lines = round(textHeight / *lineHeight);
+    return lines;
 }
 
 - (void)removeNoteObserver
