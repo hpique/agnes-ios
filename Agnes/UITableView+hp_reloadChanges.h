@@ -10,6 +10,8 @@
 
 @interface UITableView (hp_reloadChanges)
 
-- (void)hp_reloadChangesInSection:(NSUInteger)section previousData:(NSArray*)previousData updatedData:(NSArray*)updatedData;
+- (void)hp_reloadChangesWithPreviousData:(NSArray*)previousData
+                             currentData:(NSArray*)updatedData
+                                 keyBlock:(id<NSCopying>(^)(id object))keyBlock;
 
 @end

@@ -282,7 +282,10 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     if (animated)
     {
-        [_notesTableView hp_reloadChangesInSection:0 previousData:previousNotes updatedData:_notes];
+        NSArray *previousData = previousNotes ? @[previousNotes] : nil;
+        [_notesTableView hp_reloadChangesWithPreviousData:previousData currentData:@[_notes] keyBlock:^id<NSCopying>(HPNote *note) {
+            return note.objectID;
+        }];
     }
     else
     {
@@ -295,12 +298,17 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     if (animated)
     {
         NSArray *previousSearchResults = _searchResults;
-        _searchResults = [self notesWithSearchString:_searchString archived:NO];
-        [searchTableView hp_reloadChangesInSection:0 previousData:previousSearchResults updatedData:_searchResults];
-        
         NSArray *previousArchivedSearchResults = _archivedSearchResults;
+        NSArray *previousData = _searchResults == nil || _archivedSearchResults == nil ? nil : @[previousSearchResults, previousArchivedSearchResults];
+
+        _searchResults = [self notesWithSearchString:_searchString archived:NO];
         _archivedSearchResults = [self notesWithSearchString:_searchString archived:YES];
-        [searchTableView hp_reloadChangesInSection:1 previousData:previousArchivedSearchResults updatedData:_archivedSearchResults];
+        
+        [searchTableView hp_reloadChangesWithPreviousData:previousData
+                                              currentData:@[_searchResults, _archivedSearchResults]
+                                                 keyBlock:^id<NSCopying>(HPNote *note) {
+                                                     return note.objectID;
+                                              }];
     }
     else
     {

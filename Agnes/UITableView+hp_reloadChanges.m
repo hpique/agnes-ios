@@ -10,43 +10,57 @@
 
 @implementation UITableView (hp_reloadChanges)
 
-- (void)hp_reloadChangesInSection:(NSUInteger)section previousData:(NSArray*)previousData updatedData:(NSArray*)updatedData
+- (void)hp_reloadChangesWithPreviousData:(NSArray*)previousData
+                             currentData:(NSArray*)currentData
+                                 keyBlock:(id<NSCopying>(^)(id object))keyBlock
 {
-    if (!previousData)
+    if (!previousData || previousData.count != currentData.count)
     {
         [self reloadData];
         return;
     }
-    
+    NSInteger sectionCount = [self.dataSource numberOfSectionsInTableView:self];
     NSMutableArray *indexPathsToDelete = [NSMutableArray array];
-    [previousData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
-     {
-         // TODO: Use dictionaries
-         if (![updatedData containsObject:obj])
-         {
-             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:section];
-             [indexPathsToDelete addObject:indexPath];
-         }
-     }];
-    
     NSMutableArray *indexPathsToInsert = [NSMutableArray array];
     NSMutableArray *indexPathsToMove = [NSMutableArray array];
-    [updatedData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
-     {
-         // TODO: Use dictionaries
-         NSUInteger previousIndex = [previousData indexOfObject:obj];
-         if (previousIndex == NSNotFound)
+    for (NSInteger sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++)
+    {
+        NSArray *previousObjects = previousData[sectionIndex];
+        NSArray *currentObjects = currentData[sectionIndex];
+        NSDictionary *previousIndexes = [UITableView dictionaryWithIndexesOfObjects:previousObjects keyBlock:keyBlock];
+        NSDictionary *currentIndexes = [UITableView dictionaryWithIndexesOfObjects:currentObjects keyBlock:keyBlock];
+        
+        [previousObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
          {
-             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:section];
-             [indexPathsToInsert addObject:indexPath];
-         }
-         else if (previousIndex != idx)
+             id<NSCopying> key = keyBlock(obj);
+             if (![currentIndexes objectForKey:key])
+             {
+                 NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
+                 [indexPathsToDelete addObject:indexPath];
+             }
+         }];
+        
+        [currentObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
          {
-             NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:previousIndex inSection:section];
-             NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:section];
-             [indexPathsToMove addObject:@[fromIndexPath, toIndexPath]];
-         }
-     }];
+             id<NSCopying> key = keyBlock(obj);
+             NSNumber *indexNumber = [previousIndexes objectForKey:key];
+             if (!indexNumber)
+             {
+                 NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
+                 [indexPathsToInsert addObject:indexPath];
+             }
+             else
+             {
+                 NSInteger previousIndex = [indexNumber integerValue];
+                 if (previousIndex != idx)
+                 {
+                     NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:previousIndex inSection:sectionIndex];
+                     NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
+                     [indexPathsToMove addObject:@[fromIndexPath, toIndexPath]];
+                 }
+             }
+         }];
+    }
     
     if (indexPathsToDelete.count > 0 || indexPathsToMove.count > 0 || indexPathsToInsert.count > 0)
     {
@@ -59,6 +73,18 @@
         [self insertRowsAtIndexPaths:indexPathsToInsert withRowAnimation:UITableViewRowAnimationAutomatic];
         [self endUpdates];
     }
+}
+
+#pragma mark - Private
+
++ (NSDictionary*)dictionaryWithIndexesOfObjects:(NSArray*)objects keyBlock:(id<NSCopying>(^)(id object))keyBlock
+{
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    [objects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        id<NSCopying> key = keyBlock(obj);
+        [dictionary setObject:@(idx) forKey:key];
+    }];
+    return dictionary;
 }
 
 @end
