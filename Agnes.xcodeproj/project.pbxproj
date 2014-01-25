@@ -227,15 +227,15 @@
 			children = (
 				8763DA69188942F6000D9569 /* HPBaseTextStorage.h */,
 				8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */,
+				87E37E3F188B6158000333EA /* HPNoteAction.h */,
+				87E37E40188B6158000333EA /* HPNoteAction.m */,
+				871429AA18933D6600DA588F /* HPNoteActivityItemSource.h */,
+				871429AB18933D6600DA588F /* HPNoteActivityItemSource.m */,
 				8763DA6418884650000D9569 /* HPNoteViewController.h */,
 				8763DA6518884650000D9569 /* HPNoteViewController.m */,
 				8763DA6618884650000D9569 /* HPNoteViewController.xib */,
 				8740FAEF188B2AC5004CF099 /* HPTagSuggestionsView.h */,
 				8740FAF0188B2AC5004CF099 /* HPTagSuggestionsView.m */,
-				87E37E3F188B6158000333EA /* HPNoteAction.h */,
-				87E37E40188B6158000333EA /* HPNoteAction.m */,
-				871429AA18933D6600DA588F /* HPNoteActivityItemSource.h */,
-				871429AB18933D6600DA588F /* HPNoteActivityItemSource.m */,
 			);
 			name = Note;
 			sourceTree = "<group>";

@@ -43,22 +43,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)addTutorialNotes
 {
     [self performNoUndoModelUpdateAndSave:YES block:^{
-        NSString *text;
-        long i = 1;
-        NSMutableArray *texts = [NSMutableArray array];
-        while ((text = [self stringWithFormat:@"tutorial%ld" index:i]))
-        {
-            [texts addObject:text];
-            i++;
-        };            
-        for (i = texts.count - 1; i >= 0; i--)
-        {
-            NSString *text = texts[i];
-            HPNote *note = [HPNote insertNewObjectIntoContext:self.context];
-            note.createdAt = [NSDate date];
-            note.modifiedAt = note.createdAt;
-            note.text = text;
-        }
+        [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
     }];
 }
 
@@ -66,18 +51,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 {
     if (!_systemNotes)
     {
-        NSMutableArray *notes = [NSMutableArray array];
-        for (int i = 1; i >= 1; i--)
-        {
-            NSString *key = [NSString stringWithFormat:@"system%d", i];
-            NSString *text = NSLocalizedString(key, @"");
-            HPNote *note = [HPNote insertNewObjectIntoContext:_systemContext];
-            note.createdAt = [NSDate date];
-            note.modifiedAt = note.createdAt;
-            note.text = text;
-            [notes addObject:note];
-        }
-        _systemNotes = notes;
+        _systemNotes = [self notesWithKeyFormat:@"system%d" context:_systemContext];
     }
     return _systemNotes;
 }
@@ -125,6 +99,29 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 }
 
 #pragma mark - Private
+
+- (NSArray*)notesWithKeyFormat:(NSString*)keyFormat context:(NSManagedObjectContext*)context
+{
+    NSString *text;
+    long i = 1;
+    NSMutableArray *texts = [NSMutableArray array];
+    while ((text = [self stringWithFormat:keyFormat index:i]))
+    {
+        [texts addObject:text];
+        i++;
+    };
+    NSMutableArray *notes = [NSMutableArray array];
+    for (i = texts.count - 1; i >= 0; i--)
+    {
+        NSString *text = texts[i];
+        HPNote *note = [HPNote insertNewObjectIntoContext:context];
+        note.createdAt = [NSDate date];
+        note.modifiedAt = note.createdAt;
+        note.text = text;
+        [notes addObject:note];
+    }
+    return notes;
+}
 
 - (NSString*)stringWithFormat:(NSString*)format index:(long)i
 {
