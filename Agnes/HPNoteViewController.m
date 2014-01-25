@@ -13,8 +13,9 @@
 #import "HPTagSuggestionsView.h"
 #import "HPNoteAction.h"
 #import "HPIndexItem.h"
-#import "PSPDFTextView.h"
+#import "HPNoteActivityItemSource.h"
 #import "HPBrowserViewController.h"
+#import "PSPDFTextView.h"
 
 @interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate>
 
@@ -293,8 +294,8 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)actionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    NSArray *activityItems = @[self.note.text];
-    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
+    HPNoteActivityItemSource *activityItem = [[HPNoteActivityItemSource alloc] initWithNote:self.note];
+    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[activityItem] applicationActivities:nil];
     [self presentViewController:activityViewController animated:YES completion:nil];
 }
 
