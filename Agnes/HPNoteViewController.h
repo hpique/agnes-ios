@@ -11,9 +11,12 @@
 @class HPNote;
 @class HPIndexItem;
 
+@protocol HPNoteViewControllerDelegate;
+
 @interface HPNoteViewController : HPDataActionViewController
 
 @property (nonatomic, strong) HPNote *note;
+@property (nonatomic, weak) id<HPNoteViewControllerDelegate> delegate;
 @property (nonatomic, copy) HPIndexItem *indexItem;
 @property (nonatomic, strong) NSMutableArray *notes;
 @property (nonatomic, strong) UITextView *noteTextView;
@@ -25,5 +28,12 @@
 
 + (HPNoteViewController*)noteViewControllerWithNote:(HPNote*)note notes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;
 
+- (BOOL)saveNote:(BOOL)animated;
+
+@end
+
+@protocol HPNoteViewControllerDelegate<NSObject>
+
+- (void)noteViewController:(HPNoteViewController*)viewController shouldReturnToIndexItem:(HPIndexItem*)indexItem;
 
 @end

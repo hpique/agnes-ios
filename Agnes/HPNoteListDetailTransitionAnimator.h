@@ -13,6 +13,4 @@
 + (BOOL)canTransitionFromViewController:(UIViewController *)fromVC
                        toViewController:(UIViewController *)toVC;
 
-- (void)prepareForTransition:(UIViewController*)fromVC;
-
 @end

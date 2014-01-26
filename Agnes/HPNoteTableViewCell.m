@@ -64,7 +64,7 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     UIFont *bodyFont = [[HPFontManager sharedManager] fontForBodyOfNote:note];
     CGFloat bodyLineHeight = 0;
     NSString *body = [note bodyForTagWithName:tagName];
-    NSInteger bodyLines = body.length > 0 ? [HPNoteTableViewCell linesForText:note.body font:bodyFont width:width lineHeight:&bodyLineHeight] : 0;
+    NSInteger bodyLines = body.length > 0 ? [HPNoteTableViewCell linesForText:body font:bodyFont width:width lineHeight:&bodyLineHeight] : 0;
     NSInteger maximumBodyLines = 3 - titleLines;
     bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
     return titleLines * titleLineHeight + bodyLines * bodyLineHeight + 10 * 2;

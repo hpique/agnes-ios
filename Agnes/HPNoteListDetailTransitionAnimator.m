@@ -73,23 +73,18 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     if ([fromVC isKindOfClass:[HPNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]])
     {
         HPNoteViewController *noteViewController = (HPNoteViewController*) fromVC;
+        HPNote *note = noteViewController.note;
+        if (!note) return NO; // Note was trashed
+        if ([note isNew]) return NO;
+        
         HPNoteListViewController *listViewController = (HPNoteListViewController*) toVC;
-        BOOL selected = [listViewController selectNote:noteViewController.note];
+        BOOL selected = [listViewController selectNote:note];
         if (selected)
         {
             return YES;
         }
     }
     return NO;
-}
-
-- (void)prepareForTransition:(UIViewController*)fromVC
-{
-    if ([fromVC isKindOfClass:[HPNoteViewController class]])
-    {
-        HPNoteViewController *noteViewController = (HPNoteViewController*) fromVC;
-        noteViewController.willTransitionToList = YES;
-    }
 }
 
 #pragma mark - Private

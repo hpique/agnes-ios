@@ -44,9 +44,7 @@
     
     [self.managedObjectContext save:nil];
     
-    HPNoteListViewController *noteListViewController = [[HPNoteListViewController alloc] init];
-    noteListViewController.indexItem = [HPIndexItem inboxIndexItem];
-    UINavigationController *centerController = [[UINavigationController alloc] initWithRootViewController:noteListViewController];
+    UINavigationController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
     HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
     UINavigationController *leftNavigationController = [[UINavigationController alloc] initWithRootViewController:indexViewController];
     HPRootViewController *drawerController = [[HPRootViewController alloc] initWithCenterViewController:centerController leftDrawerViewController:leftNavigationController];

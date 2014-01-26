@@ -16,17 +16,18 @@
 #import "HPPreferencesManager.h"
 #import "HPNoteExporter.h"
 #import "HPReorderTableView.h"
+#import "HPNoteListDetailTransitionAnimator.h"
+#import "HPNoteNavigationController.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
 #import "UIViewController+MMDrawerController.h"
 #import "UIColor+iOS7Colors.h"
 #import <MessageUI/MessageUI.h>
-#import "HPNoteListDetailTransitionAnimator.h"
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
-@interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate>
+@interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate, HPNoteViewControllerDelegate>
 
 @end
 
@@ -138,7 +139,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     HPNoteListViewController *noteListViewController = [[HPNoteListViewController alloc] init];
     noteListViewController.indexItem = indexItem;
-    UINavigationController *controller = [[UINavigationController alloc] initWithRootViewController:noteListViewController];
+    HPNoteNavigationController *controller = [[HPNoteNavigationController alloc] initWithRootViewController:noteListViewController];
     return controller;
 }
 
@@ -147,6 +148,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:_notes indexItem:self.indexItem];
+    noteViewController.delegate = self;
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
@@ -367,6 +369,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
 {
     HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:_notes indexItem:self.indexItem];
+    noteViewController.delegate = self;
     noteViewController.showDetail = _displayCriteria == HPNoteDisplayCriteriaModifiedAt;
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
@@ -613,5 +616,11 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     return NO;
 }
 
+#pragma mark - HPNoteViewControllerDelegate
+
+- (void)noteViewController:(HPNoteViewController*)viewController shouldReturnToIndexItem:(HPIndexItem*)indexItem
+{
+    self.indexItem = indexItem;
+}
 
 @end

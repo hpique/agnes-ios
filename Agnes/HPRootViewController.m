@@ -39,7 +39,6 @@
     if ([HPNoteListDetailTransitionAnimator canTransitionFromViewController:fromVC toViewController:toVC])
     {
         HPNoteListDetailTransitionAnimator *animator = [[HPNoteListDetailTransitionAnimator alloc] init];
-        [animator prepareForTransition:fromVC];
         return animator;
     }
     return nil;

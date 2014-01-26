@@ -46,10 +46,6 @@
 
 @synthesize noteTextView = _bodyTextView;
 
-+ (void)initialize
-{
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -150,6 +146,50 @@
 
 #pragma mark - Public
 
+- (BOOL)saveNote:(BOOL)animated
+{
+    HPNote *note = self.note;
+    if (!note) return NO;
+    if (!_bodyTextViewChanged) return NO;
+    
+    if (![note isNew] || ![self isEmptyText])
+    {
+        [[HPNoteManager sharedManager] editNote:self.note text:_bodyTextView.text];
+        [self updateToolbar:animated];
+        _bodyTextViewChanged = NO;
+        
+        if (!self.indexItem)
+        { // Find the best index item to return to
+            HPIndexItem *indexItem = [self indexItemToReturn];
+            [self.delegate noteViewController:self shouldReturnToIndexItem:indexItem];
+        }
+        return YES;
+    }
+    return NO;
+}
+
+- (HPIndexItem*)indexItemToReturn
+{
+    NSMutableSet *tags = [NSMutableSet set];
+    BOOL inbox = NO;
+    for (HPNote *note in self.notes)
+    {
+        NSArray *noteTags = note.tags;
+        if (noteTags.count == 0)
+        {
+            inbox = YES;
+            break;
+        }
+        [tags addObjectsFromArray:note.tags];
+    }
+    if (!inbox && tags.count == 1)
+    {
+        NSString *tagName = [tags anyObject];
+        return [HPIndexItem indexItemWithTag:tagName];
+    }
+    return [HPIndexItem inboxIndexItem];
+}
+
 - (void)setNote:(HPNote *)note
 {
     _note = note;
@@ -193,6 +233,16 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (BOOL)isEmptyText
+{
+    NSString *editText = [_bodyTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if (editText.length == 0) return YES;
+    NSString *blankText = [HPNote textOfBlankNoteWithTag:self.indexItem.tag];
+    blankText = [blankText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if ([editText isEqualToString:blankText]) return YES;
+    return NO;
+}
+
 - (BOOL)isEmptyNote:(HPNote*)note
 {
     if (note.empty) return YES;
@@ -205,12 +255,12 @@
 {
     [[HPNoteManager sharedManager] trashNote:self.note];
     [_notes removeObject:self.note];
+    self.note = nil;
     [self finishEditing];
 }
 
 - (void)changeNoteWithTransitionOptions:(UIViewAnimationOptions)options
 {
-    [self.view endEditing:YES];
     [UIView transitionWithView:self.view duration:1.0 options:options animations:^{
         [self displayNote];
     } completion:^(BOOL finished) {
@@ -221,6 +271,7 @@
 {
     if (self.indexItem.disableAdd) return;
     
+    [self.view endEditing:YES];
     HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:self.indexItem.tag];
     [_notes insertObject:note atIndex:_noteIndex + 1];
     self.note = note;
@@ -320,6 +371,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 {
     if (_noteIndex > 0)
     {
+        [self.view endEditing:YES];
         NSInteger previousIndex = _noteIndex - 1;
         _note = self.notes[previousIndex];
         _noteIndex = previousIndex;
@@ -336,6 +388,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     NSInteger nextIndex = _noteIndex + 1;
     if (nextIndex < self.notes.count)
     {
+        [self.view endEditing:YES];
         _note = self.notes[nextIndex];
         _noteIndex = nextIndex;
         [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
@@ -414,9 +467,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     _textTapGestureRecognizer.enabled = YES;
     if (_bodyTextViewChanged)
     {
-        [[HPNoteManager sharedManager] editNote:self.note text:_bodyTextView.text];
-        [self updateToolbar:YES /* animated */];
-        _bodyTextViewChanged = NO;
+        [self saveNote:YES];
     }
     [self.navigationItem setRightBarButtonItems:@[_addNoteBarButtonItem, _actionBarButtonItem] animated:YES];
 }

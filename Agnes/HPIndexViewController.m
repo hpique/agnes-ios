@@ -14,8 +14,9 @@
 #import "HPIndexItemTableViewCell.h"
 #import "HPNote.h"
 #import "HPTag.h"
-#import "MMDrawerController.h"
+#import "HPNoteViewController.h"
 #import "HPRootViewController.h"
+#import "MMDrawerController.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "UIViewController+MMDrawerController.h"
 
@@ -53,6 +54,11 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [self.tableView registerNib:nib forCellReuseIdentifier:HPIndexCellIdentifier];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(10, 0, 10, 0);
+    
+    UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+    fixedSpace.width = 15;
+    UIBarButtonItem *addBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addBarButtonItemAction:)];
+    self.navigationItem.rightBarButtonItems = @[fixedSpace, addBarButtonItem];
     
     [self reloadData];
     
@@ -93,7 +99,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     }];
 }
 
-#pragma mark - Table view data source
+#pragma mark - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -164,6 +170,16 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 }
 
 #pragma mark - Actions
+
+- (void)addBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    UINavigationController *centerViewController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
+    centerViewController.delegate = [self hp_rootViewController];
+    HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:@[] indexItem:nil];
+    noteViewController.delegate = (id<HPNoteViewControllerDelegate>) centerViewController.topViewController;
+    [centerViewController pushViewController:noteViewController animated:NO];
+    [self.mm_drawerController setCenterViewController:centerViewController withCloseAnimation:YES completion:nil];
+}
 
 - (void)notesDidChangeNotification:(NSNotification*)notification
 {
