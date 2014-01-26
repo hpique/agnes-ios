@@ -63,6 +63,11 @@
     [self saveContext];
 }
 
+- (void)applicationWillResignActive:(UIApplication *)application
+{
+    [self saveContext];
+}
+
 - (void)saveContext
 {
     NSError *error = nil;
