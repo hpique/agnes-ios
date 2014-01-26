@@ -11,6 +11,13 @@
 #import "TTTAttributedLabel.h"
 #import "HPPreferencesManager.h"
 
+@interface HPNoteListTableViewCell()
+
+@property (nonatomic, weak) TTTAttributedLabel *titleLabel;
+@property (nonatomic, weak) TTTAttributedLabel *bodyLabel;
+
+@end
+
 @implementation HPNoteListTableViewCell {
     NSTimer *_modifiedAtDisplayCriteriaTimer;
     IBOutlet NSLayoutConstraint *_titleLabelTrailingSpaceConstraint;
