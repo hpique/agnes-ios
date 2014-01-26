@@ -467,9 +467,11 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:HPNoteListTableViewCellReuseIdentifier];
+    HPNoteTableViewCell *cell = (HPNoteTableViewCell*)[tableView dequeueReusableCellWithIdentifier:HPNoteListTableViewCellReuseIdentifier];
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.tagName = self.indexItem.tag;
+    
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     if (self.searchDisplayController.searchResultsTableView == tableView)
     {
@@ -530,7 +532,8 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 {
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     HPNote *note = [objects objectAtIndex:indexPath.row];
-    return [HPNoteTableViewCell heightForNote:note width:tableView.bounds.size.width];
+    NSString *tagName = tableView == _notesTableView ? self.indexItem.tag : nil;
+    return [HPNoteTableViewCell heightForNote:note width:tableView.bounds.size.width tagName:tagName];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

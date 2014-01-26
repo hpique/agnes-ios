@@ -30,6 +30,8 @@
 @property (nonatomic, readonly) NSArray *tags;
 @property (nonatomic, readonly) BOOL isNew;
 
+- (NSString*)bodyForTagWithName:(NSString*)tagName;
+
 - (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
 
 - (NSInteger)orderInTag:(NSString*)tag;

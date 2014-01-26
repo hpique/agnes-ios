@@ -25,7 +25,7 @@
 @synthesize tags = _tags;
 @synthesize title = _title;
 
-#pragma mark - Public
+#pragma mark - NSObject
 
 - (NSString*)debugDescription
 {
@@ -95,6 +95,19 @@
 + (NSString*)textOfBlankNoteWithTag:(NSString*)tag
 {
     return [NSString stringWithFormat:@"\n\n\n\n%@", tag];
+}
+
+- (NSString*)bodyForTagWithName:(NSString*)tagName
+{
+    NSString *body = self.body;
+    if (!tagName) return body;
+    if (body.length == 0) return body;
+    NSRange lastLineRange = [body lineRangeForRange:NSMakeRange(body.length - 1, 1)];
+    NSString *lastLine = [body substringWithRange:lastLineRange];
+    if (![lastLine isEqualToString:tagName]) return body;
+    NSString *bodyForTag = [body stringByReplacingCharactersInRange:lastLineRange withString:@""];
+    bodyForTag = [bodyForTag stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return bodyForTag;
 }
 
 - (BOOL)isNew
@@ -208,6 +221,8 @@
 
 - (void)updateTags
 { // TODO: Find a better place for this logic
+    if (self.managedObjectContext == nil) return; // Do nothing for blank notes
+    
     NSArray *currentTagNames = self.tags;
     NSMutableSet *currentTags = [NSMutableSet set];
     HPTagManager *manager = [HPTagManager sharedManager];

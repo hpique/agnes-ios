@@ -18,7 +18,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 @implementation HPNoteManager {
     NSArray *_systemNotes;
     NSManagedObjectContext *_systemContext;
-    NSManagedObjectContext *_tempContext;
 }
 
 - (id) initWithManagedObjectContext:(NSManagedObjectContext *)context
@@ -27,8 +26,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     {
         _systemContext = [[NSManagedObjectContext alloc] init];
         _systemContext.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:context.persistentStoreCoordinator.managedObjectModel];
-        _tempContext = [[NSManagedObjectContext alloc] init];
-        _tempContext.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:context.persistentStoreCoordinator.managedObjectModel];
     }
     return self;
 }
@@ -167,12 +164,12 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     BOOL isNew = note.managedObjectContext == nil;
     NSString *actionName = isNew ? @"Add Note" : @"Edit Note";
     [self performModelUpdateWithName:actionName save:YES block:^{
-        note.text = text;
-        note.modifiedAt = [NSDate date];
         if (isNew)
         {
             [self.context insertObject:note];
         }
+        note.text = text;
+        note.modifiedAt = [NSDate date];
     }];
 }
 

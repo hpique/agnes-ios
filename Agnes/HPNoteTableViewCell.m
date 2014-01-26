@@ -33,6 +33,14 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     }
 }
 
+#pragma mark - UITableViewCell
+
+- (void)prepareForReuse
+{
+    [super prepareForReuse];
+    self.tagName = nil;
+}
+
 #pragma mark - Public
 
 - (void)setNote:(HPNote *)note
@@ -47,14 +55,15 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [self displayNote];
 }
 
-+ (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width
++ (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tagName:(NSString*)tagName
 {
+    // TODO: Consider display criteria width
     UIFont *titleFont = [[HPFontManager sharedManager] fontForTitleOfNote:note];
     CGFloat titleLineHeight;
     NSInteger titleLines = [HPNoteTableViewCell linesForText:note.title font:titleFont width:width lineHeight:&titleLineHeight];
     UIFont *bodyFont = [[HPFontManager sharedManager] fontForBodyOfNote:note];
     CGFloat bodyLineHeight = 0;
-    NSString *body = note.body;
+    NSString *body = [note bodyForTagWithName:tagName];
     NSInteger bodyLines = body.length > 0 ? [HPNoteTableViewCell linesForText:note.body font:bodyFont width:width lineHeight:&bodyLineHeight] : 0;
     NSInteger maximumBodyLines = 3 - titleLines;
     bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));

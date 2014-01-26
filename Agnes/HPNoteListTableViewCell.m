@@ -99,6 +99,17 @@
     }
 }
 
+#pragma mark - HPNoteTableViewCell
+
+- (void)displayNote
+{
+    [super displayNote];
+    [self setHighlightedText:self.note.title inLabel:self.titleLabel];
+    NSString *bodyForTag = [self.note bodyForTagWithName:self.tagName];
+    [self setHighlightedText:bodyForTag inLabel:self.bodyLabel];
+    [self displayDetail];
+}
+
 #pragma mark - Private
 
 - (void)setHighlightedText:(NSString*)text inLabel:(TTTAttributedLabel*)label
@@ -119,14 +130,6 @@
          }];
         return mutableAttributedString;
     }];
-}
-
-- (void)displayNote
-{
-    [super displayNote];
-    [self setHighlightedText:self.note.title inLabel:self.titleLabel];
-    [self setHighlightedText:self.note.body inLabel:self.bodyLabel];
-    [self displayDetail];
 }
 
 - (void)displayDetail
