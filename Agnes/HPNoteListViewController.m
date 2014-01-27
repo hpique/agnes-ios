@@ -61,24 +61,48 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     __weak IBOutlet UILabel *_emptyTitleLabel;
     __weak IBOutlet UILabel *_emptySubtitleLabel;
     __weak IBOutlet NSLayoutConstraint *_emptyCenterYTitleLabelLayoutConstraint;
+    
+    NSIndexPath *_indexPathOfSelectedNote;
+    
+    BOOL _viewDidLayouSubviews;
 }
+
+@synthesize indexPathOfSelectedNote = _indexPathOfSelectedNote;
 
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 }
 
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    _viewDidLayouSubviews = YES;
+//    [self updateFooterView];
+}
+
 //- (void)updateFooterView
 //{
-//    CGRect frame = _tableView.frame;
-//    CGSize contentSize = _tableView.contentSize;
-//    CGFloat height = frame.size.height - contentSize.height;
-//    if (height > 72)
+//    if (!_viewDidLayouSubviews) return;
+//    
+//    CGRect frame = _notesTableView.frame;
+//    const CGSize contentSize = _notesTableView.contentSize;
+//    CGFloat contentHeight = contentSize.height;
+//    if (contentHeight == frame.size.height)
 //    {
-//        CGRect footerFrame = _footerView.frame;
-//        _footerView.frame = CGRectMake(footerFrame.origin.x, footerFrame.origin.y, footerFrame.size.width, height);
+//        contentHeight = 0;
+//        const CGFloat headerHeight = _notesTableView.tableHeaderView.bounds.size.height;
+//        contentHeight += headerHeight;
+//        NSInteger rowCount = [_notesTableView.dataSource tableView:_notesTableView numberOfRowsInSection:0];
+//        for (NSInteger i = 0; i < rowCount; i++)
+//        {
+//            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+//            UITableViewCell *cell = [_notesTableView cellForRowAtIndexPath:indexPath];
+//            contentHeight += cell.bounds.size.height;
+//        }
 //    }
-//    //    _tableView.tableFooterView = _footerView;
+//    CGRect footerFrame = _footerView.frame;
+//    _footerView.frame = CGRectMake(footerFrame.origin.x, frame.size.height - footerFrame.size.height, footerFrame.size.width, footerFrame.size.height);
 //}
 
 - (void)viewDidLoad
@@ -107,25 +131,30 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 
-    [self updateNotes:NO /* animated */];
+    [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
     [self updateIndexItem];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    // [_notesTableView deselectRowAtIndexPath:[_notesTableView indexPathForSelectedRow] animated:animated]; // Do not deselect the selected row of the animator will not know where to return
-    [self updateNotes:animated];
+    [self updateNotes:animated reloadNotes:[NSSet set]];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    self.willTransitionToNote = NO;
 }
 
 #pragma mark - Public
 
 - (BOOL)selectNote:(HPNote*)note
 {
-    NSIndexPath *indexPath = [self indexPathOfNote:note];
-    if (!indexPath) return NO;
-    [self.tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
-    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:NO];
+    _indexPathOfSelectedNote = [self indexPathOfNote:note];
+    if (!_indexPathOfSelectedNote) return NO;
+    [self.tableView selectRowAtIndexPath:_indexPathOfSelectedNote animated:NO scrollPosition:UITableViewScrollPositionNone];
+    [self.tableView scrollToRowAtIndexPath:_indexPathOfSelectedNote atScrollPosition:UITableViewScrollPositionNone animated:NO];
     return YES;
 }
 
@@ -195,7 +224,17 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)notesDidChangeNotification:(NSNotification*)notification
 {
-    [self updateNotes:YES /* animated */];
+    NSSet *updated;
+    if (self.willTransitionToNote)
+    { // Do not reload cells when transitioning to a note.
+        updated = [NSSet set];
+    }
+    else
+    {
+        NSDictionary *userInfo = notification.userInfo;
+       updated = [userInfo objectForKey:NSUpdatedObjectsKey];
+    }
+    [self updateNotes:YES /* animated */ reloadNotes:updated];
 }
 
 - (void)drawerBarButtonAction:(MMDrawerBarButtonItem*)barButtonItem
@@ -234,7 +273,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     index = (index + 1) % values.count;
     _displayCriteria = [values[index] intValue];
     [[HPPreferencesManager sharedManager] setDisplayCriteria:_displayCriteria forListTitle:self.indexItem.title];
-    [self updateNotes:YES /* animated */];
+    [self updateNotes:YES /* animated */ reloadNotes:[NSSet set]];
     [self updateDisplayCriteria:NO /* animated */];
 }
 
@@ -315,7 +354,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }
 }
 
-- (void)updateNotes:(BOOL)animated
+- (void)updateNotes:(BOOL)animated reloadNotes:(NSSet*)reloadNotes
 {
     NSArray *previousNotes = _notes;
     NSArray *notes = self.indexItem.notes;
@@ -325,7 +364,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     if (animated)
     {
         NSArray *previousData = previousNotes ? @[previousNotes] : nil;
-        [_notesTableView hp_reloadChangesWithPreviousData:previousData currentData:@[_notes] keyBlock:^id<NSCopying>(HPNote *note) {
+        [_notesTableView hp_reloadChangesWithPreviousData:previousData currentData:@[_notes] reloadObjects:reloadNotes keyBlock:^id<NSCopying>(HPNote *note) {
             return note.objectID;
         }];
     }
@@ -335,6 +374,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }
     
     [self updateEmptyView:animated];
+//    [self updateFooterView];
     
     if (!_searching || _searchString == nil) return;
     
@@ -350,6 +390,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         
         [searchTableView hp_reloadChangesWithPreviousData:previousData
                                               currentData:@[_searchResults, _archivedSearchResults]
+                                            reloadObjects:reloadNotes
                                                  keyBlock:^id<NSCopying>(HPNote *note) {
                                                      return note.objectID;
                                               }];
@@ -369,6 +410,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _emptyTitleLabel.font = self.indexItem.emptyTitleFont;
     _emptySubtitleLabel.font = self.indexItem.emptySubtitleFont;
     _emptyCenterYTitleLabelLayoutConstraint.constant = [_emptySubtitleLabel intrinsicContentSize].height;
+    self.searchDisplayController.searchBar.placeholder = [NSString stringWithFormat:NSLocalizedString(@"Search %@", @""), self.title];
     
     self.navigationItem.rightBarButtonItem = self.indexItem.disableAdd ? nil : _addNoteBarButtonItem;
     _displayCriteria = [[HPPreferencesManager sharedManager] displayCriteriaForListTitle:self.indexItem.title default:self.indexItem.defaultDisplayCriteria];
@@ -427,7 +469,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
                               searchString,
                               NSStringFromSelector(@selector(archived)),
                               archived ? 1 : 0];
-    NSArray *unfilteredNotes = archived ? [HPNoteManager sharedManager].objects : _notes;
+    NSArray *unfilteredNotes = archived ? [self.indexItem notes:YES] : _notes;
+    if (!unfilteredNotes) unfilteredNotes = @[];
     NSArray *filteredNotes = [unfilteredNotes filteredArrayUsingPredicate:predicate];
     NSArray *rankedNotes = [filteredNotes sortedArrayUsingComparator:^NSComparisonResult(HPNote *obj1, HPNote *obj2)
     {
@@ -562,11 +605,6 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     [[HPNoteManager sharedManager] reorderNotes:_notes tagName:self.indexItem.tag];
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section;
-{
-    return tableView == _notesTableView ? [[UIView alloc] init] : nil;
-}
-
 #pragma mark - UITableViewDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -585,13 +623,9 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     }
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-{
-    return tableView == _notesTableView ? 10 : 0;
-}
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    _indexPathOfSelectedNote = indexPath;
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     HPNote *note = [objects objectAtIndex:indexPath.row];
     [self showNote:note in:objects];

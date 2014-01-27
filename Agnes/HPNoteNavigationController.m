@@ -8,6 +8,7 @@
 
 #import "HPNoteNavigationController.h"
 #import "HPNoteViewController.h"
+#import "HPNoteListViewController.h"
 #import "HPNote.h"
 
 @interface HPNoteNavigationController ()
@@ -15,6 +16,17 @@
 @end
 
 @implementation HPNoteNavigationController
+
+- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+    UIViewController *topViewContoller = self.topViewController;
+    if ([topViewContoller isKindOfClass:[HPNoteListViewController class]])
+    {
+        HPNoteListViewController *listViewController = (HPNoteListViewController*)topViewContoller;
+        listViewController.willTransitionToNote = YES;
+    }
+    [super pushViewController:viewController animated:animated];
+}
 
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated
 {

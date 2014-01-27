@@ -42,7 +42,7 @@
                         <outlet property="delegate" destination="-1" id="Dam-oJ-TTL"/>
                     </connections>
                 </tableView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f65-dw-v5R">
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f65-dw-v5R">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <subviews>
@@ -150,7 +150,6 @@
                     </connections>
                 </button>
             </subviews>
-            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="9VM-M1-8z3" secondAttribute="trailing" id="JK7-Is-I51"/>
                 <constraint firstItem="9VM-M1-8z3" firstAttribute="leading" secondItem="fYC-Uv-G39" secondAttribute="leading" id="Rbg-xI-XPs"/>

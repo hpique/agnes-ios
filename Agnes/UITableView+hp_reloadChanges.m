@@ -12,7 +12,8 @@
 
 - (void)hp_reloadChangesWithPreviousData:(NSArray*)previousData
                              currentData:(NSArray*)currentData
-                                 keyBlock:(id<NSCopying>(^)(id object))keyBlock
+                           reloadObjects:(NSSet*)reloadObjects
+                                keyBlock:(id<NSCopying>(^)(id object))keyBlock
 {
     if (!previousData || previousData.count != currentData.count)
     {
@@ -23,6 +24,7 @@
     NSMutableArray *indexPathsToDelete = [NSMutableArray array];
     NSMutableArray *indexPathsToInsert = [NSMutableArray array];
     NSMutableArray *indexPathsToMove = [NSMutableArray array];
+    NSMutableArray *indexPathsToReload = [NSMutableArray array];
     for (NSInteger sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++)
     {
         NSArray *previousObjects = previousData[sectionIndex];
@@ -37,6 +39,11 @@
              {
                  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
                  [indexPathsToDelete addObject:indexPath];
+             }
+             else if ([reloadObjects containsObject:obj])
+             {
+                 NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
+                 [indexPathsToReload addObject:indexPath];
              }
          }];
         
@@ -62,7 +69,7 @@
          }];
     }
     
-    NSInteger changesCount = indexPathsToDelete.count + indexPathsToMove.count + indexPathsToInsert.count;
+    NSInteger changesCount = indexPathsToDelete.count + indexPathsToMove.count + indexPathsToReload.count + indexPathsToInsert.count;
     if (changesCount > 0)
     {
         [self beginUpdates];
@@ -71,6 +78,7 @@
         {
             [self moveRowAtIndexPath:indexPaths[0] toIndexPath:indexPaths[1]];
         }
+        [self reloadRowsAtIndexPaths:indexPathsToReload withRowAnimation:UITableViewRowAnimationAutomatic];
         [self insertRowsAtIndexPaths:indexPathsToInsert withRowAnimation:UITableViewRowAnimationAutomatic];
         [self endUpdates];
     }

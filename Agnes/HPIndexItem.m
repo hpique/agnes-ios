@@ -13,20 +13,16 @@
 #import "HPtag.h"
 #import "HPFontManager.h"
 
-@interface HPIndexItemTag : HPIndexItem
+@interface HPIndexItemInbox : HPIndexItem
+@end
 
+@interface HPIndexItemTag : HPIndexItem
+@end
+
+@interface HPIndexItemArchive : HPIndexItem
 @end
 
 @interface HPIndexItemSystem : HPIndexItem
-
-@end
-
-@interface HPIndexItemPredicate : HPIndexItem
-
-@property (nonatomic, strong) NSPredicate *predicate;
-
-+ (HPIndexItemPredicate*)indexItemWithTitle:(NSString*)title predictate:(NSPredicate *)predicate;
-
 @end
 
 @interface HPIndexItem ()
@@ -60,8 +56,8 @@
     static HPIndexItem *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(cd_archived))];
-        instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Inbox", @"") predictate:predicate];
+        instance = [[HPIndexItemInbox alloc] init];
+        instance.title = NSLocalizedString(@"Inbox", @"");
         instance.imageName = @"icon-inbox";
         instance.emptyTitle = NSLocalizedString(@"No notes", @"");
         instance.emptySubtitle = NSLocalizedString(@"An empty inbox is a good inbox", @"");
@@ -76,9 +72,8 @@
     static HPIndexItem *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString *archivedName = NSStringFromSelector(@selector(cd_archived));
-        NSPredicate *archivePredicate = [NSPredicate predicateWithFormat:@"%K == YES", archivedName];
-        instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Archive", @"") predictate:archivePredicate];
+        instance = [[HPIndexItemArchive alloc] init];
+        instance.title = NSLocalizedString(@"Archive", @"");
         instance.imageName = @"icon-archive";
         instance.emptyTitle = NSLocalizedString(@"No notes", @"");
         instance.emptySubtitle = NSLocalizedString(@"Slide notes to the left to archive them", @"");
@@ -148,9 +143,9 @@
 
 - (UIImage*)icon
 {
-    NSInteger count = self.notes.count;
+    NSArray *notes = [self notes:NO /* archived */];
     UIImage *image = nil;
-    if (count > 0)
+    if (notes.count > 0)
     {
         NSString *fullImageName = [NSString stringWithFormat:@"%@-full", _imageName];
         image = [UIImage imageNamed:fullImageName];
@@ -168,14 +163,51 @@
     return self.title;
 }
 
+- (NSArray*)notes
+{
+    return [self notes:NO /* archived */];
+}
+
+- (NSArray*)notes:(BOOL)archived
+{
+    return @[];
+}
+
+@end
+
+@implementation HPIndexItemInbox
+
+- (NSArray*)notes:(BOOL)archived
+{
+    NSArray *notes = [HPNoteManager sharedManager].objects;
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == %d", NSStringFromSelector(@selector(cd_archived)), archived];
+    return [notes filteredArrayUsingPredicate:predicate];
+}
+
+@end
+
+@implementation HPIndexItemArchive
+
+- (NSArray*)notes
+{
+    return [self notes:YES /* archived */];
+}
+
+- (NSArray*)notes:(BOOL)archived
+{
+    NSArray *notes = [HPNoteManager sharedManager].objects;
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == YES", NSStringFromSelector(@selector(cd_archived))];
+    return [notes filteredArrayUsingPredicate:predicate];
+}
+
 @end
 
 @implementation HPIndexItemTag
 
-- (NSArray*)notes
+- (NSArray*)notes:(BOOL)archived
 {
     HPTag *tag = [[HPTagManager sharedManager] tagWithName:self.tag];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(cd_archived))];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == %d", NSStringFromSelector(@selector(cd_archived)), archived];
     NSSet *notes = [tag.cd_notes filteredSetUsingPredicate:predicate];
     return [notes allObjects];
 }
@@ -197,27 +229,9 @@
 
 @end
 
-@implementation HPIndexItemPredicate
-
-+ (HPIndexItemPredicate*)indexItemWithTitle:(NSString*)title predictate:(NSPredicate *)predicate
-{
-    HPIndexItemPredicate *item = [[HPIndexItemPredicate alloc] init];
-    item.title = title;
-    item.predicate = predicate;
-    return item;
-}
-
-- (NSArray*)notes
-{
-    NSArray *notes = [HPNoteManager sharedManager].objects;
-    return [notes filteredArrayUsingPredicate:self.predicate];
-}
-
-@end
-
 @implementation HPIndexItemSystem
 
-- (NSArray*)notes
+- (NSArray*)notes:(BOOL)archived
 {
     return [HPNoteManager sharedManager].systemNotes;
 }

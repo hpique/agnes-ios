@@ -12,6 +12,7 @@
 
 - (void)hp_reloadChangesWithPreviousData:(NSArray*)previousData
                              currentData:(NSArray*)updatedData
+                           reloadObjects:(NSSet*)reloadObjects
                                  keyBlock:(id<NSCopying>(^)(id object))keyBlock;
 
 @end

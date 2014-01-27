@@ -95,7 +95,7 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
     
     UITableView *tableView = fromViewController.tableView;
-    NSIndexPath *selectedIndexPath = [tableView indexPathForSelectedRow];
+    NSIndexPath *selectedIndexPath = fromViewController.indexPathOfSelectedNote;
     CGRect startRect = [tableView rectForRowAtIndexPath:selectedIndexPath];
     startRect = [transitionContext.containerView convertRect:startRect fromView:tableView];
     
@@ -164,7 +164,7 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     [containerView bringSubviewToFront:fromViewController.view];
 
     UITableView *tableView = toViewController.tableView;
-    NSIndexPath *selectedIndexPath = [tableView indexPathForSelectedRow];
+    NSIndexPath *selectedIndexPath = toViewController.indexPathOfSelectedNote;
     if (!selectedIndexPath)
     {
         [toViewController selectNote:fromViewController.note];
