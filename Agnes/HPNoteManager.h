@@ -38,6 +38,8 @@ typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
 
 - (void)editNote:(HPNote*)note text:(NSString*)text;
 
+- (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt;
+
 - (void)viewNote:(HPNote*)note;
 
 - (void)reorderNotes:(NSArray*)notes tagName:(NSString*)tagName;

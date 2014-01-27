@@ -57,6 +57,12 @@
                  [self handleError:error failure:failureBlock];
                  *stop = YES;
              }
+             NSDictionary* attributes = @{NSFileCreationDate : note.createdAt, NSFileModificationDate : note.modifiedAt};
+             success = [[NSFileManager defaultManager] setAttributes:attributes ofItemAtPath:path error:&error];
+             if (!success)
+             {
+                 NSLog(@"Set attributes failed with error %@", [error localizedDescription]);
+             }
          }];
         
         NSString *zipDirectory = [exportPath stringByAppendingPathComponent:@"zip"];

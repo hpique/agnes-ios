@@ -15,6 +15,7 @@
 		871429AC18933D6600DA588F /* HPNoteActivityItemSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429AB18933D6600DA588F /* HPNoteActivityItemSource.m */; };
 		871429F618955CF900DA588F /* HPNoteNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429F518955CF900DA588F /* HPNoteNavigationController.m */; };
 		871429F918965BD600DA588F /* NSString+hp_layout.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429F818965BD600DA588F /* NSString+hp_layout.m */; };
+		87142A001896CFC900DA588F /* HPNoteImporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429FF1896CFC900DA588F /* HPNoteImporter.m */; };
 		873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */; };
 		8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */; };
 		8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FADC188A8B69004CF099 /* HPIndexViewController.m */; };
@@ -89,6 +90,8 @@
 		871429F518955CF900DA588F /* HPNoteNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteNavigationController.m; sourceTree = "<group>"; };
 		871429F718965BD600DA588F /* NSString+hp_layout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+hp_layout.h"; sourceTree = "<group>"; };
 		871429F818965BD600DA588F /* NSString+hp_layout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+hp_layout.m"; sourceTree = "<group>"; };
+		871429FE1896CFC900DA588F /* HPNoteImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteImporter.h; sourceTree = "<group>"; };
+		871429FF1896CFC900DA588F /* HPNoteImporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteImporter.m; sourceTree = "<group>"; };
 		873E9CCD189174F8003364E7 /* UITableView+hp_reloadChanges.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableView+hp_reloadChanges.h"; sourceTree = "<group>"; };
 		873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+hp_reloadChanges.m"; sourceTree = "<group>"; };
 		8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteSearchTableViewCell.h; sourceTree = "<group>"; };
@@ -343,12 +346,14 @@
 		87D02E16188ECB8600273DEC /* Logic */ = {
 			isa = PBXGroup;
 			children = (
-				87D02E17188ECBA600273DEC /* HPNoteExporter.h */,
-				87E37E3C188B57C0000333EA /* HPPreferencesManager.h */,
-				87E37E3D188B57C0000333EA /* HPPreferencesManager.m */,
-				87D02E18188ECBA600273DEC /* HPNoteExporter.m */,
 				870B5AEF18903BE4009A11AB /* HPFontManager.h */,
 				870B5AF018903BE4009A11AB /* HPFontManager.m */,
+				87D02E17188ECBA600273DEC /* HPNoteExporter.h */,
+				87D02E18188ECBA600273DEC /* HPNoteExporter.m */,
+				87E37E3C188B57C0000333EA /* HPPreferencesManager.h */,
+				87E37E3D188B57C0000333EA /* HPPreferencesManager.m */,
+				871429FE1896CFC900DA588F /* HPNoteImporter.h */,
+				871429FF1896CFC900DA588F /* HPNoteImporter.m */,
 			);
 			name = Logic;
 			sourceTree = "<group>";
@@ -566,6 +571,7 @@
 				8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */,
 				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
 				87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */,
+				87142A001896CFC900DA588F /* HPNoteImporter.m in Sources */,
 				873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */,
 				87E37F07188E4CD4000333EA /* HPKeyboardButton.m in Sources */,
 				87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */,

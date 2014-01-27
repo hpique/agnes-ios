@@ -12,6 +12,7 @@
 #import "HPIndexItem.h"
 #import "HPPreferencesManager.h"
 #import "HPRootViewController.h"
+#import "HPNoteImporter.h"
 #import <CoreData/CoreData.h>
 
 @implementation HPAppDelegate
@@ -52,6 +53,9 @@
 
     self.window.rootViewController = drawerController;
     [self.window makeKeyAndVisible];
+    
+    [[HPNoteImporter sharedImporter] startWatching];
+    
     return YES;
 }
 
@@ -112,7 +116,8 @@
 {
     if (!_persistentStoreCoordinator)
     {
-        NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"Agnes.sqlite"];
+        
+        NSURL *storeURL = [[self applicationHiddenDocumentsDirectory] URLByAppendingPathComponent:@"Agnes.sqlite"];
         
         NSError *error = nil;
         _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
@@ -150,9 +155,32 @@
 
 #pragma mark - Private
 
-- (NSURL *)applicationDocumentsDirectory
+
+- (NSURL *)applicationHiddenDocumentsDirectory
 {
-    return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *path = [libraryPath stringByAppendingPathComponent:@"Private Documents"];
+    NSURL *pathURL = [NSURL fileURLWithPath:path];
+    
+    BOOL isDirectory = NO;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory]) {
+        if (isDirectory) {
+            return pathURL;
+        } else {
+            // Handle error. ".data" is a file which should not be there...
+            [NSException raise:@"'Private Documents' exists, and is a file" format:@"Path: %@", path];
+            // NSError *error = nil;
+            // if (![[NSFileManager defaultManager] removeItemAtPath:path error:&error]) {
+            //     [NSException raise:@"could not remove file" format:@"Path: %@", path];
+            // }
+        }
+    }
+    NSError *error = nil;
+    if (![[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error])
+    {
+        [NSException raise:@"Failed creating directory" format:@"[%@], %@", path, error];
+    }
+    return pathURL;
 }
 
 @end

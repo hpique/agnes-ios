@@ -173,6 +173,17 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }];
 }
 
+- (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt
+{
+    [self performModelUpdateWithName:@"Import Note" save:YES block:^{
+        HPNote *note = [HPNote insertNewObjectIntoContext:self.context];
+        note.createdAt = createdAt;
+        note.inboxOrder = NSIntegerMax;
+        note.modifiedAt = modifiedAt;
+        note.text = text;
+    }];
+}
+
 - (void)reorderNotes:(NSArray*)notes tagName:(NSString*)tagName
 {
     [self performModelUpdateWithName:@"Reorder" save:NO block:^{
