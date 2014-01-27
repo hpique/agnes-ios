@@ -56,6 +56,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     NSInteger _optionsActionSheetUndoIndex;
     NSInteger _optionsActionSheetRedoIndex;
     NSInteger _optionsActionSheetExportIndex;
+    
+    __weak IBOutlet UIView *_emptyListView;
+    __weak IBOutlet UILabel *_emptyTitleLabel;
+    __weak IBOutlet UILabel *_emptySubtitleLabel;
+    __weak IBOutlet NSLayoutConstraint *_emptyCenterYTitleLabelLayoutConstraint;
 }
 
 - (void)dealloc
@@ -289,6 +294,27 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     return nil;
 }
 
+- (void)updateEmptyView:(BOOL)animated
+{
+    BOOL empty = _notes.count == 0;
+    if (empty != _emptyListView.hidden) return;
+
+    if (animated)
+    {
+        _emptyListView.hidden = !empty;
+        _emptyListView.alpha = empty ? 0 : 1;
+        [UIView animateWithDuration:0.25 animations:^{
+            _emptyListView.alpha = empty ? 1 : 0;
+        } completion:^(BOOL finished) {
+            _emptyListView.hidden = !empty;
+        }];
+    }
+    else
+    {
+        _emptyListView.hidden = !empty;
+    }
+}
+
 - (void)updateNotes:(BOOL)animated
 {
     NSArray *previousNotes = _notes;
@@ -307,6 +333,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     {
         [_notesTableView reloadData];
     }
+    
+    [self updateEmptyView:animated];
     
     if (!_searching || _searchString == nil) return;
     
@@ -336,6 +364,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     self.title = self.indexItem.title;
     _titleLabel.text = self.title;
+    _emptyTitleLabel.text = self.indexItem.emptyTitle;
+    _emptySubtitleLabel.text = self.indexItem.emptySubtitle;
+    _emptyTitleLabel.font = self.indexItem.emptyTitleFont;
+    _emptySubtitleLabel.font = self.indexItem.emptySubtitleFont;
+    _emptyCenterYTitleLabelLayoutConstraint.constant = [_emptySubtitleLabel intrinsicContentSize].height;
     
     self.navigationItem.rightBarButtonItem = self.indexItem.disableAdd ? nil : _addNoteBarButtonItem;
     _displayCriteria = [[HPPreferencesManager sharedManager] displayCriteriaForListTitle:self.indexItem.title default:self.indexItem.defaultDisplayCriteria];
@@ -470,7 +503,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    HPNoteTableViewCell *cell = (HPNoteTableViewCell*)[tableView dequeueReusableCellWithIdentifier:HPNoteListTableViewCellReuseIdentifier];
+    HPNoteTableViewCell *cell = (HPNoteTableViewCell*)[tableView dequeueReusableCellWithIdentifier:HPNoteListTableViewCellReuseIdentifier forIndexPath:indexPath];
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     cell.tagName = self.indexItem.tag;

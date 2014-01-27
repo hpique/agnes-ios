@@ -15,7 +15,9 @@ NSInteger const HPNotTableViewCellLabelMaxLength = 150;
 
 static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
-@implementation HPNoteTableViewCell
+@implementation HPNoteTableViewCell {
+    BOOL _removedObserver;
+}
 
 - (void)dealloc
 {
@@ -39,6 +41,7 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 - (void)prepareForReuse
 {
     [super prepareForReuse];
+    [self removeNoteObserver];
     self.tagName = nil;
 }
 
@@ -53,6 +56,8 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(cd_views)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(text)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(modifiedAt)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
+    [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(isDeleted)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
+    _removedObserver = NO;
     [self displayNote];
 }
 
@@ -88,10 +93,14 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)removeNoteObserver
 {
+    if (_removedObserver) return;
+    
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(cd_archived))];
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(cd_views))];
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(text))];
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(modifiedAt))];
+    [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(isDeleted))];
+    _removedObserver = YES;
 }
 
 @end

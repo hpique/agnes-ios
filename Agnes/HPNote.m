@@ -25,13 +25,6 @@
 @synthesize tags = _tags;
 @synthesize title = _title;
 
-#pragma mark - NSObject
-
-- (NSString*)debugDescription
-{
-    return self.title;
-}
-
 #pragma mark - NSManagedObject
 
 // See: http://stackoverflow.com/questions/21231908/calculated-properties-in-core-data

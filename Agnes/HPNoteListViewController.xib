@@ -7,6 +7,10 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HPNoteListViewController">
             <connections>
                 <outlet property="_displayCriteriaLabel" destination="RlL-rH-NfW" id="Ukm-V2-6vm"/>
+                <outlet property="_emptyCenterYTitleLabelLayoutConstraint" destination="JOn-Aj-on7" id="bEe-NG-hhV"/>
+                <outlet property="_emptyListView" destination="f65-dw-v5R" id="jaJ-aS-USG"/>
+                <outlet property="_emptySubtitleLabel" destination="ac8-4x-E4n" id="frA-Yr-Y0y"/>
+                <outlet property="_emptyTitleLabel" destination="Lq5-vr-rI1" id="epu-Q5-9bi"/>
                 <outlet property="_footerView" destination="fYC-Uv-G39" id="Cv9-UQ-hVc"/>
                 <outlet property="_notesTableView" destination="6Ye-Ag-F8Q" id="6m9-an-rAu"/>
                 <outlet property="_optionsButton" destination="9VM-M1-8z3" id="h7Y-Dn-LBB"/>
@@ -38,13 +42,45 @@
                         <outlet property="delegate" destination="-1" id="Dam-oJ-TTL"/>
                     </connections>
                 </tableView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f65-dw-v5R">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No notes" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="Lq5-vr-rI1">
+                            <rect key="frame" x="20" y="254" width="280" height="21"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tip or motivator" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="ac8-4x-E4n">
+                            <rect key="frame" x="20" y="275" width="280" height="21"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="Lq5-vr-rI1" secondAttribute="trailing" constant="20" id="8UI-SD-PVN"/>
+                        <constraint firstAttribute="centerY" secondItem="Lq5-vr-rI1" secondAttribute="centerY" constant="20" id="JOn-Aj-on7"/>
+                        <constraint firstItem="Lq5-vr-rI1" firstAttribute="leading" secondItem="f65-dw-v5R" secondAttribute="leading" constant="20" id="NOL-wZ-R7b"/>
+                        <constraint firstItem="Lq5-vr-rI1" firstAttribute="leading" secondItem="ac8-4x-E4n" secondAttribute="leading" id="PCW-Qu-vEK"/>
+                        <constraint firstItem="Lq5-vr-rI1" firstAttribute="trailing" secondItem="ac8-4x-E4n" secondAttribute="trailing" id="a7d-Oy-F0Y"/>
+                        <constraint firstItem="ac8-4x-E4n" firstAttribute="top" secondItem="Lq5-vr-rI1" secondAttribute="bottom" id="hBw-dp-4dA"/>
+                    </constraints>
+                </view>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstItem="6Ye-Ag-F8Q" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="ETb-gt-Ldr"/>
                 <constraint firstAttribute="bottom" secondItem="6Ye-Ag-F8Q" secondAttribute="bottom" id="IRo-op-R0f"/>
                 <constraint firstAttribute="trailing" secondItem="6Ye-Ag-F8Q" secondAttribute="trailing" id="PF7-ra-4iO"/>
+                <constraint firstItem="f65-dw-v5R" firstAttribute="top" secondItem="1" secondAttribute="top" id="Pys-iC-mlZ"/>
                 <constraint firstItem="6Ye-Ag-F8Q" firstAttribute="top" secondItem="1" secondAttribute="top" id="YaU-gH-asA"/>
+                <constraint firstAttribute="bottom" secondItem="f65-dw-v5R" secondAttribute="bottom" id="mrz-PJ-SUZ"/>
+                <constraint firstItem="f65-dw-v5R" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="n8x-RB-b7v"/>
+                <constraint firstAttribute="trailing" secondItem="f65-dw-v5R" secondAttribute="trailing" id="uNS-Pf-qPT"/>
             </constraints>
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>

@@ -104,9 +104,24 @@
 - (void)displayNote
 {
     [super displayNote];
-    [self setHighlightedText:self.note.title inLabel:self.titleLabel];
+    NSString *title = self.note.title;
+    if (title)
+    {
+        [self setHighlightedText:self.note.title inLabel:self.titleLabel];
+    }
+    else
+    { // KVO notifies nil property changes after note is deleted
+        self.titleLabel.text = nil;
+    }
     NSString *bodyForTag = [self.note bodyForTagWithName:self.tagName];
-    [self setHighlightedText:bodyForTag inLabel:self.bodyLabel];
+    if (bodyForTag)
+    {
+        [self setHighlightedText:bodyForTag inLabel:self.bodyLabel];
+    }
+    else
+    {
+        self.bodyLabel.text = nil;
+    }
     [self displayDetail];
 }
 

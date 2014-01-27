@@ -11,6 +11,7 @@
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPtag.h"
+#import "HPFontManager.h"
 
 @interface HPIndexItemTag : HPIndexItem
 
@@ -30,6 +31,10 @@
 
 @interface HPIndexItem ()
 
+@property (nonatomic, copy) NSString* emptyTitle;
+@property (nonatomic, copy) NSString* emptySubtitle;
+@property (nonatomic, strong) UIFont* emptyTitleFont;
+@property (nonatomic, strong) UIFont* emptySubtitleFont;
 @property (nonatomic, copy) NSString *imageName;
 
 @end
@@ -39,7 +44,16 @@
     BOOL _disableAdd;
     BOOL _disableRemove;
     NSString *_imageName;
+    NSString *_emptySubtitle;
+    NSString *_emptyTitle;
+    UIFont *_emptyTitleFont;
+    UIFont *_emptySubtitleFont;
 }
+
+@synthesize emptySubtitle = _emptySubtitle;
+@synthesize emptyTitle = _emptyTitle;
+@synthesize emptySubtitleFont = _emptySubtitleFont;
+@synthesize emptyTitleFont = _emptyTitleFont;
 
 + (HPIndexItem*)inboxIndexItem
 {
@@ -49,6 +63,8 @@
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(cd_archived))];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Inbox", @"") predictate:predicate];
         instance.imageName = @"icon-inbox";
+        instance.emptyTitle = NSLocalizedString(@"No notes", @"");
+        instance.emptySubtitle = NSLocalizedString(@"An empty inbox is a good inbox", @"");
         instance.defaultDisplayCriteria = HPNoteDisplayCriteriaOrder;
         instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
     });
@@ -64,6 +80,10 @@
         NSPredicate *archivePredicate = [NSPredicate predicateWithFormat:@"%K == YES", archivedName];
         instance = [HPIndexItemPredicate indexItemWithTitle:NSLocalizedString(@"Archive", @"") predictate:archivePredicate];
         instance.imageName = @"icon-archive";
+        instance.emptyTitle = NSLocalizedString(@"No notes", @"");
+        instance.emptySubtitle = NSLocalizedString(@"Slide notes to the left to archive them", @"");
+        instance.emptyTitleFont = [[HPFontManager sharedManager] fontForArchivedNoteTitle];
+        instance.emptySubtitleFont = [[HPFontManager sharedManager] fontForArchivedNoteBody];
         instance.defaultDisplayCriteria = HPNoteDisplayCriteriaModifiedAt;
         instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
         instance->_disableAdd = YES;
@@ -92,6 +112,8 @@
     HPIndexItemTag *item = [[HPIndexItemTag alloc] init];
     item.title = tag;
     item.imageName = @"icon-hashtag";
+    item.emptyTitle = NSLocalizedString(@"No notes", @"");
+    item.emptySubtitle = NSLocalizedString(@"Empty tags will disappear from the index", @"");
     item.defaultDisplayCriteria = HPNoteDisplayCriteriaOrder;
     item.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
     return item;
@@ -105,6 +127,18 @@
 - (BOOL)disableRemove
 {
     return _disableRemove;
+}
+
+- (UIFont*)emptyTitleFont
+{
+    if (_emptyTitleFont) return _emptyTitleFont;
+    return [[HPFontManager sharedManager] fontForNoteTitle];
+}
+
+- (UIFont*)emptySubtitleFont
+{
+    if (_emptySubtitleFont) return _emptySubtitleFont;
+    return [[HPFontManager sharedManager] fontForNoteBody];
 }
 
 - (NSString*)exportPrefix

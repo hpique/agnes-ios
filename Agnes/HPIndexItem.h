@@ -15,6 +15,10 @@
 @property (nonatomic, readonly) NSString *indexTitle;
 @property (nonatomic, readonly) NSString *tag;
 @property (nonatomic, readonly) NSArray *notes;
+@property (nonatomic, readonly) NSString* emptySubtitle;
+@property (nonatomic, readonly) UIFont* emptySubtitleFont;
+@property (nonatomic, readonly) NSString* emptyTitle;
+@property (nonatomic, readonly) UIFont* emptyTitleFont;
 @property (nonatomic, readonly) BOOL disableAdd;
 @property (nonatomic, readonly) BOOL disableRemove;
 @property (nonatomic, assign) HPNoteDisplayCriteria defaultDisplayCriteria;
