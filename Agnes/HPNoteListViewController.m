@@ -529,14 +529,32 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     [[HPNoteManager sharedManager] reorderNotes:_notes tagName:self.indexItem.tag];
 }
 
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section;
+{
+    return tableView == _notesTableView ? [[UIView alloc] init] : nil;
+}
+
 #pragma mark - UITableViewDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     HPNote *note = [objects objectAtIndex:indexPath.row];
-    NSString *tagName = tableView == _notesTableView ? self.indexItem.tag : nil;
-    return [HPNoteTableViewCell heightForNote:note width:tableView.bounds.size.width tagName:tagName];
+    CGFloat width = tableView.bounds.size.width;
+    if (tableView == _notesTableView)
+    {
+        // TODO: Consider display criteria width
+        return [HPNoteTableViewCell heightForNote:note width:width tagName:self.indexItem.tag];
+    }
+    else
+    {
+        return [HPNoteSearchTableViewCell heightForNote:note width:width searchText:_searchString];
+    }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return tableView == _notesTableView ? 10 : 0;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

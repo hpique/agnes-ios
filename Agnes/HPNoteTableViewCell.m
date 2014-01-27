@@ -9,6 +9,7 @@
 #import "HPNoteTableViewCell.h"
 #import "HPNote.h"
 #import "HPFontManager.h"
+#import "NSString+hp_layout.h"
 
 NSInteger const HPNotTableViewCellLabelMaxLength = 150;
 
@@ -60,11 +61,11 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     // TODO: Consider display criteria width
     UIFont *titleFont = [[HPFontManager sharedManager] fontForTitleOfNote:note];
     CGFloat titleLineHeight;
-    NSInteger titleLines = [HPNoteTableViewCell linesForText:note.title font:titleFont width:width lineHeight:&titleLineHeight];
+    NSInteger titleLines = [note.title hp_linesWithFont:titleFont width:width lineHeight:&titleLineHeight];
     UIFont *bodyFont = [[HPFontManager sharedManager] fontForBodyOfNote:note];
     CGFloat bodyLineHeight = 0;
     NSString *body = [note bodyForTagWithName:tagName];
-    NSInteger bodyLines = body.length > 0 ? [HPNoteTableViewCell linesForText:body font:bodyFont width:width lineHeight:&bodyLineHeight] : 0;
+    NSInteger bodyLines = body.length > 0 ? [body hp_linesWithFont:bodyFont width:width lineHeight:&bodyLineHeight] : 0;
     NSInteger maximumBodyLines = 3 - titleLines;
     bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
     return titleLines * titleLineHeight + bodyLines * bodyLineHeight + 10 * 2;
@@ -79,19 +80,10 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     
     NSString *title = self.note.title;
     CGFloat lineHeight;
-    NSInteger lines = [HPNoteTableViewCell linesForText:title font:self.titleLabel.font width:CGRectGetWidth(self.bounds) lineHeight:&lineHeight];
+    NSInteger lines = [title hp_linesWithFont:self.titleLabel.font width:CGRectGetWidth(self.bounds) lineHeight:&lineHeight];
     NSInteger maximumBodyLines = self.titleLabel.numberOfLines - lines;
     self.bodyLabel.hidden = maximumBodyLines == 0;
     self.bodyLabel.numberOfLines = maximumBodyLines;
-}
-
-+ (NSInteger)linesForText:(NSString*)text font:(UIFont*)font width:(CGFloat)width lineHeight:(CGFloat*)lineHeight
-{
-    NSDictionary *attributes = @{NSFontAttributeName: font};
-    CGFloat textHeight = [text boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil].size.height;
-    *lineHeight = [@"" boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil].size.height;
-    NSInteger lines = round(textHeight / *lineHeight);
-    return lines;
 }
 
 - (void)removeNoteObserver

@@ -312,6 +312,7 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     NSLayoutManager *layoutManager = textView.layoutManager;
     NSRange charRange = [textView.text rangeOfString:text];
     NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:charRange actualCharacterRange:nil];
+    [layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, charRange.location)];
     CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textView.textContainer];
     rect = CGRectOffset(rect, textView.textContainerInset.left, textView.textContainerInset.top);
     return CGRectMake(rect.origin.x, rect.origin.y, ceil(rect.size.width), ceil(rect.size.height));

@@ -9,7 +9,8 @@
 #import "HPNoteSearchTableViewCell.h"
 #import "HPNote.h"
 #import "HPPreferencesManager.h"
-#import "TTTAttributedLabel.h"
+#import "HPFontManager.h"
+#import "NSString+hp_layout.h"
 
 static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContext;
 
@@ -24,33 +25,83 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
     return self;
 }
 
+#pragma mark - Public
+
++ (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width searchText:(NSString*)searchText
+{
+    UIFont *titleFont = [[HPFontManager sharedManager] fontForTitleOfNote:note];
+    NSString *titleMatch = HPLineWithMatch(note.title, searchText);
+    CGFloat titleLineHeight = 0;
+    NSString *title = titleMatch ? : note.title;
+    NSInteger titleLines = [title hp_linesWithFont:titleFont width:width lineHeight:&titleLineHeight];
+    if (!titleMatch)
+    {
+        titleLines = 1;
+    }
+    UIFont *bodyFont = [[HPFontManager sharedManager] fontForBodyOfNote:note];
+    CGFloat bodyLineHeight = 0;
+    NSString *body = HPLineWithMatch(note.body, searchText) ? : note.body;
+    NSInteger bodyLines = body.length > 0 ? [body hp_linesWithFont:bodyFont width:width lineHeight:&bodyLineHeight] : 0;
+    NSInteger maximumBodyLines = 3 - titleLines;
+    bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
+    return titleLines * titleLineHeight + bodyLines * bodyLineHeight + 10 * 2;
+}
+
 #pragma mark - Private
 
 - (void)displayNote
 {
     [super displayNote];
-    [self setText:self.note.title inSearchResultlabel:self.titleLabel];
-    [self setText:self.note.body inSearchResultlabel:self.bodyLabel];
+    [self setText:self.note.title inSearchLabel:self.titleLabel];
+    [self setText:self.note.body inSearchLabel:self.bodyLabel];
 }
 
-- (void)setText:(NSString*)text inSearchResultlabel:(TTTAttributedLabel*)label
+- (void)setText:(NSString*)text inSearchLabel:(UILabel*)label
 {
-    [label setText:text afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
-        NSRange searchRange = NSMakeRange(0, text.length);
-        NSRange foundRange;
-        HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
-        while (searchRange.location < text.length)
+    NSString *match = HPLineWithMatch(text, self.searchText);
+    if (match)
+    {
+        NSAttributedString *highlightedText = [self highlightMatchesInText:match];
+        label.attributedText = highlightedText;
+    }
+    else
+    {
+        label.text = text;
+    }
+}
+
+static NSString* HPLineWithMatch(NSString *text, NSString *search)
+{
+    NSRange searchRange = NSMakeRange(0, text.length);
+    NSRange matchRange = [text rangeOfString:search options:NSCaseInsensitiveSearch range:searchRange];
+    if (matchRange.location != NSNotFound)
+    {
+        NSRange matchLineRange = [text lineRangeForRange:matchRange];
+        NSString *matchLine = [text substringWithRange:matchLineRange];
+        return matchLine;
+    }
+    return nil;
+}
+
+- (NSAttributedString*)highlightMatchesInText:(NSString*)text
+{
+    NSRange searchRange = NSMakeRange(0, text.length);
+    
+    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    UIColor *matchColor = preferences.tintColor;
+
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithString:text];
+    while (searchRange.location < text.length)
+    {
+        NSRange matchRange = [text rangeOfString:self.searchText options:NSCaseInsensitiveSearch range:searchRange];
+        if (matchRange.location != NSNotFound)
         {
+            [mutableAttributedString addAttribute:NSForegroundColorAttributeName value:matchColor range:matchRange];
+            searchRange.location = matchRange.location + matchRange.length;
             searchRange.length = text.length - searchRange.location;
-            foundRange = [text rangeOfString:self.searchText options:NSCaseInsensitiveSearch range:searchRange];
-            if (foundRange.location != NSNotFound)
-            {
-                [mutableAttributedString addAttribute:NSForegroundColorAttributeName value:preferences.tintColor range:foundRange];
-                searchRange.location = foundRange.location+foundRange.length;
-            } else break;
-        }
-        return mutableAttributedString;
-    }];
+        } else break;
+    }
+    return mutableAttributedString;
 }
 
 @end

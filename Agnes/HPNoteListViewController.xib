@@ -99,11 +99,11 @@
             </connections>
         </tapGestureRecognizer>
         <view contentMode="scaleToFill" id="fYC-Uv-G39">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="72"/>
+            <rect key="frame" x="0.0" y="0.0" width="320" height="65"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9VM-M1-8z3">
-                    <rect key="frame" x="0.0" y="27" width="320" height="25"/>
+                    <rect key="frame" x="0.0" y="20" width="320" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                     <state key="normal" image="icon-more">
@@ -118,7 +118,7 @@
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="9VM-M1-8z3" secondAttribute="trailing" id="JK7-Is-I51"/>
                 <constraint firstItem="9VM-M1-8z3" firstAttribute="leading" secondItem="fYC-Uv-G39" secondAttribute="leading" id="Rbg-xI-XPs"/>
-                <constraint firstAttribute="bottom" secondItem="9VM-M1-8z3" secondAttribute="bottom" constant="20" symbolic="YES" id="uPZ-St-5WE"/>
+                <constraint firstAttribute="bottom" secondItem="9VM-M1-8z3" secondAttribute="bottom" constant="20" id="uPZ-St-5WE"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
         </view>

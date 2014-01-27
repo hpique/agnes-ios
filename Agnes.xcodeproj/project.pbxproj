@@ -13,6 +13,8 @@
 		871429A71892E84400DA588F /* HPIndexItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429A61892E84400DA588F /* HPIndexItemTableViewCell.m */; };
 		871429A91892E87A00DA588F /* HPIndexItemTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 871429A81892E87A00DA588F /* HPIndexItemTableViewCell.xib */; };
 		871429AC18933D6600DA588F /* HPNoteActivityItemSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429AB18933D6600DA588F /* HPNoteActivityItemSource.m */; };
+		871429F618955CF900DA588F /* HPNoteNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429F518955CF900DA588F /* HPNoteNavigationController.m */; };
+		871429F918965BD600DA588F /* NSString+hp_layout.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429F818965BD600DA588F /* NSString+hp_layout.m */; };
 		873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */; };
 		8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */; };
 		8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FADC188A8B69004CF099 /* HPIndexViewController.m */; };
@@ -83,6 +85,10 @@
 		871429A81892E87A00DA588F /* HPIndexItemTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPIndexItemTableViewCell.xib; sourceTree = "<group>"; };
 		871429AA18933D6600DA588F /* HPNoteActivityItemSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteActivityItemSource.h; sourceTree = "<group>"; };
 		871429AB18933D6600DA588F /* HPNoteActivityItemSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteActivityItemSource.m; sourceTree = "<group>"; };
+		871429F418955CF900DA588F /* HPNoteNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteNavigationController.h; sourceTree = "<group>"; };
+		871429F518955CF900DA588F /* HPNoteNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteNavigationController.m; sourceTree = "<group>"; };
+		871429F718965BD600DA588F /* NSString+hp_layout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+hp_layout.h"; sourceTree = "<group>"; };
+		871429F818965BD600DA588F /* NSString+hp_layout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+hp_layout.m"; sourceTree = "<group>"; };
 		873E9CCD189174F8003364E7 /* UITableView+hp_reloadChanges.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableView+hp_reloadChanges.h"; sourceTree = "<group>"; };
 		873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+hp_reloadChanges.m"; sourceTree = "<group>"; };
 		8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteSearchTableViewCell.h; sourceTree = "<group>"; };
@@ -207,6 +213,8 @@
 		8740FAE1188A8B87004CF099 /* List */ = {
 			isa = PBXGroup;
 			children = (
+				871429F418955CF900DA588F /* HPNoteNavigationController.h */,
+				871429F518955CF900DA588F /* HPNoteNavigationController.m */,
 				8763DA6C18897982000D9569 /* HPNoteListTableViewCell.h */,
 				8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */,
 				87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */,
@@ -377,17 +385,19 @@
 		87E37EEB188CA099000333EA /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				87E37EEC188CA0D0000333EA /* HPEntityManager.h */,
-				87E37EED188CA0D0000333EA /* HPEntityManager.m */,
 				87E37EF7188D97F3000333EA /* HPBrowserViewController.h */,
 				87E37EF8188D97F3000333EA /* HPBrowserViewController.m */,
 				87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */,
 				87E37F00188DB2E7000333EA /* HPDataActionViewController.h */,
 				87E37F01188DB2E7000333EA /* HPDataActionViewController.m */,
+				87E37EEC188CA0D0000333EA /* HPEntityManager.h */,
+				87E37EED188CA0D0000333EA /* HPEntityManager.m */,
 				87E37F05188E4CD4000333EA /* HPKeyboardButton.h */,
 				87E37F06188E4CD4000333EA /* HPKeyboardButton.m */,
 				873E9CCD189174F8003364E7 /* UITableView+hp_reloadChanges.h */,
 				873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */,
+				871429F718965BD600DA588F /* NSString+hp_layout.h */,
+				871429F818965BD600DA588F /* NSString+hp_layout.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -541,6 +551,7 @@
 				8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */,
 				87E37E41188B6158000333EA /* HPNoteAction.m in Sources */,
 				870B5AF118903BE4009A11AB /* HPFontManager.m in Sources */,
+				871429F918965BD600DA588F /* NSString+hp_layout.m in Sources */,
 				8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */,
 				87E37EFA188D97F3000333EA /* HPBrowserViewController.m in Sources */,
 				87E37EEA188C413D000333EA /* HPTag.m in Sources */,
@@ -558,6 +569,7 @@
 				873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */,
 				87E37F07188E4CD4000333EA /* HPKeyboardButton.m in Sources */,
 				87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */,
+				871429F618955CF900DA588F /* HPNoteNavigationController.m in Sources */,
 				8763DA631888420A000D9569 /* HPNoteManager.m in Sources */,
 				871429A71892E84400DA588F /* HPIndexItemTableViewCell.m in Sources */,
 				8763DA3718883ACF000D9569 /* main.m in Sources */,

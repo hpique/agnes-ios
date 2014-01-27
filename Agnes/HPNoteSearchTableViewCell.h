@@ -13,4 +13,6 @@
 
 @property (nonatomic, copy) NSString *searchText;
 
++ (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width searchText:(NSString*)searchText;
+
 @end
