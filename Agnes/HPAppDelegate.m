@@ -42,7 +42,6 @@
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.tintColor = preferences.tintColor;
-    self.window.backgroundColor = [UIColor whiteColor];
     
     [self.managedObjectContext save:nil];
     
@@ -51,7 +50,6 @@
     HPAgnesNavigationController *leftNavigationController = [[HPAgnesNavigationController alloc] initWithRootViewController:indexViewController];
     HPRootViewController *drawerController = [[HPRootViewController alloc] initWithCenterViewController:centerController leftDrawerViewController:leftNavigationController];
     centerController.delegate = drawerController;
-
     self.window.rootViewController = drawerController;
     [self.window makeKeyAndVisible];
     

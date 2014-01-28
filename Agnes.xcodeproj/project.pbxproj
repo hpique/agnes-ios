@@ -17,6 +17,7 @@
 		871429F918965BD600DA588F /* NSString+hp_utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429F818965BD600DA588F /* NSString+hp_utils.m */; };
 		87142A001896CFC900DA588F /* HPNoteImporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429FF1896CFC900DA588F /* HPNoteImporter.m */; };
 		87142A061897CDA300DA588F /* HPAgnesNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87142A051897CDA300DA588F /* HPAgnesNavigationController.m */; };
+		87142A0B1898143E00DA588F /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87142A0A1898143E00DA588F /* Reveal.framework */; };
 		873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */; };
 		8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */; };
 		8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FADC188A8B69004CF099 /* HPIndexViewController.m */; };
@@ -95,6 +96,7 @@
 		871429FF1896CFC900DA588F /* HPNoteImporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteImporter.m; sourceTree = "<group>"; };
 		87142A041897CDA300DA588F /* HPAgnesNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAgnesNavigationController.h; sourceTree = "<group>"; };
 		87142A051897CDA300DA588F /* HPAgnesNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAgnesNavigationController.m; sourceTree = "<group>"; };
+		87142A0A1898143E00DA588F /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reveal.framework; path = "../../Downloads/Reveal.app/Contents/SharedSupport/iOS-Libraries/Reveal.framework"; sourceTree = "<group>"; };
 		873E9CCD189174F8003364E7 /* UITableView+hp_reloadChanges.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableView+hp_reloadChanges.h"; sourceTree = "<group>"; };
 		873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+hp_reloadChanges.m"; sourceTree = "<group>"; };
 		8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteSearchTableViewCell.h; sourceTree = "<group>"; };
@@ -180,6 +182,7 @@
 				87E37EFF188DA9B5000333EA /* AddressBookUI.framework in Frameworks */,
 				87E37EFD188DA9B1000333EA /* AddressBook.framework in Frameworks */,
 				87E37EF6188D9166000333EA /* MessageUI.framework in Frameworks */,
+				87142A0B1898143E00DA588F /* Reveal.framework in Frameworks */,
 				87E37EE4188BEF81000333EA /* CoreData.framework in Frameworks */,
 				8763DA2D18883ACF000D9569 /* CoreGraphics.framework in Frameworks */,
 				8763DA2F18883ACF000D9569 /* UIKit.framework in Frameworks */,
@@ -286,6 +289,7 @@
 		8763DA2918883ACF000D9569 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				87142A0A1898143E00DA588F /* Reveal.framework */,
 				87E37EFE188DA9B5000333EA /* AddressBookUI.framework */,
 				87E37EFC188DA9B1000333EA /* AddressBook.framework */,
 				87E37EF5188D9166000333EA /* MessageUI.framework */,
@@ -719,6 +723,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/hpique/Downloads/Reveal.app/Contents/SharedSupport/iOS-Libraries",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Agnes/Agnes-Prefix.pch";
 				INFOPLIST_FILE = "Agnes/Agnes-Info.plist";
@@ -737,6 +745,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/hpique/Downloads/Reveal.app/Contents/SharedSupport/iOS-Libraries",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Agnes/Agnes-Prefix.pch";
 				INFOPLIST_FILE = "Agnes/Agnes-Info.plist";

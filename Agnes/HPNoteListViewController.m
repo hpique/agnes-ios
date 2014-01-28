@@ -49,8 +49,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     UIBarButtonItem *_addNoteBarButtonItem;
     
-    __weak IBOutlet UIButton *_optionsButton;
-    __weak IBOutlet NSLayoutConstraint *_optionsButtonVerticalSpaceLayoutConstraint;
     HPNoteExporter *_noteExporter;
     
     NSInteger _optionsActionSheetUndoIndex;
@@ -73,35 +71,26 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 }
 
-- (void)viewDidLayoutSubviews
-{
-    [super viewDidLayoutSubviews];
-    [self layoutOptionsButton:NO];
-    [self.view layoutSubviews];
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    UIImage *image = [[UIImage imageNamed:@"icon-more"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    UIImage *imageAlt = [[UIImage imageNamed:@"icon-more-alt"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    [_optionsButton setImage:image forState:UIControlStateNormal];
-    [_optionsButton setImage:imageAlt forState:UIControlStateHighlighted];
-    
+    UIBarButtonItem *optionsBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-more"] style:UIBarButtonItemStylePlain target:self action:@selector(optionsBarButtionItemAction:)];
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
+    self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem];
+    
+    MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
+
+    self.navigationItem.leftBarButtonItem = drawerBarButton;
+    self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem, optionsBarButtonItem];
+    self.navigationItem.titleView = _titleView;
+    
     UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
     [_notesTableView registerNib:nib forCellReuseIdentifier:HPNoteListTableViewCellReuseIdentifier];
     _notesTableView.delegate = self;
-    
-    MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
-    self.navigationItem.leftBarButtonItem = drawerBarButton;
-    
-    self.navigationItem.titleView = _titleView;
+    [_notesTableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:YES];
     
     self.searchDisplayController.searchBar.keyboardType = UIKeyboardTypeTwitter;
-    
-    [_notesTableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:YES];
+    self.searchDisplayController.searchBar.backgroundImage = [UIImage new]; // Remove black background
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 
@@ -215,7 +204,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
 
-- (IBAction)optionsButtonAction:(id)sender
+- (IBAction)optionsBarButtionItemAction:(id)sender
 {
     UIActionSheet *actionSheet = [[UIActionSheet alloc] init];
     actionSheet.delegate = self;
@@ -314,53 +303,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     return nil;
 }
 
-- (void)layoutOptionsButton:(BOOL)animated
-{
-    CGRect frame = _notesTableView.frame;
-    const CGSize contentSize = _notesTableView.contentSize;
-    CGFloat contentHeight = contentSize.height;
-    if (contentHeight == frame.size.height)
-    { // The UISearchBar as header fills the contentSize. See:
-        contentHeight = 0;
-        const CGFloat headerHeight = _notesTableView.tableHeaderView.bounds.size.height;
-        contentHeight += headerHeight;
-        NSInteger rowCount = [_notesTableView.dataSource tableView:_notesTableView numberOfRowsInSection:0];
-        for (NSInteger i = 0; i < rowCount; i++)
-        {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
-            UITableViewCell *cell = [_notesTableView cellForRowAtIndexPath:indexPath];
-            contentHeight += cell.bounds.size.height;
-        }
-    }
-    static CGFloat verticalMargin = 20;
-    CGRect buttonFrame = _optionsButton.frame;
-    CGFloat buttonEncompasingHeight = buttonFrame.size.height + verticalMargin * 2;
-    CGFloat availableHeight = frame.size.height - contentHeight - buttonEncompasingHeight;
-    CGFloat contentInsetBottom;
-    CGFloat bottomMargin;
-    if (availableHeight >= 0)
-    {
-        bottomMargin = verticalMargin;
-        contentInsetBottom = 0;
-    }
-    else
-    {
-        CGPoint contentOffset = _notesTableView.contentOffset;
-        bottomMargin = verticalMargin + availableHeight + contentOffset.y;
-        contentInsetBottom = buttonEncompasingHeight;
-    }
-    UIEdgeInsets contentInset = _notesTableView.contentInset;
-    NSTimeInterval duration = animated ? 0.2 : 0;
-    CGPoint contentOffset = _notesTableView.contentOffset;
-    [UIView animateWithDuration:duration animations:^{
-        _optionsButtonVerticalSpaceLayoutConstraint.constant = bottomMargin;
-        _notesTableView.contentInset = UIEdgeInsetsMake(contentInset.top, contentInset.left, contentInsetBottom, contentInset.right); // Changes offset so we might need to restore it later
-    }];
-    if (contentInsetBottom == 0 && contentInset.bottom != 0)
-    { // Restore offset
-        _notesTableView.contentOffset = contentOffset;
-    }
-}
+
 
 - (void)removeNoteInCell:(HPNoteListTableViewCell*)cell modelBlock:(void (^)())block
 {
@@ -368,7 +311,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [self changeModel:block changeView:^{
         [_notes removeObjectAtIndex:indexPath.row];
         [_notesTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        [self layoutOptionsButton:YES];
         [self updateEmptyView:YES];
     }];
 }
@@ -414,7 +356,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }
     
     [self updateEmptyView:animated];
-    [self layoutOptionsButton:animated];
     
     if (!_searching || _searchString == nil) return;
     
@@ -452,7 +393,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _emptyCenterYTitleLabelLayoutConstraint.constant = [_emptySubtitleLabel intrinsicContentSize].height;
     self.searchDisplayController.searchBar.placeholder = [NSString stringWithFormat:NSLocalizedString(@"Search %@", @""), self.title];
     
-    self.navigationItem.rightBarButtonItem = self.indexItem.disableAdd ? nil : _addNoteBarButtonItem;
+    _addNoteBarButtonItem.enabled = !self.indexItem.disableAdd;
     _displayCriteria = [[HPPreferencesManager sharedManager] displayCriteriaForListTitle:self.indexItem.title default:self.indexItem.defaultDisplayCriteria];
     [self updateDisplayCriteria:NO /* animated */];
 }
@@ -645,13 +586,6 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     _ignoreNotesDidChangeNotification = YES;
     [[HPNoteManager sharedManager] reorderNotes:_notes tagName:self.indexItem.tag];
     _ignoreNotesDidChangeNotification = NO;
-}
-
-#pragma mark - UIScrollViewDelegate
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    [self.view setNeedsLayout];
 }
 
 #pragma mark - UITableViewDelegate

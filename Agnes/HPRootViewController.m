@@ -17,6 +17,7 @@
 {
     [super viewDidLoad];
     self.closeDrawerGestureModeMask = MMCloseDrawerGestureModeAll;
+    self.view.backgroundColor = [UIColor whiteColor];
 }
 
 - (BOOL)canBecomeFirstResponder
