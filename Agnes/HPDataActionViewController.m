@@ -156,12 +156,12 @@
         {
             [self sendEmail:email];
         }
-        else if (buttonIndex == _phoneNumberActionSheetContactsIndex)
+        else if (buttonIndex == _emailActionSheetContactsIndex)
         {
             [self addContactWithEmail:email phoneNumber:nil];
             
         }
-        else if (buttonIndex == _phoneNumberActionSheetCopyIndex)
+        else if (buttonIndex == _emailActionSheetCopyIndex)
         {
             [self setPasteboard:email];
         }

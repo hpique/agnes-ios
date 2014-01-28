@@ -579,4 +579,30 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     }];
 }
 
+#pragma mark - HPDataActionViewController
+
+- (void)addContactWithEmail:(NSString *)email phoneNumber:(NSString *)phoneNumber
+{ // Attempt to find addditional contact data in the note
+    if (!email) email = [self valueInLinkWithScheme:@"mailto"];
+    if (!phoneNumber) phoneNumber = [self valueInLinkWithScheme:@"tel"];
+    [super addContactWithEmail:email phoneNumber:phoneNumber];
+}
+
+- (NSString*)valueInLinkWithScheme:(NSString*)scheme
+{
+    __block NSString *foundValue = nil;
+    NSAttributedString *text = self.noteTextView.attributedText;
+    NSRange allRange = NSMakeRange(0, text.length);
+    [text enumerateAttribute:NSLinkAttributeName inRange:allRange options:0 usingBlock:^(NSURL *value, NSRange range, BOOL *stop) {
+        NSString *valueScheme = value.scheme;
+        if (![valueScheme isEqualToString:scheme]) return;
+        
+        NSString *remove = [NSString stringWithFormat:@"%@:", scheme];
+        foundValue = [value.absoluteString stringByReplacingOccurrencesOfString:remove withString:@""];
+        foundValue = [foundValue stringByRemovingPercentEncoding];
+        *stop = YES;
+    }];
+    return foundValue;
+}
+
 @end

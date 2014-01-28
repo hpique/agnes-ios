@@ -10,6 +10,8 @@
 
 @interface HPDataActionViewController : UIViewController<UIActionSheetDelegate>
 
+- (void)addContactWithEmail:(NSString*)email phoneNumber:(NSString*)phoneNumber;
+
 - (void)showActionSheetForURL:(NSURL*)url;
 
 @end
