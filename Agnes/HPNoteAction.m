@@ -7,6 +7,9 @@
 //
 
 #import "HPNoteAction.h"
+#import "HPNoteManager.h"
+#import "HPPreferencesManager.h"
+#import "HPNote.h"
 #import "NSString+hp_utils.h"
 
 @interface HPNoteActionReplace : HPNoteAction
@@ -34,8 +37,11 @@
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-appVersion}" replacementBlock:^NSString *{
             return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
         }]];
-        [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-break}" replacementBlock:^NSString *{
-            return @"";
+        [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-tintColor}" replacementBlock:^NSString *{
+            return [HPPreferencesManager sharedManager].tintColorName;
+        }]];
+        [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-barTintColor}" replacementBlock:^NSString *{
+            return [HPPreferencesManager sharedManager].barTintColorName;
         }]];
         instance = actions;
     });
@@ -51,9 +57,14 @@
     }
 }
 
-+ (void)willEditNote:(HPNote*)note editor:(UITextView*)textView
++ (void)willEditNote:(HPNote*)note text:(NSMutableString*)mutableText editor:(UITextView*)textView
 {
-    
+    if ([[HPNoteManager sharedManager].systemNotes containsObject:note])
+    {
+        [[HPPreferencesManager sharedManager] applyPreferences:mutableText];
+        [mutableText deleteCharactersInRange:NSMakeRange(0, mutableText.length)];
+        [mutableText appendString:note.text];
+    }
 }
 
 @end

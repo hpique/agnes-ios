@@ -13,7 +13,7 @@
 "tutorial5"="Go Pro\n\nAgnes has many features and very few buttons. Discover what else she can do.\n\nFAST HASHTAGS\nWhen you star a note from a hashtag list, the + button will automatically add it to your new notes. If you start typing a hashtag manually, Agnes will suggest it. She’s helpful like that.\n\nSWIPE NAVIGATION\nFrom the Note view, swipe left or right to browse other notes.\n\nINTELLIGENT NOTES\nEmails, links and phone numbers are highlighted automatically and can be interacted with when the keyboard is down. Need help? Let me know at hpiqueapps@gmail.com.\n\nFULL UNDO SUPPORT\nTap the More icon at the end of any list to undo any change. If the More icon is too far away, you can also shake the device.\n\nEXPORT LISTS\nEach note will be saved as a text file and zipped to your email. Again, find the More icon to use this feature.\n\nIMPORT NOTES\nImport notes into Agnes via iTunes. Both .txt and .zip files are supported.\n\n#tutorial";
 
 "system1"="About\n\Lovingly made in Barcelona for Inés. Her favorite color is violet.\n\n{$agnes-appName} {$agnes-appVersion}";
-"system2"="Settings\n\nIn Agnes everything is a note, even settings.\n\nfontFamily={$fontFamily}\ntintColor={$tintColor}.\n\n";
+"system2"="Settings\n\nIn Agnes everything is a note, even settings.\n\ntintColor={$agnes-tintColor}\nbarTintColor={$agnes-barTintColor}\n\n";
 "system3"="Get in touch\n\nSend support or feature requests to hpiqueapps@gmail.com.";
 
 

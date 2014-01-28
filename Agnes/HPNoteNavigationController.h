@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HPAgnesNavigationController.h"
 
-@interface HPNoteNavigationController : UINavigationController
+@interface HPNoteNavigationController : HPAgnesNavigationController
 
 @end

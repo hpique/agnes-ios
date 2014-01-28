@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "HPNoteManager.h"
 
+extern NSString* const HPPreferencesManagerDidChangePreferencesNotification;
+
 @interface HPPreferencesManager : NSObject
 
 + (HPPreferencesManager*)sharedManager;
@@ -19,8 +21,12 @@
 
 - (NSInteger)increaseSessionCount;
 
+- (void)applyPreferences:(NSString*)preferences;
+
 @property (nonatomic, readonly) NSInteger sessionCount;
-@property (nonatomic, readonly) UIColor *tintColor;
-@property (nonatomic, readonly) UIColor *barTintColor;
+@property (nonatomic, strong) UIColor *barTintColor;
+@property (nonatomic, readonly) NSString *barTintColorName;
+@property (nonatomic, strong) UIColor *tintColor;
+@property (nonatomic, readonly) NSString *tintColorName;
 
 @end

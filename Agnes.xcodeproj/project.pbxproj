@@ -16,6 +16,7 @@
 		871429F618955CF900DA588F /* HPNoteNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429F518955CF900DA588F /* HPNoteNavigationController.m */; };
 		871429F918965BD600DA588F /* NSString+hp_utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429F818965BD600DA588F /* NSString+hp_utils.m */; };
 		87142A001896CFC900DA588F /* HPNoteImporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429FF1896CFC900DA588F /* HPNoteImporter.m */; };
+		87142A061897CDA300DA588F /* HPAgnesNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87142A051897CDA300DA588F /* HPAgnesNavigationController.m */; };
 		873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */; };
 		8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */; };
 		8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FADC188A8B69004CF099 /* HPIndexViewController.m */; };
@@ -92,6 +93,8 @@
 		871429F818965BD600DA588F /* NSString+hp_utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+hp_utils.m"; sourceTree = "<group>"; };
 		871429FE1896CFC900DA588F /* HPNoteImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteImporter.h; sourceTree = "<group>"; };
 		871429FF1896CFC900DA588F /* HPNoteImporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteImporter.m; sourceTree = "<group>"; };
+		87142A041897CDA300DA588F /* HPAgnesNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAgnesNavigationController.h; sourceTree = "<group>"; };
+		87142A051897CDA300DA588F /* HPAgnesNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAgnesNavigationController.m; sourceTree = "<group>"; };
 		873E9CCD189174F8003364E7 /* UITableView+hp_reloadChanges.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableView+hp_reloadChanges.h"; sourceTree = "<group>"; };
 		873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+hp_reloadChanges.m"; sourceTree = "<group>"; };
 		8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteSearchTableViewCell.h; sourceTree = "<group>"; };
@@ -361,6 +364,8 @@
 		87D02E1A188EE7DC00273DEC /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				87142A041897CDA300DA588F /* HPAgnesNavigationController.h */,
+				87142A051897CDA300DA588F /* HPAgnesNavigationController.m */,
 				870B5AEC18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.h */,
 				870B5AED18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m */,
 				87E37EF2188CB169000333EA /* HPRootViewController.h */,
@@ -557,6 +562,7 @@
 				87E37E41188B6158000333EA /* HPNoteAction.m in Sources */,
 				870B5AF118903BE4009A11AB /* HPFontManager.m in Sources */,
 				871429F918965BD600DA588F /* NSString+hp_utils.m in Sources */,
+				87142A061897CDA300DA588F /* HPAgnesNavigationController.m in Sources */,
 				8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */,
 				87E37EFA188D97F3000333EA /* HPBrowserViewController.m in Sources */,
 				87E37EEA188C413D000333EA /* HPTag.m in Sources */,

@@ -13,6 +13,7 @@
 #import "HPPreferencesManager.h"
 #import "HPRootViewController.h"
 #import "HPNoteImporter.h"
+#import "HPAgnesNavigationController.h"
 #import <CoreData/CoreData.h>
 
 @implementation HPAppDelegate
@@ -47,7 +48,7 @@
     
     UINavigationController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
     HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
-    UINavigationController *leftNavigationController = [[UINavigationController alloc] initWithRootViewController:indexViewController];
+    HPAgnesNavigationController *leftNavigationController = [[HPAgnesNavigationController alloc] initWithRootViewController:indexViewController];
     HPRootViewController *drawerController = [[HPRootViewController alloc] initWithCenterViewController:centerController leftDrawerViewController:leftNavigationController];
     centerController.delegate = drawerController;
 

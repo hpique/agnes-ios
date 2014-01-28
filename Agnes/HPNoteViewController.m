@@ -154,7 +154,11 @@
     
     if (![note isNew] || ![self isEmptyText])
     {
-        [[HPNoteManager sharedManager] editNote:self.note text:_bodyTextView.text];
+        NSMutableString *mutableText = [NSMutableString stringWithString:self.noteTextView.text];
+        [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
+        [[HPNoteManager sharedManager] editNote:self.note text:mutableText];
+        [HPNoteAction willDisplayNote:note text:mutableText view:self.noteTextView];
+        self.noteTextView.text = mutableText;
         [self updateToolbar:animated];
         _bodyTextViewChanged = NO;
         

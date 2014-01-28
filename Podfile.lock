@@ -1,4 +1,5 @@
 PODS:
+  - ColorUtils (1.1.2)
   - HPReorderTableView (0.0.1)
   - iOS7Colors (2.0.0)
   - MCSwipeTableViewCell (2.0.0)
@@ -20,6 +21,7 @@ PODS:
   - TTTAttributedLabel (1.8.1)
 
 DEPENDENCIES:
+  - ColorUtils (~> 1.1)
   - HPReorderTableView (from `https://github.com/hpique/HPReorderTableView.git`)
   - iOS7Colors (~> 2.0.0)
   - MCSwipeTableViewCell (from `https://github.com/hpique/MCSwipeTableViewCell`, commit `acf5f4be0b9a9634cc2667d7fa17c1f8c50c6453`)
@@ -41,6 +43,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/hpique/TTTAttributedLabel.git
 
 SPEC CHECKSUMS:
+  ColorUtils: 5740b610eb7b50833f46d6d9863ebaa1da55301d
   HPReorderTableView: ed45d7dcd241f0a989ea259ffe8a1523e2a82650
   iOS7Colors: 80d700ca0fe4415eeea1cfb74d4d790ffa0375ab
   MCSwipeTableViewCell: 40d2d91d618ed5248d20b7d75018a4a33b0477dc
