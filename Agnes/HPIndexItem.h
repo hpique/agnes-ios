@@ -31,7 +31,7 @@
 
 + (HPIndexItem*)archiveIndexItem;
 
-+ (HPIndexItem*)indexItemWithTag:(NSString*)tagName;
++ (HPIndexItem*)indexItemWithTag:(HPTag*)tag;
 
 + (HPIndexItem*)systemIndexItem;
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>%ld views</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@views@</string>
+            <key>views</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>ld</string>
+                <key>zero</key>
+                <string>%ld views</string>
+                <key>one</key>
+                <string>%ld view</string>
+                <key>other</key>
+                <string>%ld views</string>
+            </dict>
+        </dict>
+        <key>%ld words</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@words@</string>
+            <key>words</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>ld</string>
+                <key>zero</key>
+                <string>%ld words</string>
+                <key>one</key>
+                <string>%ld word</string>
+                <key>other</key>
+                <string>%ld words</string>
+            </dict>
+        </dict>
+        <key>%ld characters</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@characters@</string>
+            <key>characters</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>ld</string>
+                <key>zero</key>
+                <string>%ld characters</string>
+                <key>one</key>
+                <string>%ld character</string>
+                <key>other</key>
+                <string>%ld characters</string>
+            </dict>
+        </dict>
+    </dict>
+</plist>

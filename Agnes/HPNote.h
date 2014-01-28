@@ -17,7 +17,9 @@ typedef NS_ENUM(NSInteger, HPNoteDetailMode)
     HPNoteDetailModeModifiedAt,
     HPNoteDetailModeCharacters,
     HPNoteDetailModeWords,
+    HPNoteDetailModeViews,
 };
+extern const NSInteger HPNoteDetailModeCount;
 
 @interface HPNote : NSManagedObject
 

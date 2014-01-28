@@ -198,18 +198,18 @@
     BOOL inbox = NO;
     for (HPNote *note in self.notes)
     {
-        NSArray *noteTags = note.tags;
+        NSSet *noteTags = note.cd_tags;
         if (noteTags.count == 0)
         {
             inbox = YES;
             break;
         }
-        [tags addObjectsFromArray:note.tags];
+        [tags addObjectsFromArray:noteTags.allObjects];
     }
     if (!inbox && tags.count == 1)
     {
-        NSString *tagName = [tags anyObject];
-        return [HPIndexItem indexItemWithTag:tagName];
+        HPTag *tag = [tags anyObject];
+        return [HPIndexItem indexItemWithTag:tag];
     }
     return [HPIndexItem inboxIndexItem];
 }
@@ -244,36 +244,39 @@
     {
         [_bodyTextView becomeFirstResponder];
     }
-    [self displayDetail];
     [[HPNoteManager sharedManager] viewNote:self.note];
+    [self displayDetail]; // Do after viewing note as the number of views will increment
     [self updateToolbar:NO /* animated */];
 }
 
 - (void)displayDetail
 {
-    [UIView animateWithDuration:0.3 animations:^{
-        switch (self.detailMode)
+    NSString *text = @"";
+    switch (self.detailMode)
+    {
+        case HPNoteDetailModeModifiedAt:
+            text = self.note.modifiedAtLongDescription;
+            break;
+        case HPNoteDetailModeCharacters:
         {
-            case HPNoteDetailModeModifiedAt:
-                _detailLabel.text = self.note.modifiedAtLongDescription;
-                break;
-            case HPNoteDetailModeCharacters:
-            {
-                NSInteger charCount = _bodyTextView.text.length;
-                _detailLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld characters", @""), (long)charCount];
-                break;
-            }
-            case HPNoteDetailModeWords:
-            {
-                NSInteger wordCount = _bodyTextView.text.wordCount;
-                _detailLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld words", @""), (long)wordCount];
-                break;
-            }
-            case HPNoteDetailModeNone:
-                _detailLabel.text = @"";
-                break;
+            NSInteger charCount = _bodyTextView.text.length;
+            text = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld characters", @""), (long)charCount];
+            break;
         }
-    }];
+        case HPNoteDetailModeWords:
+        {
+            NSInteger wordCount = _bodyTextView.text.wordCount;
+            text = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld words", @""), (long)wordCount];
+            break;
+        }
+        case HPNoteDetailModeNone:
+            text = @"";
+            break;
+        case HPNoteDetailModeViews:
+            text = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld views", @""), (long)self.note.views];
+            break;
+    }
+    _detailLabel.text = text;
 }
 
 - (void)finishEditing
@@ -422,7 +425,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (IBAction)detailLabelTapGestureRecognizer:(id)sender
 {
-    self.detailMode = (self.detailMode + 1) % 4;
+    self.detailMode = (self.detailMode + 1) % HPNoteDetailModeCount;
     [self displayDetail];
 }
 

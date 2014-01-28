@@ -10,6 +10,8 @@
 #import "HPTag.h"
 #import "HPTagManager.h"
 
+const NSInteger HPNoteDetailModeCount = 5;
+
 @implementation HPNote
 
 @dynamic cd_archived;
