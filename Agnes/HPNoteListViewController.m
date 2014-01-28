@@ -64,7 +64,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     NSIndexPath *_indexPathOfSelectedNote;
     
-    BOOL _viewDidLayouSubviews;
+    BOOL _ignoreNotesDidChangeNotification;
 }
 
 @synthesize indexPathOfSelectedNote = _indexPathOfSelectedNote;
@@ -77,7 +77,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
-    _viewDidLayouSubviews = YES;
 //    [self updateFooterView];
 }
 
@@ -224,6 +223,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)notesDidChangeNotification:(NSNotification*)notification
 {
+    if (_ignoreNotesDidChangeNotification) return; // Controller will reflect or already reflected the change
+    
     NSSet *updated;
     if (self.willTransitionToNote)
     { // Do not reload cells when transitioning to a note.
@@ -436,8 +437,9 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }
     _displayCriteriaLabel.text = criteriaDescription;
     
+    HPNoteDisplayCriteria displayCriteria = _displayCriteria;
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
-        [cell setDisplayCriteria:_displayCriteria animated:animated];
+        [cell setDisplayCriteria:displayCriteria animated:animated];
     }];
 }
 
@@ -601,8 +603,9 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     id object = _notes[index];
     [_notes removeObjectAtIndex:sourceIndexPath.row];
     [_notes insertObject:object atIndex:destinationIndexPath.row];
-    
+    _ignoreNotesDidChangeNotification = YES;
     [[HPNoteManager sharedManager] reorderNotes:_notes tagName:self.indexItem.tag];
+    _ignoreNotesDidChangeNotification = NO;
 }
 
 #pragma mark - UITableViewDelegate
