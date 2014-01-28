@@ -1,5 +1,5 @@
 //
-//  NSString+hp_layout.h
+//  NSString+hp_utils.h
 //  Agnes
 //
 //  Created by Hermes on 27/01/14.
@@ -8,7 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSString (hp_layout)
+@interface NSString (hp_utils)
+
+- (void)hp_enumerateOccurrencesOfString:(NSString*)target options:(NSStringCompareOptions)opts usingBlock:(void (^)(NSRange matchRange, BOOL *stop))block;
 
 - (NSInteger)hp_linesWithFont:(UIFont*)font width:(CGFloat)width lineHeight:(CGFloat*)lineHeight;
 

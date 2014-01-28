@@ -126,10 +126,10 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     [UIView animateWithDuration:firstDuration animations:^{
         CGPoint titleOrigin = [self originForLabel:cell.titleLabel inTextView:noteTextView context:transitionContext];
         CGPoint bodyOrigin = [self originForLabel:cell.bodyLabel inTextView:noteTextView context:transitionContext];
-        UILabel *detailLabel = toViewController.detailLabel;
         if (detailLabelPlaceholder)
         {
-            CGPoint detailOrigin = [transitionContext.containerView convertPoint:detailLabel.bounds.origin fromView:detailLabel];
+            UILabel *toDetailLabel = toViewController.detailLabel;
+            CGPoint detailOrigin = [transitionContext.containerView convertPoint:toDetailLabel.bounds.origin fromView:toDetailLabel];
             detailLabelPlaceholder.frame = CGRectMake(detailLabelPlaceholder.frame.origin.x, detailOrigin.y, detailLabelPlaceholder.frame.size.width, detailLabelPlaceholder.frame.size.height);
         }
         titleLabelPlaceholder.frame = CGRectMake(titleOrigin.x, titleOrigin.y, titleLabelPlaceholder.frame.size.width, titleLabelPlaceholder.frame.size.height);
@@ -302,7 +302,13 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
 
 - (CGPoint)originForLabel:(UILabel*)label inTextView:(UITextView*)textView context:(id <UIViewControllerContextTransitioning>)transitionContext
 {
-    CGRect rect = [self rectForText:label.text inTextView:textView];
+    NSRange visibleRange = [label hp_visibleRange];
+    if (visibleRange.location == NSNotFound)
+    {
+        visibleRange = [textView.text lineRangeForRange:NSMakeRange(0, 0)];
+    }
+    NSString *substring = label.text.length >= NSMaxRange(visibleRange) ? [label.text substringWithRange:visibleRange] : @"";
+    CGRect rect = [self rectForText:substring inTextView:textView];
     rect = [transitionContext.containerView convertRect:rect fromView:textView];
     return rect.origin;
 }

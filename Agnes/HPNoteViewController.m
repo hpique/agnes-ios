@@ -213,7 +213,7 @@
 - (void)displayNote
 {
     NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
-    [HPNoteAction applyPreActions:self.note editableText:editableText];
+    [HPNoteAction willDisplayNote:self.note text:editableText view:self.noteTextView];
     _bodyTextView.text = editableText;
     if (self.showDetail)
     {

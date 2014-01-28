@@ -7,6 +7,7 @@
 //
 
 #import "HPNoteAction.h"
+#import "NSString+hp_utils.h"
 
 @interface HPNoteActionReplace : HPNoteAction
 
@@ -19,9 +20,9 @@
 
 @implementation HPNoteAction
 
-- (void)apply:(HPNote *)note editableText:(NSMutableString *)editableText {}
+- (void)apply:(HPNote*)note text:(NSMutableString*)mutableText view:(id)view {}
 
-+ (NSArray*)preActions
++ (NSArray*)willDisplayNoteActions
 {
     static NSArray *instance = nil;
     static dispatch_once_t onceToken;
@@ -41,13 +42,18 @@
     return instance;
 }
 
-+ (void)applyPreActions:(HPNote*)note editableText:(NSMutableString*)editableText
++ (void)willDisplayNote:(HPNote*)note text:(NSMutableString*)mutableText view:(id)view
 {
-    NSArray *actions = [HPNoteAction preActions];
+    NSArray *actions = [HPNoteAction willDisplayNoteActions];
     for (HPNoteAction *action in actions)
     {
-        [action apply:note editableText:editableText];
+        [action apply:note text:mutableText view:view];
     }
+}
+
++ (void)willEditNote:(HPNote*)note editor:(UITextView*)textView
+{
+    
 }
 
 @end
@@ -62,10 +68,13 @@
     return action;
 }
 
-- (void)apply:(HPNote *)note editableText:(NSMutableString *)editableText
+- (void)apply:(HPNote*)note text:(NSMutableString*)mutableText view:(id)view
 {
-    NSString *replacement = self.replacementBlock();
-    [editableText replaceOccurrencesOfString:self.target withString:replacement options:NSLiteralSearch range:NSMakeRange(0, editableText.length)];
+    __block NSString *replacement = nil; // Do not calculate if there are no matches
+    [mutableText hp_enumerateOccurrencesOfString:self.target options:NSLiteralSearch usingBlock:^(NSRange matchRange, BOOL *stop) {
+        if (!replacement) replacement = self.replacementBlock();
+        [mutableText replaceCharactersInRange:matchRange withString:replacement];
+    }];
 }
 
 @end

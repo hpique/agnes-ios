@@ -11,10 +11,10 @@
 
 @interface HPNoteAction : NSObject
 
-- (void)apply:(HPNote*)note editableText:(NSMutableString*)editableText;
+- (void)apply:(HPNote*)note text:(NSMutableString*)mutableText view:(id)view;
 
-+ (NSArray*)preActions;
++ (void)willDisplayNote:(HPNote*)note text:(NSMutableString*)mutableText view:(id)view;
 
-+ (void)applyPreActions:(HPNote*)note editableText:(NSMutableString*)editableText;
++ (void)willEditNote:(HPNote*)note editor:(UITextView*)textView;
 
 @end

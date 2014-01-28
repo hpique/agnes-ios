@@ -10,7 +10,7 @@
 #import "HPNote.h"
 #import "HPPreferencesManager.h"
 #import "HPFontManager.h"
-#import "NSString+hp_layout.h"
+#import "NSString+hp_utils.h"
 
 static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContext;
 
@@ -85,22 +85,12 @@ static NSString* HPLineWithMatch(NSString *text, NSString *search)
 
 - (NSAttributedString*)highlightMatchesInText:(NSString*)text
 {
-    NSRange searchRange = NSMakeRange(0, text.length);
-    
     HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
     UIColor *matchColor = preferences.tintColor;
-
     NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithString:text];
-    while (searchRange.location < text.length)
-    {
-        NSRange matchRange = [text rangeOfString:self.searchText options:NSCaseInsensitiveSearch range:searchRange];
-        if (matchRange.location != NSNotFound)
-        {
-            [mutableAttributedString addAttribute:NSForegroundColorAttributeName value:matchColor range:matchRange];
-            searchRange.location = matchRange.location + matchRange.length;
-            searchRange.length = text.length - searchRange.location;
-        } else break;
-    }
+    [text hp_enumerateOccurrencesOfString:self.searchText options:NSCaseInsensitiveSearch usingBlock:^(NSRange matchRange, BOOL *stop) {
+        [mutableAttributedString addAttribute:NSForegroundColorAttributeName value:matchColor range:matchRange];
+    }];
     return mutableAttributedString;
 }
 

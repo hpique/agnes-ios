@@ -9,7 +9,7 @@
 #import "HPNoteTableViewCell.h"
 #import "HPNote.h"
 #import "HPFontManager.h"
-#import "NSString+hp_layout.h"
+#import "NSString+hp_utils.h"
 
 NSInteger const HPNotTableViewCellLabelMaxLength = 150;
 
