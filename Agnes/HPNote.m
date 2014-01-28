@@ -13,6 +13,7 @@
 @implementation HPNote
 
 @dynamic cd_archived;
+@dynamic cd_detailMode;
 @dynamic cd_inboxOrder;
 @dynamic cd_views;
 @dynamic cd_tags;
