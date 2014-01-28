@@ -83,7 +83,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     tags = [tags sortedArrayUsingDescriptors:@[orderSortDescriptor, nameSortDescriptor]];
     for (HPTag *tag in tags)
     {
-        HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag.name];
+        HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag];
         [items addObject:indexItem];
     }
     
@@ -131,10 +131,10 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSMutableArray *tagNames = [NSMutableArray array];
     for (HPIndexItem *item in _items)
     {
-        NSString *tagName = item.tag;
-        if (tagName)
+        HPTag *tag = item.tag;
+        if (tag)
         {
-            [tagNames addObject:tagName];
+            [tagNames addObject:tag.name];
         }
     }
     [[HPTagManager sharedManager] reorderTagsWithNames:tagNames];

@@ -17,8 +17,10 @@
     </entity>
     <entity name="Tag" representedClassName="HPTag" syncable="YES">
         <attribute name="cd_order" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="cd_sortMode" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="name" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="order" optional="YES" transient="YES" syncable="YES"/>
+        <attribute name="sortMode" optional="YES" transient="YES" syncable="YES"/>
         <relationship name="cd_notes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Note" inverseName="cd_tags" inverseEntity="Note" syncable="YES"/>
     </entity>
     <fetchRequest name="ArchivedNotes" entity="Note" predicateString="archived == 1"/>

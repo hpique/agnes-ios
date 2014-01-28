@@ -7,12 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "HPNoteManager.h"
+#import "HPTag.h"
 
 @interface HPIndexItem : NSObject
 
-@property (nonatomic, strong) NSArray *allowedDisplayCriteria;
-@property (nonatomic, assign) HPNoteDisplayCriteria defaultDisplayCriteria;
+@property (nonatomic, strong) NSArray *allowedSortModes;
 @property (nonatomic, readonly) BOOL disableAdd;
 @property (nonatomic, readonly) BOOL disableRemove;
 @property (nonatomic, readonly) NSString* emptySubtitle;
@@ -23,14 +22,16 @@
 @property (nonatomic, readonly) UIImage *icon;
 @property (nonatomic, readonly) NSString *indexTitle;
 @property (nonatomic, readonly) NSArray *notes;
-@property (nonatomic, readonly) NSString *tag;
+@property (nonatomic, assign) HPTagSortMode sortMode;
+@property (nonatomic, readonly) HPTag *tag;
 @property (nonatomic, copy) NSString *title;
+
 
 + (HPIndexItem*)inboxIndexItem;
 
 + (HPIndexItem*)archiveIndexItem;
 
-+ (HPIndexItem*)indexItemWithTag:(NSString*)tag;
++ (HPIndexItem*)indexItemWithTag:(NSString*)tagName;
 
 + (HPIndexItem*)systemIndexItem;
 

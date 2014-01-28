@@ -9,14 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "HPEntityManager.h"
 #import "HPNote.h"
-@class HPTag;
-
-typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
-    HPNoteDisplayCriteriaOrder,
-    HPNoteDisplayCriteriaModifiedAt,
-    HPNoteDisplayCriteriaAlphabetical,
-    HPNoteDisplayCriteriaViews,
-};
+#import "HPTag.h"
 
 @interface HPNoteManager : HPEntityManager
 
@@ -26,7 +19,7 @@ typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
 
 + (HPNoteManager*)sharedManager;
 
-+ (NSArray*)sortedNotes:(NSArray*)notes criteria:(HPNoteDisplayCriteria)criteria tag:(NSString*)tag;
++ (NSArray*)sortedNotes:(NSArray*)notes mode:(HPTagSortMode)mode tag:(HPTag*)tag;
 
 @end
 
@@ -34,7 +27,7 @@ typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
 
 - (void)archiveNote:(HPNote*)note;
 
-- (HPNote*)blankNoteWithTag:(NSString*)tag;
+- (HPNote*)blankNoteWithTagOfName:(NSString*)tag;
 
 - (void)editNote:(HPNote*)note text:(NSString*)text;
 

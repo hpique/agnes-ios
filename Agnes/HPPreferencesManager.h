@@ -15,9 +15,9 @@ extern NSString* const HPPreferencesManagerDidChangePreferencesNotification;
 
 + (HPPreferencesManager*)sharedManager;
 
-- (HPNoteDisplayCriteria)displayCriteriaForListTitle:(NSString*)title default:(HPNoteDisplayCriteria)defaultDisplayCriteria;
+- (HPTagSortMode)sortModeForListTitle:(NSString*)title default:(HPTagSortMode)defaultSortMode;
 
-- (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria forListTitle:(NSString*)title;
+- (void)setSortMode:(HPTagSortMode)mode forListTitle:(NSString*)title;
 
 - (NSInteger)increaseSessionCount;
 

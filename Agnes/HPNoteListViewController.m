@@ -41,11 +41,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     NSArray *_archivedSearchResults;
     
     IBOutlet UIView *_titleView;
-    __weak IBOutlet UILabel *_displayCriteriaLabel;
+    __weak IBOutlet UILabel *_sortModeLabel;
     __weak IBOutlet UILabel *_titleLabel;
     
-    HPNoteDisplayCriteria _displayCriteria;
-    BOOL _userChangedDisplayCriteria;
+    HPTagSortMode _sortMode;
+    BOOL _userChangedSortMode;
     
     UIBarButtonItem *_addNoteBarButtonItem;
     
@@ -229,14 +229,14 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (IBAction)tapTitleView:(id)sender
 {
-    _userChangedDisplayCriteria = YES;
-    NSArray *values = self.indexItem.allowedDisplayCriteria;
-    NSInteger index = [values indexOfObject:@(_displayCriteria)];
+    _userChangedSortMode = YES;
+    NSArray *values = self.indexItem.allowedSortModes;
+    NSInteger index = [values indexOfObject:@(_sortMode)];
     index = (index + 1) % values.count;
-    _displayCriteria = [values[index] intValue];
-    [[HPPreferencesManager sharedManager] setDisplayCriteria:_displayCriteria forListTitle:self.indexItem.title];
+    _sortMode = [values[index] intValue];
+    self.indexItem.sortMode = _sortMode;
     [self updateNotes:YES /* animated */ reloadNotes:[NSSet set]];
-    [self updateDisplayCriteria:NO /* animated */];
+    [self updateSortMode:NO /* animated */];
 }
 
 #pragma mark - Private
@@ -340,7 +340,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     NSArray *previousNotes = _notes;
     NSArray *notes = self.indexItem.notes;
-    notes = [HPNoteManager sortedNotes:notes criteria:_displayCriteria tag:self.indexItem.tag];
+    notes = [HPNoteManager sortedNotes:notes mode:_sortMode tag:self.indexItem.tag];
     _notes = [NSMutableArray arrayWithArray:notes];
     
     if (animated)
@@ -394,13 +394,13 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     self.searchDisplayController.searchBar.placeholder = [NSString stringWithFormat:NSLocalizedString(@"Search %@", @""), self.title];
     
     _addNoteBarButtonItem.enabled = !self.indexItem.disableAdd;
-    _displayCriteria = [[HPPreferencesManager sharedManager] displayCriteriaForListTitle:self.indexItem.title default:self.indexItem.defaultDisplayCriteria];
-    [self updateDisplayCriteria:NO /* animated */];
+    _sortMode = self.indexItem.sortMode;
+    [self updateSortMode:NO /* animated */];
 }
 
-- (void)updateDisplayCriteria:(BOOL)animated
+- (void)updateSortMode:(BOOL)animated
 {
-    NSString *criteriaDescription = [self descriptionForDisplayCriteria:_displayCriteria];
+    NSString *criteriaDescription = [self descriptionForSortMode:_sortMode];
     if (animated)
     {
         // For some reason the following doesn't work
@@ -415,11 +415,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         [_titleView.layer addAnimation:animation forKey:nil];
         
     }
-    _displayCriteriaLabel.text = criteriaDescription;
+    _sortModeLabel.text = criteriaDescription;
     
-    HPNoteDisplayCriteria displayCriteria = _displayCriteria;
+    const HPTagSortMode sortMode = _sortMode;
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
-        [cell setDisplayCriteria:displayCriteria animated:animated];
+        [cell setSortMode:sortMode animated:animated];
     }];
 }
 
@@ -430,15 +430,15 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
-- (NSString*)descriptionForDisplayCriteria:(HPNoteDisplayCriteria)criteria
+- (NSString*)descriptionForSortMode:(HPTagSortMode)criteria
 {
-    if (!_userChangedDisplayCriteria) return @"";
+    if (!_userChangedSortMode) return @"";
     switch (criteria)
     {
-        case HPNoteDisplayCriteriaOrder: return NSLocalizedString(@"custom", @"");
-        case HPNoteDisplayCriteriaAlphabetical: return NSLocalizedString(@"a-z", @"");
-        case HPNoteDisplayCriteriaModifiedAt: return NSLocalizedString(@"by date", @"");
-        case HPNoteDisplayCriteriaViews: return NSLocalizedString(@"most viewed", @"");
+        case HPTagSortModeOrder: return NSLocalizedString(@"custom", @"");
+        case HPTagSortModeAlphabetical: return NSLocalizedString(@"a-z", @"");
+        case HPTagSortModeModifiedAt: return NSLocalizedString(@"by date", @"");
+        case HPTagSortModeViews: return NSLocalizedString(@"most viewed", @"");
     }
 }
 
@@ -542,7 +542,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     HPNoteTableViewCell *cell = (HPNoteTableViewCell*)[tableView dequeueReusableCellWithIdentifier:HPNoteListTableViewCellReuseIdentifier forIndexPath:indexPath];
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    cell.tagName = self.indexItem.tag;
+    cell.tagName = self.indexItem.tag.name;
     
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     if (self.searchDisplayController.searchResultsTableView == tableView)
@@ -557,7 +557,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
         HPNoteListTableViewCell *noteCell = (HPNoteListTableViewCell*)cell;
         HPNote *note = [objects objectAtIndex:indexPath.row];
         noteCell.note = note;
-        [noteCell setDisplayCriteria:_displayCriteria animated:NO];
+        [noteCell setSortMode:_sortMode animated:NO];
         noteCell.separatorInset = UIEdgeInsetsZero;
 
         noteCell.shouldAnimateIcons = NO;
@@ -585,7 +585,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (self.searchDisplayController.searchResultsTableView == tableView) return NO;
-    return _displayCriteria == HPNoteDisplayCriteriaOrder;
+    return _sortMode == HPTagSortModeOrder;
 }
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
@@ -595,7 +595,8 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     [_notes removeObjectAtIndex:sourceIndexPath.row];
     [_notes insertObject:object atIndex:destinationIndexPath.row];
     _ignoreNotesDidChangeNotification = YES;
-    [[HPNoteManager sharedManager] reorderNotes:_notes tagName:self.indexItem.tag];
+    HPTag *tag = self.indexItem.tag;
+    [[HPNoteManager sharedManager] reorderNotes:_notes tagName:tag.name];
     _ignoreNotesDidChangeNotification = NO;
 }
 
@@ -609,7 +610,8 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     if (tableView == _notesTableView)
     {
         // TODO: Consider display criteria width
-        return [HPNoteTableViewCell heightForNote:note width:width tagName:self.indexItem.tag];
+        HPTag *tag = self.indexItem.tag;
+        return [HPNoteTableViewCell heightForNote:note width:width tagName:tag.name];
     }
     else
     {
@@ -690,7 +692,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 {
     if (gestureRecognizer == _notesTableView.reorderGestureRecognizer)
     {
-        return _displayCriteria == HPNoteDisplayCriteriaOrder;
+        return _sortMode == HPTagSortModeOrder;
     }
     return NO;
 }

@@ -13,6 +13,7 @@
 
 @dynamic cd_notes;
 @dynamic cd_order;
+@dynamic cd_sortMode;
 @dynamic name;
 @end
 
@@ -55,4 +56,27 @@
     self.cd_order = value;
     [self willChangeValueForKey:key];
 }
+
+- (NSInteger)sortMode
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(sortMode));
+    
+    [self willAccessValueForKey:key];
+    NSNumber *value = self.cd_sortMode;
+    [self didAccessValueForKey:key];
+    return [value integerValue];
+}
+
+- (void)setSortMode:(NSInteger)sortMode
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(sortMode));
+    
+    NSNumber *value = @(sortMode);
+    [self willChangeValueForKey:key];
+    self.cd_sortMode = value;
+    [self willChangeValueForKey:key];
+}
+
 @end

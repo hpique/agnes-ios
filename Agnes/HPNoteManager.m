@@ -66,30 +66,30 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     return instance;
 }
 
-+ (NSArray*)sortedNotes:(NSArray*)notes criteria:(HPNoteDisplayCriteria)criteria tag:(NSString*)tag
++ (NSArray*)sortedNotes:(NSArray*)notes mode:(HPTagSortMode)mode tag:(HPTag*)tag
 {
     NSSortDescriptor *sortDescriptor;
-    switch (criteria)
+    switch (mode)
     {
-        case HPNoteDisplayCriteriaOrder:
+        case HPTagSortModeOrder:
         {
             return [notes sortedArrayWithOptions:0 usingComparator:^NSComparisonResult(HPNote *note1, HPNote *note2) {
-                NSInteger order1 = [note1 orderInTag:tag];
-                NSInteger order2 = [note2 orderInTag:tag];
+                NSInteger order1 = [note1 orderInTag:tag.name];
+                NSInteger order2 = [note2 orderInTag:tag.name];
                 if (order2 < order1) return NSOrderedAscending;
                 if (order2 > order1) return NSOrderedDescending;
                 return [note2.modifiedAt compare:note1.modifiedAt];
             }];
         }
             break;
-        case HPNoteDisplayCriteriaAlphabetical:
+        case HPTagSortModeAlphabetical:
             return [HPNoteManager sortedNotes:notes selector:@selector(title) ascending:YES];
             break;
-        case HPNoteDisplayCriteriaModifiedAt:
+        case HPTagSortModeModifiedAt:
             return [HPNoteManager sortedNotes:notes selector:@selector(modifiedAt) ascending:NO];
             sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
             break;
-        case HPNoteDisplayCriteriaViews:
+        case HPTagSortModeViews:
             return [HPNoteManager sortedNotes:notes selector:@selector(views) ascending:NO];
             break;
     }
@@ -150,7 +150,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }];
 }
 
-- (HPNote*)blankNoteWithTag:(NSString*)tag
+- (HPNote*)blankNoteWithTagOfName:(NSString*)tag
 {
     NSEntityDescription *entityDescription = [NSEntityDescription entityForName:[self entityName] inManagedObjectContext:self.context];
     HPNote *note = [[HPNote alloc] initWithEntity:entityDescription insertIntoManagedObjectContext:nil];

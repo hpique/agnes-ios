@@ -10,8 +10,8 @@
 #import "HPNote.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
-#import "HPtag.h"
 #import "HPFontManager.h"
+#import "HPPreferencesManager.h"
 
 @interface HPIndexItemInbox : HPIndexItem
 @end
@@ -27,14 +27,15 @@
 
 @interface HPIndexItem ()
 
+@property (nonatomic, assign) HPTagSortMode defaultSortMode;
 @property (nonatomic, copy) NSString* emptyTitle;
 @property (nonatomic, copy) NSString* emptySubtitle;
 @property (nonatomic, strong) UIFont* emptyTitleFont;
 @property (nonatomic, strong) UIFont* emptySubtitleFont;
 @property (nonatomic, copy) NSString *imageName;
+@property (nonatomic, strong) HPTag *tag;
 
 @end
-
 
 @implementation HPIndexItem {
     BOOL _disableAdd;
@@ -44,12 +45,14 @@
     NSString *_emptyTitle;
     UIFont *_emptyTitleFont;
     UIFont *_emptySubtitleFont;
+    HPTag *_tag;
 }
 
 @synthesize emptySubtitle = _emptySubtitle;
 @synthesize emptyTitle = _emptyTitle;
 @synthesize emptySubtitleFont = _emptySubtitleFont;
 @synthesize emptyTitleFont = _emptyTitleFont;
+@synthesize tag = _tag;
 
 + (HPIndexItem*)inboxIndexItem
 {
@@ -61,8 +64,8 @@
         instance.imageName = @"icon-inbox";
         instance.emptyTitle = NSLocalizedString(@"No notes", @"");
         instance.emptySubtitle = NSLocalizedString(@"An empty inbox is a good inbox", @"");
-        instance.defaultDisplayCriteria = HPNoteDisplayCriteriaOrder;
-        instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
+        instance.defaultSortMode = HPTagSortModeOrder;
+        instance.allowedSortModes = @[@(HPTagSortModeOrder), @(HPTagSortModeModifiedAt), @(HPTagSortModeAlphabetical), @(HPTagSortModeViews)];
     });
     return instance;
 }
@@ -79,8 +82,8 @@
         instance.emptySubtitle = NSLocalizedString(@"Slide notes to the left to archive them", @"");
         instance.emptyTitleFont = [[HPFontManager sharedManager] fontForArchivedNoteTitle];
         instance.emptySubtitleFont = [[HPFontManager sharedManager] fontForArchivedNoteBody];
-        instance.defaultDisplayCriteria = HPNoteDisplayCriteriaModifiedAt;
-        instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
+        instance.defaultSortMode = HPTagSortModeModifiedAt;
+        instance.allowedSortModes = @[@(HPTagSortModeModifiedAt), @(HPTagSortModeAlphabetical), @(HPTagSortModeViews)];
         instance->_disableAdd = YES;
     });
     return instance;
@@ -94,23 +97,24 @@
         instance = [[HPIndexItemSystem alloc] init];
         instance.title = NSLocalizedString(@"Meta", @"");
         instance.imageName = @"icon-gear";
-        instance.defaultDisplayCriteria = HPNoteDisplayCriteriaViews;
-        instance.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
+        instance.defaultSortMode = HPTagSortModeViews;
+        instance.allowedSortModes = @[@(HPTagSortModeAlphabetical), @(HPTagSortModeViews)];
         instance->_disableAdd = YES;
         instance->_disableRemove = YES;
     });
     return instance;
 }
 
-+ (HPIndexItem*)indexItemWithTag:(NSString*)tag
++ (HPIndexItem*)indexItemWithTag:(HPTag*)tag
 {
     HPIndexItemTag *item = [[HPIndexItemTag alloc] init];
-    item.title = tag;
+    item.tag = tag;
+    item.title = tag.name;
     item.imageName = @"icon-hashtag";
     item.emptyTitle = NSLocalizedString(@"No notes", @"");
     item.emptySubtitle = NSLocalizedString(@"Empty tags will disappear from the index", @"");
-    item.defaultDisplayCriteria = HPNoteDisplayCriteriaOrder;
-    item.allowedDisplayCriteria = @[@(HPNoteDisplayCriteriaOrder), @(HPNoteDisplayCriteriaModifiedAt), @(HPNoteDisplayCriteriaAlphabetical), @(HPNoteDisplayCriteriaViews)];
+    item.defaultSortMode = HPTagSortModeOrder;
+    item.allowedSortModes = @[@(HPTagSortModeOrder), @(HPTagSortModeModifiedAt), @(HPTagSortModeAlphabetical), @(HPTagSortModeViews)];
     return item;
 }
 
@@ -173,6 +177,16 @@
     return @[];
 }
 
+- (void)setSortMode:(HPTagSortMode)sortMode
+{
+    [[HPPreferencesManager sharedManager] setSortMode:sortMode forListTitle:self.title];
+}
+
+- (HPTagSortMode)sortMode
+{
+    return [[HPPreferencesManager sharedManager] sortModeForListTitle:self.title default:self.defaultSortMode];
+}
+
 @end
 
 @implementation HPIndexItemInbox
@@ -206,25 +220,31 @@
 
 - (NSArray*)notes:(BOOL)archived
 {
-    HPTag *tag = [[HPTagManager sharedManager] tagWithName:self.tag];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == %d", NSStringFromSelector(@selector(cd_archived)), archived];
-    NSSet *notes = [tag.cd_notes filteredSetUsingPredicate:predicate];
+    NSSet *notes = [self.tag.cd_notes filteredSetUsingPredicate:predicate];
     return [notes allObjects];
 }
 
 - (NSString*)indexTitle
 {
-    return [self.tag stringByReplacingOccurrencesOfString:@"#" withString:@""];
-}
-
-- (NSString*)tag
-{
-    return self.title;
+    return [self.tag.name stringByReplacingOccurrencesOfString:@"#" withString:@""];
 }
 
 - (NSString*)exportPrefix
 {
-    return [self.tag stringByReplacingOccurrencesOfString:@"#" withString:@""];
+    return self.indexTitle;
+}
+
+- (void)setSortMode:(HPTagSortMode)sortMode
+{
+    self.tag.sortMode = sortMode;
+}
+
+- (HPTagSortMode)sortMode
+{
+    NSNumber *value = self.tag.cd_sortMode;
+    if (!value) return self.defaultSortMode;
+    return [value integerValue];
 }
 
 @end

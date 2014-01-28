@@ -88,7 +88,7 @@
         container.widthTracksTextView = YES;
         [layoutManager addTextContainer:container];
         [_bodyTextStorage addLayoutManager:layoutManager];
-        _bodyTextStorage.tag = self.indexItem.tag;
+        _bodyTextStorage.tag = self.indexItem.tag.name;
         
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -149,7 +149,7 @@
 
 + (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem *)indexItem
 {
-    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:indexItem.tag];
+    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTagOfName:indexItem.tag.name];
     notes = [[NSArray arrayWithObject:note] arrayByAddingObjectsFromArray:notes];
     return [HPNoteViewController noteViewControllerWithNote:note notes:notes indexItem:indexItem];
 }
@@ -230,7 +230,7 @@
 - (void)setIndexItem:(HPIndexItem *)indexItem
 {
     _indexItem = indexItem;
-    _bodyTextStorage.tag = self.indexItem.tag;
+    _bodyTextStorage.tag = self.indexItem.tag.name;
 }
 
 #pragma mark - Private
@@ -285,7 +285,8 @@
 {
     NSString *editText = [_bodyTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if (editText.length == 0) return YES;
-    NSString *blankText = [HPNote textOfBlankNoteWithTag:self.indexItem.tag];
+    HPTag *tag = self.indexItem.tag;
+    NSString *blankText = [HPNote textOfBlankNoteWithTagOfName:tag.name];
     blankText = [blankText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if ([editText isEqualToString:blankText]) return YES;
     return NO;
@@ -294,7 +295,8 @@
 - (BOOL)isEmptyNote:(HPNote*)note
 {
     if (note.empty) return YES;
-    NSString *blankText = [HPNote textOfBlankNoteWithTag:self.indexItem.tag];
+    HPTag *tag = self.indexItem.tag;
+    NSString *blankText = [HPNote textOfBlankNoteWithTagOfName:tag.name];
     if ([note.text isEqualToString:blankText]) return YES;
     return NO;
 }
@@ -320,7 +322,8 @@
     if (self.indexItem.disableAdd) return;
     
     [self.view endEditing:YES];
-    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:self.indexItem.tag];
+    HPTag *tag = self.indexItem.tag;
+    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTagOfName:tag.name];
     [_notes insertObject:note atIndex:_noteIndex + 1];
     self.note = note;
     [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];

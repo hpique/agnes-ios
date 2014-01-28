@@ -11,7 +11,7 @@
 
 NSString *const HPPreferencesManagerDidChangePreferencesNotification = @"HPPreferencesManagerDidChangePreferencesNotification";
 
-NSString *const HPAgnesDefaultsKeyDisplayCriteria = @"HPAgnesDisplayCriteria";
+NSString *const HPAgnesDefaultsKeySortMode = @"HPAgnesSortMode";
 NSString *const HPAgnesDefaultsKeySessionCount = @"HPAgnesSessionCount";
 NSString *const HPAgnesDefaultsKeyTintColor = @"HPAgnesTintColor";
 NSString *const HPAgnesDefaultsKeyBarTintColor = @"HPAgnesBarTintColor";
@@ -40,20 +40,20 @@ static UIColor* HPAgnesDefaultBarTintColor = nil;
     return instance;
 }
 
-- (HPNoteDisplayCriteria)displayCriteriaForListTitle:(NSString*)title default:(HPNoteDisplayCriteria)defaultDisplayCriteria
+- (HPTagSortMode)sortModeForListTitle:(NSString*)title default:(HPTagSortMode)defaultSortMode
 {
-    NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeyDisplayCriteria];
+    NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeySortMode];
     id value = [dictionary objectForKey:title];
-    return value ? [value integerValue] : defaultDisplayCriteria;
+    return value ? [value integerValue] : defaultSortMode;
 }
 
-- (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria forListTitle:(NSString*)title
+- (void)setSortMode:(HPTagSortMode)mode forListTitle:(NSString*)title
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    NSDictionary *dictionary = [userDefaults objectForKey:HPAgnesDefaultsKeyDisplayCriteria];
+    NSDictionary *dictionary = [userDefaults objectForKey:HPAgnesDefaultsKeySortMode];
     NSMutableDictionary *updatedDictionary = dictionary ? [NSMutableDictionary dictionaryWithDictionary:dictionary] : [NSMutableDictionary dictionary];
-    [updatedDictionary setObject:@(displayCriteria) forKey:title];
-    [userDefaults setObject:updatedDictionary forKey:HPAgnesDefaultsKeyDisplayCriteria];
+    [updatedDictionary setObject:@(mode) forKey:title];
+    [userDefaults setObject:updatedDictionary forKey:HPAgnesDefaultsKeySortMode];
 }
 
 - (NSInteger)increaseSessionCount

@@ -86,7 +86,7 @@
     return instance;
 }
 
-+ (NSString*)textOfBlankNoteWithTag:(NSString*)tag
++ (NSString*)textOfBlankNoteWithTagOfName:(NSString*)tag
 {
     return [NSString stringWithFormat:@"\n\n\n\n%@", tag];
 }

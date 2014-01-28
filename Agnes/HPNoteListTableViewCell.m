@@ -19,7 +19,7 @@
 @end
 
 @implementation HPNoteListTableViewCell {
-    NSTimer *_modifiedAtDisplayCriteriaTimer;
+    NSTimer *_modifiedAtSortModeTimer;
     IBOutlet NSLayoutConstraint *_titleLabelTrailingSpaceConstraint;
     NSArray *_firstRowForModifiedAtConstraints;
 }
@@ -53,13 +53,13 @@
 
 - (void)dealloc
 {
-    [_modifiedAtDisplayCriteriaTimer invalidate];
+    [_modifiedAtSortModeTimer invalidate];
 }
 
 - (void)updateConstraints
 {
     [super updateConstraints];
-    if (self.displayCriteria == HPNoteDisplayCriteriaModifiedAt)
+    if (self.sortMode == HPTagSortModeModifiedAt)
     {
         [self.contentView removeConstraint:_titleLabelTrailingSpaceConstraint];
         [self.contentView addConstraints:_firstRowForModifiedAtConstraints];
@@ -73,15 +73,15 @@
 
 #pragma mark - Public
 
-- (void)setDisplayCriteria:(HPNoteDisplayCriteria)displayCriteria animated:(BOOL)animated
+- (void)setSortMode:(HPTagSortMode)sortMode animated:(BOOL)animated
 {
-    [_modifiedAtDisplayCriteriaTimer invalidate];
-    _displayCriteria = displayCriteria;
+    [_modifiedAtSortModeTimer invalidate];
+    _sortMode = sortMode;
     [self displayDetail];
-    if (_displayCriteria == HPNoteDisplayCriteriaModifiedAt)
+    if (_sortMode == HPTagSortModeModifiedAt)
     {
         static NSTimeInterval updateDetailDelay = 30;
-        _modifiedAtDisplayCriteriaTimer = [NSTimer scheduledTimerWithTimeInterval:updateDetailDelay target:self selector:@selector(displayDetail) userInfo:nil repeats:YES];
+        _modifiedAtSortModeTimer = [NSTimer scheduledTimerWithTimeInterval:updateDetailDelay target:self selector:@selector(displayDetail) userInfo:nil repeats:YES];
     }
     [self setNeedsUpdateConstraints];
     if (animated)
@@ -156,9 +156,9 @@
 - (void)displayDetail
 {
     NSString *detailText = @"";
-    switch (self.displayCriteria)
+    switch (self.sortMode)
     {
-        case HPNoteDisplayCriteriaModifiedAt:
+        case HPTagSortModeModifiedAt:
             detailText = self.note.modifiedAtDescription;
             break;
         default:

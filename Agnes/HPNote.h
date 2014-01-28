@@ -51,7 +51,7 @@ typedef NS_ENUM(NSInteger, HPNoteDetailMode)
 
 + (NSRegularExpression*)tagRegularExpression;
 
-+ (NSString*)textOfBlankNoteWithTag:(NSString*)tag;
++ (NSString*)textOfBlankNoteWithTagOfName:(NSString*)tag;
 
 @end
 

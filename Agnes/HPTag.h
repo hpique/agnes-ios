@@ -8,14 +8,21 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-
 @class HPNote;
+
+typedef NS_ENUM(NSInteger, HPTagSortMode) {
+    HPTagSortModeOrder,
+    HPTagSortModeModifiedAt,
+    HPTagSortModeAlphabetical,
+    HPTagSortModeViews,
+};
 
 @interface HPTag : NSManagedObject
 
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSSet *cd_notes;
 @property (nonatomic, retain) NSNumber *cd_order;
+@property (nonatomic, strong) NSNumber *cd_sortMode;
 
 @end
 
@@ -39,5 +46,6 @@
 @interface HPTag(Transient)
 
 @property (nonatomic, assign) NSInteger order;
+@property (nonatomic, assign) NSInteger sortMode;
 
 @end
