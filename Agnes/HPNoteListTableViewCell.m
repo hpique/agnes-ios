@@ -42,16 +42,13 @@
 
 - (void)initHelper
 {
+    [super initHelper];
     UIView *titleLabel = self.titleLabel;
     UIView *detailLabel = self.detailLabel;
     NSDictionary *viewsDictionary = NSDictionaryOfVariableBindings(titleLabel, detailLabel);
     _firstRowForModifiedAtConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"[titleLabel]-8-[detailLabel]" options:0 metrics:nil views:viewsDictionary];
     self.detailLabel.hidden = NO;
-    
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
-    NSDictionary *highlightedAttributes = @{ NSForegroundColorAttributeName : preferences.tintColor };
-    self.titleLabel.truncationTokenStringAttributes = highlightedAttributes;
-    self.bodyLabel.truncationTokenStringAttributes =  highlightedAttributes;
+    [self applyPreferences];
 }
 
 - (void)dealloc
@@ -100,6 +97,15 @@
 }
 
 #pragma mark - HPNoteTableViewCell
+
+- (void)applyPreferences
+{
+    [super applyPreferences];
+    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    NSDictionary *highlightedAttributes = @{ NSForegroundColorAttributeName : preferences.tintColor };
+    self.titleLabel.truncationTokenStringAttributes = highlightedAttributes;
+    self.bodyLabel.truncationTokenStringAttributes =  highlightedAttributes;
+}
 
 - (void)displayNote
 {

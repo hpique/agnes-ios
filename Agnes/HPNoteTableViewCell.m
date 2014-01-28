@@ -9,6 +9,7 @@
 #import "HPNoteTableViewCell.h"
 #import "HPNote.h"
 #import "HPFontManager.h"
+#import "HPPreferencesManager.h"
 #import "NSString+hp_utils.h"
 
 NSInteger const HPNotTableViewCellLabelMaxLength = 150;
@@ -19,8 +20,30 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     BOOL _removedObserver;
 }
 
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseIdentifier];
+    if (self)
+    {
+        [self initHelper];
+    }
+    return self;
+}
+
+- (void)awakeFromNib
+{
+    [super awakeFromNib];
+    [self initHelper];
+}
+
+- (void)initHelper
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferences:) name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
+}
+
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
     [self removeNoteObserver];
 }
 
@@ -78,6 +101,8 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 #pragma mark - Private
 
+- (void)applyPreferences {}
+
 - (void)displayNote
 {
     self.titleLabel.font = [[HPFontManager sharedManager] fontForTitleOfNote:self.note];
@@ -102,5 +127,15 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(isDeleted))];
     _removedObserver = YES;
 }
+
+#pragma mark - Actions
+
+- (void)didChangePreferences:(NSNotification*)notification
+{
+    if (!self.note) return;
+    [self applyPreferences];
+    [self displayNote];
+}
+
 
 @end

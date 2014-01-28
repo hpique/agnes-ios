@@ -32,3 +32,11 @@ extern NSInteger const HPNotTableViewCellLabelMaxLength;
 + (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tagName:(NSString*)tagName;
 
 @end
+
+@interface HPNoteTableViewCell(Subclassing)
+
+- (void)initHelper;
+
+- (void)applyPreferences;
+
+@end
