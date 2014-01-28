@@ -40,11 +40,6 @@
                  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
                  [indexPathsToDelete addObject:indexPath];
              }
-             else if ([reloadObjects containsObject:obj])
-             {
-                 NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
-                 [indexPathsToReload addObject:indexPath];
-             }
          }];
         
         [currentObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
@@ -64,6 +59,11 @@
                      NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:previousIndex inSection:sectionIndex];
                      NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
                      [indexPathsToMove addObject:@[fromIndexPath, toIndexPath]];
+                 }
+                 else if ([reloadObjects containsObject:obj])
+                 {
+                     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:previousIndex inSection:sectionIndex];
+                     [indexPathsToReload addObject:indexPath];
                  }
              }
          }];
