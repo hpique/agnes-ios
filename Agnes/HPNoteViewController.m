@@ -42,6 +42,7 @@
     UIColor *_previousToolbarBarTintColor;
     
     HPTagSuggestionsView *_suggestionsView;
+    BOOL _viewDidAppear;
 }
 
 @synthesize noteTextView = _bodyTextView;
@@ -109,6 +110,16 @@
     self.navigationController.toolbarHidden = NO;
     self.navigationController.toolbar.barTintColor = [UIColor whiteColor];
     self.navigationController.toolbar.clipsToBounds = YES;
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    _viewDidAppear = YES;
+    if ([self.note isNew])
+    {
+        [self.noteTextView becomeFirstResponder];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -219,6 +230,10 @@
     NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
     [HPNoteAction willDisplayNote:self.note text:editableText view:self.noteTextView];
     _bodyTextView.text = editableText;
+    if ([self.note isNew] && _viewDidAppear)
+    {
+        [_bodyTextView becomeFirstResponder];
+    }
     if (self.showDetail)
     {
         self.detailLabel.hidden = NO;
