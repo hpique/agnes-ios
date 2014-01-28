@@ -16,8 +16,11 @@
 #import "HPNoteActivityItemSource.h"
 #import "HPBrowserViewController.h"
 #import "PSPDFTextView.h"
+#import "NSString+hp_utils.h"
 
 @interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate>
+
+@property (nonatomic, assign) HPNoteDetailMode detailMode;
 
 @end
 
@@ -31,16 +34,17 @@
     UIBarButtonItem *_actionBarButtonItem;
     UIBarButtonItem *_addNoteBarButtonItem;
     UIBarButtonItem *_archiveBarButtonItem;
+    UIBarButtonItem *_detailBarButtonItem;
     UIBarButtonItem *_doneBarButtonItem;
     UIBarButtonItem *_trashBarButtonItem;
     UIBarButtonItem *_unarchiveBarButtonItem;
     
+    IBOutlet UILabel *_detailLabel;
+    
     UIActionSheet *_deleteNoteActionSheet;
     
     NSInteger _noteIndex;
-    
-    UIColor *_previousToolbarBarTintColor;
-    
+
     HPTagSuggestionsView *_suggestionsView;
     BOOL _viewDidAppear;
 }
@@ -63,7 +67,13 @@
     _trashBarButtonItem.enabled = !self.indexItem.disableRemove;
     _unarchiveBarButtonItem.enabled = !self.indexItem.disableRemove;
     
+    _detailBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_detailLabel];
+    _detailBarButtonItem.width = 160;
+    
     self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem, _actionBarButtonItem];
+    
+    self.toolbar.barTintColor = [UIColor whiteColor];
+    self.toolbar.clipsToBounds = YES;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShowNotification:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
@@ -85,7 +95,7 @@
         _bodyTextView.delegate = self;
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
         [self.view addSubview:_bodyTextView];
-        [self.view bringSubviewToFront:self.detailLabel];
+        [self.view bringSubviewToFront:self.toolbar];
         
         _textTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(textTagGestureRecognizer:)];
         [_bodyTextView addGestureRecognizer:_textTapGestureRecognizer];
@@ -104,14 +114,6 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    self.navigationController.toolbarHidden = NO;
-    self.navigationController.toolbar.barTintColor = [UIColor whiteColor];
-    self.navigationController.toolbar.clipsToBounds = YES;
-}
-
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -125,9 +127,6 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    self.navigationController.toolbarHidden = YES;
-    self.navigationController.toolbar.barTintColor = nil;
-    self.navigationController.toolbar.clipsToBounds = NO;
     for (HPNote *note in self.notes)
     {
         if (!self.indexItem.disableRemove && [self isEmptyNote:note])
@@ -171,6 +170,7 @@
         [HPNoteAction willDisplayNote:note text:mutableText view:self.noteTextView];
         self.noteTextView.text = mutableText;
         [self updateToolbar:animated];
+        [self displayDetail];
         _bodyTextViewChanged = NO;
         
         if (!self.indexItem)
@@ -208,6 +208,7 @@
 - (void)setNote:(HPNote *)note
 {
     _note = note;
+    _detailMode = note.detailMode;
     _noteIndex = [self.notes indexOfObject:self.note];
 }
 
@@ -234,17 +235,36 @@
     {
         [_bodyTextView becomeFirstResponder];
     }
-    if (self.showDetail)
-    {
-        self.detailLabel.hidden = NO;
-        self.detailLabel.text = self.note.modifiedAtLongDescription;
-    }
-    else
-    {
-        self.detailLabel.hidden = YES;
-    }
+    [self displayDetail];
     [[HPNoteManager sharedManager] viewNote:self.note];
     [self updateToolbar:NO /* animated */];
+}
+
+- (void)displayDetail
+{
+    [UIView animateWithDuration:0.3 animations:^{
+        switch (self.detailMode)
+        {
+            case HPNoteDetailModeModifiedAt:
+                _detailLabel.text = self.note.modifiedAtLongDescription;
+                break;
+            case HPNoteDetailModeCharacters:
+            {
+                NSInteger charCount = _bodyTextView.text.length;
+                _detailLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld characters", @""), (long)charCount];
+                break;
+            }
+            case HPNoteDetailModeWords:
+            {
+                NSInteger wordCount = _bodyTextView.text.wordCount;
+                _detailLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld words", @""), (long)wordCount];
+                break;
+            }
+            case HPNoteDetailModeNone:
+                _detailLabel.text = @"";
+                break;
+        }
+    }];
 }
 
 - (void)finishEditing
@@ -344,6 +364,13 @@
     return nil;
 }
 
+- (void)setDetailMode:(HPNoteDetailMode)detailMode
+{
+    _detailMode = detailMode;
+    if (!self.note) return;
+    [[HPNoteManager sharedManager] setDetailMode:self.detailMode ofNote:self.note];
+}
+
 UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 {
     UITextPosition *beginning = textView.beginningOfDocument;
@@ -357,7 +384,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 {
     UIBarButtonItem *rightBarButtonItem = self.note.archived ? _unarchiveBarButtonItem : _archiveBarButtonItem;
     UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [self setToolbarItems:@[_trashBarButtonItem, flexibleSpace, rightBarButtonItem] animated:animated];
+    [self.toolbar setItems:@[_trashBarButtonItem, flexibleSpace, _detailBarButtonItem, flexibleSpace, rightBarButtonItem] animated:animated];
 }
 
 #pragma mark - Actions
@@ -379,6 +406,12 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [self changeToEmptyNote];
+}
+
+- (IBAction)detailLabelTapGestureRecognizer:(id)sender
+{
+    self.detailMode = (self.detailMode + 1) % 4;
+    [self displayDetail];
 }
 
 - (void)doneBarButtonItemAction:(UIBarButtonItem*)barButtonItem

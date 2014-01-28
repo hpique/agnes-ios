@@ -275,6 +275,28 @@
     [self willChangeValueForKey:key];
 }
 
+- (NSInteger)detailMode
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(detailMode));
+    
+    [self willAccessValueForKey:key];
+    NSNumber *value = self.cd_detailMode;
+    [self didAccessValueForKey:key];
+    return [value integerValue];
+}
+
+- (void)setDetailMode:(NSInteger)detailMode
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(detailMode));
+    
+    NSNumber *value = @(detailMode);
+    [self willChangeValueForKey:key];
+    self.cd_detailMode = value;
+    [self willChangeValueForKey:key];
+}
+
 - (NSInteger)views
 {
     static NSString *key = nil;

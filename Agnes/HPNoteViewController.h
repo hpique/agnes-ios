@@ -20,9 +20,8 @@
 @property (nonatomic, copy) HPIndexItem *indexItem;
 @property (nonatomic, strong) NSMutableArray *notes;
 @property (nonatomic, strong) UITextView *noteTextView;
-@property (nonatomic, assign) BOOL showDetail;
-@property (weak, nonatomic) IBOutlet UILabel *detailLabel;
 @property (nonatomic, assign) BOOL willTransitionToList;
+@property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 
 + (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;
 

@@ -6,7 +6,8 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HPNoteViewController">
             <connections>
-                <outlet property="detailLabel" destination="AP9-Eu-rCf" id="Fme-s6-wfW"/>
+                <outlet property="_detailLabel" destination="Cxb-hp-QHY" id="nls-9m-2do"/>
+                <outlet property="toolbar" destination="Fab-Hz-dds" id="dZ3-Ay-JPJ"/>
                 <outlet property="view" destination="1" id="3"/>
             </connections>
         </placeholder>
@@ -15,22 +16,20 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AP9-Eu-rCf">
-                    <rect key="frame" x="273" y="499" width="32" height="15"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
-                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                    <nil key="highlightedColor"/>
-                </label>
+                <toolbar opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fab-Hz-dds">
+                    <rect key="frame" x="0.0" y="524" width="320" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <items/>
+                </toolbar>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <gestureRecognizers/>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="AP9-Eu-rCf" secondAttribute="trailing" constant="15" id="aNg-jL-ecP"/>
-                <constraint firstAttribute="bottom" secondItem="AP9-Eu-rCf" secondAttribute="bottom" constant="54" id="chk-yA-ItI"/>
+                <constraint firstAttribute="trailing" secondItem="Fab-Hz-dds" secondAttribute="trailing" id="3KR-VZ-IT1"/>
+                <constraint firstItem="Fab-Hz-dds" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="A3a-am-nXx"/>
+                <constraint firstAttribute="bottom" secondItem="Fab-Hz-dds" secondAttribute="bottom" id="Pge-oj-yUj"/>
             </constraints>
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
-            <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
             <connections>
                 <outletCollection property="gestureRecognizers" destination="2nD-Tn-ecc" appends="YES" id="5oA-KT-WVN"/>
@@ -47,5 +46,21 @@
                 <action selector="swipeLeftAction:" destination="-1" id="fOl-W0-Chf"/>
             </connections>
         </swipeGestureRecognizer>
+        <label opaque="NO" clipsSubviews="YES" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Cxb-hp-QHY">
+            <rect key="frame" x="0.0" y="0.0" width="160" height="44"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <gestureRecognizers/>
+            <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+            <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+            <nil key="highlightedColor"/>
+            <connections>
+                <outletCollection property="gestureRecognizers" destination="zmX-4k-T18" appends="YES" id="QJm-dj-BhG"/>
+            </connections>
+        </label>
+        <tapGestureRecognizer id="zmX-4k-T18">
+            <connections>
+                <action selector="detailLabelTapGestureRecognizer:" destination="-1" id="Kyt-c6-vRV"/>
+            </connections>
+        </tapGestureRecognizer>
     </objects>
 </document>

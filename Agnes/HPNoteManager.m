@@ -114,6 +114,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         HPNote *note = [HPNote insertNewObjectIntoContext:context];
         note.createdAt = [NSDate date];
         note.modifiedAt = note.createdAt;
+        note.detailMode = HPNoteDetailModeNone;
         note.text = text;
         [notes addObject:note];
     }
@@ -155,6 +156,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     HPNote *note = [[HPNote alloc] initWithEntity:entityDescription insertIntoManagedObjectContext:nil];
     note.createdAt = [NSDate date];
     note.modifiedAt = note.createdAt;
+    note.detailMode = HPNoteDetailModeModifiedAt;
     note.text = tag ? [NSString stringWithFormat:@"\n\n\n\n%@", tag] : @"";
     return note;
 }
@@ -194,6 +196,13 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             [note setOrder:notesCount - i inTag:tagName];
         }
     } ];
+}
+
+- (void)setDetailMode:(HPNoteDetailMode)detailMode ofNote:(HPNote*)note
+{
+    [self performNoUndoModelUpdateAndSave:NO block:^{
+        note.detailMode = detailMode;
+    }];
 }
 
 - (void)viewNote:(HPNote*)note

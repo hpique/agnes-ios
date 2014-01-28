@@ -427,7 +427,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:_notes indexItem:self.indexItem];
     noteViewController.delegate = self;
-    noteViewController.showDetail = _displayCriteria == HPNoteDisplayCriteriaModifiedAt;
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
@@ -479,6 +478,18 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void)setSwipeActionTo:(HPNoteListTableViewCell*)cell imageNamed:(NSString*)imageName color:(UIColor*)color state:(MCSwipeTableViewCellState)state block:(void (^)(HPNoteListTableViewCell *cell))block
 {
+    cell.firstTrigger = 1.0f/3.0f;
+    switch (state) {
+        case MCSwipeTableViewCellState1:
+        case MCSwipeTableViewCellState2:
+        default:
+            cell.defaultColor1 = color;
+            break;
+        case MCSwipeTableViewCellState3:
+        case MCSwipeTableViewCellState4:
+            cell.defaultColor3 = color;
+            break;
+    }
     UIImageView *swipeView = [self swipeViewWithImageNamed:imageName];
     CGFloat offsetDirection = state == MCSwipeTableViewCellState1 || state == MCSwipeTableViewCellState2 ? 1 : -1;
     swipeView.center = CGPointMake(swipeView.center.x + 20 * offsetDirection, swipeView.center.y);

@@ -11,9 +11,18 @@
 
 @class HPTag;
 
+typedef NS_ENUM(NSInteger, HPNoteDetailMode)
+{
+    HPNoteDetailModeNone,
+    HPNoteDetailModeModifiedAt,
+    HPNoteDetailModeCharacters,
+    HPNoteDetailModeWords,
+};
+
 @interface HPNote : NSManagedObject
 
 @property (nonatomic, retain) NSNumber * cd_archived;
+@property (nonatomic, retain) NSNumber * cd_detailMode;
 @property (nonatomic, retain) NSNumber * cd_views;
 @property (nonatomic, retain) NSNumber * cd_inboxOrder;
 @property (nonatomic, retain) NSSet *cd_tags;
@@ -64,6 +73,7 @@
 @interface HPNote (Transient)
 
 @property (nonatomic, assign) BOOL archived;
+@property (nonatomic, assign) NSInteger detailMode;
 @property (nonatomic, assign) NSInteger views;
 @property (nonatomic, assign) NSInteger inboxOrder;
 

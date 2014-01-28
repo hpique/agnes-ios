@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "HPEntityManager.h"
-@class HPNote;
+#import "HPNote.h"
 @class HPTag;
 
 typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
@@ -40,12 +40,14 @@ typedef NS_ENUM(NSInteger, HPNoteDisplayCriteria) {
 
 - (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt;
 
-- (void)viewNote:(HPNote*)note;
-
 - (void)reorderNotes:(NSArray*)notes tagName:(NSString*)tagName;
+
+- (void)setDetailMode:(HPNoteDetailMode)detailMode ofNote:(HPNote*)note;
+
+- (void)trashNote:(HPNote*)note;
 
 - (void)unarchiveNote:(HPNote*)note;
 
-- (void)trashNote:(HPNote*)note;
+- (void)viewNote:(HPNote*)note;
 
 @end

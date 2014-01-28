@@ -14,4 +14,6 @@
 
 - (NSInteger)hp_linesWithFont:(UIFont*)font width:(CGFloat)width lineHeight:(CGFloat*)lineHeight;
 
+@property (nonatomic, readonly) NSInteger wordCount;
+
 @end
