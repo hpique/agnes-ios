@@ -8,19 +8,19 @@
 
 #import <UIKit/UIKit.h>
 #import "HPDataActionViewController.h"
+#import "HPNoteNavigationController.h"
 @class HPNote;
 @class HPIndexItem;
 
 @protocol HPNoteViewControllerDelegate;
 
-@interface HPNoteViewController : HPDataActionViewController
+@interface HPNoteViewController : HPDataActionViewController<HPNoteTransitionViewController>
 
 @property (nonatomic, strong) HPNote *note;
 @property (nonatomic, weak) id<HPNoteViewControllerDelegate> delegate;
 @property (nonatomic, copy) HPIndexItem *indexItem;
 @property (nonatomic, strong) NSMutableArray *notes;
 @property (nonatomic, strong) UITextView *noteTextView;
-@property (nonatomic, assign) BOOL willTransitionToList;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 
 + (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;

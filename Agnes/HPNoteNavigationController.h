@@ -9,6 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "HPAgnesNavigationController.h"
 
+@protocol HPNoteTransitionViewController
+
+@property (nonatomic, assign) BOOL transitioning;
+
+@end
+
 @interface HPNoteNavigationController : HPAgnesNavigationController
 
 @end

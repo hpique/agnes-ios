@@ -47,9 +47,11 @@
 
     HPTagSuggestionsView *_suggestionsView;
     BOOL _viewDidAppear;
+    BOOL _transitioning;
 }
 
 @synthesize noteTextView = _bodyTextView;
+@synthesize transitioning = _transitioning;
 
 - (void)viewDidLoad
 {
@@ -122,6 +124,7 @@
     {
         [self.noteTextView becomeFirstResponder];
     }
+    self.transitioning = NO;
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -134,6 +137,12 @@
             [[HPNoteManager sharedManager] trashNote:note];
         }
     }
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    self.transitioning = NO;
 }
 
 #pragma mark - Class
@@ -599,7 +608,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)keyboardWillHideNotification:(NSNotification*)notification
 {
-    if (self.willTransitionToList) return; // Do not animate keyboard when animating to list
+    if (self.transitioning) return; // Do not animate keyboard when animating to list
     
     NSDictionary *info = notification.userInfo;
     NSTimeInterval duration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];

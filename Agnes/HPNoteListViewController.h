@@ -7,14 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HPNoteNavigationController.h"
 @class HPIndexItem;
 @class HPNote;
 
-@interface HPNoteListViewController : UIViewController
+@interface HPNoteListViewController : UIViewController<HPNoteTransitionViewController>
 
 @property (nonatomic, strong) HPIndexItem *indexItem;
 @property (nonatomic, readonly) UITableView *tableView;
-@property (nonatomic, assign) BOOL willTransitionToNote;
 
 + (UINavigationController*)controllerWithIndexItem:(HPIndexItem*)indexItem;
 

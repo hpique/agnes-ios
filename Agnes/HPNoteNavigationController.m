@@ -19,25 +19,38 @@
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-    UIViewController *topViewContoller = self.topViewController;
-    if ([topViewContoller isKindOfClass:[HPNoteListViewController class]])
-    {
-        HPNoteListViewController *listViewController = (HPNoteListViewController*)topViewContoller;
-        listViewController.willTransitionToNote = YES;
-    }
+    [self setTransitioningInViewController:self.topViewController];
+    [self setTransitioningInViewController:viewController];
     [super pushViewController:viewController animated:animated];
 }
 
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated
 {
     UIViewController *topViewContoller = self.topViewController;
+    [self setTransitioningInViewController:topViewContoller];
+    const NSInteger count = self.viewControllers.count;
+    if (count > 1)
+    {
+        UIViewController *backViewController = self.viewControllers[count - 2];
+        [self setTransitioningInViewController:backViewController];
+    }
     if ([topViewContoller isKindOfClass:[HPNoteViewController class]])
     {
         HPNoteViewController *noteViewController = (HPNoteViewController*)topViewContoller;
         [noteViewController saveNote:NO /* animated */];
-        noteViewController.willTransitionToList = YES;
     }
     return [super popViewControllerAnimated:animated];
+}
+
+#pragma mark - Private
+
+- (void)setTransitioningInViewController:(UIViewController*)viewController
+{
+    if ([viewController conformsToProtocol:@protocol(HPNoteTransitionViewController)])
+    {
+        id<HPNoteTransitionViewController> transitioningViewController = (id<HPNoteTransitionViewController>)viewController;
+        transitioningViewController.transitioning = YES;
+    }
 }
 
 @end

@@ -62,9 +62,12 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     NSIndexPath *_indexPathOfSelectedNote;
     BOOL _ignoreNotesDidChangeNotification;
+    
+    BOOL _transitioning;
 }
 
 @synthesize indexPathOfSelectedNote = _indexPathOfSelectedNote;
+@synthesize transitioning = _transitioning;
 
 - (void)dealloc
 {
@@ -98,16 +101,20 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [self updateIndexItem];
 }
 
-- (void)viewWillAppear:(BOOL)animated
+- (void)viewDidAppear:(BOOL)animated
 {
-    [super viewWillAppear:animated];
-    [self updateNotes:animated reloadNotes:[NSSet set]];
+    [super viewDidAppear:animated];
+    if (self.transitioning)
+    {
+        [self updateNotes:animated reloadNotes:[NSSet set]];
+    }
+    self.transitioning = NO;
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
-    self.willTransitionToNote = NO;
+    self.transitioning = NO;
 }
 
 #pragma mark - Public
@@ -185,17 +192,10 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)notesDidChangeNotification:(NSNotification*)notification
 {
     if (_ignoreNotesDidChangeNotification) return; // Controller will reflect or already reflected the change
+    if (self.transitioning) return;
     
-    NSSet *updated;
-    if (self.willTransitionToNote)
-    { // Do not reload cells when transitioning to a note.
-        updated = [NSSet set];
-    }
-    else
-    {
-        NSDictionary *userInfo = notification.userInfo;
-       updated = [userInfo objectForKey:NSUpdatedObjectsKey];
-    }
+    NSDictionary *userInfo = notification.userInfo;
+    NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
     [self updateNotes:YES /* animated */ reloadNotes:updated];
 }
 
