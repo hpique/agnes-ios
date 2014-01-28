@@ -50,7 +50,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     UIBarButtonItem *_addNoteBarButtonItem;
     
     __weak IBOutlet UIButton *_optionsButton;
-    IBOutlet UIView *_footerView;
+    __weak IBOutlet NSLayoutConstraint *_optionsButtonVerticalSpaceLayoutConstraint;
     HPNoteExporter *_noteExporter;
     
     NSInteger _optionsActionSheetUndoIndex;
@@ -63,7 +63,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     __weak IBOutlet NSLayoutConstraint *_emptyCenterYTitleLabelLayoutConstraint;
     
     NSIndexPath *_indexPathOfSelectedNote;
-    
     BOOL _ignoreNotesDidChangeNotification;
 }
 
@@ -77,32 +76,9 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
-//    [self updateFooterView];
+    [self layoutOptionsButton:NO];
+    [self.view layoutSubviews];
 }
-
-//- (void)updateFooterView
-//{
-//    if (!_viewDidLayouSubviews) return;
-//    
-//    CGRect frame = _notesTableView.frame;
-//    const CGSize contentSize = _notesTableView.contentSize;
-//    CGFloat contentHeight = contentSize.height;
-//    if (contentHeight == frame.size.height)
-//    {
-//        contentHeight = 0;
-//        const CGFloat headerHeight = _notesTableView.tableHeaderView.bounds.size.height;
-//        contentHeight += headerHeight;
-//        NSInteger rowCount = [_notesTableView.dataSource tableView:_notesTableView numberOfRowsInSection:0];
-//        for (NSInteger i = 0; i < rowCount; i++)
-//        {
-//            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
-//            UITableViewCell *cell = [_notesTableView cellForRowAtIndexPath:indexPath];
-//            contentHeight += cell.bounds.size.height;
-//        }
-//    }
-//    CGRect footerFrame = _footerView.frame;
-//    _footerView.frame = CGRectMake(footerFrame.origin.x, frame.size.height - footerFrame.size.height, footerFrame.size.width, footerFrame.size.height);
-//}
 
 - (void)viewDidLoad
 {
@@ -116,7 +92,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
     [_notesTableView registerNib:nib forCellReuseIdentifier:HPNoteListTableViewCellReuseIdentifier];
-    _notesTableView.tableFooterView = _footerView;
     _notesTableView.delegate = self;
     
     MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
@@ -375,7 +350,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }
     
     [self updateEmptyView:animated];
-//    [self updateFooterView];
+    [self layoutOptionsButton:animated];
     
     if (!_searching || _searchString == nil) return;
     
@@ -416,6 +391,56 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     self.navigationItem.rightBarButtonItem = self.indexItem.disableAdd ? nil : _addNoteBarButtonItem;
     _displayCriteria = [[HPPreferencesManager sharedManager] displayCriteriaForListTitle:self.indexItem.title default:self.indexItem.defaultDisplayCriteria];
     [self updateDisplayCriteria:NO /* animated */];
+}
+
+- (void)layoutOptionsButton:(BOOL)animated
+{    
+    CGRect frame = _notesTableView.frame;
+    const CGSize contentSize = _notesTableView.contentSize;
+    CGFloat contentHeight = contentSize.height;
+    if (contentHeight == frame.size.height)
+    { // The UISearchBar as header fills the contentSize. See:
+        contentHeight = 0;
+        const CGFloat headerHeight = _notesTableView.tableHeaderView.bounds.size.height;
+        contentHeight += headerHeight;
+        NSInteger rowCount = [_notesTableView.dataSource tableView:_notesTableView numberOfRowsInSection:0];
+        for (NSInteger i = 0; i < rowCount; i++)
+        {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+            UITableViewCell *cell = [_notesTableView cellForRowAtIndexPath:indexPath];
+            contentHeight += cell.bounds.size.height;
+        }
+    }
+    static CGFloat verticalMargin = 20;
+    CGRect buttonFrame = _optionsButton.frame;
+    CGFloat buttonEncompasingHeight = buttonFrame.size.height + verticalMargin * 2;
+    CGFloat availableHeight = frame.size.height - contentHeight - buttonEncompasingHeight;
+    CGFloat contentInsetBottom;
+    CGFloat bottomMargin;
+    if (availableHeight >= 0)
+    {
+        bottomMargin = verticalMargin;
+        contentInsetBottom = 0;
+    }
+    else
+    {
+        CGPoint contentOffset = _notesTableView.contentOffset;
+        bottomMargin = verticalMargin + availableHeight + contentOffset.y;
+        contentInsetBottom = buttonEncompasingHeight;
+    }
+    UIEdgeInsets contentInset = _notesTableView.contentInset;
+    NSTimeInterval duration = animated ? 0.2 : 0;
+    CGPoint contentOffset = _notesTableView.contentOffset;
+    [UIView animateWithDuration:duration animations:^{
+        _optionsButtonVerticalSpaceLayoutConstraint.constant = bottomMargin;
+        _notesTableView.contentInset = UIEdgeInsetsMake(contentInset.top, contentInset.left, contentInsetBottom, contentInset.right); // Changes offset so we might need to restore it later
+    }];
+    if (contentInsetBottom == 0 && contentInset.bottom != 0)
+    { // Restore offset
+        _notesTableView.contentOffset = contentOffset;
+    }
+
+
 }
 
 - (void)updateDisplayCriteria:(BOOL)animated
@@ -606,6 +631,13 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     _ignoreNotesDidChangeNotification = YES;
     [[HPNoteManager sharedManager] reorderNotes:_notes tagName:self.indexItem.tag];
     _ignoreNotesDidChangeNotification = NO;
+}
+
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    [self.view setNeedsLayout];
 }
 
 #pragma mark - UITableViewDelegate

@@ -11,9 +11,9 @@
                 <outlet property="_emptyListView" destination="f65-dw-v5R" id="jaJ-aS-USG"/>
                 <outlet property="_emptySubtitleLabel" destination="ac8-4x-E4n" id="frA-Yr-Y0y"/>
                 <outlet property="_emptyTitleLabel" destination="Lq5-vr-rI1" id="epu-Q5-9bi"/>
-                <outlet property="_footerView" destination="fYC-Uv-G39" id="Cv9-UQ-hVc"/>
                 <outlet property="_notesTableView" destination="6Ye-Ag-F8Q" id="6m9-an-rAu"/>
                 <outlet property="_optionsButton" destination="9VM-M1-8z3" id="h7Y-Dn-LBB"/>
+                <outlet property="_optionsButtonVerticalSpaceLayoutConstraint" destination="gwY-BE-S7z" id="vN7-44-BAS"/>
                 <outlet property="_titleLabel" destination="Bi5-Eh-5QO" id="SZ3-yV-M83"/>
                 <outlet property="_titleView" destination="jTE-Aa-Rve" id="c3r-jh-O5e"/>
                 <outlet property="searchDisplayController" destination="Nwp-7R-4x2" id="EZX-5f-4tN"/>
@@ -70,6 +70,17 @@
                         <constraint firstItem="ac8-4x-E4n" firstAttribute="top" secondItem="Lq5-vr-rI1" secondAttribute="bottom" id="hBw-dp-4dA"/>
                     </constraints>
                 </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9VM-M1-8z3">
+                    <rect key="frame" x="0.0" y="523" width="320" height="25"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <state key="normal" image="icon-more">
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="optionsButtonAction:" destination="-1" eventType="touchUpInside" id="Y2p-47-hnn"/>
+                    </connections>
+                </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
@@ -77,10 +88,13 @@
                 <constraint firstAttribute="bottom" secondItem="6Ye-Ag-F8Q" secondAttribute="bottom" id="IRo-op-R0f"/>
                 <constraint firstAttribute="trailing" secondItem="6Ye-Ag-F8Q" secondAttribute="trailing" id="PF7-ra-4iO"/>
                 <constraint firstItem="f65-dw-v5R" firstAttribute="top" secondItem="1" secondAttribute="top" id="Pys-iC-mlZ"/>
+                <constraint firstAttribute="trailing" secondItem="9VM-M1-8z3" secondAttribute="trailing" id="Tg8-td-k3a"/>
                 <constraint firstItem="6Ye-Ag-F8Q" firstAttribute="top" secondItem="1" secondAttribute="top" id="YaU-gH-asA"/>
+                <constraint firstAttribute="bottom" secondItem="9VM-M1-8z3" secondAttribute="bottom" constant="20" id="gwY-BE-S7z"/>
                 <constraint firstAttribute="bottom" secondItem="f65-dw-v5R" secondAttribute="bottom" id="mrz-PJ-SUZ"/>
                 <constraint firstItem="f65-dw-v5R" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="n8x-RB-b7v"/>
                 <constraint firstAttribute="trailing" secondItem="f65-dw-v5R" secondAttribute="trailing" id="uNS-Pf-qPT"/>
+                <constraint firstItem="9VM-M1-8z3" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="xpr-vV-osh"/>
             </constraints>
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
@@ -134,29 +148,6 @@
                 <action selector="tapTitleView:" destination="-1" id="Tfx-3n-Qog"/>
             </connections>
         </tapGestureRecognizer>
-        <view contentMode="scaleToFill" id="fYC-Uv-G39">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="65"/>
-            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <subviews>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9VM-M1-8z3">
-                    <rect key="frame" x="0.0" y="20" width="320" height="25"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                    <state key="normal" image="icon-more">
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="optionsButtonAction:" destination="-1" eventType="touchUpInside" id="Y2p-47-hnn"/>
-                    </connections>
-                </button>
-            </subviews>
-            <constraints>
-                <constraint firstAttribute="trailing" secondItem="9VM-M1-8z3" secondAttribute="trailing" id="JK7-Is-I51"/>
-                <constraint firstItem="9VM-M1-8z3" firstAttribute="leading" secondItem="fYC-Uv-G39" secondAttribute="leading" id="Rbg-xI-XPs"/>
-                <constraint firstAttribute="bottom" secondItem="9VM-M1-8z3" secondAttribute="bottom" constant="20" id="uPZ-St-5WE"/>
-            </constraints>
-            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-        </view>
     </objects>
     <resources>
         <image name="icon-more" width="25" height="25"/>
