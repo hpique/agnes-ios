@@ -345,6 +345,8 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
 
 - (NSRange)hp_visibleRange
 {
+    static CGFloat tolerance = 3.0f;
+    
     NSString *text = self.text;
     NSRange visibleRange = NSMakeRange(NSNotFound, 0);
     const NSInteger max = text.length - 1;
@@ -363,11 +365,12 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
             right = next;
             NSRange range = NSMakeRange(0, right + 1);
             NSString *substring = [text substringWithRange:range];
-            CGSize textSize = [substring boundingRectWithSize:maxSize
-                                                      options:NSStringDrawingUsesLineFragmentOrigin
+            CGRect boundingRect = [substring boundingRectWithSize:maxSize
+                                                      options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
                                                    attributes:attributes
-                                                      context:nil].size;
-            if (textSize.width <= labelSize.width && textSize.height <= labelSize.height)
+                                                      context:nil];
+            const CGSize boundingSize = CGSizeMake(ceil(boundingRect.size.width), ceil(boundingRect.size.height));
+            if ((boundingSize.width - labelSize.width <= tolerance) && (boundingSize.height - labelSize.height <= tolerance))
             {
                 visibleRange = range;
                 best = right;

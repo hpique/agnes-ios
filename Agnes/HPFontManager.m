@@ -7,6 +7,7 @@
 //
 
 #import "HPFontManager.h"
+#import "HPPreferencesManager.h"
 #import "HPNote.h"
 
 @implementation HPFontManager {
@@ -34,50 +35,34 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         instance = [[HPFontManager alloc] init];
+        instance.dinamicType = [HPPreferencesManager sharedManager].dynamicType;
+        instance.fontName = [HPPreferencesManager sharedManager].fontName;
+        instance.fontSize = [HPPreferencesManager sharedManager].fontSize;
     });
     return instance;
 }
 
 - (UIFont*)fontForNoteTitle
 {
-    if (!_noteTitleFont)
-    {
-        UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-        descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | UIFontDescriptorTraitBold];
-        _noteTitleFont = [UIFont fontWithDescriptor:descriptor size:0];
-    }
+    if (!_noteTitleFont) _noteTitleFont = [self fontWithTextStyle:UIFontTextStyleBody addingTraits:UIFontDescriptorTraitBold];
     return _noteTitleFont;
 }
 
 - (UIFont*)fontForNoteBody
 {
-    if (!_noteBodyFont)
-    {
-        UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-        _noteBodyFont = [UIFont fontWithDescriptor:descriptor size:0];
-    }
+    if (!_noteBodyFont) _noteBodyFont = [self fontWithTextStyle:UIFontTextStyleBody addingTraits:kNilOptions];
     return _noteBodyFont;
 }
 
 - (UIFont*)fontForArchivedNoteTitle
 {
-    if (!_archivedNoteTitleFont)
-    {
-        UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-        descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | UIFontDescriptorTraitBold | UIFontDescriptorTraitItalic];
-        _archivedNoteTitleFont = [UIFont fontWithDescriptor:descriptor size:0];
-    }
+    if (!_archivedNoteTitleFont) _archivedNoteTitleFont = [self fontWithTextStyle:UIFontTextStyleBody addingTraits:UIFontDescriptorTraitBold | UIFontDescriptorTraitItalic];
     return _archivedNoteTitleFont;
 }
 
 - (UIFont*)fontForArchivedNoteBody
 {
-    if (!_archivedNoteBodyFont)
-    {
-        UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:UIFontTextStyleBody];
-        descriptor = [descriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitItalic];
-        _archivedNoteBodyFont = [UIFont fontWithDescriptor:descriptor size:0];
-    }
+    if (!_archivedNoteBodyFont) _archivedNoteBodyFont = [self fontWithTextStyle:UIFontTextStyleBody addingTraits:UIFontDescriptorTraitItalic];
     return _archivedNoteBodyFont;
 }
 
@@ -91,6 +76,24 @@
     return note.archived ? [self fontForArchivedNoteBody] : [self fontForNoteBody];
 }
 
+- (void)setDinamicType:(BOOL)dinamicType
+{
+    _dinamicType = dinamicType;
+    [self invalidateFonts];
+}
+
+- (void)setFontName:(NSString *)fontName
+{
+    _fontName = fontName;
+    [self invalidateFonts];
+}
+
+- (void)setFontSize:(CGFloat)fontSize
+{
+    _fontSize = fontSize;
+    [self invalidateFonts];
+}
+
 #pragma mark - Actions
 
 - (void)contentSizeCategoryDidChangeNotification:(NSNotification*)notification
@@ -99,6 +102,22 @@
 }
 
 #pragma mark - Private
+
+- (UIFont*)fontWithTextStyle:(NSString*)textStyle addingTraits:(UIFontDescriptorSymbolicTraits)traits
+{
+    if (self.dinamicType)
+    {
+        UIFontDescriptor *descriptor = [UIFontDescriptor preferredFontDescriptorWithTextStyle:textStyle];
+        descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | traits];
+        return [UIFont fontWithDescriptor:descriptor size:0];
+    }
+    else
+    {
+        UIFontDescriptor *descriptor = [UIFontDescriptor fontDescriptorWithName:self.fontName size:self.fontSize];
+        descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | traits];
+        return [UIFont fontWithDescriptor:descriptor size:self.fontSize];
+    }
+}
 
 - (void)invalidateFonts
 {

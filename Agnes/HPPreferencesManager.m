@@ -7,23 +7,35 @@
 //
 
 #import "HPPreferencesManager.h"
+#import "HPFontManager.h"
 #import "ColorUtils.h"
 
 NSString *const HPPreferencesManagerDidChangePreferencesNotification = @"HPPreferencesManagerDidChangePreferencesNotification";
 
-NSString *const HPAgnesDefaultsKeySortMode = @"HPAgnesSortMode";
+NSString *const HPAgnesDefaultsKeyBarTintColor = @"HPAgnesBarTintColor";
+NSString *const HPAgnesDefaultsKeyDynamicType = @"HPAgnesDynamicType";
+NSString *const HPAgnesDefaultsKeyFontName = @"HPAgnesFontName";
+NSString *const HPAgnesDefaultsKeyFontSize = @"HPAgnesFontSize";
 NSString *const HPAgnesDefaultsKeySessionCount = @"HPAgnesSessionCount";
+NSString *const HPAgnesDefaultsKeySortMode = @"HPAgnesSortMode";
 NSString *const HPAgnesDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 NSString *const HPAgnesDefaultsKeyTintColor = @"HPAgnesTintColor";
-NSString *const HPAgnesDefaultsKeyBarTintColor = @"HPAgnesBarTintColor";
+
 NSString *const HPAgnesPreferencesKeyStatusBarHidden = @"statusBarHidden";
-NSString *const HPAgnesPreferencesKeyTintColor = @"tintColor";
 NSString *const HPAgnesPreferencesKeyBarTintColor = @"barTintColor";
+NSString *const HPAgnesPreferencesKeyDynamicType = @"dynamicType";
+NSString *const HPAgnesPreferencesKeyFontName = @"fontName";
+NSString *const HPAgnesPreferencesKeyFontSize = @"fontSize";
+NSString *const HPAgnesPreferencesKeyTintColor = @"tintColor";
 NSString *const HPAgnesPreferencesValueDefault = @"default";
 
-static UIColor* HPAgnesDefaultTintColor = nil;
 static UIColor* HPAgnesDefaultBarTintColor = nil;
+static BOOL HPAgnesDefaultDynamicType = YES;
+static NSString* HPAgnesDefaultFontName = @"HelveticaNeue";
+static NSInteger HPAgnesDefaultFontSize = 15;
+static UIColor* HPAgnesDefaultTintColor = nil;
 static BOOL HPAgnesDefaultStatusBarHidden = NO;
+
 
 @implementation HPPreferencesManager
 
@@ -44,11 +56,49 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
     return instance;
 }
 
-- (HPTagSortMode)sortModeForListTitle:(NSString*)title default:(HPTagSortMode)defaultSortMode
+- (UIColor*)barTintColor
 {
-    NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeySortMode];
-    id value = [dictionary objectForKey:title];
-    return value ? [value integerValue] : defaultSortMode;
+    return [self colorForKey:HPAgnesDefaultsKeyBarTintColor defaultColor:HPAgnesDefaultBarTintColor];
+}
+
+- (NSString*)barTintColorName
+{
+    return [self.barTintColor stringValue];
+}
+
+- (BOOL)dynamicType
+{
+    return [self boolValueForKey:HPAgnesDefaultsKeyDynamicType default:HPAgnesDefaultDynamicType];
+}
+
+- (NSString*)fontName
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *fontName = [userDefaults objectForKey:HPAgnesDefaultsKeyFontName];
+    return fontName ? : HPAgnesDefaultFontName;
+}
+
+- (NSInteger)fontSize
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *fontSize = [userDefaults objectForKey:HPAgnesDefaultsKeyFontSize];
+    return fontSize ? [fontSize integerValue] : HPAgnesDefaultFontSize;
+}
+
+- (void)setFontName:(NSString *)fontName
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:fontName forKey:HPAgnesDefaultsKeyFontName];
+    [HPFontManager sharedManager].fontName = fontName;
+    [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
+}
+
+- (void)setFontSize:(NSInteger)fontSize
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:@(fontSize) forKey:HPAgnesDefaultsKeyFontSize];
+    [HPFontManager sharedManager].fontSize = fontSize;
+    [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
 - (void)setSortMode:(HPTagSortMode)mode forListTitle:(NSString*)title
@@ -76,22 +126,20 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
     return [value integerValue];
 }
 
-- (UIColor*)tintColor
-{
-    return [self colorForKey:HPAgnesDefaultsKeyTintColor defaultColor:HPAgnesDefaultTintColor];
-}
-
-- (NSString*)tintColorName
-{
-    return [self.tintColor stringValue];
-}
-
 - (void)setBarTintColor:(UIColor *)barTintColor
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSString *colorString = [barTintColor stringValue];
     [userDefaults setValue:colorString forKey:HPAgnesDefaultsKeyBarTintColor];
     [UINavigationBar appearance].barTintColor = barTintColor;
+    [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
+}
+
+- (void)setDynamicType:(BOOL)dynamicType
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:@(dynamicType) forKey:HPAgnesDefaultsKeyDynamicType];
+    [HPFontManager sharedManager].dinamicType = dynamicType;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
@@ -112,21 +160,26 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
+- (HPTagSortMode)sortModeForListTitle:(NSString*)title default:(HPTagSortMode)defaultSortMode
+{
+    NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeySortMode];
+    id value = [dictionary objectForKey:title];
+    return value ? [value integerValue] : defaultSortMode;
+}
+
 - (BOOL)statusBarHidden
 {
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    NSNumber *value = [userDefaults valueForKey:HPAgnesDefaultsKeyStatusBarHidden];
-    return value ? [value boolValue] : HPAgnesDefaultStatusBarHidden;
+    return [self boolValueForKey:HPAgnesDefaultsKeyStatusBarHidden default:HPAgnesDefaultStatusBarHidden];
 }
 
-- (UIColor*)barTintColor
+- (UIColor*)tintColor
 {
-    return [self colorForKey:HPAgnesDefaultsKeyBarTintColor defaultColor:HPAgnesDefaultBarTintColor];
+    return [self colorForKey:HPAgnesDefaultsKeyTintColor defaultColor:HPAgnesDefaultTintColor];
 }
 
-- (NSString*)barTintColorName
+- (NSString*)tintColorName
 {
-    return [self.barTintColor stringValue];
+    return [self.tintColor stringValue];
 }
 
 - (void)applyPreferences:(NSString*)preferences
@@ -148,6 +201,13 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
 
 #pragma mark - Private
 
+- (BOOL)boolValueForKey:(NSString*)key default:(BOOL)defaultValue
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *value = [userDefaults valueForKey:key];
+    return value ? [value boolValue] : defaultValue;
+}
+
 - (UIColor*)colorForKey:(NSString*)key defaultColor:(UIColor*)defaultColor
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -164,23 +224,74 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
 {
     if ([key isEqualToString:HPAgnesPreferencesKeyTintColor])
     {
-        UIColor *color = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultTintColor : [UIColor colorWithString:value];
-        if (!color) return;
-        if ([self.tintColor isEquivalentToColor:color]) return;
-        self.tintColor = color;
+        [self updateTintColorFromValue:value];
     }
     else if ([key isEqualToString:HPAgnesPreferencesKeyBarTintColor])
     {
-        UIColor *color = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultBarTintColor : [UIColor colorWithString:value];
-        if (!color) return;
-        if ([self.barTintColor isEquivalentToColor:color]) return;
-        self.barTintColor = color;
+        [self updateBarTintColorFromValue:value];
     }
     else if ([key isEqualToString:HPAgnesPreferencesKeyStatusBarHidden])
     {
-        BOOL boolValue = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultStatusBarHidden : [value boolValue];
-        self.statusBarHidden = boolValue;
+        [self updateStatusBarHiddenFromValue:value];
     }
+    else if ([key isEqualToString:HPAgnesPreferencesKeyDynamicType])
+    {
+        [self updateDynamicTypeFromValue:value];
+    }
+    else if ([key isEqualToString:HPAgnesPreferencesKeyFontName])
+    {
+        [self updateFontNameFromValue:value];
+    }
+    else if ([key isEqualToString:HPAgnesPreferencesKeyFontSize])
+    {
+        [self updateFontSizeFromValue:value];
+    }
+}
+
+- (void)updateBarTintColorFromValue:(NSString*)value
+{
+    UIColor *color = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultBarTintColor : [UIColor colorWithString:value];
+    if (!color) return;
+    if ([self.barTintColor isEquivalentToColor:color]) return;
+    self.barTintColor = color;
+}
+
+- (void)updateDynamicTypeFromValue:(NSString*)value
+{
+    BOOL boolValue = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultDynamicType : [value boolValue];
+    if (self.dynamicType == boolValue) return;
+    self.dynamicType = boolValue;
+}
+
+- (void)updateFontNameFromValue:(NSString*)value
+{
+    NSString *fontName = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultFontName : value;
+    UIFont *font = [UIFont fontWithName:fontName size:0];
+    if (!font || ![fontName isEqualToString:font.fontName]) return;
+    if ([self.fontName isEqualToString:fontName]) return;
+    self.fontName = fontName;
+}
+
+- (void)updateFontSizeFromValue:(NSString*)value
+{
+    NSInteger fontSize = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultFontSize : [value integerValue];
+    if (self.fontSize == fontSize) return;
+    self.fontSize = fontSize;
+}
+
+- (void)updateStatusBarHiddenFromValue:(NSString*)value
+{
+    BOOL boolValue = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultStatusBarHidden : [value boolValue];
+    if (self.statusBarHidden == boolValue) return;
+    self.statusBarHidden = boolValue;
+}
+
+- (void)updateTintColorFromValue:(NSString*)value
+{
+    UIColor *color = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultTintColor : [UIColor colorWithString:value];
+    if (!color) return;
+    if ([self.tintColor isEquivalentToColor:color]) return;
+    self.tintColor = color;
 }
 
 @end

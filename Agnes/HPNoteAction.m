@@ -44,8 +44,16 @@
             return [HPPreferencesManager sharedManager].barTintColorName;
         }]];
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-statusBarHidden}" replacementBlock:^NSString *{
-            BOOL value = [HPPreferencesManager sharedManager].statusBarHidden;
-            return value ? @"yes" : @"no";
+            return [HPPreferencesManager sharedManager].statusBarHidden ? @"yes" : @"no";
+        }]];
+        [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-dynamicType}" replacementBlock:^NSString *{
+            return [HPPreferencesManager sharedManager].dynamicType ? @"yes" : @"no";
+        }]];
+        [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-fontName}" replacementBlock:^NSString *{
+            return [HPPreferencesManager sharedManager].fontName;
+        }]];
+        [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-fontSize}" replacementBlock:^NSString *{
+            return [NSString stringWithFormat:@"%ld", (long)[HPPreferencesManager sharedManager].fontSize];
         }]];
         instance = actions;
     });

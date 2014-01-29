@@ -14,7 +14,9 @@
 {
     NSDictionary *attributes = @{NSFontAttributeName: font};
     CGFloat textHeight = [self boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil].size.height;
+    textHeight = ceil(textHeight);
     *lineHeight = [@"" boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil].size.height;
+    *lineHeight = ceil(*lineHeight);
     NSInteger lines = round(textHeight / *lineHeight);
     return lines;
 }

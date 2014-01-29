@@ -22,4 +22,8 @@
 - (UIFont*)fontForTitleOfNote:(HPNote*)note;
 - (UIFont*)fontForBodyOfNote:(HPNote*)note;
 
+@property (nonatomic, assign) BOOL dinamicType;
+@property (nonatomic, copy) NSString *fontName;
+@property (nonatomic, assign) CGFloat fontSize;
+
 @end
