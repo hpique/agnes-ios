@@ -18,6 +18,8 @@
 		87142A001896CFC900DA588F /* HPNoteImporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429FF1896CFC900DA588F /* HPNoteImporter.m */; };
 		87142A061897CDA300DA588F /* HPAgnesNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87142A051897CDA300DA588F /* HPAgnesNavigationController.m */; };
 		872C19A518986F6C0013C9A5 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 872C19A318986F6C0013C9A5 /* Localizable.stringsdict */; };
+		872C19AD18987B970013C9A5 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 872C19A718987B970013C9A5 /* libTestFlight.a */; };
+		872C19B118987BC80013C9A5 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 872C19B018987BC80013C9A5 /* libz.dylib */; };
 		873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */; };
 		8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */; };
 		8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FADC188A8B69004CF099 /* HPIndexViewController.m */; };
@@ -97,6 +99,11 @@
 		87142A041897CDA300DA588F /* HPAgnesNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAgnesNavigationController.h; sourceTree = "<group>"; };
 		87142A051897CDA300DA588F /* HPAgnesNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAgnesNavigationController.m; sourceTree = "<group>"; };
 		872C19A418986F6C0013C9A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		872C19A718987B970013C9A5 /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTestFlight.a; sourceTree = "<group>"; };
+		872C19AA18987B970013C9A5 /* TestFlight+AsyncLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TestFlight+AsyncLogging.h"; sourceTree = "<group>"; };
+		872C19AB18987B970013C9A5 /* TestFlight+ManualSessions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TestFlight+ManualSessions.h"; sourceTree = "<group>"; };
+		872C19AC18987B970013C9A5 /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
+		872C19B018987BC80013C9A5 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		873E9CCD189174F8003364E7 /* UITableView+hp_reloadChanges.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableView+hp_reloadChanges.h"; sourceTree = "<group>"; };
 		873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+hp_reloadChanges.m"; sourceTree = "<group>"; };
 		8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteSearchTableViewCell.h; sourceTree = "<group>"; };
@@ -179,6 +186,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				872C19B118987BC80013C9A5 /* libz.dylib in Frameworks */,
+				872C19AD18987B970013C9A5 /* libTestFlight.a in Frameworks */,
 				87E37EFF188DA9B5000333EA /* AddressBookUI.framework in Frameworks */,
 				87E37EFD188DA9B1000333EA /* AddressBook.framework in Frameworks */,
 				87E37EF6188D9166000333EA /* MessageUI.framework in Frameworks */,
@@ -203,6 +212,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		872C19A618987B970013C9A5 /* TestFlightSDK2.1.4 */ = {
+			isa = PBXGroup;
+			children = (
+				872C19A718987B970013C9A5 /* libTestFlight.a */,
+				872C19AA18987B970013C9A5 /* TestFlight+AsyncLogging.h */,
+				872C19AB18987B970013C9A5 /* TestFlight+ManualSessions.h */,
+				872C19AC18987B970013C9A5 /* TestFlight.h */,
+			);
+			path = TestFlightSDK2.1.4;
+			sourceTree = "<group>";
+		};
 		8740FAE0188A8B79004CF099 /* Index */ = {
 			isa = PBXGroup;
 			children = (
@@ -259,6 +279,7 @@
 		8740FAF2188B39FC004CF099 /* External */ = {
 			isa = PBXGroup;
 			children = (
+				872C19A618987B970013C9A5 /* TestFlightSDK2.1.4 */,
 				8740FAF3188B3A5A004CF099 /* NDTrie.h */,
 				8740FAF4188B3A5A004CF099 /* NDTrie.m */,
 			);
@@ -288,6 +309,7 @@
 		8763DA2918883ACF000D9569 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				872C19B018987BC80013C9A5 /* libz.dylib */,
 				87E37EFE188DA9B5000333EA /* AddressBookUI.framework */,
 				87E37EFC188DA9B1000333EA /* AddressBook.framework */,
 				87E37EF5188D9166000333EA /* MessageUI.framework */,
@@ -466,7 +488,7 @@
 				ORGANIZATIONNAME = "Hermes Pique";
 				TargetAttributes = {
 					8763DA2618883ACF000D9569 = {
-						DevelopmentTeam = BT9U542CT8;
+						DevelopmentTeam = 7WDCU7A2S4;
 					};
 					8763DA4118883ACF000D9569 = {
 						TestTargetID = 8763DA2618883ACF000D9569;
@@ -729,8 +751,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Hermes Pique (A42S9Z4EA7)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Hermes Pique (A42S9Z4EA7)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Users/hpique/Downloads/Reveal.app/Contents/SharedSupport/iOS-Libraries",
@@ -738,8 +760,12 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Agnes/Agnes-Prefix.pch";
 				INFOPLIST_FILE = "Agnes/Agnes-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/hpique/workspace/agnes-ios/Agnes/TestFlightSDK2.1.4",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "2E8B7EA9-EF67-45CD-924A-560E58A521FF";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
@@ -751,8 +777,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Hermes Pique (A42S9Z4EA7)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Hermes Pique (A42S9Z4EA7)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Users/hpique/Downloads/Reveal.app/Contents/SharedSupport/iOS-Libraries",
@@ -760,8 +786,12 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Agnes/Agnes-Prefix.pch";
 				INFOPLIST_FILE = "Agnes/Agnes-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/hpique/workspace/agnes-ios/Agnes/TestFlightSDK2.1.4",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "BF45C5DA-7D97-4126-B644-3742CF75B4CD";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};

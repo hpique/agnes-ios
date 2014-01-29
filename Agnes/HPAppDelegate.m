@@ -15,6 +15,7 @@
 #import "HPNoteImporter.h"
 #import "HPAgnesNavigationController.h"
 #import <CoreData/CoreData.h>
+#import "TestFlight.h"
 
 @implementation HPAppDelegate
 
@@ -24,6 +25,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [TestFlight takeOff:@"21242682-ac9b-48b1-a8d6-a3ba293c3135"];
+    
     HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
     
     NSInteger sessionCount = [preferences increaseSessionCount];
