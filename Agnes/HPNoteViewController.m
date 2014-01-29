@@ -15,6 +15,7 @@
 #import "HPIndexItem.h"
 #import "HPNoteActivityItemSource.h"
 #import "HPBrowserViewController.h"
+#import "HPFontManager.h"
 #import "PSPDFTextView.h"
 #import "NSString+hp_utils.h"
 
@@ -92,7 +93,7 @@
         
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        _bodyTextView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+        _bodyTextView.font = [HPFontManager sharedManager].fontForNoteBody;
         _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, 10, 20 + self.toolbar.frame.size.height, 10);
         _bodyTextView.delegate = self;
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
