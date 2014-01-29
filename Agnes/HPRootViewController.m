@@ -17,6 +17,7 @@
 {
     [super viewDidLoad];
     self.closeDrawerGestureModeMask = MMCloseDrawerGestureModeAll;
+    self.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningNavigationBar | MMOpenDrawerGestureModePanningCenterView;
     self.view.backgroundColor = [UIColor whiteColor];
 }
 

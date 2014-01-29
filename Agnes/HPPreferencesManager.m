@@ -13,14 +13,17 @@ NSString *const HPPreferencesManagerDidChangePreferencesNotification = @"HPPrefe
 
 NSString *const HPAgnesDefaultsKeySortMode = @"HPAgnesSortMode";
 NSString *const HPAgnesDefaultsKeySessionCount = @"HPAgnesSessionCount";
+NSString *const HPAgnesDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 NSString *const HPAgnesDefaultsKeyTintColor = @"HPAgnesTintColor";
 NSString *const HPAgnesDefaultsKeyBarTintColor = @"HPAgnesBarTintColor";
+NSString *const HPAgnesPreferencesKeyStatusBarHidden = @"statusBarHidden";
 NSString *const HPAgnesPreferencesKeyTintColor = @"tintColor";
 NSString *const HPAgnesPreferencesKeyBarTintColor = @"barTintColor";
 NSString *const HPAgnesPreferencesValueDefault = @"default";
 
 static UIColor* HPAgnesDefaultTintColor = nil;
 static UIColor* HPAgnesDefaultBarTintColor = nil;
+static BOOL HPAgnesDefaultStatusBarHidden = NO;
 
 @implementation HPPreferencesManager
 
@@ -28,6 +31,7 @@ static UIColor* HPAgnesDefaultBarTintColor = nil;
 {
     HPAgnesDefaultTintColor = [UIColor colorWithRed:198.0f/255.0f green:67.0f/255.0f blue:252.0f/255.0f alpha:1.0];
     HPAgnesDefaultBarTintColor = [UIColor colorWithRed:200.0f/255.0f green:110.0f/255.0f blue:223.0f/255.0f alpha:1.0];
+    HPAgnesDefaultStatusBarHidden = [UIScreen mainScreen].bounds.size.height < 568.0;
 }
 
 + (HPPreferencesManager*)sharedManager
@@ -91,6 +95,14 @@ static UIColor* HPAgnesDefaultBarTintColor = nil;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
+- (void)setStatusBarHidden:(BOOL)statusBarHidden
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:@(statusBarHidden) forKey:HPAgnesDefaultsKeyStatusBarHidden];
+    [UIApplication sharedApplication].statusBarHidden = statusBarHidden;
+    [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
+}
+
 - (void)setTintColor:(UIColor *)tintColor
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -98,6 +110,13 @@ static UIColor* HPAgnesDefaultBarTintColor = nil;
     [userDefaults setValue:colorString forKey:HPAgnesDefaultsKeyTintColor];
     [UIApplication sharedApplication].keyWindow.tintColor = tintColor;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
+}
+
+- (BOOL)statusBarHidden
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *value = [userDefaults valueForKey:HPAgnesDefaultsKeyStatusBarHidden];
+    return value ? [value boolValue] : HPAgnesDefaultStatusBarHidden;
 }
 
 - (UIColor*)barTintColor
@@ -156,6 +175,11 @@ static UIColor* HPAgnesDefaultBarTintColor = nil;
         if (!color) return;
         if ([self.barTintColor isEquivalentToColor:color]) return;
         self.barTintColor = color;
+    }
+    else if ([key isEqualToString:HPAgnesPreferencesKeyStatusBarHidden])
+    {
+        BOOL boolValue = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultStatusBarHidden : [value boolValue];
+        self.statusBarHidden = boolValue;
     }
 }
 

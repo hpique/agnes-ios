@@ -43,6 +43,10 @@
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-barTintColor}" replacementBlock:^NSString *{
             return [HPPreferencesManager sharedManager].barTintColorName;
         }]];
+        [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-statusBarHidden}" replacementBlock:^NSString *{
+            BOOL value = [HPPreferencesManager sharedManager].statusBarHidden;
+            return value ? @"yes" : @"no";
+        }]];
         instance = actions;
     });
     return instance;

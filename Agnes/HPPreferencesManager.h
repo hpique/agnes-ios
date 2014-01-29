@@ -26,6 +26,7 @@ extern NSString* const HPPreferencesManagerDidChangePreferencesNotification;
 @property (nonatomic, readonly) NSInteger sessionCount;
 @property (nonatomic, strong) UIColor *barTintColor;
 @property (nonatomic, readonly) NSString *barTintColorName;
+@property (nonatomic, assign) BOOL statusBarHidden;
 @property (nonatomic, strong) UIColor *tintColor;
 @property (nonatomic, readonly) NSString *tintColorName;
 

@@ -35,7 +35,7 @@
         [[HPNoteManager sharedManager] addTutorialNotes];
     }
     
-    [UIApplication sharedApplication].statusBarHidden = YES;
+    [UIApplication sharedApplication].statusBarHidden = preferences.statusBarHidden;
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     [UINavigationBar appearance].barTintColor = preferences.barTintColor;
     [UINavigationBar appearance].tintColor = [UIColor whiteColor];
