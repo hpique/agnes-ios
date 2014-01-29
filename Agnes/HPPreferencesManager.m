@@ -79,8 +79,7 @@ static UIColor* HPAgnesDefaultBarTintColor = nil;
 
 - (NSString*)tintColorName
 {
-    UIColor *color = self.tintColor;
-    return [color isEquivalentToColor:HPAgnesDefaultTintColor] ? HPAgnesPreferencesValueDefault : [color stringValue];
+    return [self.tintColor stringValue];
 }
 
 - (void)setBarTintColor:(UIColor *)barTintColor
@@ -108,8 +107,7 @@ static UIColor* HPAgnesDefaultBarTintColor = nil;
 
 - (NSString*)barTintColorName
 {
-    UIColor *color = self.barTintColor;
-    return [color isEquivalentToColor:HPAgnesDefaultBarTintColor] ? HPAgnesPreferencesValueDefault : [color stringValue];
+    return [self.barTintColor stringValue];
 }
 
 - (void)applyPreferences:(NSString*)preferences
@@ -117,7 +115,7 @@ static UIColor* HPAgnesDefaultBarTintColor = nil;
     static NSRegularExpression *preferenceLineRegex;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString* pattern = @"(\\w+)=(\\w+)";
+        NSString* pattern = @"(\\w+)=([\\w#]+)";
         preferenceLineRegex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
     });
     [preferenceLineRegex enumerateMatchesInString:preferences options:0 range:NSMakeRange(0, preferences.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {

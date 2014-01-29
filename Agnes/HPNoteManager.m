@@ -170,7 +170,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         {
             [self.context insertObject:note];
         }
-        note.text = text;
+        note.text = [NSString stringWithString:text];
         note.modifiedAt = [NSDate date];
     }];
 }

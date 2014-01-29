@@ -11,6 +11,7 @@
                 <outlet property="_emptySubtitleLabel" destination="ac8-4x-E4n" id="frA-Yr-Y0y"/>
                 <outlet property="_emptyTitleLabel" destination="Lq5-vr-rI1" id="epu-Q5-9bi"/>
                 <outlet property="_notesTableView" destination="6Ye-Ag-F8Q" id="6m9-an-rAu"/>
+                <outlet property="_searchBar" destination="qkn-uy-VC4" id="SSS-kz-XcU"/>
                 <outlet property="_sortModeLabel" destination="RlL-rH-NfW" id="AmT-fQ-QLg"/>
                 <outlet property="_titleLabel" destination="Bi5-Eh-5QO" id="SZ3-yV-M83"/>
                 <outlet property="_titleView" destination="jTE-Aa-Rve" id="c3r-jh-O5e"/>
@@ -27,7 +28,7 @@
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    <searchBar key="tableHeaderView" contentMode="redraw" searchBarStyle="minimal" translucent="NO" id="qkn-uy-VC4">
+                    <searchBar key="tableHeaderView" contentMode="redraw" searchBarStyle="minimal" translucent="NO" id="qkn-uy-VC4" customClass="HPNoteListSearchBar">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>

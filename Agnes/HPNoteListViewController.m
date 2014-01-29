@@ -18,6 +18,7 @@
 #import "HPReorderTableView.h"
 #import "HPNoteListDetailTransitionAnimator.h"
 #import "HPNoteNavigationController.h"
+#import "HPNoteListSearchBar.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
@@ -27,7 +28,7 @@
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
-@interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate, HPNoteViewControllerDelegate>
+@interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate, HPNoteViewControllerDelegate, UISearchDisplayDelegate>
 
 @end
 
@@ -39,6 +40,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     NSString *_searchString;
     NSArray *_searchResults;
     NSArray *_archivedSearchResults;
+    __weak IBOutlet HPNoteListSearchBar *_searchBar;
     
     IBOutlet UIView *_titleView;
     __weak IBOutlet UILabel *_sortModeLabel;
@@ -77,20 +79,27 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    UIBarButtonItem *optionsBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-more"] style:UIBarButtonItemStylePlain target:self action:@selector(optionsBarButtionItemAction:)];
-    _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
-    self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem];
-    
-    MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
-
-    self.navigationItem.leftBarButtonItem = drawerBarButton;
-    self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem, optionsBarButtonItem];
-    self.navigationItem.titleView = _titleView;
+    {
+        _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
+        MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
+        self.navigationItem.leftBarButtonItem = drawerBarButton;
+        self.navigationItem.titleView = _titleView;
+        self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem];
+    }
     
     UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
     [_notesTableView registerNib:nib forCellReuseIdentifier:HPNoteListTableViewCellReuseIdentifier];
     _notesTableView.delegate = self;
-    [_notesTableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:YES];
+    [_notesTableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:NO];
+    
+    {
+        UIImage *image = [[UIImage imageNamed:@"icon-more"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [_searchBar.actionButton setImage:image forState:UIControlStateNormal];
+        UIImage *imageAlt = [[UIImage imageNamed:@"icon-more-alt"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [_searchBar.actionButton setImage:imageAlt forState:UIControlStateHighlighted];
+        _searchBar.actionButton.frame = CGRectMake(0, 0, MAX(image.size.width, 40), MAX(image.size.height, _searchBar.frame.size.height));
+        [_searchBar.actionButton addTarget:self action:@selector(optionsButtonItemAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
     
     self.searchDisplayController.searchBar.keyboardType = UIKeyboardTypeTwitter;
     self.searchDisplayController.searchBar.backgroundImage = [UIImage new]; // Remove black background
@@ -204,7 +213,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
 
-- (IBAction)optionsBarButtionItemAction:(id)sender
+- (void)optionsButtonItemAction:(id)sender
 {
     UIActionSheet *actionSheet = [[UIActionSheet alloc] init];
     actionSheet.delegate = self;
@@ -631,7 +640,18 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void) searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
 {
-    // TODO: Track
+    [_searchBar setWillBeginSearch];
+    _searching = YES;
+}
+
+- (void) searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller
+{
+    [_searchBar setWillEndSearch];
+}
+
+- (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
+{
+    _searching = NO;
 }
 
 - (void)searchDisplayController:(UISearchDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView
@@ -647,16 +667,6 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     _searchResults = [self notesWithSearchString:searchString archived:NO];
     _archivedSearchResults = [self notesWithSearchString:searchString archived:YES];
     return YES;
-}
-
-- (void)searchDisplayController:(UISearchDisplayController *)controller willShowSearchResultsTableView:(UITableView *)tableView
-{
-    _searching = YES;
-}
-
-- (void)searchDisplayController:(UISearchDisplayController *)controller didHideSearchResultsTableView:(UITableView *)tableView
-{
-    _searching = NO;
 }
 
 #pragma mark - UIActionSheetDelegate
