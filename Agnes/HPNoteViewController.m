@@ -80,6 +80,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShowNotification:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
  
     {
         _bodyTextStorage= [HPBaseTextStorage new];
@@ -115,6 +116,7 @@
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -595,6 +597,11 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 }
 
 #pragma mark - Notifications
+
+- (void)didChangeFontsNotification:(NSNotification*)notification
+{
+    _bodyTextView.font = [HPFontManager sharedManager].fontForNoteBody;
+}
 
 - (void)keyboardWillShowNotification:(NSNotification*)notification
 {

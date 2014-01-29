@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 @class HPNote;
 
+extern NSString* const HPFontManagerDidChangeFontsNotification;
 
 @interface HPFontManager : NSObject
 

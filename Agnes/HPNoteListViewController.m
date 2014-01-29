@@ -19,6 +19,7 @@
 #import "HPNoteListDetailTransitionAnimator.h"
 #import "HPNoteNavigationController.h"
 #import "HPNoteListSearchBar.h"
+#import "HPFontManager.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
@@ -72,6 +73,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 }
 
@@ -104,6 +106,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     self.searchDisplayController.searchBar.backgroundImage = [UIImage new]; // Remove black background
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
 
     [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
     [self updateIndexItem];
@@ -169,6 +172,13 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [self removeNoteInCell:cell modelBlock:^{
         [[HPNoteManager sharedManager] archiveNote:cell.note];
     }];
+}
+
+- (void)didChangeFontsNotification:(NSNotification*)notification
+{
+    [_notesTableView reloadData];
+    UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
+    [searchTableView reloadData];
 }
 
 - (void)exportNotes

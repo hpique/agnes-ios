@@ -10,6 +10,8 @@
 #import "HPPreferencesManager.h"
 #import "HPNote.h"
 
+NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChangeFontsNotification";
+
 @implementation HPFontManager {
     UIFont *_archivedNoteBodyFont;
     UIFont *_archivedNoteTitleFont;
@@ -125,6 +127,7 @@
     _archivedNoteTitleFont = nil;
     _noteBodyFont = nil;
     _noteTitleFont = nil;
+    [[NSNotificationCenter defaultCenter] postNotificationName:HPFontManagerDidChangeFontsNotification object:self];
 }
 
 @end
