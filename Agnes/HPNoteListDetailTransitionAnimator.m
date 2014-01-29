@@ -10,6 +10,7 @@
 #import "HPNoteListViewController.h"
 #import "HPNoteViewController.h"
 #import "HPNoteTableViewCell.h"
+#import "HPNoteNavigationController.h"
 #import "HPNote.h"
 
 @interface UIView(Utils)
@@ -61,6 +62,16 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
 + (BOOL)canTransitionFromViewController:(UIViewController *)fromVC
                        toViewController:(UIViewController *)toVC
 {
+    if ([fromVC conformsToProtocol:@protocol(HPNoteTransitionViewController)])
+    {
+        id<HPNoteTransitionViewController> transitionViewController = (id<HPNoteTransitionViewController>)fromVC;
+        if (transitionViewController.wantsDefaultTransition) return NO;
+    }
+    if ([toVC conformsToProtocol:@protocol(HPNoteTransitionViewController)])
+    {
+        id<HPNoteTransitionViewController> transitionViewController = (id<HPNoteTransitionViewController>)toVC;
+        if (transitionViewController.wantsDefaultTransition) return NO;
+    }
     if ([fromVC isKindOfClass:[HPNoteListViewController class]] && [toVC isKindOfClass:[HPNoteViewController class]])
     {
         HPNoteViewController *noteViewController = (HPNoteViewController*) toVC;

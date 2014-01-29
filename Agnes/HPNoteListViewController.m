@@ -64,12 +64,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     NSIndexPath *_indexPathOfSelectedNote;
     BOOL _ignoreNotesDidChangeNotification;
-    
-    BOOL _transitioning;
 }
 
 @synthesize indexPathOfSelectedNote = _indexPathOfSelectedNote;
 @synthesize transitioning = _transitioning;
+@synthesize wantsDefaultTransition = _wantsDefaultTransition;
 
 - (void)dealloc
 {

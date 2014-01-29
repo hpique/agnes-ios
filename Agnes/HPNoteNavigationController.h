@@ -12,6 +12,7 @@
 @protocol HPNoteTransitionViewController
 
 @property (nonatomic, assign) BOOL transitioning;
+@property (nonatomic, assign) BOOL wantsDefaultTransition;
 
 @end
 

@@ -47,11 +47,11 @@
 
     HPTagSuggestionsView *_suggestionsView;
     BOOL _viewDidAppear;
-    BOOL _transitioning;
 }
 
 @synthesize noteTextView = _bodyTextView;
 @synthesize transitioning = _transitioning;
+@synthesize wantsDefaultTransition = _wantsDefaultTransition;
 
 - (void)viewDidLoad
 {
@@ -446,6 +446,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     }
     else
     {
+        self.wantsDefaultTransition = YES;
         [self finishEditing];
     }
 }
