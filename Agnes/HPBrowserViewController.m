@@ -23,7 +23,7 @@
     UIBarButtonItem *_forwardBarButtonItem;
     UIBarButtonItem *_shareBarButtonItem;
     UIBarButtonItem *_safariBarButtonItem;
-
+    BOOL _previousToolbarHiddenValue;
 }
 
 - (void)viewDidLoad
@@ -52,7 +52,14 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    _previousToolbarHiddenValue = self.navigationController.toolbarHidden;
     self.navigationController.toolbarHidden = NO;
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    self.navigationController.toolbarHidden = _previousToolbarHiddenValue;
 }
 
 #pragma mark - Public
