@@ -14,12 +14,13 @@
 #import "HPNoteAction.h"
 #import "HPIndexItem.h"
 #import "HPNoteActivityItemSource.h"
+#import "HPPreferencesManager.h"
 #import "HPBrowserViewController.h"
 #import "HPFontManager.h"
 #import "PSPDFTextView.h"
 #import "NSString+hp_utils.h"
 
-@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate>
+@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UIImagePickerControllerDelegate>
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
 
@@ -33,6 +34,7 @@
     UITapGestureRecognizer *_textTapGestureRecognizer;
 
     UIBarButtonItem *_actionBarButtonItem;
+    UIBarButtonItem *_attachmentBarButtonItem;
     UIBarButtonItem *_addNoteBarButtonItem;
     UIBarButtonItem *_archiveBarButtonItem;
     UIBarButtonItem *_detailBarButtonItem;
@@ -62,6 +64,7 @@
     _actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionBarButtonItemAction:)];
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
     _archiveBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-archive"] style:UIBarButtonItemStylePlain target:self action:@selector(archiveBarButtomItemAction:)];
+    _attachmentBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-attachment"] style:UIBarButtonItemStylePlain target:self action:@selector(attachmentBarButtomItemAction:)];
     _doneBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-checkmark"] style:UIBarButtonItemStylePlain target:self action:@selector(doneBarButtonItemAction:)];
     _trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(trashBarButtonItemAction:)];
     _unarchiveBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-inbox"] style:UIBarButtonItemStylePlain target:self action:@selector(unarchiveBarButtomItemAction:)];
@@ -75,7 +78,7 @@
     _detailBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_detailLabel];
     _detailBarButtonItem.width = 160;
     
-    self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem, _actionBarButtonItem];
+    self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem, _actionBarButtonItem, _attachmentBarButtonItem];
     
     self.toolbar.barTintColor = [UIColor whiteColor];
     self.toolbar.clipsToBounds = YES;
@@ -95,7 +98,7 @@
         _bodyTextStorage.tag = self.indexItem.tag.name;
         
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
-        _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _bodyTextView.translatesAutoresizingMaskIntoConstraints = NO;
         _bodyTextView.font = [HPFontManager sharedManager].fontForNoteBody;
         _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, 10, 20 + self.toolbar.frame.size.height, 10);
         _bodyTextView.delegate = self;
@@ -441,6 +444,15 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     [self changeToEmptyNote];
 }
 
+- (void)attachmentBarButtomItemAction:(UIBarButtonItem*)barButtonItem
+{
+    UIImagePickerController *controller = [[UIImagePickerController alloc] init];
+    controller.delegate = self;
+    controller.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    [self presentViewController:controller animated:YES completion:^{
+    }];
+}
+
 - (IBAction)detailLabelTapGestureRecognizer:(id)sender
 {
     self.detailMode = (self.detailMode + 1) % HPNoteDetailModeCount;
@@ -679,5 +691,50 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     }];
     return foundValue;
 }
+
+#pragma mark - UIImagePickerControllerDelegate
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithAttributedString:_bodyTextView.attributedText];
+    
+    NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
+    CGSize scaledImageSize = [self sizeOfImage:image inTextView:_bodyTextView];
+    UIImage *scaledImage = [HPNoteViewController imageWithImage:image scaledToSize:scaledImageSize];
+    
+    textAttachment.image = scaledImage;
+    
+    NSAttributedString *attrStringWithImage = [NSAttributedString attributedStringWithAttachment:textAttachment];
+    
+    [attributedText replaceCharactersInRange:NSMakeRange(0, 0) withAttributedString:attrStringWithImage];
+    _bodyTextView.attributedText = attributedText;
+    [self dismissViewControllerAnimated:YES completion:^{}];
+    
+    { // Restore status bar
+        [UIApplication sharedApplication].statusBarHidden = [HPPreferencesManager sharedManager].statusBarHidden;
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    }
+}
+
+- (CGSize)sizeOfImage:(UIImage*)image inTextView:(UITextView*)textView
+{
+    const UIEdgeInsets insets = textView.textContainerInset;
+    const CGFloat width = textView.bounds.size.width - insets.left - insets.right - textView.textContainer.lineFragmentPadding * 2;
+    const CGSize size = image.size;
+    const CGFloat ratio = size.width / width;
+    const CGFloat height = size.height / ratio;
+    return CGSizeMake(width, height);
+}
+
++ (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize
+{
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
 
 @end
