@@ -10,6 +10,7 @@
 #import <CoreData/CoreData.h>
 
 @class HPTag;
+@class HPAttachment;
 
 typedef NS_ENUM(NSInteger, HPNoteDetailMode)
 {
@@ -23,6 +24,7 @@ extern const NSInteger HPNoteDetailModeCount;
 
 @interface HPNote : NSManagedObject
 
+@property (nonatomic, retain) NSSet *attachments;
 @property (nonatomic, retain) NSNumber * cd_archived;
 @property (nonatomic, retain) NSNumber * cd_detailMode;
 @property (nonatomic, retain) NSNumber * cd_views;
@@ -40,6 +42,10 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, readonly) NSString *modifiedAtLongDescription;
 @property (nonatomic, readonly) NSArray *tags;
 @property (nonatomic, readonly) BOOL isNew;
+
+- (void)attachImage:(UIImage*)image;
+
+- (void)addAttachmentsToAttributedString:(NSMutableAttributedString*)attributedString width:(CGFloat)width;
 
 - (NSString*)bodyForTagWithName:(NSString*)tagName;
 
@@ -63,6 +69,11 @@ extern const NSInteger HPNoteDetailModeCount;
 - (void)removeCd_tagsObject:(HPTag *)value;
 - (void)addCd_tags:(NSSet *)values;
 - (void)removeCd_tags:(NSSet *)values;
+
+- (void)addAttachmentsObject:(HPAttachment *)value;
+- (void)removeAttachmentsObject:(HPAttachment *)value;
+- (void)addAttachments:(NSSet *)values;
+- (void)removeAttachments:(NSSet *)values;
 
 @end
 

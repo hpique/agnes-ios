@@ -260,6 +260,7 @@
     NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
     [HPNoteAction willDisplayNote:self.note text:editableText view:self.noteTextView];
     _bodyTextView.text = editableText;
+    [self displayAttachments];
     if ([self.note isNew] && _viewDidAppear)
     {
         [_bodyTextView becomeFirstResponder];
@@ -697,24 +698,24 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithAttributedString:_bodyTextView.attributedText];
+    [self.note attachImage:image];
     
-    NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
-    CGSize scaledImageSize = [self sizeOfImage:image inTextView:_bodyTextView];
-    UIImage *scaledImage = [HPNoteViewController imageWithImage:image scaledToSize:scaledImageSize];
-    
-    textAttachment.image = scaledImage;
-    
-    NSAttributedString *attrStringWithImage = [NSAttributedString attributedStringWithAttachment:textAttachment];
-    
-    [attributedText replaceCharactersInRange:NSMakeRange(0, 0) withAttributedString:attrStringWithImage];
-    _bodyTextView.attributedText = attributedText;
     [self dismissViewControllerAnimated:YES completion:^{}];
     
     { // Restore status bar
         [UIApplication sharedApplication].statusBarHidden = [HPPreferencesManager sharedManager].statusBarHidden;
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     }
+    [self displayAttachments];
+}
+
+- (void)displayAttachments
+{
+    const UIEdgeInsets insets = _bodyTextView.textContainerInset;
+    const CGFloat width = _bodyTextView.bounds.size.width - insets.left - insets.right - _bodyTextView.textContainer.lineFragmentPadding * 2;
+    NSMutableAttributedString *attributedString = [_bodyTextView.attributedText mutableCopy];
+    [self.note addAttachmentsToAttributedString:attributedString width:width];
+    _bodyTextView.attributedText = attributedString;
 }
 
 - (CGSize)sizeOfImage:(UIImage*)image inTextView:(UITextView*)textView
@@ -725,15 +726,6 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     const CGFloat ratio = size.width / width;
     const CGFloat height = size.height / ratio;
     return CGSizeMake(width, height);
-}
-
-+ (UIImage *)imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize
-{
-    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
-    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return newImage;
 }
 
 

@@ -9,11 +9,16 @@
 #import "HPNote.h"
 #import "HPTag.h"
 #import "HPTagManager.h"
+#import "HPAttachment.h" 
+#import "HPData.h"
+#import "UIImage+hp_utils.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 const NSInteger HPNoteDetailModeCount = 5;
 
 @implementation HPNote
 
+@dynamic attachments;
 @dynamic cd_archived;
 @dynamic cd_detailMode;
 @dynamic cd_inboxOrder;
@@ -65,6 +70,40 @@ const NSInteger HPNoteDetailModeCount = 5;
 }
 
 #pragma mark - Public
+
+- (void)addAttachmentsToAttributedString:(NSMutableAttributedString*)attributedString width:(CGFloat)width
+{
+    HPAttachment *attachment = [self.attachments anyObject];
+    if (!attachment) return;
+    
+    NSData *data = attachment.data.data;
+    UIImage *image = [UIImage imageWithData:data];
+    
+    const CGSize imageSize = image.size;
+    const CGFloat ratio = imageSize.width / width;
+    const CGFloat scaledHeight = imageSize.height / ratio;
+    const CGSize scaledImageSize = CGSizeMake(width, scaledHeight);
+    
+    UIImage *scaledImage = [UIImage hp_imageWithImage:image scaledToSize:scaledImageSize];
+    
+    NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
+    textAttachment.image = scaledImage;
+    NSAttributedString *attachmentString = [NSAttributedString attributedStringWithAttachment:textAttachment];
+    
+    [attributedString replaceCharactersInRange:NSMakeRange(0, 0) withAttributedString:attachmentString];
+}
+
+- (void)attachImage:(UIImage*)image
+{
+    [self removeAttachments:self.attachments];
+    HPAttachment *attachment = [HPAttachment insertNewObjectIntoContext:self.managedObjectContext];
+    attachment.type = (NSString*) kUTTypeImage;
+    
+    HPData *data = [HPData insertNewObjectIntoContext:self.managedObjectContext];
+    data.data = UIImageJPEGRepresentation(image, 1);
+    attachment.data = data;
+    [self addAttachmentsObject:attachment];
+}
 
 + (NSString *)entityName
 {

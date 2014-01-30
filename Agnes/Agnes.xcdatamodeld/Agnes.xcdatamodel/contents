@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3401" systemVersion="13B42" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Attachment" syncable="YES">
+        <attribute name="type" attributeType="String" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Data" syncable="YES"/>
+        <relationship name="note" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Note" inverseName="attachments" inverseEntity="Note" syncable="YES"/>
+        <relationship name="thumbnail" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Data" syncable="YES"/>
+    </entity>
+    <entity name="Data" syncable="YES">
+        <attribute name="data" attributeType="Binary" syncable="YES"/>
+    </entity>
     <entity name="Note" representedClassName="HPNote" syncable="YES">
         <attribute name="archived" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="cd_archived" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
@@ -13,7 +22,8 @@
         <attribute name="tagOrder" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="views" optional="YES" transient="YES" syncable="YES"/>
-        <relationship name="cd_tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="cd_notes" inverseEntity="Tag" syncable="YES"/>
+        <relationship name="attachments" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Attachment" inverseName="note" inverseEntity="Attachment" syncable="YES"/>
+        <relationship name="cd_tags" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Tag" inverseName="cd_notes" inverseEntity="Tag" syncable="YES"/>
     </entity>
     <entity name="Tag" representedClassName="HPTag" syncable="YES">
         <attribute name="cd_order" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -26,7 +36,9 @@
     <fetchRequest name="ArchivedNotes" entity="Note" predicateString="archived == 1"/>
     <fetchRequest name="InboxNotes" entity="Note" predicateString="archived == 0"/>
     <elements>
-        <element name="Note" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Tag" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Attachment" positionX="198" positionY="57" width="128" height="105"/>
+        <element name="Data" positionX="486" positionY="102" width="128" height="60"/>
+        <element name="Note" positionX="-47" positionY="-39" width="128" height="253"/>
+        <element name="Tag" positionX="-297" positionY="72" width="128" height="133"/>
     </elements>
 </model>
