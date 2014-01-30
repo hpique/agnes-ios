@@ -10,6 +10,7 @@
 #import "HPNote.h"
 #import "TTTAttributedLabel.h"
 #import "HPPreferencesManager.h"
+#import "HPFontManager.h"
 
 @interface HPNoteListTableViewCell()
 
@@ -155,6 +156,7 @@
 
 - (void)displayDetail
 {
+    self.detailLabel.font = [[HPFontManager sharedManager] fontForDetail];
     NSString *detailText = @"";
     switch (self.sortMode)
     {

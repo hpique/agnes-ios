@@ -15,6 +15,7 @@ extern NSString* const HPFontManagerDidChangeFontsNotification;
 
 + (HPFontManager*)sharedManager;
 
+- (UIFont*)fontForDetail;
 - (UIFont*)fontForNoteTitle;
 - (UIFont*)fontForNoteBody;
 - (UIFont*)fontForArchivedNoteTitle;

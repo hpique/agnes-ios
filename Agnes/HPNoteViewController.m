@@ -70,6 +70,7 @@
     _trashBarButtonItem.enabled = !self.indexItem.disableRemove;
     _unarchiveBarButtonItem.enabled = !self.indexItem.disableRemove;
     
+    _detailLabel.font = [[HPFontManager sharedManager] fontForDetail];
     _detailBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_detailLabel];
     _detailBarButtonItem.width = 160;
     
@@ -601,7 +602,9 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)didChangeFontsNotification:(NSNotification*)notification
 {
-    _bodyTextView.font = [HPFontManager sharedManager].fontForNoteBody;
+    HPFontManager *manager = [HPFontManager sharedManager];
+    _bodyTextView.font = manager.fontForNoteBody;
+    _detailLabel.font = manager.fontForDetail;
 }
 
 - (void)keyboardWillShowNotification:(NSNotification*)notification

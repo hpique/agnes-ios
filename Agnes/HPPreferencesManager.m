@@ -266,8 +266,8 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
 - (void)updateFontNameFromValue:(NSString*)value
 {
     NSString *fontName = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultFontName : value;
-    UIFont *font = [UIFont fontWithName:fontName size:0];
-    if (!font || ![fontName isEqualToString:font.fontName]) return;
+    UIFont *font = [UIFont fontWithName:fontName size:10];
+    if (!font) return;
     if ([self.fontName isEqualToString:fontName]) return;
     self.fontName = fontName;
 }
@@ -276,7 +276,7 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
 {
     NSInteger fontSize = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultFontSize : [value integerValue];
     if (self.fontSize == fontSize) return;
-    self.fontSize = MAX(8, fontSize);
+    self.fontSize = MIN(MAX(8, fontSize),30); // Prevent app from becoming unusable
 }
 
 - (void)updateStatusBarHiddenFromValue:(NSString*)value

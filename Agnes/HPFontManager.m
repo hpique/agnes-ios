@@ -15,6 +15,7 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
 @implementation HPFontManager {
     UIFont *_archivedNoteBodyFont;
     UIFont *_archivedNoteTitleFont;
+    UIFont *_detailFont;
     UIFont *_noteBodyFont;
     UIFont *_noteTitleFont;
 }
@@ -42,6 +43,12 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
         instance.fontSize = [HPPreferencesManager sharedManager].fontSize;
     });
     return instance;
+}
+
+- (UIFont*)fontForDetail
+{
+    if (!_detailFont) _detailFont = [self fontWithTextStyle:UIFontTextStyleFootnote addingTraits:kNilOptions scale:0.75];
+    return _detailFont;
 }
 
 - (UIFont*)fontForNoteTitle
@@ -105,7 +112,7 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
 
 #pragma mark - Private
 
-- (UIFont*)fontWithTextStyle:(NSString*)textStyle addingTraits:(UIFontDescriptorSymbolicTraits)traits
+- (UIFont*)fontWithTextStyle:(NSString*)textStyle addingTraits:(UIFontDescriptorSymbolicTraits)traits scale:(CGFloat)scale
 {
     if (self.dinamicType)
     {
@@ -115,16 +122,23 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
     }
     else
     {
-        UIFontDescriptor *descriptor = [UIFontDescriptor fontDescriptorWithName:self.fontName size:self.fontSize];
+        CGFloat fontSize = ceil(self.fontSize * scale);
+        UIFontDescriptor *descriptor = [UIFontDescriptor fontDescriptorWithName:self.fontName size:fontSize];
         descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | traits];
         return [UIFont fontWithDescriptor:descriptor size:self.fontSize];
     }
+}
+
+- (UIFont*)fontWithTextStyle:(NSString*)textStyle addingTraits:(UIFontDescriptorSymbolicTraits)traits
+{
+    return [self fontWithTextStyle:textStyle addingTraits:traits scale:1];
 }
 
 - (void)invalidateFonts
 {
     _archivedNoteBodyFont = nil;
     _archivedNoteTitleFont = nil;
+    _detailFont = nil;
     _noteBodyFont = nil;
     _noteTitleFont = nil;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPFontManagerDidChangeFontsNotification object:self];
