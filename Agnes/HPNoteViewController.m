@@ -20,7 +20,7 @@
 #import "PSPDFTextView.h"
 #import "NSString+hp_utils.h"
 
-@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UIImagePickerControllerDelegate>
+@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
 
@@ -50,6 +50,7 @@
 
     HPTagSuggestionsView *_suggestionsView;
     BOOL _viewDidAppear;
+    BOOL _hasEnteredEditingModeOnce;
 }
 
 @synthesize noteTextView = _bodyTextView;
@@ -197,9 +198,9 @@
         [[HPNoteManager sharedManager] editNote:self.note text:mutableText];
         if (changed)
         {
-            [HPNoteAction willDisplayNote:note text:mutableText view:self.noteTextView];
-            self.noteTextView.text = mutableText;
-            [self displayAttachments];
+            NSMutableAttributedString *attributedText = [self attributedNoteText].mutableCopy;
+            [HPNoteAction willDisplayNote:self.note text:attributedText view:self.noteTextView];
+            _bodyTextView.attributedText = attributedText;
         }
         [self updateToolbar:animated];
         [self displayDetail];
@@ -258,13 +259,20 @@
 
 #pragma mark - Private
 
+- (NSAttributedString*)attributedNoteText
+{
+    const UIEdgeInsets insets = _bodyTextView.textContainerInset;
+    const CGFloat width = _bodyTextView.bounds.size.width - insets.left - insets.right - _bodyTextView.textContainer.lineFragmentPadding * 2;
+    return [self.note attributedTextForWidth:width];
+}
+
 - (void)displayNote
 {
+    _hasEnteredEditingModeOnce = NO;
     _bodyTextStorage.search = self.search;
-    NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
-    [HPNoteAction willDisplayNote:self.note text:editableText view:self.noteTextView];
-    _bodyTextView.text = editableText;
-    [self displayAttachments];
+    NSMutableAttributedString *attributedText = [self attributedNoteText].mutableCopy;
+    [HPNoteAction willDisplayNote:self.note text:attributedText view:self.noteTextView];
+    _bodyTextView.attributedText = attributedText;
     if ([self.note isNew] && _viewDidAppear)
     {
         [_bodyTextView becomeFirstResponder];
@@ -440,7 +448,6 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 - (void)archiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPNoteManager sharedManager] archiveNote:self.note];
-    [self updateToolbar:YES /* animated */];
     [self finishEditing];
 }
 
@@ -548,7 +555,6 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 - (void)unarchiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPNoteManager sharedManager] unarchiveNote:self.note];
-    [self updateToolbar:YES /* animated */];
     [self finishEditing];
 }
 
@@ -561,9 +567,10 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
 {
+    _hasEnteredEditingModeOnce = YES;
     _bodyTextStorage.search = nil;
     _textTapGestureRecognizer.enabled = NO;
-    [self.navigationItem setRightBarButtonItems:@[_doneBarButtonItem, _actionBarButtonItem] animated:YES];
+    [self.navigationItem setRightBarButtonItems:@[_doneBarButtonItem, _actionBarButtonItem, _attachmentBarButtonItem] animated:YES];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
@@ -573,7 +580,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     {
         [self saveNote:YES];
     }
-    [self.navigationItem setRightBarButtonItems:@[_addNoteBarButtonItem, _actionBarButtonItem] animated:YES];
+    [self.navigationItem setRightBarButtonItems:@[_addNoteBarButtonItem, _actionBarButtonItem, _attachmentBarButtonItem] animated:YES];
 }
 
 - (void)textViewDidChangeSelection:(UITextView *)textView
@@ -702,7 +709,9 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-    [self.note attachImage:image];
+    NSInteger index = _hasEnteredEditingModeOnce ? _bodyTextView.selectedRange.location : 0; // selectedRange gives the last position by default
+    if (index == NSNotFound) index = 0;
+    [[HPNoteManager sharedManager] attachToNote:self.note image:image index:index];
     
     [self dismissViewControllerAnimated:YES completion:^{}];
     
@@ -710,27 +719,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
         [UIApplication sharedApplication].statusBarHidden = [HPPreferencesManager sharedManager].statusBarHidden;
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     }
-    [self displayAttachments];
+    self.noteTextView.attributedText = [self attributedNoteText];
 }
-
-- (void)displayAttachments
-{
-    const UIEdgeInsets insets = _bodyTextView.textContainerInset;
-    const CGFloat width = _bodyTextView.bounds.size.width - insets.left - insets.right - _bodyTextView.textContainer.lineFragmentPadding * 2;
-    NSMutableAttributedString *attributedString = [_bodyTextView.attributedText mutableCopy];
-    [self.note addAttachmentsToAttributedString:attributedString width:width];
-    _bodyTextView.attributedText = attributedString;
-}
-
-- (CGSize)sizeOfImage:(UIImage*)image inTextView:(UITextView*)textView
-{
-    const UIEdgeInsets insets = textView.textContainerInset;
-    const CGFloat width = textView.bounds.size.width - insets.left - insets.right - textView.textContainer.lineFragmentPadding * 2;
-    const CGSize size = image.size;
-    const CGFloat ratio = size.width / width;
-    const CGFloat height = size.height / ratio;
-    return CGSizeMake(width, height);
-}
-
 
 @end

@@ -27,6 +27,8 @@
 
 - (void)archiveNote:(HPNote*)note;
 
+- (void)attachToNote:(HPNote*)note image:(UIImage*)image index:(NSInteger)index;
+
 - (HPNote*)blankNoteWithTagOfName:(NSString*)tag;
 
 - (void)editNote:(HPNote*)note text:(NSString*)text;

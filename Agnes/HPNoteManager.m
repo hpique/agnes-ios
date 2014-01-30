@@ -11,7 +11,10 @@
 #import "HPAppDelegate.h"
 #import "HPNote.h"
 #import "HPTag.h"
+#import "HPAttachment.h"
+#import "HPData.h"
 #import <CoreData/CoreData.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 static void *HPNoteManagerContext = &HPNoteManagerContext;
 
@@ -148,6 +151,23 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     [self performModelUpdateWithName:@"Archive" save:NO block:^{
         note.archived = YES;
     }];
+}
+
+- (void)attachToNote:(HPNote*)note image:(UIImage*)image index:(NSInteger)index
+{
+    [self performModelUpdateWithName:@"Attach Image" save:YES block:
+     ^{
+         NSEntityDescription *entityAttachment = [NSEntityDescription entityForName:[HPAttachment entityName] inManagedObjectContext:self.context];
+         HPAttachment *attachment = [[HPAttachment alloc] initWithEntity:entityAttachment insertIntoManagedObjectContext:note.managedObjectContext]; // Considering blank notes
+         attachment.type = (NSString*) kUTTypeImage;
+         
+         NSEntityDescription *entityData = [NSEntityDescription entityForName:[HPData entityName] inManagedObjectContext:self.context];
+         HPData *data = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
+         data.data = UIImageJPEGRepresentation(image, 1);
+         attachment.data = data;
+         
+         [note addAttachment:attachment atIndex:index];
+     }];
 }
 
 - (HPNote*)blankNoteWithTagOfName:(NSString*)tag

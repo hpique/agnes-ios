@@ -11,9 +11,9 @@
 
 @interface HPNoteAction : NSObject
 
-- (void)apply:(HPNote*)note text:(NSMutableString*)mutableText view:(id)view;
+- (void)apply:(HPNote*)note text:(NSMutableAttributedString*)mutableText view:(id)view;
 
-+ (void)willDisplayNote:(HPNote*)note text:(NSMutableString*)mutableText view:(id)view;
++ (void)willDisplayNote:(HPNote*)note text:(NSMutableAttributedString*)mutableText view:(id)view;
 
 + (BOOL)willEditNote:(HPNote*)note text:(NSMutableString*)mutableText editor:(UITextView*)textView;
 

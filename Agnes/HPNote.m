@@ -12,7 +12,6 @@
 #import "HPAttachment.h" 
 #import "HPData.h"
 #import "UIImage+hp_utils.h"
-#import <MobileCoreServices/MobileCoreServices.h>
 
 const NSInteger HPNoteDetailModeCount = 5;
 
@@ -60,7 +59,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     _tags = nil;
     [self updateTags];
     NSInteger attachmentIndex = [text rangeOfString:[HPNote attachmentString]].location;
-    if (attachmentIndex != NSNotFound)
+    if (attachmentIndex == NSNotFound)
     {
         [self removeAttachments:self.attachments];
     }
@@ -88,10 +87,25 @@ const NSInteger HPNoteDetailModeCount = 5;
 
 #pragma mark - Public
 
-- (void)addAttachmentsToAttributedString:(NSMutableAttributedString*)attributedString width:(CGFloat)width
+- (void)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index
 {
+    NSMutableString *text = [self.text mutableCopy];
+    const NSRange range = NSMakeRange(0, text.length);
+    [text replaceOccurrencesOfString:[HPNote attachmentString] withString:@"" options:kNilOptions range:range];
+    [self removeAttachments:self.attachments];
+    [text insertString:[HPNote attachmentString] atIndex:index];
+    [self addAttachmentsObject:attachment];
+    self.text = text;
+}
+
+- (NSAttributedString*)attributedTextForWidth:(CGFloat)width
+{
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text];
     HPAttachment *attachment = [self.attachments anyObject];
-    if (!attachment) return;
+    if (!attachment) return attributedString;
+    NSInteger index = [self.text rangeOfString:[HPNote attachmentString]].location;
+    NSAssert(index != NSNotFound, @"Note has atttachments without attachment characters");
+    if (index == NSNotFound) index = 0;
     
     NSData *data = attachment.data.data;
     UIImage *image = [UIImage imageWithData:data];
@@ -107,19 +121,8 @@ const NSInteger HPNoteDetailModeCount = 5;
     textAttachment.image = scaledImage;
     NSAttributedString *attachmentString = [NSAttributedString attributedStringWithAttachment:textAttachment];
     
-    [attributedString replaceCharactersInRange:NSMakeRange(0, 0) withAttributedString:attachmentString];
-}
-
-- (void)attachImage:(UIImage*)image
-{
-    [self removeAttachments:self.attachments];
-    HPAttachment *attachment = [HPAttachment insertNewObjectIntoContext:self.managedObjectContext];
-    attachment.type = (NSString*) kUTTypeImage;
-    
-    HPData *data = [HPData insertNewObjectIntoContext:self.managedObjectContext];
-    data.data = UIImageJPEGRepresentation(image, 1);
-    attachment.data = data;
-    [self addAttachmentsObject:attachment];
+    [attributedString replaceCharactersInRange:NSMakeRange(index, 0) withAttributedString:attachmentString];
+    return attributedString;
 }
 
 + (NSString *)entityName

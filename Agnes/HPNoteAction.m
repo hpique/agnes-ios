@@ -60,7 +60,7 @@
     return instance;
 }
 
-+ (void)willDisplayNote:(HPNote*)note text:(NSMutableString*)mutableText view:(id)view
++ (void)willDisplayNote:(HPNote*)note text:(NSMutableAttributedString*)mutableText view:(id)view
 {
     NSArray *actions = [HPNoteAction willDisplayNoteActions];
     for (HPNoteAction *action in actions)
@@ -93,10 +93,11 @@
     return action;
 }
 
-- (void)apply:(HPNote*)note text:(NSMutableString*)mutableText view:(id)view
+- (void)apply:(HPNote*)note text:(NSMutableAttributedString*)mutableText view:(id)view
 {
     __block NSString *replacement = nil; // Do not calculate if there are no matches
-    [mutableText hp_enumerateOccurrencesOfString:self.target options:NSLiteralSearch usingBlock:^(NSRange matchRange, BOOL *stop) {
+    NSString *text = mutableText.string;
+    [text hp_enumerateOccurrencesOfString:self.target options:NSLiteralSearch usingBlock:^(NSRange matchRange, BOOL *stop) {
         if (!replacement) replacement = self.replacementBlock();
         [mutableText replaceCharactersInRange:matchRange withString:replacement];
     }];

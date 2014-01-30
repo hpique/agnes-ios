@@ -43,9 +43,9 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, readonly) NSArray *tags;
 @property (nonatomic, readonly) BOOL isNew;
 
-- (void)attachImage:(UIImage*)image;
+- (void)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index;
 
-- (void)addAttachmentsToAttributedString:(NSMutableAttributedString*)attributedString width:(CGFloat)width;
+- (NSAttributedString*)attributedTextForWidth:(CGFloat)width;
 
 + (NSString*)attachmentString;
 
