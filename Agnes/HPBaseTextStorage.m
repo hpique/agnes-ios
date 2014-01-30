@@ -12,6 +12,12 @@
 #import "HPPreferencesManager.h"
 #import <MessageUI/MessageUI.h>
 
+@interface UIColor (Utils)
+
+- (UIColor *)hp_lighterColor;
+
+@end
+
 @implementation HPBaseTextStorage {
     NSMutableAttributedString *_backingStore;
     BOOL _needsUpdate;
@@ -56,9 +62,18 @@
         _needsUpdate = NO;
         [self addLinks];
         [self boldTitle];
-        [self performReplacementsForRange:self.editedRange];
+        [self highlightTags:self.editedRange];
+        [self highlightSearch]; // TODO: Title is not highligted
     }
     [super processEditing];
+}
+
+#pragma mark - Public
+
+- (void)setSearch:(NSString *)search
+{
+    _search = search;
+    [self highlightSearch];
 }
 
 #pragma mark - Private
@@ -125,7 +140,7 @@
     }];
 }
 
-- (void)performReplacementsForRange:(NSRange)changedRange
+- (void)highlightTags:(NSRange)changedRange
 {
     NSRange extendedRange = NSUnionRange(changedRange, [_backingStore.string lineRangeForRange:NSMakeRange(changedRange.location, 0)]);
     extendedRange = NSUnionRange(changedRange, [_backingStore.string lineRangeForRange:NSMakeRange(NSMaxRange(changedRange), 0)]);
@@ -148,6 +163,46 @@
         NSRange matchRange = [match rangeAtIndex:0];
         [self addAttributes:attributes range:matchRange];
     }];
+}
+
+- (void)highlightSearch
+{
+    NSString *text = self.string;
+    NSRange searchRange = NSMakeRange(0, text.length);
+    [self removeAttribute:NSBackgroundColorAttributeName range:searchRange];
+    if (!self.search) return;
+    
+    NSString *pattern = [NSRegularExpression escapedPatternForString:self.search];
+    NSRegularExpression* regex = [NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:nil];
+    UIColor *color = [HPPreferencesManager sharedManager].tintColor;
+    color = [color hp_lighterColor];
+    NSDictionary* attributes = @{ NSBackgroundColorAttributeName : color};
+    
+    [regex enumerateMatchesInString:text
+                            options:0
+                              range:searchRange
+                         usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
+     {
+         NSRange matchRange = [match rangeAtIndex:0];
+         [self addAttributes:attributes range:matchRange];
+     }];
+}
+
+@end
+
+@implementation UIColor(Utils)
+
+- (UIColor *)hp_lighterColor
+{
+    CGFloat h, s, b, a;
+    if ([self getHue:&h saturation:&s brightness:&b alpha:&a])
+    {
+        return [UIColor colorWithHue:h
+                          saturation:s * 0.4
+                          brightness:MIN(b * 1.6, 1.0)
+                               alpha:a];
+    }
+    return self;
 }
 
 @end

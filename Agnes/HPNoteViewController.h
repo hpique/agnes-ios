@@ -21,6 +21,7 @@
 @property (nonatomic, copy) HPIndexItem *indexItem;
 @property (nonatomic, strong) NSMutableArray *notes;
 @property (nonatomic, strong) UITextView *noteTextView;
+@property (nonatomic, copy) NSString *search;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 
 + (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;

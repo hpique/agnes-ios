@@ -470,6 +470,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:_notes indexItem:self.indexItem];
     noteViewController.delegate = self;
+    if (_searchString) noteViewController.search = _searchString;
     [self.navigationController pushViewController:noteViewController animated:YES];
 }
 
@@ -674,6 +675,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void) searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
 {
+    self.title = NSLocalizedString(@"Search", @"");
     [_searchBar setWillBeginSearch];
     _searching = YES;
 }
@@ -685,7 +687,9 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
+    self.title = self.indexItem.title;
     _searching = NO;
+    _searchString = nil;
 }
 
 - (void)searchDisplayController:(UISearchDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView

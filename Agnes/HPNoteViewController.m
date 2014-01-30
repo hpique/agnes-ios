@@ -51,6 +51,7 @@
 }
 
 @synthesize noteTextView = _bodyTextView;
+@synthesize search = _search;
 @synthesize transitioning = _transitioning;
 @synthesize wantsDefaultTransition = _wantsDefaultTransition;
 
@@ -84,7 +85,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
  
     {
-        _bodyTextStorage= [HPBaseTextStorage new];
+        _bodyTextStorage = [HPBaseTextStorage new];
         NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
         CGSize containerSize = CGSizeMake(self.view.bounds.size.width,  CGFLOAT_MAX);
         NSTextContainer *container = [[NSTextContainer alloc] initWithSize:containerSize];
@@ -169,6 +170,17 @@
 
 #pragma mark - Public
 
+- (NSString*)search
+{
+    return _search;
+}
+
+- (void)setSearch:(NSString *)search
+{
+    _search = search;
+    _bodyTextStorage.search = self.search;
+}
+
 - (BOOL)saveNote:(BOOL)animated
 {
     HPNote *note = self.note;
@@ -241,6 +253,7 @@
 
 - (void)displayNote
 {
+    _bodyTextStorage.search = self.search;
     NSMutableString *editableText = [NSMutableString stringWithString:self.note.text];
     [HPNoteAction willDisplayNote:self.note text:editableText view:self.noteTextView];
     _bodyTextView.text = editableText;
@@ -531,6 +544,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
 {
+    _bodyTextStorage.search = nil;
     _textTapGestureRecognizer.enabled = NO;
     [self.navigationItem setRightBarButtonItems:@[_doneBarButtonItem, _actionBarButtonItem] animated:YES];
 }
