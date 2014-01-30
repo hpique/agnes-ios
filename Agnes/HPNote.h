@@ -47,6 +47,8 @@ extern const NSInteger HPNoteDetailModeCount;
 
 - (void)addAttachmentsToAttributedString:(NSMutableAttributedString*)attributedString width:(CGFloat)width;
 
++ (NSString*)attachmentString;
+
 - (NSString*)bodyForTagWithName:(NSString*)tagName;
 
 - (void)setOrder:(NSInteger)order inTag:(NSString*)tag;

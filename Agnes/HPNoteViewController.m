@@ -193,10 +193,14 @@
     if (![note isNew] || ![self isEmptyText])
     {
         NSMutableString *mutableText = [NSMutableString stringWithString:self.noteTextView.text];
-        [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
+        const BOOL changed = [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
         [[HPNoteManager sharedManager] editNote:self.note text:mutableText];
-        [HPNoteAction willDisplayNote:note text:mutableText view:self.noteTextView];
-        self.noteTextView.text = mutableText;
+        if (changed)
+        {
+            [HPNoteAction willDisplayNote:note text:mutableText view:self.noteTextView];
+            self.noteTextView.text = mutableText;
+            [self displayAttachments];
+        }
         [self updateToolbar:animated];
         [self displayDetail];
         _bodyTextViewChanged = NO;

@@ -33,6 +33,18 @@ const NSInteger HPNoteDetailModeCount = 5;
 @synthesize tags = _tags;
 @synthesize title = _title;
 
+
++ (NSString*)attachmentString
+{
+    static NSString *attachmentString = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        const unichar attachmentChar = NSAttachmentCharacter;
+        attachmentString = [NSString stringWithCharacters:&attachmentChar length:1];
+    });
+    return attachmentString;
+}
+
 #pragma mark - NSManagedObject
 
 // See: http://stackoverflow.com/questions/21231908/calculated-properties-in-core-data
@@ -47,6 +59,11 @@ const NSInteger HPNoteDetailModeCount = 5;
     _body = nil;
     _tags = nil;
     [self updateTags];
+    NSInteger attachmentIndex = [text rangeOfString:[HPNote attachmentString]].location;
+    if (attachmentIndex != NSNotFound)
+    {
+        [self removeAttachments:self.attachments];
+    }
     [self didChangeValueForKey:key];
 }
 
@@ -161,8 +178,9 @@ const NSInteger HPNoteDetailModeCount = 5;
     if (!self.text) return nil;
     if (!_body)
     {
-        NSRange titleRange = [self.text rangeOfString:self.title];
-        NSString *body = [self.text stringByReplacingCharactersInRange:titleRange withString:@""];
+        NSString *text = [self.text stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
+        NSRange titleRange = [text rangeOfString:self.title];
+        NSString *body = [text stringByReplacingCharactersInRange:titleRange withString:@""];
         _body = [body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     }
     return _body;
@@ -218,7 +236,8 @@ const NSInteger HPNoteDetailModeCount = 5;
     if (!self.text) return nil;
     if (!_title)
     {
-        NSString *trimmedText = [self.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        NSString *text = [self.text stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
+        NSString *trimmedText = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         _title = [trimmedText componentsSeparatedByString:@"\n"][0];
     }
     return _title;

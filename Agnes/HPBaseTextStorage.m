@@ -132,6 +132,7 @@
     // TODO: Do we really need to enumerate all lines?
     [_backingStore.string enumerateSubstringsInRange:range options:NSStringEnumerationByParagraphs usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
         NSString *trimmed = [substring stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        trimmed = [trimmed stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
         // Skip first empty lines, if any
         if (paragraphIndex == 0 && trimmed.length == 0) return;
 

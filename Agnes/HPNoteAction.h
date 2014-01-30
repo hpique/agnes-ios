@@ -15,6 +15,6 @@
 
 + (void)willDisplayNote:(HPNote*)note text:(NSMutableString*)mutableText view:(id)view;
 
-+ (void)willEditNote:(HPNote*)note text:(NSMutableString*)mutableText editor:(UITextView*)textView;
++ (BOOL)willEditNote:(HPNote*)note text:(NSMutableString*)mutableText editor:(UITextView*)textView;
 
 @end

@@ -69,14 +69,16 @@
     }
 }
 
-+ (void)willEditNote:(HPNote*)note text:(NSMutableString*)mutableText editor:(UITextView*)textView
++ (BOOL)willEditNote:(HPNote*)note text:(NSMutableString*)mutableText editor:(UITextView*)textView
 {
     if ([[HPNoteManager sharedManager].systemNotes containsObject:note])
     {
         [[HPPreferencesManager sharedManager] applyPreferences:mutableText];
         [mutableText deleteCharactersInRange:NSMakeRange(0, mutableText.length)];
         [mutableText appendString:note.text];
+        return YES;
     }
+    return NO;
 }
 
 @end
