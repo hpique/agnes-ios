@@ -13,6 +13,7 @@
 #import "HPTag.h"
 #import "HPAttachment.h"
 #import "HPData.h"
+#import "UIImage+hp_utils.h"
 #import <CoreData/CoreData.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
@@ -165,6 +166,25 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
          HPData *data = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
          data.data = UIImageJPEGRepresentation(image, 1);
          attachment.data = data;
+
+         {
+             CGSize thumbnailSize;
+             CGSize imageSize = image.size;
+             if (imageSize.height < imageSize.width)
+             {
+                 thumbnailSize.height = 240;
+                 thumbnailSize.width = imageSize.width / (imageSize.height / thumbnailSize.height);
+             }
+             else
+             {
+                 thumbnailSize.width = 240;
+                 thumbnailSize.height = imageSize.height / (imageSize.width / thumbnailSize.width);
+             }
+             UIImage *thumbnail = [UIImage hp_imageWithImage:image scaledToSize:thumbnailSize];
+             HPData *data = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
+             data.data = UIImageJPEGRepresentation(thumbnail, 1);
+             attachment.thumbnailData = data;
+         }
          
          [note addAttachment:attachment atIndex:index];
      }];

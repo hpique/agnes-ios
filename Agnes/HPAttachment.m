@@ -29,9 +29,19 @@
 
 - (UIImage*)thumbnail
 {
-    NSData *data = self.thumbnailData.data;
-    UIImage *image = [UIImage imageWithData:data];
-    return image;
+    NSAssert(self.thumbnailData, @"No thumbnail");
+    UIImage *thumbnail = nil;
+    if (self.thumbnailData)
+    {
+        NSData *data = self.thumbnailData.data;
+        thumbnail = [UIImage imageWithData:data];
+    }
+    NSAssert(thumbnail, @"Invalid thumbnail data");
+    if (!thumbnail)
+    {
+        thumbnail = self.image;
+    }
+    return thumbnail;
 }
 
 @end

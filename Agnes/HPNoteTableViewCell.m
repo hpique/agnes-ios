@@ -156,7 +156,6 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(isDeleted)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     _removedObserver = NO;
     
-    [self setNeedsUpdateConstraints];
     [self displayNote];
 }
 
@@ -235,9 +234,10 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     if (attachment)
     {
         self.thumbnailView.hidden = NO;
-        self.thumbnailView.image = attachment.image;
+        self.thumbnailView.image = attachment.thumbnail;
     }
     [self displayDetail];
+    [self setNeedsUpdateConstraints];
 }
 
 - (BOOL)hasDetail

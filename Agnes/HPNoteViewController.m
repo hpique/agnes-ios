@@ -99,6 +99,8 @@
         _bodyTextStorage.tag = self.indexItem.tag.name;
         
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
+        _bodyTextView.opaque = NO;
+        _bodyTextView.backgroundColor = [UIColor clearColor];
         _bodyTextView.translatesAutoresizingMaskIntoConstraints = NO;
         _bodyTextView.font = [HPFontManager sharedManager].fontForNoteBody;
         _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, 10, 20 + self.toolbar.frame.size.height, 10);
