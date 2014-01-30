@@ -16,15 +16,6 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
 
 @implementation HPNoteSearchTableViewCell
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
-{
-    self = [super initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:reuseIdentifier];
-    if (self) {
-        // Initialization code
-    }
-    return self;
-}
-
 #pragma mark - Public
 
 + (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width searchText:(NSString*)searchText
@@ -44,7 +35,7 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
     NSInteger bodyLines = body.length > 0 ? [body hp_linesWithFont:bodyFont width:width lineHeight:&bodyLineHeight] : 0;
     NSInteger maximumBodyLines = 3 - titleLines;
     bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
-    return titleLines * titleLineHeight + bodyLines * bodyLineHeight + 10 * 2;
+    return titleLines * titleLineHeight + bodyLines * bodyLineHeight + HPNoteTableViewCellMargin * 2;
 }
 
 #pragma mark - Private

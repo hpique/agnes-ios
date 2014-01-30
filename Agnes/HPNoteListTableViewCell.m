@@ -19,83 +19,7 @@
 
 @end
 
-@implementation HPNoteListTableViewCell {
-    NSTimer *_modifiedAtSortModeTimer;
-    IBOutlet NSLayoutConstraint *_titleLabelTrailingSpaceConstraint;
-    NSArray *_firstRowForModifiedAtConstraints;
-}
-
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
-{
-    self = [super initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseIdentifier];
-    if (self)
-    {
-        [self initHelper];
-    }
-    return self;
-}
-
-- (void)awakeFromNib
-{
-    [super awakeFromNib];
-    [self initHelper];
-}
-
-- (void)initHelper
-{
-    [super initHelper];
-    UIView *titleLabel = self.titleLabel;
-    UIView *detailLabel = self.detailLabel;
-    NSDictionary *viewsDictionary = NSDictionaryOfVariableBindings(titleLabel, detailLabel);
-    _firstRowForModifiedAtConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"[titleLabel]-8-[detailLabel]" options:0 metrics:nil views:viewsDictionary];
-    self.detailLabel.hidden = NO;
-    [self applyPreferences];
-}
-
-- (void)dealloc
-{
-    [_modifiedAtSortModeTimer invalidate];
-}
-
-- (void)updateConstraints
-{
-    [super updateConstraints];
-    if (self.sortMode == HPTagSortModeModifiedAt)
-    {
-        [self.contentView removeConstraint:_titleLabelTrailingSpaceConstraint];
-        [self.contentView addConstraints:_firstRowForModifiedAtConstraints];
-    }
-    else
-    {
-        [self.contentView removeConstraints:_firstRowForModifiedAtConstraints];
-        [self.contentView addConstraint:_titleLabelTrailingSpaceConstraint];
-    }
-}
-
-#pragma mark - Public
-
-- (void)setSortMode:(HPTagSortMode)sortMode animated:(BOOL)animated
-{
-    [_modifiedAtSortModeTimer invalidate];
-    _sortMode = sortMode;
-    [self displayDetail];
-    if (_sortMode == HPTagSortModeModifiedAt)
-    {
-        static NSTimeInterval updateDetailDelay = 30;
-        _modifiedAtSortModeTimer = [NSTimer scheduledTimerWithTimeInterval:updateDetailDelay target:self selector:@selector(displayDetail) userInfo:nil repeats:YES];
-    }
-    [self setNeedsUpdateConstraints];
-    if (animated)
-    {
-        [UIView animateWithDuration:0.2 animations:^{
-            [self layoutIfNeeded]; // TODO: This doesn't animate the layout change. Why?
-        }];
-    }
-    else
-    {
-        [self setNeedsLayout];
-    }
-}
+@implementation HPNoteListTableViewCell
 
 #pragma mark - HPNoteTableViewCell
 
@@ -129,7 +53,6 @@
     {
         self.bodyLabel.text = nil;
     }
-    [self displayDetail];
 }
 
 #pragma mark - Private
@@ -141,7 +64,7 @@
         NSRegularExpression* regex = [HPNote tagRegularExpression];
         NSDictionary* attributes = @{ NSForegroundColorAttributeName : preferences.tintColor };
         
-        NSInteger maxLength = MIN(HPNotTableViewCellLabelMaxLength, text.length);
+        NSInteger maxLength = MIN(HPNoteTableViewCellLabelMaxLength, text.length);
         [regex enumerateMatchesInString:text
                                 options:0
                                   range:NSMakeRange(0, maxLength)
@@ -152,21 +75,6 @@
          }];
         return mutableAttributedString;
     }];
-}
-
-- (void)displayDetail
-{
-    self.detailLabel.font = [[HPFontManager sharedManager] fontForDetail];
-    NSString *detailText = @"";
-    switch (self.sortMode)
-    {
-        case HPTagSortModeModifiedAt:
-            detailText = self.note.modifiedAtDescription;
-            break;
-        default:
-            break;
-    }
-   self.detailLabel.text = detailText;
 }
 
 @end

@@ -9,23 +9,35 @@
 #import <UIKit/UIKit.h>
 #import "MCSwipeTableViewCell.h"
 @class HPNote;
+#import "HPTag.h"
 
-extern NSInteger const HPNotTableViewCellLabelMaxLength;
+extern NSInteger const HPNoteTableViewCellLabelMaxLength;
+extern CGFloat const HPNoteTableViewCellMargin;
+extern CGFloat const HPNoteTableViewCellImageHeight;
 
 @interface HPNoteTableViewCell : MCSwipeTableViewCell
 
 @property (nonatomic, strong) HPNote *note;
 
+@property (nonatomic, readonly) HPTagSortMode sortMode;
+
+- (void)setSortMode:(HPTagSortMode)sortMode animated:(BOOL)animated;
+
 /** Needs to be set before the note. */
 @property (nonatomic, copy) NSString *tagName;
-
-@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 
 @property (weak, nonatomic) IBOutlet UILabel *bodyLabel;
 
 @property (weak, nonatomic) IBOutlet UILabel *detailLabel;
 
-@property (nonatomic, weak) IBOutlet NSLayoutConstraint *topVerticalSpaceConstraint;
+@property (weak, nonatomic) IBOutlet UIImageView *thumbnailView;
+
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *titleLabelTrailingSpaceConstraint;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *detailLabelTrailingSpaceConstraint;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *bodyLabelRightConstraint;
+
 
 - (void)displayNote;
 

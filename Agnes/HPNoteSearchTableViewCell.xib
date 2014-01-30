@@ -6,40 +6,62 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HPNoteSearchTableViewCell"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" rowHeight="74" id="DAR-FP-cCV" customClass="HPNoteSearchTableViewCell">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="74"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" rowHeight="91" id="e0L-Kr-05u" customClass="HPNoteSearchTableViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="85"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="DAR-FP-cCV" id="xY4-an-VSO">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="73"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="e0L-Kr-05u" id="hog-Ka-v1c">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="84"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="290" translatesAutoresizingMaskIntoConstraints="NO" id="5nK-D3-MT7">
+                    <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tpj-zK-DUf">
+                        <rect key="frame" x="273" y="13" width="32" height="15"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="290" translatesAutoresizingMaskIntoConstraints="NO" id="kLe-Lw-9x3">
                         <rect key="frame" x="15" y="10" width="290" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Body" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="290" translatesAutoresizingMaskIntoConstraints="NO" id="thb-gF-1zT">
+                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Body" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="290" translatesAutoresizingMaskIntoConstraints="NO" id="1sz-Bo-Ep3">
                         <rect key="frame" x="15" y="30" width="290" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aTd-uL-zWK">
+                        <rect key="frame" x="245" y="10" width="60" height="60"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="60" id="TIi-Kb-rml"/>
+                            <constraint firstAttribute="height" constant="60" id="rtE-ea-XRr"/>
+                        </constraints>
+                    </imageView>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="thb-gF-1zT" firstAttribute="trailing" secondItem="5nK-D3-MT7" secondAttribute="trailing" id="5el-gc-Qry"/>
-                    <constraint firstItem="5nK-D3-MT7" firstAttribute="leading" secondItem="xY4-an-VSO" secondAttribute="leading" constant="15" id="9z7-Du-qf1"/>
-                    <constraint firstItem="5nK-D3-MT7" firstAttribute="top" secondItem="xY4-an-VSO" secondAttribute="top" constant="10" id="E1x-nV-IcJ"/>
-                    <constraint firstItem="thb-gF-1zT" firstAttribute="top" secondItem="5nK-D3-MT7" secondAttribute="bottom" id="XwY-lx-1vc"/>
-                    <constraint firstItem="thb-gF-1zT" firstAttribute="leading" secondItem="5nK-D3-MT7" secondAttribute="leading" id="o6b-ps-Mbg"/>
-                    <constraint firstAttribute="trailing" secondItem="5nK-D3-MT7" secondAttribute="trailing" constant="15" id="xdg-fc-vnx"/>
+                    <constraint firstItem="kLe-Lw-9x3" firstAttribute="leading" secondItem="hog-Ka-v1c" secondAttribute="leading" constant="15" id="4Ef-Gl-jw3"/>
+                    <constraint firstItem="1sz-Bo-Ep3" firstAttribute="trailing" secondItem="Tpj-zK-DUf" secondAttribute="trailing" id="Bcb-Mo-W3q"/>
+                    <constraint firstAttribute="trailing" secondItem="kLe-Lw-9x3" secondAttribute="trailing" constant="15" id="DsE-QP-OAk"/>
+                    <constraint firstAttribute="trailing" secondItem="Tpj-zK-DUf" secondAttribute="trailing" constant="15" id="QgA-U6-1jY"/>
+                    <constraint firstItem="1sz-Bo-Ep3" firstAttribute="top" secondItem="kLe-Lw-9x3" secondAttribute="bottom" id="Ssv-an-FSO"/>
+                    <constraint firstItem="kLe-Lw-9x3" firstAttribute="centerY" secondItem="Tpj-zK-DUf" secondAttribute="centerY" id="YEJ-xa-zA9"/>
+                    <constraint firstItem="kLe-Lw-9x3" firstAttribute="top" secondItem="hog-Ka-v1c" secondAttribute="top" constant="10" id="byA-Ow-jxJ"/>
+                    <constraint firstAttribute="trailing" secondItem="aTd-uL-zWK" secondAttribute="trailing" constant="15" id="bzz-uf-xgZ"/>
+                    <constraint firstItem="1sz-Bo-Ep3" firstAttribute="leading" secondItem="kLe-Lw-9x3" secondAttribute="leading" id="m5a-CX-Ujk"/>
+                    <constraint firstItem="aTd-uL-zWK" firstAttribute="top" secondItem="kLe-Lw-9x3" secondAttribute="top" id="wZJ-L5-PeX"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
-                <outlet property="bodyLabel" destination="thb-gF-1zT" id="chc-N9-MEt"/>
-                <outlet property="titleLabel" destination="5nK-D3-MT7" id="D0F-z8-KnL"/>
-                <outlet property="topVerticalSpaceConstraint" destination="E1x-nV-IcJ" id="CAh-T3-vGR"/>
+                <outlet property="bodyLabel" destination="1sz-Bo-Ep3" id="d1M-l1-KRt"/>
+                <outlet property="bodyLabelRightConstraint" destination="Bcb-Mo-W3q" id="usF-7V-OWc"/>
+                <outlet property="detailLabel" destination="Tpj-zK-DUf" id="8Tx-yb-o5o"/>
+                <outlet property="detailLabelTrailingSpaceConstraint" destination="QgA-U6-1jY" id="YfI-VO-1kc"/>
+                <outlet property="thumbnailView" destination="aTd-uL-zWK" id="Rck-OS-ZNQ"/>
+                <outlet property="titleLabel" destination="kLe-Lw-9x3" id="skY-an-0fr"/>
+                <outlet property="titleLabelTrailingSpaceConstraint" destination="DsE-QP-OAk" id="3jC-lL-7i6"/>
             </connections>
         </tableViewCell>
     </objects>

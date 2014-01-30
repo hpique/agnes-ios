@@ -16,7 +16,23 @@
 @dynamic type;
 @dynamic note;
 @dynamic data;
-@dynamic thumbnail;
+@dynamic thumbnailData;
+
+#pragma mark - Public
+
+- (UIImage*)image
+{
+    NSData *data = self.data.data;
+    UIImage *image = [UIImage imageWithData:data];
+    return image;
+}
+
+- (UIImage*)thumbnail
+{
+    NSData *data = self.thumbnailData.data;
+    UIImage *image = [UIImage imageWithData:data];
+    return image;
+}
 
 @end
 

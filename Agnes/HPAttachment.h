@@ -16,8 +16,9 @@
 @property (nonatomic, retain) NSString * type;
 @property (nonatomic, retain) HPNote *note;
 @property (nonatomic, retain) HPData *data;
-@property (nonatomic, retain) HPData *thumbnail;
-
+@property (nonatomic, retain) HPData *thumbnailData;
+@property (nonatomic, readonly) UIImage *image;
+@property (nonatomic, readonly) UIImage *thumbnail;
 @end
 
 @interface HPAttachment(Convenience)

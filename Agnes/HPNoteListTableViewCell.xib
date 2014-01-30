@@ -4,17 +4,17 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HPNoteListTableViewCell"/>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HPNoteTableViewCell"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" rowHeight="80" id="YK1-K8-DkJ" customClass="HPNoteListTableViewCell">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="74"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" rowHeight="91" id="YK1-K8-DkJ" customClass="HPNoteListTableViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="85"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="YK1-K8-DkJ" id="8o0-Fb-bFF">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="73"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="84"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dvo-eq-00b">
-                        <rect key="frame" x="273" y="29" width="32" height="15"/>
+                        <rect key="frame" x="273" y="13" width="32" height="15"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                         <nil key="highlightedColor"/>
@@ -32,24 +32,36 @@
                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="1IA-1B-tUh">
+                        <rect key="frame" x="245" y="10" width="60" height="60"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="60" id="9ms-Ap-VVA"/>
+                            <constraint firstAttribute="height" constant="60" id="aRM-lo-aKE"/>
+                        </constraints>
+                    </imageView>
                 </subviews>
                 <constraints>
+                    <constraint firstAttribute="trailing" secondItem="1IA-1B-tUh" secondAttribute="trailing" constant="15" id="3n9-uB-Gkr"/>
                     <constraint firstAttribute="trailing" secondItem="gGa-AF-l4x" secondAttribute="trailing" constant="15" id="41u-su-TVN"/>
+                    <constraint firstItem="gGa-AF-l4x" firstAttribute="centerY" secondItem="dvo-eq-00b" secondAttribute="centerY" id="7jN-l9-tkF"/>
                     <constraint firstAttribute="trailing" secondItem="dvo-eq-00b" secondAttribute="trailing" constant="15" id="8Tb-0y-3aD"/>
                     <constraint firstItem="gGa-AF-l4x" firstAttribute="leading" secondItem="8o0-Fb-bFF" secondAttribute="leading" constant="15" id="OFA-4M-G06"/>
                     <constraint firstItem="3G4-fU-BQj" firstAttribute="top" secondItem="gGa-AF-l4x" secondAttribute="bottom" id="Ryr-uR-Wdv"/>
+                    <constraint firstItem="3G4-fU-BQj" firstAttribute="trailing" secondItem="dvo-eq-00b" secondAttribute="trailing" id="dlr-ea-DHv"/>
                     <constraint firstItem="gGa-AF-l4x" firstAttribute="top" secondItem="8o0-Fb-bFF" secondAttribute="top" constant="10" id="kf3-Ja-acg"/>
-                    <constraint firstAttribute="centerY" secondItem="dvo-eq-00b" secondAttribute="centerY" id="vHR-Dj-fB6"/>
+                    <constraint firstItem="1IA-1B-tUh" firstAttribute="top" secondItem="gGa-AF-l4x" secondAttribute="top" id="rwL-bt-aez"/>
                     <constraint firstItem="3G4-fU-BQj" firstAttribute="leading" secondItem="gGa-AF-l4x" secondAttribute="leading" id="wcd-Mh-pds"/>
-                    <constraint firstItem="3G4-fU-BQj" firstAttribute="trailing" secondItem="gGa-AF-l4x" secondAttribute="trailing" id="yyX-4S-ECR"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
-                <outlet property="_titleLabelTrailingSpaceConstraint" destination="41u-su-TVN" id="cbH-08-fWA"/>
                 <outlet property="bodyLabel" destination="3G4-fU-BQj" id="BVX-Oe-mMZ"/>
+                <outlet property="bodyLabelRightConstraint" destination="dlr-ea-DHv" id="yz4-tK-4uc"/>
                 <outlet property="detailLabel" destination="dvo-eq-00b" id="N4Z-8U-IfJ"/>
+                <outlet property="detailLabelTrailingSpaceConstraint" destination="8Tb-0y-3aD" id="f7a-wO-Jpd"/>
+                <outlet property="thumbnailView" destination="1IA-1B-tUh" id="t32-gK-HZy"/>
                 <outlet property="titleLabel" destination="gGa-AF-l4x" id="TRd-md-m9v"/>
-                <outlet property="topVerticalSpaceConstraint" destination="kf3-Ja-acg" id="qLn-7G-8Ub"/>
+                <outlet property="titleLabelTrailingSpaceConstraint" destination="41u-su-TVN" id="XSS-yP-phy"/>
             </connections>
         </tableViewCell>
     </objects>

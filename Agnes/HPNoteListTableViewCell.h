@@ -14,8 +14,5 @@
 @interface HPNoteListTableViewCell : HPNoteTableViewCell
 
 @property (nonatomic, strong) HPNote *note;
-@property (nonatomic, readonly) HPTagSortMode sortMode;
-
-- (void)setSortMode:(HPTagSortMode)sortMode animated:(BOOL)animated;
 
 @end

@@ -601,7 +601,6 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
         HPNoteListTableViewCell *noteCell = (HPNoteListTableViewCell*)cell;
         HPNote *note = [objects objectAtIndex:indexPath.row];
         noteCell.note = note;
-        [noteCell setSortMode:_sortMode animated:NO];
         noteCell.separatorInset = UIEdgeInsetsZero;
 
         noteCell.shouldAnimateIcons = NO;
@@ -623,6 +622,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
             }];
         }
     }
+    [cell setSortMode:_sortMode animated:NO];
     return cell;
 }
 

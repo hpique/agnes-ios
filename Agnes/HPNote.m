@@ -107,9 +107,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     NSAssert(index != NSNotFound, @"Note has atttachments without attachment characters");
     if (index == NSNotFound) index = 0;
     
-    NSData *data = attachment.data.data;
-    UIImage *image = [UIImage imageWithData:data];
-    
+    UIImage *image = attachment.image;
     const CGSize imageSize = image.size;
     const CGFloat ratio = imageSize.width / width;
     const CGFloat scaledHeight = imageSize.height / ratio;
