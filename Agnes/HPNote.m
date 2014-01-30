@@ -82,7 +82,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     static NSRegularExpression *instance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString* pattern = @"#\\w+";
+        NSString* pattern = @"(?<!\\S)#\\w+";
         instance = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
     });
     return instance;

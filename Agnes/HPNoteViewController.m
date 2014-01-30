@@ -320,6 +320,7 @@
     [UIView transitionWithView:self.view duration:1.0 options:options animations:^{
         [self displayNote];
     } completion:^(BOOL finished) {
+        [_bodyTextView scrollRangeToVisible:NSMakeRange(0, 0)];
     }];
 }
 

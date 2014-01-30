@@ -65,6 +65,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     NSIndexPath *_indexPathOfSelectedNote;
     BOOL _ignoreNotesDidChangeNotification;
+    BOOL _visible;
+    NSMutableSet *_pendingUpdatedNotes;
 }
 
 @synthesize indexPathOfSelectedNote = _indexPathOfSelectedNote;
@@ -73,13 +75,15 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [self stopObserving];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    _pendingUpdatedNotes = [NSMutableSet set];
+    
     {
         _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
         MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
@@ -98,18 +102,24 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         [_searchBar.actionButton setImage:image forState:UIControlStateNormal];
         UIImage *imageAlt = [[UIImage imageNamed:@"icon-more-alt"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         [_searchBar.actionButton setImage:imageAlt forState:UIControlStateHighlighted];
-        _searchBar.actionButton.frame = CGRectMake(0, 0, MAX(image.size.width, 40), MAX(image.size.height, _searchBar.frame.size.height));
+        _searchBar.actionButton.frame = CGRectMake(0, 0, MAX(image.size.width, 40), _searchBar.frame.size.height);
         [_searchBar.actionButton addTarget:self action:@selector(optionsButtonItemAction:) forControlEvents:UIControlEventTouchUpInside];
     }
     
     self.searchDisplayController.searchBar.keyboardType = UIKeyboardTypeTwitter;
     self.searchDisplayController.searchBar.backgroundImage = [UIImage new]; // Remove black background
 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
-
     [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
     [self updateIndexItem];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    _visible = YES;
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -126,6 +136,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     [super viewDidDisappear:animated];
     self.transitioning = NO;
+    _visible = NO;
 }
 
 #pragma mark - Public
@@ -210,10 +221,15 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)notesDidChangeNotification:(NSNotification*)notification
 {
     if (_ignoreNotesDidChangeNotification) return; // Controller will reflect or already reflected the change
-    if (self.transitioning) return;
-    
     NSDictionary *userInfo = notification.userInfo;
     NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
+    
+    if (self.transitioning || !_visible)
+    {
+        [_pendingUpdatedNotes addObjectsFromArray:updated.allObjects];
+        return;
+    }
+    
     [self updateNotes:YES /* animated */ reloadNotes:updated];
 }
 
@@ -333,6 +349,12 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }];
 }
 
+- (void)stopObserving
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+}
+
 - (void)updateEmptyView:(BOOL)animated
 {
     BOOL empty = _notes.count == 0;
@@ -356,6 +378,9 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)updateNotes:(BOOL)animated reloadNotes:(NSSet*)reloadNotes
 {
+    reloadNotes = [reloadNotes setByAddingObjectsFromSet:_pendingUpdatedNotes];
+    [_pendingUpdatedNotes removeAllObjects];
+    
     NSArray *previousNotes = _notes;
     NSArray *notes = self.indexItem.notes;
     notes = [HPNoteManager sortedNotes:notes mode:_sortMode tag:self.indexItem.tag];

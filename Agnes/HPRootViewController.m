@@ -9,6 +9,7 @@
 #import "HPRootViewController.h"
 #import "HPNoteManager.h"
 #import "HPNoteListDetailTransitionAnimator.h"
+#import "HPNoteListViewController.h"
 #import <CoreData/CoreData.h>
 
 @implementation HPRootViewController
@@ -16,8 +17,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.closeDrawerGestureModeMask = MMCloseDrawerGestureModeAll;
-    self.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningNavigationBar | MMOpenDrawerGestureModePanningCenterView;
+    self.closeDrawerGestureModeMask = MMOpenDrawerGestureModeAll;
+    self.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningNavigationBar | MMOpenDrawerGestureModeBezelPanningCenterView;
     self.view.backgroundColor = [UIColor whiteColor];
 }
 
