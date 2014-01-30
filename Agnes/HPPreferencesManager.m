@@ -276,7 +276,7 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
 {
     NSInteger fontSize = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultFontSize : [value integerValue];
     if (self.fontSize == fontSize) return;
-    self.fontSize = fontSize;
+    self.fontSize = MAX(8, fontSize);
 }
 
 - (void)updateStatusBarHiddenFromValue:(NSString*)value
