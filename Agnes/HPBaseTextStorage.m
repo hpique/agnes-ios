@@ -72,6 +72,7 @@
 
 - (void)setSearch:(NSString *)search
 {
+    [self removeSearchHighlights];
     _search = search;
     [self highlightSearch];
 }
@@ -167,11 +168,9 @@
 
 - (void)highlightSearch
 {
+    if (!self.search) return;
     NSString *text = self.string;
     NSRange searchRange = NSMakeRange(0, text.length);
-    [self removeAttribute:NSBackgroundColorAttributeName range:searchRange];
-    if (!self.search) return;
-    
     NSString *pattern = [NSRegularExpression escapedPatternForString:self.search];
     NSRegularExpression* regex = [NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:nil];
     UIColor *color = [HPPreferencesManager sharedManager].tintColor;
@@ -185,6 +184,23 @@
      {
          NSRange matchRange = [match rangeAtIndex:0];
          [self addAttributes:attributes range:matchRange];
+     }];
+}
+
+- (void)removeSearchHighlights
+{
+    if (!self.search) return;
+    NSString *text = self.string;
+    NSRange searchRange = NSMakeRange(0, text.length);
+    NSString *pattern = [NSRegularExpression escapedPatternForString:self.search];
+    NSRegularExpression* regex = [NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:nil];
+    [regex enumerateMatchesInString:text
+                            options:0
+                              range:searchRange
+                         usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
+     {
+         NSRange matchRange = [match rangeAtIndex:0];
+         [self removeAttribute:NSBackgroundColorAttributeName range:matchRange];
      }];
 }
 
