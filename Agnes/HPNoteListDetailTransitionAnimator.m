@@ -120,15 +120,33 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     [transitionContext.containerView bringSubviewToFront:toViewController.view];
     [transitionContext.containerView bringSubviewToFront:fromViewController.view];
     
-    UIView *cellCover = [self coverView:cell rect:cell.bounds color:[UIColor whiteColor] context:transitionContext];
-    UIView *titleLabelPlaceholder = [self fakeView:cell.titleLabel rect:cell.titleLabel.bounds context:transitionContext];
-    UIView *bodyLabelPlaceholder = [self fakeView:cell.bodyLabel rect:cell.bodyLabel.bounds context:transitionContext];
-    
     UITextView *noteTextView = toViewController.noteTextView;
+    UILabel *titleLabel = cell.titleLabel;
+    UIView *titleLabelCover = nil;
+    UIView *titleLabelPlaceholder = nil;
+    const CGRect titleRect = [self rectForLabel:titleLabel inTextView:noteTextView context:transitionContext];
+    if (!CGRectIsNull(titleRect))
+    {
+        titleLabelCover = [self coverView:titleLabel rect:titleLabel.bounds color:[UIColor whiteColor] context:transitionContext];
+        titleLabelPlaceholder = [self fakeView:titleLabel rect:titleLabel.bounds context:transitionContext];
+    }
+    
+    UILabel *bodyLabel = cell.bodyLabel;
+    UIView *bodyLabelCover = nil;
+    UIView *bodyLabelPlaceholder = nil;
+    const CGRect bodyRect = [self rectForLabel:bodyLabel inTextView:noteTextView context:transitionContext];
+    if (!CGRectIsNull(bodyRect))
+    {
+        bodyLabelCover = [self coverView:bodyLabel rect:bodyLabel.bounds color:[UIColor whiteColor] context:transitionContext];
+        bodyLabelPlaceholder = [self fakeView:bodyLabel rect:bodyLabel.bounds context:transitionContext];
+    }
+    
+    UIView *thumbnailViewCover = nil;
     UIImageView *thumbnailViewPlaceholder = nil;
     UIImageView *thumbnailView = cell.thumbnailView;
     if (thumbnailView.image)
     {
+        thumbnailViewCover = [self coverView:thumbnailView rect:thumbnailView.bounds color:[UIColor whiteColor] context:transitionContext];
         NSInteger index = [noteTextView.text rangeOfString:[HPNote attachmentString]].location;
         NSTextAttachment *attachment = [noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
         thumbnailViewPlaceholder = [self addImageViewWithImage:attachment.image rect:thumbnailView.bounds fromView:thumbnailView context:transitionContext];
@@ -139,10 +157,16 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     NSTimeInterval firstDuration = duration * 2.0/3.0;
     NSTimeInterval secondDuration = duration - firstDuration;
     [UIView animateWithDuration:firstDuration animations:^{
-        CGPoint titleOrigin = [self originForLabel:cell.titleLabel inTextView:noteTextView context:transitionContext];
-        CGPoint bodyOrigin = [self originForLabel:cell.bodyLabel inTextView:noteTextView context:transitionContext];
-        titleLabelPlaceholder.frame = CGRectMake(titleOrigin.x, titleOrigin.y, titleLabelPlaceholder.frame.size.width, titleLabelPlaceholder.frame.size.height);
-        bodyLabelPlaceholder.frame = CGRectMake(bodyOrigin.x, bodyOrigin.y, bodyLabelPlaceholder.frame.size.width, bodyLabelPlaceholder.frame.size.height);
+        if (titleLabelPlaceholder)
+        {
+            const CGPoint titleOrigin = titleRect.origin;
+            titleLabelPlaceholder.frame = CGRectMake(titleOrigin.x, titleOrigin.y, titleLabelPlaceholder.frame.size.width, titleLabelPlaceholder.frame.size.height);
+        }
+        if (bodyLabelPlaceholder)
+        {
+            const CGPoint bodyOrigin = bodyRect.origin;
+            bodyLabelPlaceholder.frame = CGRectMake(bodyOrigin.x, bodyOrigin.y, bodyLabelPlaceholder.frame.size.width, bodyLabelPlaceholder.frame.size.height);
+        }
         if (thumbnailViewPlaceholder)
         {
             CGRect rect = [self rectForText:[HPNote attachmentString] inTextView:noteTextView];
@@ -151,7 +175,9 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
         }
         fromViewController.view.alpha = 0;
     } completion:^(BOOL finished) {
-        [cellCover removeFromSuperview];
+        [titleLabelCover removeFromSuperview];
+        [bodyLabelCover removeFromSuperview];
+        [thumbnailViewCover removeFromSuperview];
         [UIView animateWithDuration:secondDuration animations:^{
             titleLabelPlaceholder.alpha = 0;
             bodyLabelPlaceholder.alpha = 0;
@@ -331,7 +357,7 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     return found;
 }
 
-- (CGPoint)originForLabel:(UILabel*)label inTextView:(UITextView*)textView context:(id <UIViewControllerContextTransitioning>)transitionContext
+- (CGRect)rectForLabel:(UILabel*)label inTextView:(UITextView*)textView context:(id <UIViewControllerContextTransitioning>)transitionContext
 {
     NSRange visibleRange = [label hp_visibleRange];
     if (visibleRange.location == NSNotFound)
@@ -340,14 +366,16 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     }
     NSString *substring = label.text.length >= NSMaxRange(visibleRange) ? [label.text substringWithRange:visibleRange] : @"";
     CGRect rect = [self rectForText:substring inTextView:textView];
+    if (CGRectIsNull(rect)) return rect;
     rect = [transitionContext.containerView convertRect:rect fromView:textView];
-    return rect.origin;
+    return rect;
 }
 
 - (CGRect)rectForText:(NSString*)text inTextView:(UITextView*)textView
 {
     NSLayoutManager *layoutManager = textView.layoutManager;
     NSRange charRange = [textView.text rangeOfString:text];
+    if (charRange.location == NSNotFound) return CGRectNull;
     NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:charRange actualCharacterRange:nil];
     [layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, charRange.location)];
     CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textView.textContainer];

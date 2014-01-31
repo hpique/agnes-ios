@@ -141,6 +141,9 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    if (!self.transitioning) return; // Don't continue if we're presenting a modal controller
+    
+    // TODO: Do this only when we're transitiong back to the list or to the menu
     for (HPNote *note in self.notes)
     {
         if (!self.indexItem.disableRemove && [self isEmptyNote:note])
@@ -722,6 +725,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     }
     self.noteTextView.attributedText = [self attributedNoteText];
+    _bodyTextViewChanged = YES;
 }
 
 @end

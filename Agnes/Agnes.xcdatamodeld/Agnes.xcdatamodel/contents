@@ -2,7 +2,7 @@
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3401" systemVersion="13B42" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Attachment" representedClassName="HPAttachment" syncable="YES">
         <attribute name="type" attributeType="String" syncable="YES"/>
-        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Data" syncable="YES"/>
+        <relationship name="data" maxCount="1" deletionRule="Cascade" destinationEntity="Data" syncable="YES"/>
         <relationship name="note" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Note" inverseName="attachments" inverseEntity="Note" syncable="YES"/>
         <relationship name="thumbnailData" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Data" syncable="YES"/>
     </entity>

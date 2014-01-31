@@ -180,8 +180,13 @@ const NSInteger HPNoteDetailModeCount = 5;
     if (!_body)
     {
         NSString *text = [self.text stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
-        NSRange titleRange = [text rangeOfString:self.title];
-        NSString *body = [text stringByReplacingCharactersInRange:titleRange withString:@""];
+        NSString *title = self.title;
+        NSRange titleRange = [text rangeOfString:title];
+        NSString *body;
+        if (titleRange.location != NSNotFound)
+        {
+            body = [text stringByReplacingCharactersInRange:titleRange withString:@""];
+        }
         _body = [body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     }
     return _body;
@@ -240,6 +245,10 @@ const NSInteger HPNoteDetailModeCount = 5;
         NSString *text = [self.text stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
         NSString *trimmedText = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         _title = [trimmedText componentsSeparatedByString:@"\n"][0];
+        if (_title.length == 0)
+        {
+            _title = NSLocalizedString(@"Untitled", @"");
+        }
     }
     return _title;
 }

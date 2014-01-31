@@ -156,8 +156,14 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)attachToNote:(HPNote*)note image:(UIImage*)image index:(NSInteger)index
 {
-    [self performModelUpdateWithName:@"Attach Image" save:YES block:
+    BOOL isNew = note.managedObjectContext == nil;
+    NSString *actionName = isNew ? @"Add Note" : @"Attach Image";
+    [self performModelUpdateWithName:actionName save:YES block:
      ^{
+         if (isNew)
+         {
+             [self.context insertObject:note];
+         }
          NSEntityDescription *entityAttachment = [NSEntityDescription entityForName:[HPAttachment entityName] inManagedObjectContext:self.context];
          HPAttachment *attachment = [[HPAttachment alloc] initWithEntity:entityAttachment insertIntoManagedObjectContext:note.managedObjectContext]; // Considering blank notes
          attachment.type = (NSString*) kUTTypeImage;
