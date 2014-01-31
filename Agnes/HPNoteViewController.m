@@ -317,6 +317,14 @@
     _detailLabel.text = text;
 }
 
+- (UIImage*)imageOfFirstAttachment
+{
+    NSInteger index = [self.noteTextView.text rangeOfString:[HPNote attachmentString]].location;
+    if (index == NSNotFound) return nil;
+    NSTextAttachment *attachment = [self.noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
+    return attachment.image;
+}
+
 - (void)finishEditing
 {
     [self.navigationController popViewControllerAnimated:YES];
@@ -446,7 +454,10 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 - (void)actionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     HPNoteActivityItemSource *activityItem = [[HPNoteActivityItemSource alloc] initWithNote:self.note];
-    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[activityItem] applicationActivities:nil];
+    NSMutableArray *items = [NSMutableArray arrayWithObject:activityItem];
+    UIImage *attachmentImage = [self imageOfFirstAttachment];
+    if (attachmentImage) [items addObject:attachmentImage];
+    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
     [self presentViewController:activityViewController animated:YES completion:nil];
 }
 
@@ -691,12 +702,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     if (!phoneNumber) phoneNumber = [self valueInLinkWithScheme:@"tel"];
     if (!image)
     {
-        NSInteger index = [self.noteTextView.text rangeOfString:[HPNote attachmentString]].location;
-        if (index != NSNotFound)
-        {
-            NSTextAttachment *attachment = [self.noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
-            image = attachment.image;
-        }
+        image = [self imageOfFirstAttachment];
     }
     [super addContactWithEmail:email phoneNumber:phoneNumber image:image];
 }
