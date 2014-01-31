@@ -685,11 +685,20 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 #pragma mark - HPDataActionViewController
 
-- (void)addContactWithEmail:(NSString *)email phoneNumber:(NSString *)phoneNumber
+- (void)addContactWithEmail:(NSString *)email phoneNumber:(NSString *)phoneNumber image:(UIImage*)image
 { // Attempt to find addditional contact data in the note
     if (!email) email = [self valueInLinkWithScheme:@"mailto"];
     if (!phoneNumber) phoneNumber = [self valueInLinkWithScheme:@"tel"];
-    [super addContactWithEmail:email phoneNumber:phoneNumber];
+    if (!image)
+    {
+        NSInteger index = [self.noteTextView.text rangeOfString:[HPNote attachmentString]].location;
+        if (index != NSNotFound)
+        {
+            NSTextAttachment *attachment = [self.noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
+            image = attachment.image;
+        }
+    }
+    [super addContactWithEmail:email phoneNumber:phoneNumber image:image];
 }
 
 - (NSString*)valueInLinkWithScheme:(NSString*)scheme

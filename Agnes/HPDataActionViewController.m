@@ -50,7 +50,7 @@
 
 #pragma mark - Private
 
-- (void)addContactWithEmail:(NSString*)email phoneNumber:(NSString*)phoneNumber
+- (void)addContactWithEmail:(NSString*)email phoneNumber:(NSString*)phoneNumber image:(UIImage*)image
 {
     ABRecordRef person = ABPersonCreate();
     
@@ -68,6 +68,14 @@
         ABMultiValueAddValueAndLabel(phoneNumberMultiValue, (__bridge CFStringRef) phoneNumber, kABPersonPhoneMainLabel, NULL);
         ABRecordSetValue(person, kABPersonPhoneProperty, phoneNumberMultiValue, nil);
         CFRelease(phoneNumberMultiValue);
+    }
+    
+    if (image)
+    {
+        CFErrorRef error = nil;
+        NSData *data = UIImageJPEGRepresentation(image, 0.6);
+        bool success = ABPersonSetImageData(person, (__bridge CFDataRef)data, &error);
+        NSAssert(success, @"Failed to set image data");
     }
     
     ABUnknownPersonViewController *controller = [[ABUnknownPersonViewController alloc] init];
@@ -158,7 +166,7 @@
         }
         else if (buttonIndex == _emailActionSheetContactsIndex)
         {
-            [self addContactWithEmail:email phoneNumber:nil];
+            [self addContactWithEmail:email phoneNumber:nil image:nil];
             
         }
         else if (buttonIndex == _emailActionSheetCopyIndex)
@@ -178,7 +186,7 @@
         }
         else if (buttonIndex == _phoneNumberActionSheetContactsIndex)
         {
-            [self addContactWithEmail:nil phoneNumber:_actionSheetPhoneNumber];
+            [self addContactWithEmail:nil phoneNumber:_actionSheetPhoneNumber image:nil];
             
         }
         else if (buttonIndex == _phoneNumberActionSheetCopyIndex)
