@@ -13,6 +13,7 @@
 #import "HPNoteNavigationController.h"
 #import "HPNote.h"
 #import "HPAttachment.h"
+#import "UIImage+hp_utils.h"
 
 @interface UIView(Utils)
 
@@ -25,17 +26,6 @@
 - (NSRange)hp_visibleRange;
 
 @end
-
-static UIImage* HPImageFromColor(UIColor *color, CGSize size)
-{
-    UIGraphicsBeginImageContextWithOptions(size, YES, 0);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(context, color.CGColor);
-    CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return image;
-}
 
 @implementation HPNoteListDetailTransitionAnimator
 
@@ -299,7 +289,7 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
 
 - (UIView*)coverView:(UIView*)view rect:(CGRect)rect color:(UIColor*)color context:(id <UIViewControllerContextTransitioning>)transitionContext
 {
-    UIImage *image = HPImageFromColor(color, rect.size);
+    UIImage *image = [UIImage hp_imageWithColor:color size:rect.size];
     UIImageView *imageView = [self addImageViewWithImage:image rect:rect fromView:view context:transitionContext];
     return imageView;
 }

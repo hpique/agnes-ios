@@ -244,6 +244,11 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
         self.thumbnailView.hidden = NO;
         self.thumbnailView.image = attachment.thumbnail;
     }
+    else
+    {
+        self.thumbnailView.hidden = YES;
+        self.thumbnailView.image = nil;
+    }
     [self displayDetail];
     [self setNeedsUpdateConstraints];
 }

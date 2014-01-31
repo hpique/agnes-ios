@@ -17,10 +17,13 @@
 #import "HPPreferencesManager.h"
 #import "HPBrowserViewController.h"
 #import "HPFontManager.h"
+#import "HPAttachment.h"
 #import "PSPDFTextView.h"
+#import "HPImageViewController.h"
+#import "HPImageZoomAnimationController.h"
 #import "NSString+hp_utils.h"
 
-@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
+@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate>
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
 
@@ -54,6 +57,11 @@
     HPTagSuggestionsView *_suggestionsView;
     BOOL _viewDidAppear;
     BOOL _hasEnteredEditingModeOnce;
+    
+    NSUInteger _presentedImageCharacterIndex;
+    UIImage *_presentedImageMedium;
+    CGRect _presentedImageRect;
+    HPImageViewController *_presentedImageViewController;
 }
 
 @synthesize noteTextView = _bodyTextView;
@@ -67,11 +75,11 @@
 
     _actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionBarButtonItemAction:)];
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
-    _archiveBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-archive"] style:UIBarButtonItemStylePlain target:self action:@selector(archiveBarButtomItemAction:)];
-    _attachmentBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-attachment"] style:UIBarButtonItemStylePlain target:self action:@selector(attachmentBarButtomItemAction:)];
+    _archiveBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-archive"] style:UIBarButtonItemStylePlain target:self action:@selector(archiveBarButtonItemAction:)];
+    _attachmentBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-attachment"] style:UIBarButtonItemStylePlain target:self action:@selector(attachmentBarButtonItemAction:)];
     _doneBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-checkmark"] style:UIBarButtonItemStylePlain target:self action:@selector(doneBarButtonItemAction:)];
     _trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(trashBarButtonItemAction:)];
-    _unarchiveBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-inbox"] style:UIBarButtonItemStylePlain target:self action:@selector(unarchiveBarButtomItemAction:)];
+    _unarchiveBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-inbox"] style:UIBarButtonItemStylePlain target:self action:@selector(unarchiveBarButtonItemAction:)];
     
     _addNoteBarButtonItem.enabled = !self.indexItem.disableAdd;
     _archiveBarButtonItem.enabled = !self.indexItem.disableRemove;
@@ -112,7 +120,7 @@
         [self.view addSubview:_bodyTextView];
         [self.view bringSubviewToFront:self.toolbar];
         
-        _textTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(textTagGestureRecognizer:)];
+        _textTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(textTapGestureRecognizer:)];
         [_bodyTextView addGestureRecognizer:_textTapGestureRecognizer];
         
         _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44) inputViewStyle:UIInputViewStyleKeyboard];
@@ -382,6 +390,13 @@
     [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
 }
 
+- (void)didDismissImageViewController
+{
+    _presentedImageMedium = nil;
+    _presentedImageRect = CGRectNull;
+    _presentedImageViewController = nil;
+}
+
 - (void)handleURL:(NSURL*)url
 {
     NSString *scheme = url.scheme;
@@ -400,6 +415,35 @@
     HPBrowserViewController *vc = [[HPBrowserViewController alloc] init];
     vc.url = url;
     [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (void)presentImage:(UIImage*)image atIndex:(NSInteger)characterIndex
+{
+    UITextView *textView = self.noteTextView;
+    NSLayoutManager *layoutManager = textView.layoutManager;
+    const NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:NSMakeRange(characterIndex, 1) actualCharacterRange:nil];
+    [layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, characterIndex)];
+    CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textView.textContainer];
+    rect = CGRectOffset(rect, textView.textContainerInset.left, textView.textContainerInset.top);
+    rect = CGRectIntegral(rect);
+    _presentedImageCharacterIndex = characterIndex;
+    _presentedImageRect = rect;
+    _presentedImageMedium = image;
+    
+    HPAttachment *attachment = [self.note.attachments anyObject];
+    UIImage *fullSizeImage = attachment.image;
+    
+    HPImageViewController *viewController = [[HPImageViewController alloc] initWithImage:fullSizeImage];
+    viewController.delegate = self;
+    viewController.transitioningDelegate = self;
+    _presentedImageViewController = viewController;
+    
+    UIBarButtonItem *trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(attachmentTrashBarButtonItemAction:)];
+    UIBarButtonItem *actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(attachmentActionBarButtonItemAction:)];
+    UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+    viewController.toolbarItems = @[trashBarButtonItem, flexibleSpace, actionBarButtonItem];
+    
+    [self presentViewController:viewController animated:YES completion:nil];
 }
 
 - (void)presentImagePickerControllerWithType:(UIImagePickerControllerSourceType)type
@@ -472,7 +516,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     [self presentViewController:activityViewController animated:YES completion:nil];
 }
 
-- (void)archiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
+- (void)archiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPNoteManager sharedManager] archiveNote:self.note];
     [self finishEditing];
@@ -483,7 +527,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     [self changeToEmptyNote];
 }
 
-- (void)attachmentBarButtomItemAction:(UIBarButtonItem*)barButtonItem
+- (void)attachmentBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     _attachmentActionSheet = [[UIActionSheet alloc] init];
     _attachmentActionSheet.delegate = self;
@@ -500,6 +544,26 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     NSInteger cancelButtonIndex = [_attachmentActionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
     _attachmentActionSheet.cancelButtonIndex = cancelButtonIndex;
     [_attachmentActionSheet showInView:self.view];
+}
+
+- (void)attachmentTrashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    NSMutableAttributedString *attributedString = self.noteTextView.attributedText.mutableCopy;
+    [attributedString replaceCharactersInRange:NSMakeRange(_presentedImageCharacterIndex, 1) withString:@""];
+    self.noteTextView.attributedText = attributedString;
+    _bodyTextViewChanged = YES;
+    [self saveNote:NO];
+    _presentedImageRect = CGRectMake(_presentedImageRect.origin.x + _presentedImageRect.size.width / 2, _presentedImageRect.origin.y, 1, 1);
+    [self dismissViewControllerAnimated:YES completion:^{
+        [self didDismissImageViewController];
+    }];
+}
+
+- (void)attachmentActionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    UIImage *image = _presentedImageViewController.image;
+    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[image] applicationActivities:nil];
+    [_presentedImageViewController presentViewController:activityViewController animated:YES completion:nil];
 }
 
 - (IBAction)detailLabelTapGestureRecognizer:(id)sender
@@ -546,7 +610,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     }
 }
 
-- (void)textTagGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
+- (void)textTapGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
 {
     UITextView *textView = (UITextView*) gestureRecognizer.view;
     NSLayoutManager *layoutManager = _bodyTextView.layoutManager;
@@ -564,16 +628,22 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     }
     
     NSRange range;
+    NSTextAttachment *textAttachment = [textView.attributedText attribute:NSAttachmentAttributeName atIndex:characterIndex effectiveRange:&range];
+    if (textAttachment)
+    {
+        [self presentImage:textAttachment.image atIndex:characterIndex];
+        return;
+    }
+    
     NSURL *url = [textView.attributedText attribute:NSLinkAttributeName atIndex:characterIndex effectiveRange:&range];
     if (url)
     {
         [self handleURL:url];
+        return;
     }
-    else
-    {
-        [textView setSelectedRange:NSMakeRange(characterIndex, 0)];
-        [textView becomeFirstResponder];
-    }
+
+    [textView setSelectedRange:NSMakeRange(characterIndex, 0)];
+    [textView becomeFirstResponder];
 }
 
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
@@ -589,7 +659,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     }
 }
 
-- (void)unarchiveBarButtomItemAction:(UIBarButtonItem*)barButtonItem
+- (void)unarchiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPNoteManager sharedManager] unarchiveNote:self.note];
     [self finishEditing];
@@ -764,7 +834,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
     NSInteger index = _hasEnteredEditingModeOnce ? _bodyTextView.selectedRange.location : 0; // selectedRange gives the last position by default
     if (index == NSNotFound) index = 0;
-    [[HPNoteManager sharedManager] attachToNote:self.note image:image index:index];
+    [[HPNoteManager sharedManager] attachToNote:self.note image:image index:index]; // TODO: What happens with settings notes?
     
     [self dismissViewControllerAnimated:YES completion:^{}];
     
@@ -774,6 +844,41 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     }
     self.noteTextView.attributedText = [self attributedNoteText];
     _bodyTextViewChanged = YES;
+}
+
+#pragma mark - UIViewControllerTransitioningDelegate
+
+- (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source
+{
+    if ([presented isKindOfClass:HPImageViewController.class])
+    {
+        HPImageZoomAnimationController *controller = [[HPImageZoomAnimationController alloc] initWithReferenceImage:_presentedImageMedium
+                                                                          view:self.noteTextView
+                                                                          rect:_presentedImageRect];
+        controller.coverColor = [UIColor whiteColor];
+        return controller;
+    }
+    return nil;
+}
+
+- (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed
+{
+    if ([dismissed isKindOfClass:HPImageViewController.class])
+    {
+        HPImageZoomAnimationController *controller = [[HPImageZoomAnimationController alloc] initWithReferenceImage:_presentedImageMedium
+                                                                                                               view:self.noteTextView
+                                                                                                               rect:_presentedImageRect];
+        controller.coverColor = [UIColor whiteColor];
+        return controller;
+    }
+    return nil;
+}
+
+#pragma mark - UIImageViewControllerDelegate
+
+- (void)imageViewControllerDidDismiss:(HPImageViewController*)imageViewController
+{
+    [self didDismissImageViewController];
 }
 
 @end

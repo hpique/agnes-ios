@@ -57,6 +57,9 @@
 		8763DA6818884650000D9569 /* HPNoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA6618884650000D9569 /* HPNoteViewController.xib */; };
 		8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */; };
 		8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */; };
+		87AA3CF6189C13E100FBEAAF /* HPImageZoomAnimationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3CEF189C13E100FBEAAF /* HPImageZoomAnimationController.m */; };
+		87AA3CF7189C13E100FBEAAF /* HPImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3CF2189C13E100FBEAAF /* HPImageViewController.m */; };
+		87AA3CF8189C13E100FBEAAF /* HPImageViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AA3CF3189C13E100FBEAAF /* HPImageViewController.xib */; };
 		87AD2F83188E900B0065EEBA /* HPNoteListTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */; };
 		87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 87D02E18188ECBA600273DEC /* HPNoteExporter.m */; };
 		87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E3D188B57C0000333EA /* HPPreferencesManager.m */; };
@@ -170,6 +173,11 @@
 		8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPBaseTextStorage.m; sourceTree = "<group>"; };
 		8763DA6C18897982000D9569 /* HPNoteListTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteListTableViewCell.h; sourceTree = "<group>"; };
 		8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListTableViewCell.m; sourceTree = "<group>"; };
+		87AA3CEF189C13E100FBEAAF /* HPImageZoomAnimationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPImageZoomAnimationController.m; sourceTree = "<group>"; };
+		87AA3CF0189C13E100FBEAAF /* HPImageZoomAnimationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPImageZoomAnimationController.h; sourceTree = "<group>"; };
+		87AA3CF1189C13E100FBEAAF /* HPImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPImageViewController.h; sourceTree = "<group>"; };
+		87AA3CF2189C13E100FBEAAF /* HPImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPImageViewController.m; sourceTree = "<group>"; };
+		87AA3CF3189C13E100FBEAAF /* HPImageViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPImageViewController.xib; sourceTree = "<group>"; };
 		87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteListTableViewCell.xib; sourceTree = "<group>"; };
 		87D02E17188ECBA600273DEC /* HPNoteExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteExporter.h; sourceTree = "<group>"; };
 		87D02E18188ECBA600273DEC /* HPNoteExporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteExporter.m; sourceTree = "<group>"; };
@@ -462,12 +470,17 @@
 				87E37F06188E4CD4000333EA /* HPKeyboardButton.m */,
 				871429F718965BD600DA588F /* NSString+hp_utils.h */,
 				871429F818965BD600DA588F /* NSString+hp_utils.m */,
+				87AA3CF1189C13E100FBEAAF /* HPImageViewController.h */,
+				87AA3CF2189C13E100FBEAAF /* HPImageViewController.m */,
+				87AA3CF3189C13E100FBEAAF /* HPImageViewController.xib */,
+				87AA3CF0189C13E100FBEAAF /* HPImageZoomAnimationController.h */,
+				87AA3CEF189C13E100FBEAAF /* HPImageZoomAnimationController.m */,
+				871CD00E189B4A4C00E39CFA /* UIColor+hp_utils.h */,
+				871CD00F189B4A4C00E39CFA /* UIColor+hp_utils.m */,
 				871CD006189ABD5300E39CFA /* UIImage+hp_utils.h */,
 				871CD007189ABD5300E39CFA /* UIImage+hp_utils.m */,
 				873E9CCD189174F8003364E7 /* UITableView+hp_reloadChanges.h */,
 				873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */,
-				871CD00E189B4A4C00E39CFA /* UIColor+hp_utils.h */,
-				871CD00F189B4A4C00E39CFA /* UIColor+hp_utils.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -561,6 +574,7 @@
 				8763DA5D18883B6D000D9569 /* HPNoteListViewController.xib in Resources */,
 				871429A91892E87A00DA588F /* HPIndexItemTableViewCell.xib in Resources */,
 				872C19A518986F6C0013C9A5 /* Localizable.stringsdict in Resources */,
+				87AA3CF8189C13E100FBEAAF /* HPImageViewController.xib in Resources */,
 				871CD013189B4EE200E39CFA /* sample.jpg in Resources */,
 				8763DA6818884650000D9569 /* HPNoteViewController.xib in Resources */,
 				871CD00A189B098200E39CFA /* HPNoteSearchTableViewCell.xib in Resources */,
@@ -632,6 +646,7 @@
 				87E37EEA188C413D000333EA /* HPTag.m in Sources */,
 				871429AC18933D6600DA588F /* HPNoteActivityItemSource.m in Sources */,
 				8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */,
+				87AA3CF6189C13E100FBEAAF /* HPImageZoomAnimationController.m in Sources */,
 				87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */,
 				8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */,
 				871CD003189AB77800E39CFA /* HPData.m in Sources */,
@@ -642,6 +657,7 @@
 				87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */,
 				87E37EF4188CB169000333EA /* HPRootViewController.m in Sources */,
 				8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */,
+				87AA3CF7189C13E100FBEAAF /* HPImageViewController.m in Sources */,
 				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
 				87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */,
 				87142A001896CFC900DA588F /* HPNoteImporter.m in Sources */,
