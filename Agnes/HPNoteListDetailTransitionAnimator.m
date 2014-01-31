@@ -103,6 +103,7 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
 
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext fromList:(HPNoteListViewController*)fromViewController toDetail:(HPNoteViewController*)toViewController
 {
+    UIView *containerView = transitionContext.containerView;
     [transitionContext.containerView addSubview:toViewController.view];
     toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
     
@@ -152,10 +153,14 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
         thumbnailViewPlaceholder = [self addImageViewWithImage:attachment.image rect:thumbnailView.bounds fromView:thumbnailView context:transitionContext];
     }
     
-    toViewController.view.alpha = 0;
+    if (titleLabelPlaceholder) [containerView bringSubviewToFront:titleLabelPlaceholder];
+    if (bodyLabelPlaceholder) [containerView bringSubviewToFront:bodyLabelPlaceholder];
+    if (thumbnailViewPlaceholder) [containerView bringSubviewToFront:thumbnailViewPlaceholder];
+    noteTextView.alpha = 0;
     NSTimeInterval duration = [self transitionDuration:transitionContext];
     NSTimeInterval firstDuration = duration * 2.0/3.0;
     NSTimeInterval secondDuration = duration - firstDuration;
+    UIView *toolbar = toViewController.toolbar;
     [UIView animateWithDuration:firstDuration animations:^{
         if (titleLabelPlaceholder)
         {
@@ -178,10 +183,20 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
         [titleLabelCover removeFromSuperview];
         [bodyLabelCover removeFromSuperview];
         [thumbnailViewCover removeFromSuperview];
+        toolbar.center = CGPointMake(toolbar.center.x, toolbar.center.y + toolbar.bounds.size.height);
+        if (thumbnailViewPlaceholder)
+        {
+            CGRect frame = [toViewController.view convertRect:thumbnailViewPlaceholder.frame fromView:thumbnailViewPlaceholder.superview];
+            [thumbnailViewPlaceholder removeFromSuperview];
+            thumbnailViewPlaceholder.frame = frame;
+            [toViewController.view addSubview:thumbnailViewPlaceholder];
+            [toViewController.view bringSubviewToFront:toolbar];
+        }
         [UIView animateWithDuration:secondDuration animations:^{
             titleLabelPlaceholder.alpha = 0;
             bodyLabelPlaceholder.alpha = 0;
-            toViewController.view.alpha = 1;
+            noteTextView.alpha = 1;
+            toolbar.center = CGPointMake(toolbar.center.x, toolbar.center.y - toolbar.bounds.size.height);
         } completion:^(BOOL finished) {
             [backgroundView removeFromSuperview];
             [titleLabelPlaceholder removeFromSuperview];
