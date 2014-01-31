@@ -94,9 +94,9 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSArray *previousData = previousItems ? @[previousItems] : nil;
     _items = items;
     
-    [self.tableView hp_reloadChangesWithPreviousData:previousData currentData:@[_items] reloadObjects:[NSSet set] keyBlock:^id<NSCopying>(HPIndexItem *indexItem) {
+    [self.tableView hp_reloadChangesWithPreviousData:previousData currentData:@[_items] keyBlock:^id<NSCopying>(HPIndexItem *indexItem) {
         return indexItem.title; // TODO: Provide a real unique id for index items
-    }];
+    } reloadBlock:nil];
 }
 
 #pragma mark - UITableViewDataSource

@@ -11,8 +11,8 @@
 @interface UITableView (hp_reloadChanges)
 
 - (void)hp_reloadChangesWithPreviousData:(NSArray*)previousData
-                             currentData:(NSArray*)updatedData
-                           reloadObjects:(NSSet*)reloadObjects
-                                 keyBlock:(id<NSCopying>(^)(id object))keyBlock;
+                             currentData:(NSArray*)currentData
+                                 keyBlock:(id<NSCopying>(^)(id object))keyBlock
+                             reloadBlock:(BOOL(^)(id object))reloadBlock;
 
 @end

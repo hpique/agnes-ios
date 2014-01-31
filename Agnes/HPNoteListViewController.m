@@ -389,8 +389,16 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     if (animated)
     {
         NSArray *previousData = previousNotes ? @[previousNotes] : nil;
-        [_notesTableView hp_reloadChangesWithPreviousData:previousData currentData:@[_notes] reloadObjects:reloadNotes keyBlock:^id<NSCopying>(HPNote *note) {
+        [_notesTableView hp_reloadChangesWithPreviousData:previousData currentData:@[_notes] keyBlock:^id<NSCopying>(HPNote *note) {
             return note.objectID;
+        } reloadBlock:^BOOL(HPNote *note) {
+            // Only reload remaining notes if the cell height changed
+            if (![reloadNotes containsObject:note]) return NO;
+            NSInteger index = [previousNotes indexOfObject:note];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
+            if (![[_notesTableView indexPathsForVisibleRows] containsObject:indexPath]) return NO;
+            UITableViewCell *cell = [_notesTableView cellForRowAtIndexPath:indexPath];
+            return cell.frame.size.height != [HPNoteTableViewCell heightForNote:note width:cell.frame.size.width tagName:self.indexItem.tag.name];
         }];
     }
     else
@@ -414,9 +422,10 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         
         [searchTableView hp_reloadChangesWithPreviousData:previousData
                                               currentData:@[_searchResults, _archivedSearchResults]
-                                            reloadObjects:reloadNotes
                                                  keyBlock:^id<NSCopying>(HPNote *note) {
                                                      return note.objectID;
+                                              } reloadBlock:^BOOL(HPNote *note) {
+                                                  return [reloadNotes containsObject:note];
                                               }];
     }
     else

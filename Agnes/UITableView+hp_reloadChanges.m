@@ -12,8 +12,8 @@
 
 - (void)hp_reloadChangesWithPreviousData:(NSArray*)previousData
                              currentData:(NSArray*)currentData
-                           reloadObjects:(NSSet*)reloadObjects
                                 keyBlock:(id<NSCopying>(^)(id object))keyBlock
+                             reloadBlock:(BOOL(^)(id object))reloadBlock
 {
     if (!previousData || previousData.count != currentData.count)
     {
@@ -60,10 +60,17 @@
                      NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
                      [indexPathsToMove addObject:@[fromIndexPath, toIndexPath]];
                  }
-                 else if ([reloadObjects containsObject:obj])
+                 else
                  {
-                     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:previousIndex inSection:sectionIndex];
-                     [indexPathsToReload addObject:indexPath];
+                     if (reloadBlock)
+                     {
+                         BOOL reload = reloadBlock(obj);
+                         if (reload)
+                         {
+                             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:previousIndex inSection:sectionIndex];
+                             [indexPathsToReload addObject:indexPath];
+                         }
+                     }
                  }
              }
          }];
