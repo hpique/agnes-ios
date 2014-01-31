@@ -701,6 +701,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)tagSuggestionsView:(HPTagSuggestionsView *)tagSuggestionsView didSelectSuggestion:(NSString*)suggestion
 {
+    [[UIDevice currentDevice] playInputClick];
     NSRange foundRange;
     NSString *tag = [self selectedTagEnclosing:YES range:&foundRange];
     if (!tag) return;
@@ -719,6 +720,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)tagSuggestionsView:(HPTagSuggestionsView *)tagSuggestionsView didSelectKey:(NSString *)key
 {
+    [[UIDevice currentDevice] playInputClick];
     NSRange replacementRange = _bodyTextView.selectedRange;
     UITextRange *textRange = UITextRangeFromNSRange(_bodyTextView, replacementRange);
     

@@ -51,6 +51,13 @@
     return self;
 }
 
+#pragma mark - UIInputViewAudioFeedback
+
+- (BOOL)enableInputClicksWhenVisible
+{
+    return YES;
+}
+
 #pragma mark - Public
 
 - (void)setPrefix:(NSString *)prefix
