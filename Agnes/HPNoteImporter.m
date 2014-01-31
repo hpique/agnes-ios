@@ -40,22 +40,28 @@
 - (void)startWatching
 {
     NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-    NSError *error;
-    [self importNotesAtPath:documentsPath error:&error];
-    [_directoryWatcher startWatching];
+    [self importNotesAtPath:documentsPath];
 }
 
 #pragma mark - Actions
 
 - (void)didUpdateDocumentsAtPath:(NSString*)path
 {
-    [_directoryWatcher stopWatching];
-    NSError *error;
-    [self importNotesAtPath:path error:&error];
-    [_directoryWatcher startWatching];
+    [self importNotesAtPath:path];
 }
 
 #pragma mark - Private
+
+- (void)importNotesAtPath:(NSString*)path
+{
+    [_directoryWatcher stopWatching];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self importNotesAtPath:path error:nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_directoryWatcher startWatching];
+        });
+    });
+}
 
 - (BOOL)importNotesAtPath:(NSString*)path error:(NSError**)error
 {
@@ -102,13 +108,15 @@
     }
     NSDate *createdAt = [attributes objectForKey:NSFileCreationDate];
     NSDate *modifiedAt = [attributes objectForKey:NSFileModificationDate];
-    [noteManager importNoteWithText:text createdAt:createdAt modifiedAt:modifiedAt];
     
     BOOL removed = [fileManager removeItemAtPath:path error:error];
     if (!removed)
     {
         NSLog(@"Remove file failed with error %@", [*error localizedDescription]);
     }
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        [noteManager importNoteWithText:text createdAt:createdAt modifiedAt:modifiedAt];
+    });
     return YES;
 }
 
