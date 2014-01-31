@@ -274,6 +274,8 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
             thumbnailViewPlaceholder.frame = [containerView convertRect:thumbnailView.bounds fromView:thumbnailView];
         }
         fromViewController.view.alpha = 0;
+        UIView *toolbar = fromViewController.toolbar;
+        toolbar.center = CGPointMake(toolbar.center.x, toolbar.center.y + toolbar.bounds.size.height);
     } completion:^(BOOL finished) {
         [titleCover removeFromSuperview];
         [bodyCover removeFromSuperview];
