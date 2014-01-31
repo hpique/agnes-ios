@@ -44,7 +44,17 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)addTutorialNotes
 {
     [self performNoUndoModelUpdateAndSave:YES block:^{
-        [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
+        NSArray *notes = [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
+        for (HPNote *note in notes)
+        {
+            if ([note.text rangeOfString:[HPNote attachmentString]].location != NSNotFound)
+            {
+                UIImage *image = [UIImage imageNamed:@"sample.jpg"];
+                HPAttachment *attachment = [self attachmentForNote:note withImage:image];
+                [note addAttachmentsObject:attachment];
+                break;
+            }
+        }
     }];
 }
 
@@ -100,6 +110,40 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 }
 
 #pragma mark - Private
+
+- (HPAttachment*)attachmentForNote:(HPNote*)note withImage:(UIImage*)image
+{
+    NSEntityDescription *entityAttachment = [NSEntityDescription entityForName:[HPAttachment entityName] inManagedObjectContext:self.context];
+    HPAttachment *attachment = [[HPAttachment alloc] initWithEntity:entityAttachment insertIntoManagedObjectContext:note.managedObjectContext]; // Considering blank notes
+    attachment.type = (NSString*) kUTTypeImage;
+    
+    NSEntityDescription *entityData = [NSEntityDescription entityForName:[HPData entityName] inManagedObjectContext:self.context];
+    HPData *data = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
+    data.data = UIImageJPEGRepresentation(image, 1);
+    attachment.data = data;
+    
+    {
+        CGSize thumbnailSize;
+        CGSize imageSize = image.size;
+        if (imageSize.height < imageSize.width)
+        {
+            thumbnailSize.height = 240;
+            thumbnailSize.width = imageSize.width / (imageSize.height / thumbnailSize.height);
+        }
+        else
+        {
+            thumbnailSize.width = 240;
+            thumbnailSize.height = imageSize.height / (imageSize.width / thumbnailSize.width);
+        }
+        UIImage *thumbnail = [UIImage hp_imageWithImage:image scaledToSize:thumbnailSize];
+        HPData *data = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
+        data.data = UIImageJPEGRepresentation(thumbnail, 1);
+        attachment.thumbnailData = data;
+    }
+    
+    attachment.createdAt = [NSDate date];
+    return attachment;
+}
 
 - (NSArray*)notesWithKeyFormat:(NSString*)keyFormat context:(NSManagedObjectContext*)context
 {
@@ -164,35 +208,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
          {
              [self.context insertObject:note];
          }
-         NSEntityDescription *entityAttachment = [NSEntityDescription entityForName:[HPAttachment entityName] inManagedObjectContext:self.context];
-         HPAttachment *attachment = [[HPAttachment alloc] initWithEntity:entityAttachment insertIntoManagedObjectContext:note.managedObjectContext]; // Considering blank notes
-         attachment.type = (NSString*) kUTTypeImage;
-         
-         NSEntityDescription *entityData = [NSEntityDescription entityForName:[HPData entityName] inManagedObjectContext:self.context];
-         HPData *data = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
-         data.data = UIImageJPEGRepresentation(image, 1);
-         attachment.data = data;
-
-         {
-             CGSize thumbnailSize;
-             CGSize imageSize = image.size;
-             if (imageSize.height < imageSize.width)
-             {
-                 thumbnailSize.height = 240;
-                 thumbnailSize.width = imageSize.width / (imageSize.height / thumbnailSize.height);
-             }
-             else
-             {
-                 thumbnailSize.width = 240;
-                 thumbnailSize.height = imageSize.height / (imageSize.width / thumbnailSize.width);
-             }
-             UIImage *thumbnail = [UIImage hp_imageWithImage:image scaledToSize:thumbnailSize];
-             HPData *data = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
-             data.data = UIImageJPEGRepresentation(thumbnail, 1);
-             attachment.thumbnailData = data;
-         }
-         
-         attachment.createdAt = [NSDate date];
+         HPAttachment *attachment = [self attachmentForNote:note withImage:image];
          [note addAttachment:attachment atIndex:index];
      }];
 }
