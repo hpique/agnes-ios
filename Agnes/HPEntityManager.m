@@ -85,7 +85,7 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
 - (void)performModelUpdateWithName:(NSString*)actionName save:(BOOL)save block:(void (^)())block ;
 {
     [self.context.undoManager beginUndoGrouping];
-    [self.context.undoManager setActionName:NSLocalizedString(actionName, @"")];
+    [self.context.undoManager setActionName:actionName];
     block();
     if (save)
     {
