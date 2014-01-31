@@ -149,7 +149,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)archiveNote:(HPNote*)note
 {
-    [self performModelUpdateWithName:@"Archive" save:NO block:^{
+    [self performModelUpdateWithName:NSLocalizedString(@"Archive", @"") save:NO block:^{
         note.archived = YES;
     }];
 }
@@ -157,7 +157,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)attachToNote:(HPNote*)note image:(UIImage*)image index:(NSInteger)index
 {
     BOOL isNew = note.managedObjectContext == nil;
-    NSString *actionName = isNew ? @"Add Note" : @"Attach Image";
+    NSString *actionName = isNew ? NSLocalizedString(@"Add Note", @"") : NSLocalizedString(@"Attach Image", @"");
     [self performModelUpdateWithName:actionName save:YES block:
      ^{
          if (isNew)
@@ -192,6 +192,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
              attachment.thumbnailData = data;
          }
          
+         attachment.createdAt = [NSDate date];
          [note addAttachment:attachment atIndex:index];
      }];
 }
@@ -210,7 +211,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)editNote:(HPNote*)note text:(NSString*)text;
 {
     BOOL isNew = note.managedObjectContext == nil;
-    NSString *actionName = isNew ? @"Add Note" : @"Edit Note";
+    NSString *actionName = isNew ? NSLocalizedString(@"Add Note", @"") : NSLocalizedString(@"Edit Note", @"");
     [self performModelUpdateWithName:actionName save:YES block:^{
         if (isNew)
         {
@@ -223,7 +224,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt
 {
-    [self performModelUpdateWithName:@"Import Note" save:YES block:^{
+    [self performModelUpdateWithName:NSLocalizedString(@"Import Note", @"") save:YES block:^{
         HPNote *note = [HPNote insertNewObjectIntoContext:self.context];
         note.createdAt = createdAt;
         note.inboxOrder = NSIntegerMax;
@@ -234,7 +235,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)reorderNotes:(NSArray*)notes tagName:(NSString*)tagName
 {
-    [self performModelUpdateWithName:@"Reorder" save:NO block:^{
+    [self performModelUpdateWithName:NSLocalizedString(@"Reorder", @"") save:NO block:^{
         NSInteger notesCount = notes.count;
         for (NSInteger i = 0; i < notesCount; i++)
         {
@@ -260,7 +261,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)unarchiveNote:(HPNote*)note
 {
-    [self performModelUpdateWithName:@"Unarchive" save:NO block:^{
+    [self performModelUpdateWithName:NSLocalizedString(@"Unarchive", @"") save:NO block:^{
         note.archived = NO;
     }];
 }
@@ -268,7 +269,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)trashNote:(HPNote*)note
 {
     if (note.managedObjectContext == nil) return;
-    [self performModelUpdateWithName:@"Delete Note" save:NO block:^{
+    [self performModelUpdateWithName:NSLocalizedString(@"Delete Note", @"") save:NO block:^{
         [self.context deleteObject:note];
     }];
 }

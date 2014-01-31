@@ -13,6 +13,7 @@
 
 @interface HPAttachment : NSManagedObject
 
+@property (nonatomic, retain) NSDate * createdAt;
 @property (nonatomic, retain) NSString * type;
 @property (nonatomic, retain) HPNote *note;
 @property (nonatomic, retain) HPData *data;

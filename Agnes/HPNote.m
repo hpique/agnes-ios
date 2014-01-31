@@ -247,7 +247,7 @@ const NSInteger HPNoteDetailModeCount = 5;
         _title = [trimmedText componentsSeparatedByString:@"\n"][0];
         if (_title.length == 0)
         {
-            _title = NSLocalizedString(@"Untitled", @"");
+            _title = NSLocalizedString(@"Untitled note", @"");
         }
     }
     return _title;

@@ -13,6 +13,7 @@
 
 @implementation HPAttachment
 
+@dynamic createdAt;
 @dynamic type;
 @dynamic note;
 @dynamic data;

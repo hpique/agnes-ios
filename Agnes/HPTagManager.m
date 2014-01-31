@@ -82,7 +82,7 @@
 
 - (void)reorderTagsWithNames:(NSArray*)names
 {
-    [self performModelUpdateWithName:@"Reorder" save:NO block:^{
+    [self performModelUpdateWithName:NSLocalizedString(@"Reorder", @"") save:NO block:^{
         NSInteger count = names.count;
         [names enumerateObjectsUsingBlock:^(NSString *name, NSUInteger idx, BOOL *stop) {
             HPTag *tag = [self tagWithName:name];
