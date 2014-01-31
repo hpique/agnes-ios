@@ -3,12 +3,14 @@
     <entity name="Attachment" representedClassName="HPAttachment" syncable="YES">
         <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="type" attributeType="String" syncable="YES"/>
-        <relationship name="data" maxCount="1" deletionRule="Cascade" destinationEntity="Data" syncable="YES"/>
+        <relationship name="data" maxCount="1" deletionRule="Cascade" destinationEntity="Data" inverseName="attachment" inverseEntity="Data" syncable="YES"/>
         <relationship name="note" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Note" inverseName="attachments" inverseEntity="Note" syncable="YES"/>
-        <relationship name="thumbnailData" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Data" syncable="YES"/>
+        <relationship name="thumbnailData" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Data" inverseName="thumbnailAttachment" inverseEntity="Data" syncable="YES"/>
     </entity>
     <entity name="Data" representedClassName="HPData" syncable="YES">
         <attribute name="data" attributeType="Binary" syncable="YES"/>
+        <relationship name="attachment" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Attachment" inverseName="data" inverseEntity="Attachment" syncable="YES"/>
+        <relationship name="thumbnailAttachment" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Attachment" inverseName="thumbnailData" inverseEntity="Attachment" syncable="YES"/>
     </entity>
     <entity name="Note" representedClassName="HPNote" syncable="YES">
         <attribute name="archived" optional="YES" transient="YES" syncable="YES"/>
@@ -37,9 +39,9 @@
     <fetchRequest name="ArchivedNotes" entity="Note" predicateString="archived == 1"/>
     <fetchRequest name="InboxNotes" entity="Note" predicateString="archived == 0"/>
     <elements>
-        <element name="Attachment" positionX="198" positionY="57" width="128" height="105"/>
-        <element name="Data" positionX="486" positionY="102" width="128" height="60"/>
-        <element name="Note" positionX="-47" positionY="-39" width="128" height="253"/>
-        <element name="Tag" positionX="-297" positionY="72" width="128" height="133"/>
+        <element name="Attachment" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Data" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Note" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Tag" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>
