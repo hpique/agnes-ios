@@ -26,11 +26,11 @@
 @interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate>
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
+@property (nonatomic, assign) BOOL textChanged;
 
 @end
 
 @implementation HPNoteViewController {
-    BOOL _bodyTextViewChanged;
     PSPDFTextView *_bodyTextView;
     UIEdgeInsets _originalBodyTextViewInset;
     HPBaseTextStorage *_bodyTextStorage;
@@ -62,6 +62,8 @@
     UIImage *_presentedImageMedium;
     CGRect _presentedImageRect;
     HPImageViewController *_presentedImageViewController;
+    
+    NSTimer *_autosaveTimer;
 }
 
 @synthesize noteTextView = _bodyTextView;
@@ -133,6 +135,7 @@
 
 - (void)dealloc
 {
+    [_autosaveTimer invalidate];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
@@ -205,7 +208,7 @@
 {
     HPNote *note = self.note;
     if (!note) return NO;
-    if (!_bodyTextViewChanged) return NO;
+    if (!self.textChanged) return NO;
     
     if (![note isNew] || ![self isEmptyText])
     {
@@ -220,7 +223,7 @@
         }
         [self updateToolbar:animated];
         [self displayDetail];
-        _bodyTextViewChanged = NO;
+        self.textChanged = NO;
         
         if (!self.indexItem)
         { // Find the best index item to return to
@@ -280,6 +283,11 @@
     const UIEdgeInsets insets = _bodyTextView.textContainerInset;
     const CGFloat width = _bodyTextView.bounds.size.width - insets.left - insets.right - _bodyTextView.textContainer.lineFragmentPadding * 2;
     return [self.note attributedTextForWidth:width];
+}
+
+- (void)autosave
+{
+    [self saveNote:NO];
 }
 
 - (void)displayNote
@@ -488,6 +496,25 @@
     [[HPNoteManager sharedManager] setDetailMode:self.detailMode ofNote:self.note];
 }
 
+- (void)setTextChanged:(BOOL)textChanged
+{
+    const BOOL wasChanged = _textChanged;
+    _textChanged = textChanged;
+    if (self.textChanged)
+    {
+        if (!wasChanged)
+        {
+            [_autosaveTimer invalidate];
+            static CGFloat autosaveDelay = 10;
+            _autosaveTimer = [NSTimer scheduledTimerWithTimeInterval:autosaveDelay target:self selector:@selector(autosave) userInfo:nil repeats:NO];
+        }
+    }
+    else
+    {
+        [_autosaveTimer invalidate];
+    }
+}
+
 UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 {
     UITextPosition *beginning = textView.beginningOfDocument;
@@ -551,7 +578,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     NSMutableAttributedString *attributedString = self.noteTextView.attributedText.mutableCopy;
     [attributedString replaceCharactersInRange:NSMakeRange(_presentedImageCharacterIndex, 1) withString:@""];
     self.noteTextView.attributedText = attributedString;
-    _bodyTextViewChanged = YES;
+    self.textChanged = YES;
     [self saveNote:NO];
     _presentedImageRect = CGRectMake(_presentedImageRect.origin.x + _presentedImageRect.size.width / 2, _presentedImageRect.origin.y, 1, 1);
     [self dismissViewControllerAnimated:YES completion:^{
@@ -669,7 +696,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)textViewDidChange:(UITextView *)textView
 {
-    _bodyTextViewChanged = YES;
+    self.textChanged = YES;
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
@@ -683,7 +710,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
     _textTapGestureRecognizer.enabled = YES;
-    if (_bodyTextViewChanged)
+    if (self.textChanged)
     {
         [self saveNote:YES];
     }
@@ -845,7 +872,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     }
     self.noteTextView.attributedText = [self attributedNoteText];
-    _bodyTextViewChanged = YES;
+    self.textChanged = YES;
 }
 
 #pragma mark - UIViewControllerTransitioningDelegate
