@@ -9,6 +9,8 @@
 #import "HPNoteExporter.h"
 #import "HPNote.h"
 #import "SSZipArchive.h"
+#import "HPAttachment.h"
+#import "HPData.h"
 
 @implementation HPNoteExporter
 
@@ -63,6 +65,26 @@
              {
                  NSLog(@"Set attributes failed with error %@", [error localizedDescription]);
              }
+             
+             [note.attachments.allObjects enumerateObjectsUsingBlock:^(HPAttachment *attachment, NSUInteger idxAttachment, BOOL *stopAttachments) {
+                 NSData *data = attachment.data.data;
+                 NSString *attachmentFilename = [NSString stringWithFormat:@"%@% ld attachment %ld.jpg", name, (long)idx + 1, (long)idxAttachment + 1];
+                 NSString *attachmentPath = [notesDirectory stringByAppendingPathComponent:attachmentFilename];
+                 BOOL success = [data writeToFile:attachmentPath atomically:YES];
+                 if (!success)
+                 {
+                     [self handleError:error failure:failureBlock];
+                     *stopAttachments = YES;
+                     *stop = YES;
+                 }
+                 NSDictionary* attributes = @{NSFileCreationDate : attachment.createdAt};
+                 NSError *error;
+                 success = [[NSFileManager defaultManager] setAttributes:attributes ofItemAtPath:attachmentPath error:&error];
+                 if (!success)
+                 {
+                     NSLog(@"Set attributes failed with error %@", [error localizedDescription]);
+                 }
+             }];
          }];
         
         NSString *zipDirectory = [exportPath stringByAppendingPathComponent:@"zip"];
