@@ -202,7 +202,6 @@
     if (![note isNew] || ![self isEmptyText])
     {
         NSMutableString *mutableText = [NSMutableString stringWithString:self.noteTextView.text];
-        NSLog(@"%d", mutableText.length);
         const BOOL changed = [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
         [[HPNoteManager sharedManager] editNote:self.note text:mutableText];
         if (changed)
@@ -401,6 +400,14 @@
     HPBrowserViewController *vc = [[HPBrowserViewController alloc] init];
     vc.url = url;
     [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (void)presentImagePickerControllerWithType:(UIImagePickerControllerSourceType)type
+{
+    UIImagePickerController *controller = [[UIImagePickerController alloc] init];
+    controller.delegate = self;
+    controller.sourceType = type;
+    [self presentViewController:controller animated:YES completion:^{}];
 }
 
 - (NSString*)selectedTagEnclosing:(BOOL)enclosing range:(NSRange*)foundRange
@@ -662,19 +669,15 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     }
     else if (_attachmentActionSheet == actionSheet)
     {
-        UIImagePickerController *controller = [[UIImagePickerController alloc] init];
-        controller.delegate = self;
-        UIImagePickerControllerSourceType sourceType;
         if (buttonIndex == _attachmentActionSheetCameraIndex)
         {
-            sourceType = UIImagePickerControllerSourceTypeCamera;
+            [self presentImagePickerControllerWithType:UIImagePickerControllerSourceTypeCamera];
         }
-        else
-        { // (buttonIndex == _attachmentActionSheetPhotosIndex)
-            sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        else if (buttonIndex == _attachmentActionSheetPhotosIndex)
+        {
+            [self presentImagePickerControllerWithType:UIImagePickerControllerSourceTypePhotoLibrary];
         }
-        controller.sourceType = sourceType;
-        [self presentViewController:controller animated:YES completion:^{}];
+        _attachmentActionSheet = nil;
     }
     else
     {
