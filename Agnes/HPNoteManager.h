@@ -33,7 +33,7 @@
 
 - (void)editNote:(HPNote*)note text:(NSString*)text;
 
-- (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt;
+- (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt attachments:(NSArray*)attachments;
 
 - (void)reorderNotes:(NSArray*)notes tagName:(NSString*)tagName;
 

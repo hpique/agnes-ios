@@ -20,6 +20,9 @@
 @property (nonatomic, retain) HPData *thumbnailData;
 @property (nonatomic, readonly) UIImage *image;
 @property (nonatomic, readonly) UIImage *thumbnail;
+
++ (HPAttachment*)attachmentWithImage:(UIImage*)image context:(NSManagedObjectContext*)context;
+
 @end
 
 @interface HPAttachment(Convenience)

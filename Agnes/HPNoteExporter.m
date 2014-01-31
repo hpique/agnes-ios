@@ -11,6 +11,7 @@
 #import "SSZipArchive.h"
 #import "HPAttachment.h"
 #import "HPData.h"
+#import "NSString+hp_utils.h"
 
 @implementation HPNoteExporter
 
@@ -29,7 +30,7 @@
         
         exportPath = [exportPath stringByAppendingPathComponent:dateString];
         
-        NSError *error;
+        __block NSError *error;
         if ([[NSFileManager defaultManager] fileExistsAtPath:exportPath])
         {
             BOOL success = [[NSFileManager defaultManager] removeItemAtPath:exportPath error:&error];
@@ -41,7 +42,7 @@
         }
         
         NSString *notesDirectory = [exportPath stringByAppendingPathComponent:@"notes"];
-        BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:notesDirectory withIntermediateDirectories:YES attributes:nil error:&error];
+        __block BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:notesDirectory withIntermediateDirectories:YES attributes:nil error:&error];
         if (!success)
         {
             [self handleError:error failure:failureBlock];
@@ -50,42 +51,15 @@
         
         [notes enumerateObjectsUsingBlock:^(HPNote *note, NSUInteger idx, BOOL *stop)
          {
-             NSString *filename = [NSString stringWithFormat:@"%@% ld.txt", name, (long)idx + 1];
-             NSString *path = [notesDirectory stringByAppendingPathComponent:filename];
-             NSError *error = nil;
-             BOOL success = [note.text writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error];
-             if (!success)
-             {
-                 [self handleError:error failure:failureBlock];
-                 *stop = YES;
-             }
-             NSDictionary* attributes = @{NSFileCreationDate : note.createdAt, NSFileModificationDate : note.modifiedAt};
-             success = [[NSFileManager defaultManager] setAttributes:attributes ofItemAtPath:path error:&error];
-             if (!success)
-             {
-                 NSLog(@"Set attributes failed with error %@", [error localizedDescription]);
-             }
-             
-             [note.attachments.allObjects enumerateObjectsUsingBlock:^(HPAttachment *attachment, NSUInteger idxAttachment, BOOL *stopAttachments) {
-                 NSData *data = attachment.data.data;
-                 NSString *attachmentFilename = [NSString stringWithFormat:@"%@% ld attachment %ld.jpg", name, (long)idx + 1, (long)idxAttachment + 1];
-                 NSString *attachmentPath = [notesDirectory stringByAppendingPathComponent:attachmentFilename];
-                 BOOL success = [data writeToFile:attachmentPath atomically:YES];
-                 if (!success)
-                 {
-                     [self handleError:error failure:failureBlock];
-                     *stopAttachments = YES;
-                     *stop = YES;
-                 }
-                 NSDictionary* attributes = @{NSFileCreationDate : attachment.createdAt};
-                 NSError *error;
-                 success = [[NSFileManager defaultManager] setAttributes:attributes ofItemAtPath:attachmentPath error:&error];
-                 if (!success)
-                 {
-                     NSLog(@"Set attributes failed with error %@", [error localizedDescription]);
-                 }
-             }];
+             NSString *filename = [NSString stringWithFormat:@"%@% ld", name, (long)idx + 1];
+             success = [self exportNote:note withName:filename toDirectory:notesDirectory error:&error];
+             if (!success) *stop = YES;
          }];
+        if (!success)
+        {
+            [self handleError:error failure:failureBlock];
+            return;
+        }
         
         NSString *zipDirectory = [exportPath stringByAppendingPathComponent:@"zip"];
         success = [[NSFileManager defaultManager] createDirectoryAtPath:zipDirectory withIntermediateDirectories:YES attributes:nil error:&error];
@@ -111,6 +85,49 @@
 }
 
 #pragma mark - Private (background)
+
+- (BOOL)exportNote:(HPNote*)note withName:(NSString*)name toDirectory:(NSString*)directory error:(NSError**)error
+{
+    NSMutableString *text = note.text.mutableCopy;
+    __block NSInteger attachmentIndex = 0;
+    [text hp_enumerateOccurrencesOfString:[HPNote attachmentString] options:kNilOptions usingBlock:^(NSRange matchRange, BOOL *stop) {
+        NSString *attachmentFilename = [NSString stringWithFormat:@"%@ attachment %ld.jpg", name, (long)attachmentIndex + 1];
+        NSString *replacement = [NSString stringWithFormat:@"{img}%@{/img}", attachmentFilename];
+        [text replaceCharactersInRange:matchRange withString:replacement];
+        attachmentIndex++;
+    }];
+
+    NSString *filename = [name stringByAppendingPathExtension:@"txt"];
+    NSString *path = [directory stringByAppendingPathComponent:filename];
+    __block  BOOL success = [text writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:error];
+    if (!success) return NO;
+
+    NSDictionary* attributes = @{NSFileCreationDate : note.createdAt, NSFileModificationDate : note.modifiedAt};
+    success = [[NSFileManager defaultManager] setAttributes:attributes ofItemAtPath:path error:error];
+    if (!success)
+    {
+        NSLog(@"Set attributes failed with error %@", [*error localizedDescription]);
+    }
+    
+    [note.attachments.allObjects enumerateObjectsUsingBlock:^(HPAttachment *attachment, NSUInteger idxAttachment, BOOL *stop) {
+        NSData *data = attachment.data.data;
+        NSString *attachmentFilename = [NSString stringWithFormat:@"%@ attachment %ld.jpg", name, (long)idxAttachment + 1];
+        NSString *attachmentPath = [directory stringByAppendingPathComponent:attachmentFilename];
+        success = [data writeToFile:attachmentPath atomically:YES];
+        if (!success)
+        {
+            *stop = YES;
+        }
+        NSDictionary* attributes = @{NSFileCreationDate : attachment.createdAt};
+        NSError *error;
+        const BOOL didSetAttributes = [[NSFileManager defaultManager] setAttributes:attributes ofItemAtPath:attachmentPath error:&error];
+        if (!didSetAttributes)
+        {
+            NSLog(@"Set attributes failed with error %@", [error localizedDescription]);
+        }
+    }];
+    return success;
+}
 
 - (void)handleError:(NSError*)error failure:(void (^)(NSError *error))failureBlock
 {

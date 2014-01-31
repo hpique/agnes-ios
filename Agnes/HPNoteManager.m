@@ -15,7 +15,6 @@
 #import "HPData.h"
 #import "UIImage+hp_utils.h"
 #import <CoreData/CoreData.h>
-#import <MobileCoreServices/MobileCoreServices.h>
 
 static void *HPNoteManagerContext = &HPNoteManagerContext;
 
@@ -50,7 +49,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             if ([note.text rangeOfString:[HPNote attachmentString]].location != NSNotFound)
             {
                 UIImage *image = [UIImage imageNamed:@"sample.jpg"];
-                HPAttachment *attachment = [self attachmentForNote:note withImage:image];
+                HPAttachment *attachment = [HPAttachment attachmentWithImage:image context:note.managedObjectContext];
                 [note addAttachmentsObject:attachment];
                 break;
             }
@@ -110,40 +109,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 }
 
 #pragma mark - Private
-
-- (HPAttachment*)attachmentForNote:(HPNote*)note withImage:(UIImage*)image
-{
-    NSEntityDescription *entityAttachment = [NSEntityDescription entityForName:[HPAttachment entityName] inManagedObjectContext:self.context];
-    HPAttachment *attachment = [[HPAttachment alloc] initWithEntity:entityAttachment insertIntoManagedObjectContext:note.managedObjectContext]; // Considering blank notes
-    attachment.type = (NSString*) kUTTypeImage;
-    
-    NSEntityDescription *entityData = [NSEntityDescription entityForName:[HPData entityName] inManagedObjectContext:self.context];
-    HPData *data = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
-    data.data = UIImageJPEGRepresentation(image, 1);
-    attachment.data = data;
-    
-    {
-        CGSize thumbnailSize;
-        CGSize imageSize = image.size;
-        if (imageSize.height < imageSize.width)
-        {
-            thumbnailSize.height = 240;
-            thumbnailSize.width = imageSize.width / (imageSize.height / thumbnailSize.height);
-        }
-        else
-        {
-            thumbnailSize.width = 240;
-            thumbnailSize.height = imageSize.height / (imageSize.width / thumbnailSize.width);
-        }
-        UIImage *thumbnail = [UIImage hp_imageWithImage:image scaledToSize:thumbnailSize];
-        HPData *data = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
-        data.data = UIImageJPEGRepresentation(thumbnail, 1);
-        attachment.thumbnailData = data;
-    }
-    
-    attachment.createdAt = [NSDate date];
-    return attachment;
-}
 
 - (NSArray*)notesWithKeyFormat:(NSString*)keyFormat context:(NSManagedObjectContext*)context
 {
@@ -208,7 +173,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
          {
              [self.context insertObject:note];
          }
-         HPAttachment *attachment = [self attachmentForNote:note withImage:image];
+         HPAttachment *attachment = [HPAttachment attachmentWithImage:image context:note.managedObjectContext];
          [note addAttachment:attachment atIndex:index];
      }];
 }
@@ -238,7 +203,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }];
 }
 
-- (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt
+- (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt attachments:(NSArray*)attachments
 {
     [self performModelUpdateWithName:NSLocalizedString(@"Import Note", @"") save:YES block:^{
         HPNote *note = [HPNote insertNewObjectIntoContext:self.context];
@@ -246,6 +211,13 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         note.inboxOrder = NSIntegerMax;
         note.modifiedAt = modifiedAt;
         note.text = text;
+        for (HPAttachment *attachment in attachments)
+        {
+            [self.context insertObject:attachment.data];
+            [self.context insertObject:attachment.thumbnailData];
+            [self.context insertObject:attachment];
+        }
+        [note addAttachments:[NSSet setWithArray:attachments]];
     }];
 }
 

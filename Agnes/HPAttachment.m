@@ -9,7 +9,9 @@
 #import "HPAttachment.h"
 #import "HPData.h"
 #import "HPNote.h"
-
+#import "HPNoteManager.h"
+#import "UIImage+hp_utils.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @implementation HPAttachment
 
@@ -43,6 +45,41 @@
         thumbnail = self.image;
     }
     return thumbnail;
+}
+
++ (HPAttachment*)attachmentWithImage:(UIImage*)image context:(NSManagedObjectContext*)context
+{
+    NSManagedObjectContext *modelContext = [HPNoteManager sharedManager].context;
+    NSEntityDescription *entityAttachment = [NSEntityDescription entityForName:[self entityName] inManagedObjectContext:modelContext];
+    HPAttachment *attachment = [[HPAttachment alloc] initWithEntity:entityAttachment insertIntoManagedObjectContext:context];
+    attachment.type = (NSString*) kUTTypeImage;
+    
+    NSEntityDescription *entityData = [NSEntityDescription entityForName:[HPData entityName] inManagedObjectContext:modelContext];
+    HPData *modelData = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
+    modelData.data = UIImageJPEGRepresentation(image, 1);
+    attachment.data = modelData;
+    
+    {
+        CGSize thumbnailSize;
+        CGSize imageSize = image.size;
+        if (imageSize.height < imageSize.width)
+        {
+            thumbnailSize.height = 240;
+            thumbnailSize.width = imageSize.width / (imageSize.height / thumbnailSize.height);
+        }
+        else
+        {
+            thumbnailSize.width = 240;
+            thumbnailSize.height = imageSize.height / (imageSize.width / thumbnailSize.width);
+        }
+        UIImage *thumbnail = [UIImage hp_imageWithImage:image scaledToSize:thumbnailSize];
+        HPData *thumbnailModelData = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
+        thumbnailModelData.data = UIImageJPEGRepresentation(thumbnail, 1);
+        attachment.thumbnailData = thumbnailModelData;
+    }
+    
+    attachment.createdAt = [NSDate date];
+    return attachment;
 }
 
 @end
