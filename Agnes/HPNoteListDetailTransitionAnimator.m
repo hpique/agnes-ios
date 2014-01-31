@@ -227,16 +227,14 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
         bodyCover = [self coverView:noteTextView rect:bodyRect color:[UIColor whiteColor] context:transitionContext];
     }
     
-    UIImageView *thumbnailView = cell.thumbnailView;
-    const BOOL handleThumbnail = thumbnailView.image != nil;
-    UIView *thumbnailCover, *thumbnailViewPlaceholder;
-    if (handleThumbnail)
+    UIView *thumbnailCover, *thumbnailViewPlaceholder = nil;
+    CGRect thumbnailRect = [self rectForText:[HPNote attachmentString] inTextView:noteTextView];
+    if (!CGRectIsNull(thumbnailRect))
     {
-        CGRect rect = [self rectForText:[HPNote attachmentString] inTextView:noteTextView];
-        thumbnailCover = [self coverView:noteTextView rect:rect color:[UIColor whiteColor] context:transitionContext];
+        thumbnailCover = [self coverView:noteTextView rect:thumbnailRect color:[UIColor whiteColor] context:transitionContext];
         NSInteger index = [noteTextView.text rangeOfString:[HPNote attachmentString]].location;
         NSTextAttachment *attachment = [noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
-        thumbnailViewPlaceholder = [self addImageViewWithImage:attachment.image rect:rect fromView:noteTextView context:transitionContext];
+        thumbnailViewPlaceholder = [self addImageViewWithImage:attachment.image rect:thumbnailRect fromView:noteTextView context:transitionContext];
     }
     
     UIView *titlePlaceholder = [self fakeView:noteTextView rect:titleRect failsafeView:titleLabel context:transitionContext];
@@ -255,7 +253,11 @@ static UIImage* HPImageFromColor(UIColor *color, CGSize size)
     [UIView animateWithDuration:firstDuration animations:^{
         [self translateView:titlePlaceholder toView:titleLabel containerView:containerView];
         [self translateView:bodyPlaceholder toView:bodyLabel containerView:containerView];
-        thumbnailViewPlaceholder.frame = [containerView convertRect:thumbnailView.bounds fromView:thumbnailView];
+        if (thumbnailViewPlaceholder)
+        {
+            UIImageView *thumbnailView = cell.thumbnailView;
+            thumbnailViewPlaceholder.frame = [containerView convertRect:thumbnailView.bounds fromView:thumbnailView];
+        }
         fromViewController.view.alpha = 0;
     } completion:^(BOOL finished) {
         [titleCover removeFromSuperview];

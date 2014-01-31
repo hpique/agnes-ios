@@ -43,7 +43,10 @@
     UIBarButtonItem *_unarchiveBarButtonItem;
     
     IBOutlet UILabel *_detailLabel;
-    
+
+    UIActionSheet *_attachmentActionSheet;
+    NSInteger _attachmentActionSheetCameraIndex;
+    NSInteger _attachmentActionSheetPhotosIndex;
     UIActionSheet *_deleteNoteActionSheet;
     
     NSInteger _noteIndex;
@@ -101,7 +104,7 @@
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
         _bodyTextView.opaque = NO;
         _bodyTextView.backgroundColor = [UIColor clearColor];
-        _bodyTextView.translatesAutoresizingMaskIntoConstraints = NO;
+        _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _bodyTextView.font = [HPFontManager sharedManager].fontForNoteBody;
         _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, 10, 20 + self.toolbar.frame.size.height, 10);
         _bodyTextView.delegate = self;
@@ -199,6 +202,7 @@
     if (![note isNew] || ![self isEmptyText])
     {
         NSMutableString *mutableText = [NSMutableString stringWithString:self.noteTextView.text];
+        NSLog(@"%d", mutableText.length);
         const BOOL changed = [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
         [[HPNoteManager sharedManager] editNote:self.note text:mutableText];
         if (changed)
@@ -474,11 +478,21 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)attachmentBarButtomItemAction:(UIBarButtonItem*)barButtonItem
 {
-    UIImagePickerController *controller = [[UIImagePickerController alloc] init];
-    controller.delegate = self;
-    controller.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    [self presentViewController:controller animated:YES completion:^{
-    }];
+    _attachmentActionSheet = [[UIActionSheet alloc] init];
+    _attachmentActionSheet.delegate = self;
+    _attachmentActionSheetCameraIndex = -1;
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
+    {
+        _attachmentActionSheetCameraIndex = [_attachmentActionSheet addButtonWithTitle:NSLocalizedString(@"Camera", @"")];
+    }
+    _attachmentActionSheetPhotosIndex = -1;
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary])
+    {
+        _attachmentActionSheetPhotosIndex = [_attachmentActionSheet addButtonWithTitle:NSLocalizedString(@"Photos", @"")];
+    }
+    NSInteger cancelButtonIndex = [_attachmentActionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
+    _attachmentActionSheet.cancelButtonIndex = cancelButtonIndex;
+    [_attachmentActionSheet showInView:self.view];
 }
 
 - (IBAction)detailLabelTapGestureRecognizer:(id)sender
@@ -563,7 +577,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     }
     else
     {
-        _deleteNoteActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:@"Delete Note" otherButtonTitles:nil];
+        _deleteNoteActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:NSLocalizedString(@"Delete Note", @"") otherButtonTitles:nil];
         [_deleteNoteActionSheet showInView:self.view];
     }
 }
@@ -645,6 +659,22 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
             [self trashNote];
         }
         _deleteNoteActionSheet = nil;
+    }
+    else if (_attachmentActionSheet == actionSheet)
+    {
+        UIImagePickerController *controller = [[UIImagePickerController alloc] init];
+        controller.delegate = self;
+        UIImagePickerControllerSourceType sourceType;
+        if (buttonIndex == _attachmentActionSheetCameraIndex)
+        {
+            sourceType = UIImagePickerControllerSourceTypeCamera;
+        }
+        else
+        { // (buttonIndex == _attachmentActionSheetPhotosIndex)
+            sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        }
+        controller.sourceType = sourceType;
+        [self presentViewController:controller animated:YES completion:^{}];
     }
     else
     {

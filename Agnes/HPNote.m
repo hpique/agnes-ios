@@ -117,9 +117,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     
     NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
     textAttachment.image = scaledImage;
-    NSAttributedString *attachmentString = [NSAttributedString attributedStringWithAttachment:textAttachment];
-    
-    [attributedString replaceCharactersInRange:NSMakeRange(index, 0) withAttributedString:attachmentString];
+    [attributedString setAttributes:@{NSAttachmentAttributeName : textAttachment} range:NSMakeRange(index, 1)];
     return attributedString;
 }
 
