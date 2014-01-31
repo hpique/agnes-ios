@@ -11,12 +11,7 @@
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
 #import <MessageUI/MessageUI.h>
-
-@interface UIColor (Utils)
-
-- (UIColor *)hp_lighterColor;
-
-@end
+#import "UIColor+hp_utils.h"
 
 @implementation HPBaseTextStorage {
     NSMutableAttributedString *_backingStore;
@@ -203,23 +198,6 @@
          NSRange matchRange = [match rangeAtIndex:0];
          [self removeAttribute:NSBackgroundColorAttributeName range:matchRange];
      }];
-}
-
-@end
-
-@implementation UIColor(Utils)
-
-- (UIColor *)hp_lighterColor
-{
-    CGFloat h, s, b, a;
-    if ([self getHue:&h saturation:&s brightness:&b alpha:&a])
-    {
-        return [UIColor colorWithHue:h
-                          saturation:s * 0.4
-                          brightness:MIN(b * 1.6, 1.0)
-                               alpha:a];
-    }
-    return self;
 }
 
 @end

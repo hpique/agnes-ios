@@ -12,6 +12,7 @@
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
 #import "NSString+hp_utils.h"
+#import "UIColor+hp_utils.h"
 
 NSInteger const HPNoteTableViewCellLabelMaxLength = 150;
 CGFloat const HPNoteTableViewCellMargin = 10;
@@ -58,6 +59,8 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     _thumbnailDetailConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_detailLabel]-8-[_thumbnailView]" options:kNilOptions metrics:nil views:viewsDictionary];
     _thumbnailTitleConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-8-[_thumbnailView]" options:kNilOptions metrics:nil views:viewsDictionary];
     _bodyLabelAlignRightWithTitleLabelConstraint = [NSLayoutConstraint constraintWithItem:_bodyLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:_titleLabel attribute:NSLayoutAttributeRight multiplier:1 constant:0];
+    
+    self.thumbnailView.layer.borderWidth = 1;
     [self applyPreferences];
 }
 
@@ -200,7 +203,12 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 #pragma mark - Private
 
-- (void)applyPreferences {}
+- (void)applyPreferences
+{
+    UIColor *borderColor = [HPPreferencesManager sharedManager].tintColor;
+    borderColor = [borderColor hp_lighterColor];
+    self.thumbnailView.layer.borderColor = borderColor.CGColor;
+}
 
 - (void)displayDetail
 {
