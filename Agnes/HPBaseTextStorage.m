@@ -56,7 +56,7 @@
     {
         _needsUpdate = NO;
         [self addLinks];
-        [self boldTitle];
+        [self styleParagraphs];
         [self highlightTags:self.editedRange];
         [self highlightSearch]; // TODO: Title is not highligted
     }
@@ -112,11 +112,16 @@
      }];
 }
 
-- (void)boldTitle
+/** Bold first line and center attachments.
+ */
+- (void)styleParagraphs
 {
     UIFont *bodyFont = [[HPFontManager sharedManager] fontForNoteBody];
     UIFont *titleFont = [[HPFontManager sharedManager] fontForNoteTitle];
-    
+    NSParagraphStyle *defaultParagraphStyle = [NSParagraphStyle defaultParagraphStyle];
+    NSMutableParagraphStyle *attachmentParagraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
+    attachmentParagraphStyle.alignment = NSTextAlignmentCenter;
+
     NSRange range = NSMakeRange(0, _backingStore.string.length);
     __block NSInteger paragraphIndex = 0;
     
@@ -124,16 +129,20 @@
     NSString *trimmed = [_backingStore.string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if ([self.tag isEqualToString:trimmed]) return; // The tag is not the title
 
-    // TODO: Do we really need to enumerate all lines?
     [_backingStore.string enumerateSubstringsInRange:range options:NSStringEnumerationByParagraphs usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
         NSString *trimmed = [substring stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         trimmed = [trimmed stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
         // Skip first empty lines, if any
-        if (paragraphIndex == 0 && trimmed.length == 0) return;
+        if (paragraphIndex != 0 || trimmed.length > 0)
+        {
+            UIFont *font = paragraphIndex == 0 ? titleFont : bodyFont;
+            [_backingStore addAttribute:NSFontAttributeName value:font range:substringRange];
+            paragraphIndex++;
+        }
 
-        UIFont *font = paragraphIndex == 0 ? titleFont : bodyFont;
-        [_backingStore addAttribute:NSFontAttributeName value:font range:substringRange];
-        paragraphIndex++;
+        BOOL hasAttachment = [substring rangeOfString:[HPNote attachmentString]].location != NSNotFound;
+        NSParagraphStyle *paragraphStyle = hasAttachment ? attachmentParagraphStyle : defaultParagraphStyle;
+        [_backingStore addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:substringRange];
     }];
 }
 

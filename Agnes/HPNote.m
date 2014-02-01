@@ -93,7 +93,12 @@ const NSInteger HPNoteDetailModeCount = 5;
     const NSRange range = NSMakeRange(0, text.length);
     [text replaceOccurrencesOfString:[HPNote attachmentString] withString:@"" options:kNilOptions range:range];
     [self removeAttachments:self.attachments];
+    [text insertString:@"\n" atIndex:index];
     [text insertString:[HPNote attachmentString] atIndex:index];
+    if (index > 0)
+    {
+        [text insertString:@"\n" atIndex:index];
+    }
     [self addAttachmentsObject:attachment];
     self.text = text;
 }
@@ -109,15 +114,27 @@ const NSInteger HPNoteDetailModeCount = 5;
     
     UIImage *image = attachment.image;
     const CGSize imageSize = image.size;
-    const CGFloat ratio = imageSize.width / width;
-    const CGFloat scaledHeight = imageSize.height / ratio;
-    const CGSize scaledImageSize = CGSizeMake(width, scaledHeight);
+    CGSize scaledImageSize;
+    if (imageSize.width < imageSize.height)
+    {
+        scaledImageSize.height = width;
+        const CGFloat ratio = imageSize.height / width;
+        scaledImageSize.width = imageSize.width / ratio;
+    }
+    else
+    {
+        scaledImageSize.width = width;
+        const CGFloat ratio = imageSize.width / width;
+        scaledImageSize.height = imageSize.height / ratio;
+    }
     
     UIImage *scaledImage = [UIImage hp_imageWithImage:image scaledToSize:scaledImageSize];
     
     NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
     textAttachment.image = scaledImage;
-    [attributedString setAttributes:@{NSAttachmentAttributeName : textAttachment} range:NSMakeRange(index, 1)];
+    NSMutableParagraphStyle *paragraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
+    paragraphStyle.alignment = NSTextAlignmentCenter;
+    [attributedString setAttributes:@{NSAttachmentAttributeName : textAttachment, NSParagraphStyleAttributeName : paragraphStyle} range:NSMakeRange(index, 1)];
     return attributedString;
 }
 

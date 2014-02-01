@@ -656,7 +656,8 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     location.y -= textView.textContainerInset.top;
     
     NSUInteger characterIndex;
-    characterIndex = [layoutManager characterIndexForPoint:location inTextContainer:textView.textContainer fractionOfDistanceBetweenInsertionPoints:nil];
+    CGFloat fraction = 0; // When an attachment is the only character the fraction tells us if the location is outside the image
+    characterIndex = [layoutManager characterIndexForPoint:location inTextContainer:textView.textContainer fractionOfDistanceBetweenInsertionPoints:&fraction];
     
     if (characterIndex >= textView.textStorage.length)
     {
@@ -666,7 +667,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     
     NSRange range;
     NSTextAttachment *textAttachment = [textView.attributedText attribute:NSAttachmentAttributeName atIndex:characterIndex effectiveRange:&range];
-    if (textAttachment)
+    if (textAttachment && fraction < 1)
     {
         [self presentImage:textAttachment.image atIndex:characterIndex];
         return;
