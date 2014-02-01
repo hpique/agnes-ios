@@ -28,4 +28,7 @@ extern NSString* const HPFontManagerDidChangeFontsNotification;
 @property (nonatomic, copy) NSString *fontName;
 @property (nonatomic, assign) CGFloat fontSize;
 
+@property (nonatomic, readonly) CGFloat noteTitleLineHeight;
+@property (nonatomic, readonly) CGFloat noteBodyLineHeight;
+
 @end

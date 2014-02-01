@@ -19,8 +19,12 @@
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-    [self setTransitioningInViewController:self.topViewController];
-    [self setTransitioningInViewController:viewController];
+    UIViewController *topViewContoller = self.topViewController;
+    if (topViewContoller)
+    {
+        [self setTransitioningInViewController:self.topViewController];
+        [self setTransitioningInViewController:viewController];
+    }
     [super pushViewController:viewController animated:animated];
 }
 

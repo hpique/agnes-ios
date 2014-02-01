@@ -41,6 +41,8 @@ extern CGFloat const HPNoteTableViewCellImageHeight;
 
 - (void)displayNote;
 
++ (CGFloat)estimatedHeightForNote:(HPNote*)note;
+
 + (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tagName:(NSString*)tagName;
 
 @end

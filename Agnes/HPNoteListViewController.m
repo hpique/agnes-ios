@@ -655,6 +655,13 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 #pragma mark - UITableViewDelegate
 
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
+    HPNote *note = [objects objectAtIndex:indexPath.row];
+    return [HPNoteTableViewCell estimatedHeightForNote:note];
+}
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
@@ -662,7 +669,6 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     CGFloat width = tableView.bounds.size.width;
     if (tableView == _notesTableView)
     {
-        // TODO: Consider display criteria width
         HPTag *tag = self.indexItem.tag;
         return [HPNoteTableViewCell heightForNote:note width:width tagName:tag.name];
     }

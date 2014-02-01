@@ -20,10 +20,15 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
     UIFont *_noteTitleFont;
 }
 
+@synthesize noteBodyLineHeight = _noteBodyLineHeight;
+@synthesize noteTitleLineHeight = _noteTitleLineHeight;
+
 - (id)init
 {
     if (self = [super init])
     {
+        _noteBodyLineHeight = -1;
+        _noteTitleLineHeight = -1;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(contentSizeCategoryDidChangeNotification:)
                                                      name:UIContentSizeCategoryDidChangeNotification
@@ -85,6 +90,24 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
     return note.archived ? [self fontForArchivedNoteBody] : [self fontForNoteBody];
 }
 
+- (CGFloat)noteBodyLineHeight
+{
+    if (_noteBodyLineHeight < 0)
+    {
+        _noteBodyLineHeight = [self lineHeightOfFont:self.fontForNoteBody];
+    }
+    return _noteBodyLineHeight;
+}
+
+- (CGFloat)noteTitleLineHeight
+{
+    if (_noteTitleLineHeight < 0)
+    {
+        _noteTitleLineHeight = [self lineHeightOfFont:self.fontForNoteTitle];
+    }
+    return _noteTitleLineHeight;
+}
+
 - (void)setDinamicType:(BOOL)dinamicType
 {
     _dinamicType = dinamicType;
@@ -112,6 +135,14 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
 
 #pragma mark - Private
 
+- (CGFloat)lineHeightOfFont:(UIFont*)font
+{
+    NSDictionary *attributes = @{NSFontAttributeName: font};
+    CGFloat lineHeight = [@"" boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil].size.height;
+    lineHeight = ceilf(lineHeight);
+    return lineHeight;
+}
+
 - (UIFont*)fontWithTextStyle:(NSString*)textStyle addingTraits:(UIFontDescriptorSymbolicTraits)traits scale:(CGFloat)scale
 {
     if (self.dinamicType)
@@ -136,6 +167,9 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
 
 - (void)invalidateFonts
 {
+    _noteBodyLineHeight = -1;
+    _noteTitleLineHeight = -1;
+    
     _archivedNoteBodyFont = nil;
     _archivedNoteTitleFont = nil;
     _detailFont = nil;

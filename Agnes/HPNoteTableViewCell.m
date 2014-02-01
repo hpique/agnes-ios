@@ -130,7 +130,6 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
             [self.contentView addConstraint:self.titleLabelTrailingSpaceConstraint];
             [self.contentView addConstraint:_bodyLabelAlignRightWithTitleLabelConstraint];
         }
-
     }
 }
 
@@ -185,9 +184,23 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     }
 }
 
++ (CGFloat)estimatedHeightForNote:(HPNote*)note
+{
+    CGFloat estimatedHeight = HPNoteTableViewCellMargin * 2;
+    if (note.attachments.count > 0)
+    {
+        estimatedHeight += HPNoteTableViewCellImageHeight;
+    }
+    else
+    {
+        HPFontManager *manager = [HPFontManager sharedManager];
+        estimatedHeight += manager.noteTitleLineHeight + manager.noteBodyLineHeight;
+    }
+    return estimatedHeight;
+}
+
 + (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tagName:(NSString*)tagName
 {
-    // TODO: Consider display criteria width
     UIFont *titleFont = [[HPFontManager sharedManager] fontForTitleOfNote:note];
     CGFloat titleLineHeight;
     NSInteger titleLines = [note.title hp_linesWithFont:titleFont width:width lineHeight:&titleLineHeight];
