@@ -127,7 +127,10 @@
         
         _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44) inputViewStyle:UIInputViewStyleKeyboard];
         _suggestionsView.delegate = self;
-        _bodyTextView.inputAccessoryView = _suggestionsView;
+        if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+        {
+            _bodyTextView.inputAccessoryView = _suggestionsView;
+        }
     }
     
     [self displayNote];
@@ -171,6 +174,13 @@
 {
     [super viewDidDisappear:animated];
     self.transitioning = NO;
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    self.noteTextView.inputAccessoryView = UIInterfaceOrientationIsLandscape(toInterfaceOrientation) ? nil : _suggestionsView;
+    [self.noteTextView resignFirstResponder];
 }
 
 #pragma mark - Class
