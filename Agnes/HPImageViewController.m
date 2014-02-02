@@ -31,10 +31,18 @@
     [self.singleTapGestureRecognizer requireGestureRecognizerToFail:self.doubleTapGestureRecognizer];
     self.imageView.image = self.image;
     self.toolbar.items = self.toolbarItems;
+    [self layoutToolbarForInterfaceOrientation:self.interfaceOrientation];
 }
 
-- (BOOL)prefersStatusBarHidden {
+- (BOOL)prefersStatusBarHidden
+{
     return YES;
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    [self layoutToolbarForInterfaceOrientation:toInterfaceOrientation];
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -69,6 +77,17 @@
         // Zoom out
         [self.scrollView zoomToRect:self.scrollView.bounds animated:YES];
     }
+}
+
+- (void)layoutToolbarForInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    const BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
+    const BOOL phone = [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone;
+    static CGFloat toolbarHeightDefault = 44;
+    static CGFloat toolbarHeightLandscapePhone = 32;
+    const CGFloat height = landscape && phone ? toolbarHeightLandscapePhone : toolbarHeightDefault;
+    const CGRect bounds = self.view.bounds;
+    self.toolbar.frame = CGRectMake(0, bounds.size.height - height, bounds.size.width, height);
 }
 
 @end

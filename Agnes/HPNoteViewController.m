@@ -64,6 +64,8 @@
     HPImageViewController *_presentedImageViewController;
     
     NSTimer *_autosaveTimer;
+    
+    __weak IBOutlet NSLayoutConstraint *_toolbarHeightConstraint;
 }
 
 @synthesize noteTextView = _bodyTextView;
@@ -133,6 +135,7 @@
         }
     }
     
+    [self layoutToolbar];
     [self displayNote];
 }
 
@@ -181,6 +184,12 @@
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
     self.noteTextView.inputAccessoryView = UIInterfaceOrientationIsLandscape(toInterfaceOrientation) ? nil : _suggestionsView;
     [self.noteTextView resignFirstResponder];
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    [self layoutToolbar];
 }
 
 #pragma mark - Class
@@ -426,6 +435,12 @@
     {
         [self showActionSheetForURL:url];
     }
+}
+
+- (void)layoutToolbar
+{
+    const CGFloat height = self.navigationController.toolbar.frame.size.height;
+    _toolbarHeightConstraint.constant = height;
 }
 
 - (void)openBrowserURL:(NSURL*)url

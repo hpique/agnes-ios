@@ -7,6 +7,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HPNoteViewController">
             <connections>
                 <outlet property="_detailLabel" destination="Cxb-hp-QHY" id="nls-9m-2do"/>
+                <outlet property="_toolbarHeightConstraint" destination="NKe-lJ-RNc" id="D8A-hN-BZi"/>
                 <outlet property="toolbar" destination="Fab-Hz-dds" id="dZ3-Ay-JPJ"/>
                 <outlet property="view" destination="1" id="3"/>
             </connections>
@@ -19,6 +20,9 @@
                 <toolbar opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fab-Hz-dds">
                     <rect key="frame" x="0.0" y="524" width="320" height="44"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="44" id="NKe-lJ-RNc"/>
+                    </constraints>
                     <items/>
                 </toolbar>
             </subviews>

@@ -151,6 +151,7 @@
     NSTimeInterval firstDuration = duration * 2.0/3.0;
     NSTimeInterval secondDuration = duration - firstDuration;
     UIView *toolbar = toViewController.toolbar;
+    toolbar.alpha = 0;
     [UIView animateWithDuration:firstDuration animations:^{
         if (titleLabelPlaceholder)
         {
@@ -186,6 +187,7 @@
             titleLabelPlaceholder.alpha = 0;
             bodyLabelPlaceholder.alpha = 0;
             noteTextView.alpha = 1;
+            toolbar.alpha = 1;
             toolbar.center = CGPointMake(toolbar.center.x, toolbar.center.y - toolbar.bounds.size.height);
         } completion:^(BOOL finished) {
             [backgroundView removeFromSuperview];
