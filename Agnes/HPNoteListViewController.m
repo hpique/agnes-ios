@@ -25,6 +25,7 @@
 #import "MMDrawerBarButtonItem.h"
 #import "UIViewController+MMDrawerController.h"
 #import "UIColor+iOS7Colors.h"
+#import "UIImage+hp_utils.h"s
 #import <MessageUI/MessageUI.h>
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
@@ -107,7 +108,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }
     
     self.searchDisplayController.searchBar.keyboardType = UIKeyboardTypeTwitter;
-    self.searchDisplayController.searchBar.backgroundImage = [UIImage new]; // Remove black background
+    self.searchDisplayController.searchBar.translucent = YES;
+    self.searchDisplayController.searchBar.backgroundImage = [UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)];
 
     [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
     [self updateIndexItem];
