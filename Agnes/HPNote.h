@@ -71,6 +71,8 @@ extern const NSInteger HPNoteDetailModeCount;
 
 + (NSString*)attachmentString;
 
+- (void)replaceAttachments:(NSOrderedSet*)attachments;
+
 @end
 
 @interface HPNote (CoreDataGeneratedAccessors)

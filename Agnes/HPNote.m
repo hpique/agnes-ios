@@ -17,7 +17,9 @@
 NSString* const HPNoteAttachmentAttributeName = @"HPNoteAttachment";
 const NSInteger HPNoteDetailModeCount = 5;
 
-@implementation HPNote
+@implementation HPNote {
+    NSCache *_imageCache;
+}
 
 @dynamic attachments;
 @dynamic cd_archived;
@@ -346,10 +348,16 @@ const NSInteger HPNoteDetailModeCount = 5;
 
 - (NSDictionary*)attributesForAttachment:(HPAttachment*)attachment maxWidth:(CGFloat)maxWidth
 {
-    // TODO: Cache image
+    if (!_imageCache) _imageCache = [[NSCache alloc] init];
+    
     UIImage *image = attachment.image;
-    CGSize scaledImageSize = [image hp_aspectFitRectForSize:CGSizeMake(maxWidth, maxWidth)].size;
-    UIImage *scaledImage = [image hp_imageByScalingToSize:scaledImageSize];
+    UIImage *scaledImage = [_imageCache objectForKey:attachment.objectID];
+    if (!scaledImage || scaledImage.size.width > maxWidth || scaledImage.size.height > maxWidth)
+    {
+        CGSize scaledImageSize = [image hp_aspectFitRectForSize:CGSizeMake(maxWidth, maxWidth)].size;
+        scaledImage = [image hp_imageByScalingToSize:scaledImageSize];
+        [_imageCache setObject:scaledImage forKey:attachment.objectID];
+    }
     
     NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
     textAttachment.image = scaledImage;
@@ -359,6 +367,18 @@ const NSInteger HPNoteDetailModeCount = 5;
     
     NSDictionary *attributes = @{NSAttachmentAttributeName : textAttachment, NSParagraphStyleAttributeName : paragraphStyle, HPNoteAttachmentAttributeName : attachment};
     return attributes;
+}
+
+- (void)replaceAttachments:(NSOrderedSet*)attachments
+{
+    NSMutableOrderedSet *removedAttachments = self.attachments.mutableCopy;
+    [removedAttachments minusOrderedSet:attachments];
+    for (HPAttachment *attachment in removedAttachments)
+    {
+        [_imageCache removeObjectForKey:attachment.objectID];
+    }
+    [self hp_removeAttachments:self.attachments];
+    [self hp_addAttachments:attachments];
 }
 
 #pragma mark - Private

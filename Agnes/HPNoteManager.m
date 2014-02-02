@@ -199,8 +199,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             [self.context insertObject:note];
         }
         note.text = [NSString stringWithString:text];
-        [note hp_removeAttachments:note.attachments];
-        [note hp_addAttachments:attachments];
+        [note replaceAttachments:attachments];
         note.modifiedAt = [NSDate date];
     }];
 }
