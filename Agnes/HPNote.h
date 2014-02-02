@@ -12,6 +12,8 @@
 @class HPTag;
 @class HPAttachment;
 
+extern NSString* const HPNoteAttachmentAttributeName;
+
 typedef NS_ENUM(NSInteger, HPNoteDetailMode)
 {
     HPNoteDetailModeNone,
@@ -24,7 +26,7 @@ extern const NSInteger HPNoteDetailModeCount;
 
 @interface HPNote : NSManagedObject
 
-@property (nonatomic, retain) NSSet *attachments;
+@property (nonatomic, retain) NSOrderedSet *attachments;
 @property (nonatomic, retain) NSNumber * cd_archived;
 @property (nonatomic, retain) NSNumber * cd_detailMode;
 @property (nonatomic, retain) NSNumber * cd_views;
@@ -43,12 +45,6 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, readonly) NSArray *tags;
 @property (nonatomic, readonly) BOOL isNew;
 
-- (void)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index;
-
-- (NSAttributedString*)attributedTextForWidth:(CGFloat)width;
-
-+ (NSString*)attachmentString;
-
 - (NSString*)bodyForTagWithName:(NSString*)tagName;
 
 - (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
@@ -65,6 +61,18 @@ extern const NSInteger HPNoteDetailModeCount;
 
 @end
 
+@interface HPNote (Attachments)
+
+- (void)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index;
+
+- (NSAttributedString*)attributedTextForWidth:(CGFloat)width;
+
+//- (HPAttachment*)attachmentAtCharacterIndex:(NSUInteger)characterIndex;
+
++ (NSString*)attachmentString;
+
+@end
+
 @interface HPNote (CoreDataGeneratedAccessors)
 
 - (void)addCd_tagsObject:(HPTag *)value;
@@ -72,10 +80,26 @@ extern const NSInteger HPNoteDetailModeCount;
 - (void)addCd_tags:(NSSet *)values;
 - (void)removeCd_tags:(NSSet *)values;
 
-- (void)addAttachmentsObject:(HPAttachment *)value;
-- (void)removeAttachmentsObject:(HPAttachment *)value;
-- (void)addAttachments:(NSSet *)values;
-- (void)removeAttachments:(NSSet *)values;
+//- (void)insertObject:(HPAttachment *)value inAttachmentsAtIndex:(NSUInteger)idx;
+//- (void)removeObjectFromAttachmentsAtIndex:(NSUInteger)idx;
+//- (void)insertAttachments:(NSArray *)value atIndexes:(NSIndexSet *)indexes;
+//- (void)removeAttachmentsAtIndexes:(NSIndexSet *)indexes;
+//- (void)replaceObjectInAttachmentsAtIndex:(NSUInteger)idx withObject:(HPAttachment *)value;
+//- (void)replaceAttachmentsAtIndexes:(NSIndexSet *)indexes withAttachments:(NSArray *)values;
+//- (void)addAttachmentsObject:(HPAttachment *)value;
+//- (void)removeAttachmentsObject:(HPAttachment *)value;
+//- (void)removeAttachments:(NSOrderedSet *)values;
+
+@end
+
+/** See: http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors
+ */
+@interface HPNote (CoreDataWorkaroundAccessors)
+
+- (void)hp_addAttachments:(NSOrderedSet *)values;
+- (void)hp_addAttachmentsObject:(HPAttachment *)value;
+- (void)hp_insertObject:(HPAttachment *)value inAttachmentsAtIndex:(NSUInteger)idx;
+- (void)hp_removeAttachments:(NSOrderedSet *)values;
 
 @end
 

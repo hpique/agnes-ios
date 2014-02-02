@@ -14,6 +14,8 @@
 
 - (NSInteger)hp_linesWithFont:(UIFont*)font width:(CGFloat)width lineHeight:(CGFloat)lineHeight;
 
+- (NSUInteger)hp_numberOfOccurencesOfString:(NSString*)target range:(NSRange)range;
+
 @property (nonatomic, readonly) NSInteger wordCount;
 
 @end

@@ -16,24 +16,25 @@
     CGFloat sourceAspect = self.size.width / self.size.height;
     CGRect rect = CGRectZero;
     
-    if (targetAspect > sourceAspect) {
+    if (targetAspect > sourceAspect)
+    {
         rect.size.height = size.height;
         rect.size.width = ceilf(rect.size.height * sourceAspect);
         rect.origin.x = ceilf((size.width - rect.size.width) * 0.5);
     }
-    else {
+    else
+    {
         rect.size.width = size.width;
         rect.size.height = ceilf(rect.size.width / sourceAspect);
         rect.origin.y = ceilf((size.height - rect.size.height) * 0.5);
     }
-    
     return rect;
 }
 
-+ (UIImage *)hp_imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize
+- (UIImage *)hp_imageByScalingToSize:(CGSize)newSize
 {
     UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
-    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    [self drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;

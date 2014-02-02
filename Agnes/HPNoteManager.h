@@ -31,7 +31,7 @@
 
 - (HPNote*)blankNoteWithTagOfName:(NSString*)tag;
 
-- (void)editNote:(HPNote*)note text:(NSString*)text;
+- (void)editNote:(HPNote*)note text:(NSString*)text attachments:(NSOrderedSet*)attachments;
 
 - (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt attachments:(NSArray*)attachments;
 

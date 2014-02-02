@@ -283,7 +283,7 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     
     if (hasAttachment)
     {
-        HPAttachment *attachment = [self.note.attachments anyObject];
+        HPAttachment *attachment = [self.note.attachments firstObject];
         self.thumbnailView.hidden = NO;
         self.thumbnailView.image = attachment.thumbnail;
     }

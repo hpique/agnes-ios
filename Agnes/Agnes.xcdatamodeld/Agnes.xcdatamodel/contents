@@ -25,7 +25,7 @@
         <attribute name="tagOrder" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="views" optional="YES" transient="YES" syncable="YES"/>
-        <relationship name="attachments" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Attachment" inverseName="note" inverseEntity="Attachment" syncable="YES"/>
+        <relationship name="attachments" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Attachment" inverseName="note" inverseEntity="Attachment" syncable="YES"/>
         <relationship name="cd_tags" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Tag" inverseName="cd_notes" inverseEntity="Tag" syncable="YES"/>
     </entity>
     <entity name="Tag" representedClassName="HPTag" syncable="YES">
@@ -36,8 +36,6 @@
         <attribute name="sortMode" optional="YES" transient="YES" syncable="YES"/>
         <relationship name="cd_notes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Note" inverseName="cd_tags" inverseEntity="Note" syncable="YES"/>
     </entity>
-    <fetchRequest name="ArchivedNotes" entity="Note" predicateString="archived == 1"/>
-    <fetchRequest name="InboxNotes" entity="Note" predicateString="archived == 0"/>
     <elements>
         <element name="Attachment" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Data" positionX="0" positionY="0" width="0" height="0"/>

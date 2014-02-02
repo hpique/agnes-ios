@@ -50,7 +50,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             {
                 UIImage *image = [UIImage imageNamed:@"sample.jpg"];
                 HPAttachment *attachment = [HPAttachment attachmentWithImage:image context:note.managedObjectContext];
-                [note addAttachmentsObject:attachment];
+                [note hp_addAttachmentsObject:attachment];
                 break;
             }
         }
@@ -189,7 +189,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     return note;
 }
 
-- (void)editNote:(HPNote*)note text:(NSString*)text;
+- (void)editNote:(HPNote*)note text:(NSString*)text attachments:(NSOrderedSet*)attachments
 {
     BOOL isNew = note.managedObjectContext == nil;
     NSString *actionName = isNew ? NSLocalizedString(@"Add Note", @"") : NSLocalizedString(@"Edit Note", @"");
@@ -199,6 +199,8 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             [self.context insertObject:note];
         }
         note.text = [NSString stringWithString:text];
+        [note hp_removeAttachments:note.attachments];
+        [note hp_addAttachments:attachments];
         note.modifiedAt = [NSDate date];
     }];
 }
@@ -217,7 +219,8 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             [self.context insertObject:attachment.thumbnailData];
             [self.context insertObject:attachment];
         }
-        [note addAttachments:[NSSet setWithArray:attachments]];
+        NSOrderedSet *attachmentSet = [NSOrderedSet orderedSetWithArray:attachments];
+        [note hp_addAttachments:attachmentSet];
     }];
 }
 

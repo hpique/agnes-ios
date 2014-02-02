@@ -233,7 +233,8 @@
     {
         NSMutableString *mutableText = [NSMutableString stringWithString:self.noteTextView.text];
         const BOOL changed = [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
-        [[HPNoteManager sharedManager] editNote:self.note text:mutableText];
+        NSOrderedSet *attachments = [self attachments];
+        [[HPNoteManager sharedManager] editNote:self.note text:mutableText attachments:attachments];
         if (changed)
         {
             NSMutableAttributedString *attributedText = [self attributedNoteText].mutableCopy;
@@ -302,6 +303,17 @@
     const UIEdgeInsets insets = _bodyTextView.textContainerInset;
     const CGFloat width = _bodyTextView.bounds.size.width - insets.left - insets.right - _bodyTextView.textContainer.lineFragmentPadding * 2;
     return [self.note attributedTextForWidth:width];
+}
+
+- (NSOrderedSet*)attachments
+{
+    NSAttributedString *attributedText = self.noteTextView.attributedText;
+    NSMutableOrderedSet *attachments = [NSMutableOrderedSet orderedSet];
+    [attributedText enumerateAttribute:HPNoteAttachmentAttributeName inRange:NSMakeRange(0, attributedText.length) options:kNilOptions usingBlock:^(id value, NSRange range, BOOL *stop) {
+        if (!value) return;
+        [attachments addObject:value];
+    }];
+    return attachments;
 }
 
 - (void)autosave
@@ -450,7 +462,7 @@
     [self.navigationController pushViewController:vc animated:YES];
 }
 
-- (void)presentImage:(UIImage*)image atIndex:(NSInteger)characterIndex
+- (void)presentTextAttachment:(NSTextAttachment*)textAttachment atIndex:(NSInteger)characterIndex
 {
     UITextView *textView = self.noteTextView;
     NSLayoutManager *layoutManager = textView.layoutManager;
@@ -461,9 +473,9 @@
     rect = CGRectIntegral(rect);
     _presentedImageCharacterIndex = characterIndex;
     _presentedImageRect = rect;
-    _presentedImageMedium = image;
+    _presentedImageMedium = textAttachment.image;
     
-    HPAttachment *attachment = [self.note.attachments anyObject];
+    HPAttachment *attachment = [textView.attributedText attribute:HPNoteAttachmentAttributeName atIndex:characterIndex effectiveRange:nil];
     UIImage *fullSizeImage = attachment.image;
     
     HPImageViewController *viewController = [[HPImageViewController alloc] initWithImage:fullSizeImage];
@@ -684,7 +696,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     NSTextAttachment *textAttachment = [textView.attributedText attribute:NSAttachmentAttributeName atIndex:characterIndex effectiveRange:&range];
     if (textAttachment && fraction < 1)
     {
-        [self presentImage:textAttachment.image atIndex:characterIndex];
+        [self presentTextAttachment:textAttachment atIndex:characterIndex];
         return;
     }
     

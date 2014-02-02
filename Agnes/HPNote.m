@@ -11,8 +11,10 @@
 #import "HPTagManager.h"
 #import "HPAttachment.h" 
 #import "HPData.h"
+#import "NSString+hp_utils.h"
 #import "UIImage+hp_utils.h"
 
+NSString* const HPNoteAttachmentAttributeName = @"HPNoteAttachment";
 const NSInteger HPNoteDetailModeCount = 5;
 
 @implementation HPNote
@@ -32,18 +34,6 @@ const NSInteger HPNoteDetailModeCount = 5;
 @synthesize tags = _tags;
 @synthesize title = _title;
 
-
-+ (NSString*)attachmentString
-{
-    static NSString *attachmentString = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        const unichar attachmentChar = NSAttachmentCharacter;
-        attachmentString = [NSString stringWithCharacters:&attachmentChar length:1];
-    });
-    return attachmentString;
-}
-
 #pragma mark - NSManagedObject
 
 // See: http://stackoverflow.com/questions/21231908/calculated-properties-in-core-data
@@ -58,11 +48,6 @@ const NSInteger HPNoteDetailModeCount = 5;
     _body = nil;
     _tags = nil;
     [self updateTags];
-    NSInteger attachmentIndex = [text rangeOfString:[HPNote attachmentString]].location;
-    if (attachmentIndex == NSNotFound)
-    {
-        [self removeAttachments:self.attachments];
-    }
     [self didChangeValueForKey:key];
 }
 
@@ -86,57 +71,6 @@ const NSInteger HPNoteDetailModeCount = 5;
 }
 
 #pragma mark - Public
-
-- (void)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index
-{
-    NSMutableString *text = [self.text mutableCopy];
-    const NSRange range = NSMakeRange(0, text.length);
-    [text replaceOccurrencesOfString:[HPNote attachmentString] withString:@"" options:kNilOptions range:range];
-    [self removeAttachments:self.attachments];
-    [text insertString:@"\n" atIndex:index];
-    [text insertString:[HPNote attachmentString] atIndex:index];
-    if (index > 0)
-    {
-        [text insertString:@"\n" atIndex:index];
-    }
-    [self addAttachmentsObject:attachment];
-    self.text = text;
-}
-
-- (NSAttributedString*)attributedTextForWidth:(CGFloat)width
-{
-    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text];
-    HPAttachment *attachment = [self.attachments anyObject];
-    if (!attachment) return attributedString;
-    NSInteger index = [self.text rangeOfString:[HPNote attachmentString]].location;
-    NSAssert(index != NSNotFound, @"Note has atttachments without attachment characters");
-    if (index == NSNotFound) index = 0;
-    
-    UIImage *image = attachment.image;
-    const CGSize imageSize = image.size;
-    CGSize scaledImageSize;
-    if (imageSize.width < imageSize.height)
-    {
-        scaledImageSize.height = width;
-        const CGFloat ratio = imageSize.height / width;
-        scaledImageSize.width = imageSize.width / ratio;
-    }
-    else
-    {
-        scaledImageSize.width = width;
-        const CGFloat ratio = imageSize.width / width;
-        scaledImageSize.height = imageSize.height / ratio;
-    }
-    
-    UIImage *scaledImage = [UIImage hp_imageWithImage:image scaledToSize:scaledImageSize];
-    
-    NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
-    textAttachment.image = scaledImage;
-    NSMutableParagraphStyle *paragraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
-    paragraphStyle.alignment = NSTextAlignmentCenter;
-    [attributedString setAttributes:@{NSAttachmentAttributeName : textAttachment, NSParagraphStyleAttributeName : paragraphStyle} range:NSMakeRange(index, 1)];
-    return attributedString;
-}
 
 + (NSString *)entityName
 {
@@ -333,6 +267,118 @@ const NSInteger HPNoteDetailModeCount = 5;
             [manager.context deleteObject:tag];
         }
     }
+}
+
+@end
+
+@implementation HPNote(CoreDataWorkaroundAccessors)
+
+
+- (void)hp_addAttachmentsObject:(HPAttachment *)value
+{
+    [[self mutableAttachments] addObject:value];
+}
+
+- (void)hp_addAttachments:(NSOrderedSet *)values
+{
+    [[self mutableAttachments] addObjectsFromArray:values.array];
+}
+
+- (void)hp_insertObject:(HPAttachment *)value inAttachmentsAtIndex:(NSUInteger)idx
+{
+    [[self mutableAttachments] insertObject:value atIndex:idx];
+}
+
+- (void)hp_removeAttachments:(NSOrderedSet *)values
+{
+    [[self mutableAttachments] removeObjectsInArray:values.array];
+}
+
+#pragma mark - Private
+
+- (NSMutableOrderedSet*)mutableAttachments
+{
+    static NSString *attachmentKey = @"attachments";
+    return [self mutableOrderedSetValueForKey:attachmentKey];
+}
+
+@end
+
+@implementation HPNote(Attachments)
+
+//- (HPAttachment*)attachmentAtCharacterIndex:(NSUInteger)characterIndex
+//{
+//    NSRange searchRange = NSMakeRange(0, characterIndex + 1);
+//    NSUInteger attachmentCount = [self.text hp_numberOfOccurencesOfString:[HPNote attachmentString] range:searchRange];
+//    if (attachmentCount == 0) return nil;
+//    if (attachmentCount > self.attachments.count) return nil;
+//    return [self.attachments objectAtIndex:attachmentCount - 1];
+//}
+
++ (NSString*)attachmentString
+{
+    static NSString *attachmentString = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        const unichar attachmentChar = NSAttachmentCharacter;
+        attachmentString = [NSString stringWithCharacters:&attachmentChar length:1];
+    });
+    return attachmentString;
+}
+
+- (void)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index
+{
+    NSString *text = self.text;
+    NSRange searchRange = NSMakeRange(0, index + 1);
+    NSUInteger attachmentIndex = [text hp_numberOfOccurencesOfString:[HPNote attachmentString] range:searchRange];
+    attachmentIndex = MIN(attachmentIndex, self.attachments.count);
+    
+    NSMutableString *mutableText = [self.text mutableCopy];
+    [mutableText insertString:@"\n" atIndex:index];
+    [mutableText insertString:[HPNote attachmentString] atIndex:index];
+    if (index > 0)
+    {
+        [mutableText insertString:@"\n" atIndex:index];
+    }
+    [self hp_insertObject:attachment inAttachmentsAtIndex:attachmentIndex];
+    self.text = mutableText;
+}
+
+- (NSDictionary*)attributesForAttachment:(HPAttachment*)attachment maxWidth:(CGFloat)maxWidth
+{
+    // TODO: Cache image
+    UIImage *image = attachment.image;
+    CGSize scaledImageSize = [image hp_aspectFitRectForSize:CGSizeMake(maxWidth, maxWidth)].size;
+    UIImage *scaledImage = [image hp_imageByScalingToSize:scaledImageSize];
+    
+    NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
+    textAttachment.image = scaledImage;
+    
+    NSMutableParagraphStyle *paragraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
+    paragraphStyle.alignment = NSTextAlignmentCenter;
+    
+    NSDictionary *attributes = @{NSAttachmentAttributeName : textAttachment, NSParagraphStyleAttributeName : paragraphStyle, HPNoteAttachmentAttributeName : attachment};
+    return attributes;
+}
+
+#pragma mark - Private
+
+- (NSAttributedString*)attributedTextForWidth:(CGFloat)width
+{
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text];
+    __block NSInteger index = 0;
+    [self.text hp_enumerateOccurrencesOfString:[HPNote attachmentString] options:kNilOptions usingBlock:^(NSRange matchRange, BOOL *stop) {
+        if (index >= self.attachments.count)
+        {
+            *stop = YES;
+            return;
+        }
+        HPAttachment *attachment = self.attachments[index];
+        NSDictionary *attributes = [self attributesForAttachment:attachment maxWidth:width];
+        [attributedString setAttributes:attributes range:matchRange];
+        index++;
+    }];
+    return attributedString;
 }
 
 @end

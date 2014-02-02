@@ -12,7 +12,7 @@
 
 - (CGRect)hp_aspectFitRectForSize:(CGSize)size;
 
-+ (UIImage *)hp_imageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
+- (UIImage *)hp_imageByScalingToSize:(CGSize)newSize;
 
 + (UIImage*)hp_imageWithColor:(UIColor*)color size:(CGSize)size;
 

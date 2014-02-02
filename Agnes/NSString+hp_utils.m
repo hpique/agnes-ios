@@ -38,6 +38,14 @@
     }
 }
 
+- (NSUInteger)hp_numberOfOccurencesOfString:(NSString*)target range:(NSRange)range
+{
+    NSString *pattern = [NSRegularExpression escapedPatternForString:target];
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:kNilOptions error:nil];
+    NSAssert(regex, @"Regex failed");
+    return [regex numberOfMatchesInString:self options:kNilOptions range:range];
+}
+
 - (NSInteger)wordCount
 {
     __block int wordCount =0;

@@ -72,7 +72,7 @@
             thumbnailSize.width = 240;
             thumbnailSize.height = imageSize.height / (imageSize.width / thumbnailSize.width);
         }
-        UIImage *thumbnail = [UIImage hp_imageWithImage:image scaledToSize:thumbnailSize];
+        UIImage *thumbnail = [image hp_imageByScalingToSize:thumbnailSize];
         HPData *thumbnailModelData = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
         thumbnailModelData.data = UIImageJPEGRepresentation(thumbnail, 1);
         attachment.thumbnailData = thumbnailModelData;

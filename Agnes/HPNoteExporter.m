@@ -109,7 +109,7 @@
         NSLog(@"Set attributes failed with error %@", [*error localizedDescription]);
     }
     
-    [note.attachments.allObjects enumerateObjectsUsingBlock:^(HPAttachment *attachment, NSUInteger idxAttachment, BOOL *stop) {
+    [note.attachments enumerateObjectsUsingBlock:^(HPAttachment *attachment, NSUInteger idxAttachment, BOOL *stop) {
         NSData *data = attachment.data.data;
         NSString *attachmentFilename = [NSString stringWithFormat:@"%@ attachment %ld.jpg", name, (long)idxAttachment + 1];
         NSString *attachmentPath = [directory stringByAppendingPathComponent:attachmentFilename];

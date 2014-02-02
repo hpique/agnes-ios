@@ -25,7 +25,7 @@
 #import "MMDrawerBarButtonItem.h"
 #import "UIViewController+MMDrawerController.h"
 #import "UIColor+iOS7Colors.h"
-#import "UIImage+hp_utils.h"s
+#import "UIImage+hp_utils.h"
 #import <MessageUI/MessageUI.h>
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
