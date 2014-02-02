@@ -27,9 +27,9 @@
 {
     [super applyPreferences];
     HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
-    NSDictionary *highlightedAttributes = @{ NSForegroundColorAttributeName : preferences.tintColor };
-    self.titleLabel.truncationTokenStringAttributes = highlightedAttributes;
-    self.bodyLabel.truncationTokenStringAttributes =  highlightedAttributes;
+    HPFontManager *fonts = [HPFontManager sharedManager];
+    self.titleLabel.truncationTokenStringAttributes = @{ NSFontAttributeName : fonts.fontForNoteTitle, NSForegroundColorAttributeName : preferences.tintColor };
+    self.bodyLabel.truncationTokenStringAttributes =  @{ NSFontAttributeName : fonts.fontForNoteBody, NSForegroundColorAttributeName : preferences.tintColor };
 }
 
 - (void)displayNote

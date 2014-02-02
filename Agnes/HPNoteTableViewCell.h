@@ -13,7 +13,7 @@
 
 extern NSInteger const HPNoteTableViewCellLabelMaxLength;
 extern CGFloat const HPNoteTableViewCellMargin;
-extern CGFloat const HPNoteTableViewCellImageHeight;
+extern NSUInteger const HPNoteTableViewCellLineCount;
 
 @interface HPNoteTableViewCell : MCSwipeTableViewCell
 
@@ -37,13 +37,19 @@ extern CGFloat const HPNoteTableViewCellImageHeight;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *titleLabelTrailingSpaceConstraint;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *detailLabelTrailingSpaceConstraint;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *bodyLabelRightConstraint;
-
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *thumbnailViewWidthConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *thumbnailViewHeightConstraint;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *titleLabelLeadingSpaceConstraint;
 
 - (void)displayNote;
 
 + (CGFloat)estimatedHeightForNote:(HPNote*)note;
 
 + (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tagName:(NSString*)tagName;
+
++ (CGFloat)thumbnailViewWidth;
+
++ (CGFloat)widthForTitleOfNote:(HPNote*)note cellWidth:(CGFloat)cellWidth;
 
 @end
 

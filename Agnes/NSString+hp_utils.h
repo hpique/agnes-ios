@@ -12,7 +12,7 @@
 
 - (void)hp_enumerateOccurrencesOfString:(NSString*)target options:(NSStringCompareOptions)opts usingBlock:(void (^)(NSRange matchRange, BOOL *stop))block;
 
-- (NSInteger)hp_linesWithFont:(UIFont*)font width:(CGFloat)width lineHeight:(CGFloat*)lineHeight;
+- (NSInteger)hp_linesWithFont:(UIFont*)font width:(CGFloat)width lineHeight:(CGFloat)lineHeight;
 
 @property (nonatomic, readonly) NSInteger wordCount;
 

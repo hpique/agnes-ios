@@ -10,14 +10,12 @@
 
 @implementation NSString (hp_utils)
 
-- (NSInteger)hp_linesWithFont:(UIFont*)font width:(CGFloat)width lineHeight:(CGFloat*)lineHeight
+- (NSInteger)hp_linesWithFont:(UIFont*)font width:(CGFloat)width lineHeight:(CGFloat)lineHeight
 {
     NSDictionary *attributes = @{NSFontAttributeName: font};
     CGFloat textHeight = [self boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil].size.height;
     textHeight = ceil(textHeight);
-    *lineHeight = [@"" boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:attributes context:nil].size.height;
-    *lineHeight = ceil(*lineHeight);
-    NSInteger lines = round(textHeight / *lineHeight);
+    NSInteger lines = round(textHeight / lineHeight);
     return lines;
 }
 

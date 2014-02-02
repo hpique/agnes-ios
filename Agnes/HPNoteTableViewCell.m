@@ -16,7 +16,9 @@
 
 NSInteger const HPNoteTableViewCellLabelMaxLength = 150;
 CGFloat const HPNoteTableViewCellMargin = 10;
-CGFloat const HPNoteTableViewCellImageHeight = 60;
+CGFloat const HPNoteTableViewCellMarginLeft = 15;
+CGFloat const HPNoteTableViewCellThumbnailMarginLeadgin = 8;
+NSUInteger const HPNoteTableViewCellLineCount = 3;
 
 static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
@@ -54,13 +56,22 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 - (void)initHelper
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferences:) name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
-    NSDictionary *viewsDictionary = NSDictionaryOfVariableBindings(_thumbnailView, _titleLabel, _detailLabel);
-    _titleDetailConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-8-[_detailLabel]" options:kNilOptions metrics:nil views:viewsDictionary];
-    _thumbnailDetailConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_detailLabel]-8-[_thumbnailView]" options:kNilOptions metrics:nil views:viewsDictionary];
-    _thumbnailTitleConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-8-[_thumbnailView]" options:kNilOptions metrics:nil views:viewsDictionary];
-    _bodyLabelAlignRightWithTitleLabelConstraint = [NSLayoutConstraint constraintWithItem:_bodyLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:_titleLabel attribute:NSLayoutAttributeRight multiplier:1 constant:0];
     
+    {
+        NSDictionary *viewsDictionary = NSDictionaryOfVariableBindings(_thumbnailView, _titleLabel, _detailLabel);
+        _titleDetailConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-8-[_detailLabel]" options:kNilOptions metrics:nil views:viewsDictionary];
+        _thumbnailDetailConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_detailLabel]-8-[_thumbnailView]" options:kNilOptions metrics:nil views:viewsDictionary];
+        _thumbnailTitleConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-8-[_thumbnailView]" options:kNilOptions metrics:nil views:viewsDictionary];
+        _bodyLabelAlignRightWithTitleLabelConstraint = [NSLayoutConstraint constraintWithItem:_bodyLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:_titleLabel attribute:NSLayoutAttributeRight multiplier:1 constant:0];
+        
+        self.thumbnailViewWidthConstraint.constant = [HPNoteTableViewCell thumbnailViewWidth];
+        self.thumbnailViewHeightConstraint.constant = self.thumbnailViewWidthConstraint.constant;
+        
+        [self invalidateConstraints];
+    }
+
     self.thumbnailView.layer.borderWidth = 1;
+
     [self applyPreferences];
 }
 
@@ -87,50 +98,36 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)updateConstraints
 {
-    [super updateConstraints];
-    HPAttachment *attachment = [self.note.attachments anyObject];
-    if (attachment)
+    const BOOL hasAttachment = self.note.attachments.count > 0;
+    if (hasAttachment)
     {
-        [self.contentView removeConstraint:self.detailLabelTrailingSpaceConstraint];
-        [self.contentView removeConstraint:self.titleLabelTrailingSpaceConstraint];
         if (self.hasDetail)
         {
-            [self.contentView removeConstraints:_thumbnailTitleConstraints];
-            [self.contentView removeConstraint:_bodyLabelAlignRightWithTitleLabelConstraint];
             [self.contentView addConstraints:_titleDetailConstraints];
             [self.contentView addConstraint:self.bodyLabelRightConstraint];
             [self.contentView addConstraints:_thumbnailDetailConstraints];
         }
         else
         {
-            [self.contentView removeConstraints:_titleDetailConstraints];
-            [self.contentView removeConstraints:_thumbnailDetailConstraints];
-            [self.contentView removeConstraint:self.bodyLabelRightConstraint];
             [self.contentView addConstraint:_bodyLabelAlignRightWithTitleLabelConstraint];
             [self.contentView addConstraints:_thumbnailTitleConstraints];
         }
     }
     else
     {
-        [self.contentView removeConstraints:_thumbnailDetailConstraints];
-        [self.contentView removeConstraints:_thumbnailTitleConstraints];
         if (self.hasDetail)
         {
-            [self.contentView removeConstraint:self.titleLabelTrailingSpaceConstraint];
-            [self.contentView removeConstraint:_bodyLabelAlignRightWithTitleLabelConstraint];
             [self.contentView addConstraint:self.detailLabelTrailingSpaceConstraint];
             [self.contentView addConstraints:_titleDetailConstraints];
             [self.contentView addConstraint:self.bodyLabelRightConstraint];
         }
         else
         {
-            [self.contentView removeConstraints:_titleDetailConstraints];
-            [self.contentView removeConstraint:self.detailLabelTrailingSpaceConstraint];
-            [self.contentView removeConstraint:self.bodyLabelRightConstraint];
             [self.contentView addConstraint:self.titleLabelTrailingSpaceConstraint];
             [self.contentView addConstraint:_bodyLabelAlignRightWithTitleLabelConstraint];
         }
     }
+    [super updateConstraints];
 }
 
 #pragma mark - UITableViewCell
@@ -171,6 +168,7 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
         static NSTimeInterval updateDetailDelay = 30;
         _modifiedAtSortModeTimer = [NSTimer scheduledTimerWithTimeInterval:updateDetailDelay target:self selector:@selector(displayDetail) userInfo:nil repeats:YES];
     }
+    [self invalidateConstraints];
     [self setNeedsUpdateConstraints];
     if (animated)
     {
@@ -189,7 +187,7 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     CGFloat estimatedHeight = HPNoteTableViewCellMargin * 2;
     if (note.attachments.count > 0)
     {
-        estimatedHeight += HPNoteTableViewCellImageHeight;
+        estimatedHeight += [HPFontManager sharedManager].noteTitleLineHeight * 3;
     }
     else
     {
@@ -201,17 +199,38 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 + (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tagName:(NSString*)tagName
 {
-    UIFont *titleFont = [[HPFontManager sharedManager] fontForTitleOfNote:note];
-    CGFloat titleLineHeight;
-    NSInteger titleLines = [note.title hp_linesWithFont:titleFont width:width lineHeight:&titleLineHeight];
-    UIFont *bodyFont = [[HPFontManager sharedManager] fontForBodyOfNote:note];
-    CGFloat bodyLineHeight = 0;
+    HPFontManager *fonts = [HPFontManager sharedManager];
+    
+    UIFont *titleFont = [fonts fontForTitleOfNote:note];
+    const CGFloat titleWidth = [self widthForTitleOfNote:note cellWidth:width];
+    const CGFloat titleLineHeight = fonts.noteTitleLineHeight;
+    NSUInteger titleLines = [note.title hp_linesWithFont:titleFont width:titleWidth lineHeight:titleLineHeight];
+
+    UIFont *bodyFont = [fonts fontForBodyOfNote:note];
+    const CGFloat bodyLineHeight = fonts.noteBodyLineHeight;
     NSString *body = [note bodyForTagWithName:tagName];
-    NSInteger bodyLines = body.length > 0 ? [body hp_linesWithFont:bodyFont width:width lineHeight:&bodyLineHeight] : 0;
-    NSInteger maximumBodyLines = 3 - titleLines;
+    NSUInteger bodyLines = body.length > 0 ? [body hp_linesWithFont:bodyFont width:titleWidth lineHeight:bodyLineHeight] : 0;
+    const NSUInteger maximumBodyLines = HPNoteTableViewCellLineCount - titleLines;
     bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
+    
     CGFloat height = titleLines * titleLineHeight + bodyLines * bodyLineHeight + HPNoteTableViewCellMargin * 2;
-    return note.attachments.count > 0 ? MAX(HPNoteTableViewCellImageHeight + HPNoteTableViewCellMargin * 2, height) : height;
+    return note.attachments.count > 0 ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
+}
+
++ (CGFloat)thumbnailViewWidth
+{
+    return [HPFontManager sharedManager].noteTitleLineHeight * 3;
+}
+
++ (CGFloat)widthForTitleOfNote:(HPNote*)note cellWidth:(CGFloat)cellWidth
+{
+    CGFloat width = cellWidth - HPNoteTableViewCellMarginLeft * 2;
+    const BOOL hasAttachment = note.attachments.count > 0;
+    if (hasAttachment)
+    {
+        width -= HPNoteTableViewCellThumbnailMarginLeadgin + [self thumbnailViewWidth];
+    }
+    return width;
 }
 
 #pragma mark - Private
@@ -241,19 +260,30 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)displayNote
 {
-    self.titleLabel.font = [[HPFontManager sharedManager] fontForTitleOfNote:self.note];
-    self.bodyLabel.font =  [[HPFontManager sharedManager] fontForBodyOfNote:self.note];
+    HPFontManager *fonts = [HPFontManager sharedManager];
+    
+    self.titleLabel.font = [fonts fontForTitleOfNote:self.note];
+    self.bodyLabel.font =  [fonts fontForBodyOfNote:self.note];
     
     NSString *title = self.note.title;
-    CGFloat lineHeight;
-    NSInteger lines = [title hp_linesWithFont:self.titleLabel.font width:CGRectGetWidth(self.bounds) lineHeight:&lineHeight];
-    NSInteger maximumBodyLines = self.titleLabel.numberOfLines - lines;
+
+    const BOOL hasAttachment = self.note.attachments.count > 0;
+    const CGFloat titleWidth = [HPNoteTableViewCell widthForTitleOfNote:self.note cellWidth:self.bounds.size.width];
+    
+    self.titleLabel.preferredMaxLayoutWidth = titleWidth;
+    self.bodyLabel.preferredMaxLayoutWidth = titleWidth;
+    
+    const CGFloat lineHeight = fonts.noteTitleLineHeight;
+    NSInteger titleLines = [title hp_linesWithFont:self.titleLabel.font width:titleWidth lineHeight:lineHeight];
+    self.titleLabel.numberOfLines = MIN(HPNoteTableViewCellLineCount, titleLines);
+    
+    NSInteger maximumBodyLines = HPNoteTableViewCellLineCount - self.titleLabel.numberOfLines;
     self.bodyLabel.hidden = maximumBodyLines == 0;
     self.bodyLabel.numberOfLines = maximumBodyLines;
     
-    HPAttachment *attachment = [self.note.attachments anyObject];
-    if (attachment)
+    if (hasAttachment)
     {
+        HPAttachment *attachment = [self.note.attachments anyObject];
         self.thumbnailView.hidden = NO;
         self.thumbnailView.image = attachment.thumbnail;
     }
@@ -262,13 +292,27 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
         self.thumbnailView.hidden = YES;
         self.thumbnailView.image = nil;
     }
+
     [self displayDetail];
+
+    [self invalidateConstraints];
     [self setNeedsUpdateConstraints];
 }
 
 - (BOOL)hasDetail
 {
     return self.sortMode == HPTagSortModeModifiedAt;
+}
+
+- (void)invalidateConstraints
+{
+    [self.contentView removeConstraint:self.detailLabelTrailingSpaceConstraint];
+    [self.contentView removeConstraint:self.titleLabelTrailingSpaceConstraint];
+    [self.contentView removeConstraints:_titleDetailConstraints];
+    [self.contentView removeConstraints:_thumbnailTitleConstraints];
+    [self.contentView removeConstraints:_thumbnailDetailConstraints];
+    [self.contentView removeConstraint:_bodyLabelAlignRightWithTitleLabelConstraint];
+    [self.contentView removeConstraint:self.bodyLabelRightConstraint];
 }
 
 - (void)removeNoteObserver

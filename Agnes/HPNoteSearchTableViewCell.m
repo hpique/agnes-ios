@@ -20,22 +20,31 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
 
 + (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width searchText:(NSString*)searchText
 {
-    UIFont *titleFont = [[HPFontManager sharedManager] fontForTitleOfNote:note];
+    HPFontManager *fonts = [HPFontManager sharedManager];
+
+    UIFont *titleFont = [fonts fontForTitleOfNote:note];
+    const CGFloat titleWidth = [self widthForTitleOfNote:note cellWidth:width];
     NSString *titleMatch = HPLineWithMatch(note.title, searchText);
-    CGFloat titleLineHeight = 0;
+    const CGFloat titleLineHeight = fonts.noteTitleLineHeight;
     NSString *title = titleMatch ? : note.title;
-    NSInteger titleLines = [title hp_linesWithFont:titleFont width:width lineHeight:&titleLineHeight];
-    if (!titleMatch)
-    {
+    NSUInteger titleLines = [title hp_linesWithFont:titleFont width:titleWidth lineHeight:titleLineHeight];
+    
+    
+    NSString *bodyMatch = HPLineWithMatch(note.body, searchText);
+    if (titleMatch == nil && bodyMatch != nil)
+    { // Give more lines to the body
         titleLines = 1;
     }
-    UIFont *bodyFont = [[HPFontManager sharedManager] fontForBodyOfNote:note];
-    CGFloat bodyLineHeight = 0;
-    NSString *body = HPLineWithMatch(note.body, searchText) ? : note.body;
-    NSInteger bodyLines = body.length > 0 ? [body hp_linesWithFont:bodyFont width:width lineHeight:&bodyLineHeight] : 0;
-    NSInteger maximumBodyLines = 3 - titleLines;
+    
+    UIFont *bodyFont = [fonts fontForBodyOfNote:note];
+    const CGFloat bodyLineHeight = fonts.noteBodyLineHeight;
+    NSString *body = bodyMatch ? : note.body;
+    NSUInteger bodyLines = body.length > 0 ? [body hp_linesWithFont:bodyFont width:titleWidth lineHeight:bodyLineHeight] : 0;
+    const NSUInteger maximumBodyLines = HPNoteTableViewCellLineCount - titleLines;
     bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
-    return titleLines * titleLineHeight + bodyLines * bodyLineHeight + HPNoteTableViewCellMargin * 2;
+    
+    CGFloat height = titleLines * titleLineHeight + bodyLines * bodyLineHeight + HPNoteTableViewCellMargin * 2;
+    return note.attachments.count > 0 ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
 }
 
 #pragma mark - Private
@@ -43,21 +52,28 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
 - (void)displayNote
 {
     [super displayNote];
-    [self setText:self.note.title inSearchLabel:self.titleLabel];
-    [self setText:self.note.body inSearchLabel:self.bodyLabel];
+    const BOOL matchesTitle = [self setText:self.note.title inSearchLabel:self.titleLabel];
+    const BOOL matchesBody = [self setText:self.note.body inSearchLabel:self.bodyLabel];
+    if (!matchesTitle && matchesBody)
+    { // Give more lines to the body
+        self.titleLabel.numberOfLines = 1;
+        self.bodyLabel.numberOfLines = HPNoteTableViewCellLineCount - self.titleLabel.numberOfLines;
+    }
 }
 
-- (void)setText:(NSString*)text inSearchLabel:(UILabel*)label
+- (BOOL)setText:(NSString*)text inSearchLabel:(UILabel*)label
 {
     NSString *match = HPLineWithMatch(text, self.searchText);
     if (match)
     {
         NSAttributedString *highlightedText = [self highlightMatchesInText:match];
         label.attributedText = highlightedText;
+        return YES;
     }
     else
     {
         label.text = text;
+        return NO;
     }
 }
 
