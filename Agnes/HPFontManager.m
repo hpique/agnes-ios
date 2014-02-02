@@ -153,10 +153,20 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
     }
     else
     {
+        static NSString *systemFontName = @"system";
+        UIFontDescriptor *descriptor;
         CGFloat fontSize = ceil(self.fontSize * scale);
-        UIFontDescriptor *descriptor = [UIFontDescriptor fontDescriptorWithName:self.fontName size:fontSize];
+        if ([[self.fontName lowercaseString] isEqualToString:systemFontName])
+        {
+            UIFont *systemFont = [UIFont systemFontOfSize:fontSize];
+            descriptor = systemFont.fontDescriptor;
+        }
+        else
+        {
+            descriptor = [UIFontDescriptor fontDescriptorWithName:self.fontName size:fontSize];
+        }
         descriptor = [descriptor fontDescriptorWithSymbolicTraits:descriptor.symbolicTraits | traits];
-        return [UIFont fontWithDescriptor:descriptor size:self.fontSize];
+        return [UIFont fontWithDescriptor:descriptor size:fontSize];
     }
 }
 

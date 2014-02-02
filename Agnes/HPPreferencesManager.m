@@ -30,9 +30,9 @@ NSString *const HPAgnesPreferencesKeyTintColor = @"tintColor";
 NSString *const HPAgnesPreferencesValueDefault = @"default";
 
 static UIColor* HPAgnesDefaultBarTintColor = nil;
-static BOOL HPAgnesDefaultDynamicType = YES;
-static NSString* HPAgnesDefaultFontName = @"HelveticaNeue";
-static NSInteger HPAgnesDefaultFontSize = 15;
+static BOOL HPAgnesDefaultDynamicType = NO;
+static NSString* HPAgnesDefaultFontName = @"System";
+static NSInteger HPAgnesDefaultFontSize = 16;
 static UIColor* HPAgnesDefaultTintColor = nil;
 static BOOL HPAgnesDefaultStatusBarHidden = NO;
 
@@ -276,7 +276,7 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
 {
     NSInteger fontSize = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultFontSize : [value integerValue];
     if (self.fontSize == fontSize) return;
-    self.fontSize = MIN(MAX(8, fontSize),30); // Prevent app from becoming unusable
+    self.fontSize = MIN(MAX(8, fontSize), 28); // Prevent app from becoming unusable
 }
 
 - (void)updateStatusBarHiddenFromValue:(NSString*)value
