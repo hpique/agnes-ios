@@ -270,7 +270,7 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     const BOOL hasAttachment = self.note.attachments.count > 0;
     const CGFloat titleWidth = [HPNoteTableViewCell widthForTitleOfNote:self.note cellWidth:self.bounds.size.width];
     
-    self.titleLabel.preferredMaxLayoutWidth = titleWidth;
+    self.titleLabel.preferredMaxLayoutWidth = titleWidth; // See: http://johnszumski.com/blog/auto-layout-for-table-view-cells-with-dynamic-heights
     self.bodyLabel.preferredMaxLayoutWidth = titleWidth;
     
     const CGFloat lineHeight = fonts.noteTitleLineHeight;
