@@ -124,16 +124,13 @@
     NSRange range = NSMakeRange(0, _backingStore.string.length);
     __block NSInteger paragraphIndex = 0;
     
-    NSString *trimmed = [_backingStore.string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    if ([self.tag isEqualToString:trimmed]) return; // The tag is not the title
-
     [_backingStore.string enumerateSubstringsInRange:range options:NSStringEnumerationByParagraphs usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
         NSString *trimmed = [substring stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         trimmed = [trimmed stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
         // Skip first empty lines, if any
         if (paragraphIndex != 0 || trimmed.length > 0)
         {
-            UIFont *font = paragraphIndex == 0 ? titleFont : bodyFont;
+            UIFont *font = paragraphIndex == 0 && ![self.tag isEqualToString:trimmed] ? titleFont : bodyFont;
             [_backingStore addAttribute:NSFontAttributeName value:font range:substringRange];
             paragraphIndex++;
         }
