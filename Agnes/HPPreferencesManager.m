@@ -20,6 +20,7 @@ NSString *const HPAgnesDefaultsKeySessionCount = @"HPAgnesSessionCount";
 NSString *const HPAgnesDefaultsKeySortMode = @"HPAgnesSortMode";
 NSString *const HPAgnesDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 NSString *const HPAgnesDefaultsKeyTintColor = @"HPAgnesTintColor";
+NSString *const HPAgnesDefaultsKeyTypingSpeed = @"HPAgnesTypingSpeed";
 
 NSString *const HPAgnesPreferencesKeyStatusBarHidden = @"statusBarHidden";
 NSString *const HPAgnesPreferencesKeyBarTintColor = @"barTintColor";
@@ -35,7 +36,7 @@ static NSString* HPAgnesDefaultFontName = @"System";
 static NSInteger HPAgnesDefaultFontSize = 16;
 static UIColor* HPAgnesDefaultTintColor = nil;
 static BOOL HPAgnesDefaultStatusBarHidden = NO;
-
+static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
 
 @implementation HPPreferencesManager
 
@@ -160,6 +161,12 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
+- (void)setTypingSpeed:(NSTimeInterval)typingSpeed
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:@(typingSpeed) forKey:HPAgnesDefaultsKeyTypingSpeed];
+}
+
 - (HPTagSortMode)sortModeForListTitle:(NSString*)title default:(HPTagSortMode)defaultSortMode
 {
     NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeySortMode];
@@ -180,6 +187,12 @@ static BOOL HPAgnesDefaultStatusBarHidden = NO;
 - (NSString*)tintColorName
 {
     return [self.tintColor stringValue];
+}
+
+- (NSTimeInterval)typingSpeed
+{
+    NSNumber *value = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeyTypingSpeed];
+    return value ? [value doubleValue] : HPAgnesDefaultTypingSpeed;
 }
 
 - (void)applyPreferences:(NSString*)preferences

@@ -28,8 +28,11 @@
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
 @property (nonatomic, assign) BOOL textChanged;
+@property (nonatomic, readonly) BOOL typing;
 
 @end
+
+static NSTimeInterval _typingSpeed = 1;
 
 @implementation HPNoteViewController {
     PSPDFTextView *_bodyTextView;
@@ -65,6 +68,8 @@
     HPImageViewController *_presentedImageViewController;
     
     NSTimer *_autosaveTimer;
+    NSTimer *_typingTimer;
+    NSDate *_typingPreviousDate;
     
     __weak IBOutlet NSLayoutConstraint *_toolbarHeightConstraint;
 }
@@ -72,6 +77,7 @@
 @synthesize noteTextView = _bodyTextView;
 @synthesize search = _search;
 @synthesize transitioning = _transitioning;
+@synthesize typing = _typing;
 @synthesize wantsDefaultTransition = _wantsDefaultTransition;
 
 - (void)viewDidLoad
@@ -163,6 +169,7 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    if (self.typing) [self setTyping:NO animated:animated];
     if (!self.transitioning) return; // Don't continue if we're presenting a modal controller
     
     // TODO: Do this only when we're transitiong back to the list or to the menu
@@ -562,6 +569,43 @@
     }
 }
 
+- (void)setTyping:(BOOL)typing animated:(BOOL)animated
+{
+    _typing = typing;
+    [_typingTimer invalidate];
+    if (typing)
+    {
+        HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+        NSDate *now = [NSDate date];
+        if (_typingPreviousDate)
+        {
+            NSTimeInterval currentSpeed = [now timeIntervalSinceDate:_typingPreviousDate];
+            static CGFloat currentSpeedWeight = 0.05;
+            preferences.typingSpeed = preferences.typingSpeed * (1 - currentSpeedWeight) + currentSpeed * currentSpeedWeight;
+        }
+        _typingPreviousDate = now;
+        if (!self.navigationController.navigationBarHidden)
+        {
+            [self.navigationController setNavigationBarHidden:YES animated:animated];
+        }
+        static CGFloat stopMultiplier = 5;
+        static CGFloat minimumDelay = 2;
+        const CGFloat typingDelay = MAX(preferences.typingSpeed * stopMultiplier, minimumDelay) ;
+        _typingTimer = [NSTimer scheduledTimerWithTimeInterval:typingDelay target:self selector:@selector(didFinishTyping) userInfo:nil repeats:NO];
+    }
+    else if (self.navigationController.navigationBarHidden)
+    {
+        _typingPreviousDate = nil;
+        [self.navigationController setNavigationBarHidden:NO animated:animated];
+        [_bodyTextView scrollToVisibleCaretAnimated:NO];
+    }
+}
+
+- (void)didFinishTyping
+{
+    [self setTyping:NO animated:YES];
+}
+
 UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 {
     UITextPosition *beginning = textView.beginningOfDocument;
@@ -745,6 +789,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 - (void)textViewDidChange:(UITextView *)textView
 {
     self.textChanged = YES;
+    [self setTyping:YES animated:YES];
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
@@ -863,6 +908,8 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 - (void)keyboardWillHideNotification:(NSNotification*)notification
 {
     if (self.transitioning) return; // Do not animate keyboard when animating to list
+    
+    [self setTyping:NO animated:YES];
     
     NSDictionary *info = notification.userInfo;
     NSTimeInterval duration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
