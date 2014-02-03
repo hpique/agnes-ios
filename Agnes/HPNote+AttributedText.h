@@ -12,4 +12,6 @@
 
 - (NSAttributedString*)attributedTextForWidth:(CGFloat)width;
 
++ (NSParagraphStyle*)paragraphStyleOfAttributedText:(NSAttributedString*)attributedText paragraphRange:(NSRange)paragraphRange;
+
 @end

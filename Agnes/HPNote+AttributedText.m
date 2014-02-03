@@ -115,6 +115,26 @@
     return attributes;
 }
 
++ (NSParagraphStyle*)paragraphStyleOfAttributedText:(NSAttributedString*)attributedText paragraphRange:(NSRange)paragraphRange
+{
+    NSMutableParagraphStyle *paragraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
+    __block BOOL defaultAttachment = NO;
+    [attributedText enumerateAttribute:HPNoteAttachmentAttributeName inRange:paragraphRange options:kNilOptions usingBlock:^(HPAttachment *value, NSRange range, BOOL *stop) {
+        if (!value) return;
+        
+        if (value.mode == HPAttachmentModeDefault)
+        {
+            defaultAttachment = YES;
+            *stop = YES;
+        }
+    }];
+    if (defaultAttachment)
+    {
+        paragraphStyle.alignment = NSTextAlignmentCenter;
+    }
+    return paragraphStyle;
+}
+
 #pragma mark - Private
 
 - (CGSize)sizeForAttachmentMode:(HPAttachmentMode)mode maxWidth:(CGFloat)maxWidth

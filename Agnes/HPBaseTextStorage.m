@@ -9,6 +9,7 @@
 #import "HPBaseTextStorage.h"
 #import "HPNote.h"
 #import "HPAttachment.h"
+#import "HPNote+AttributedText.h"
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
 #import <MessageUI/MessageUI.h>
@@ -119,14 +120,10 @@
 {
     UIFont *bodyFont = [[HPFontManager sharedManager] fontForNoteBody];
     UIFont *titleFont = [[HPFontManager sharedManager] fontForNoteTitle];
-    NSParagraphStyle *defaultParagraphStyle = [NSParagraphStyle defaultParagraphStyle];
-    NSMutableParagraphStyle *attachmentParagraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
-    attachmentParagraphStyle.alignment = NSTextAlignmentCenter;
 
     NSRange range = NSMakeRange(0, _backingStore.string.length);
     __block NSInteger paragraphIndex = 0;
     
-
     NSString *trimmed = [_backingStore.string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if ([self.tag isEqualToString:trimmed]) return; // The tag is not the title
 
@@ -141,26 +138,12 @@
             paragraphIndex++;
         }
 
-        const BOOL hasCenteredAttachment = [self hasCenteredAttachmentInRange:substringRange];
-        NSParagraphStyle *paragraphStyle = hasCenteredAttachment ? attachmentParagraphStyle : defaultParagraphStyle;
+        NSParagraphStyle *paragraphStyle = [HPNote paragraphStyleOfAttributedText:_backingStore paragraphRange:substringRange];
         [_backingStore addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:substringRange];
     }];
 }
 
-- (BOOL)hasCenteredAttachmentInRange:(NSRange)range
-{
-    __block BOOL center = NO;
-    [_backingStore enumerateAttribute:HPNoteAttachmentAttributeName inRange:range options:kNilOptions usingBlock:^(HPAttachment *value, NSRange range, BOOL *stop) {
-        if (!value) return;
-        
-        if (value.mode == HPAttachmentModeDefault)
-        {
-            center = YES;
-            *stop = YES;
-        }
-    }];
-    return center;
-}
+
 
 - (void)highlightTags:(NSRange)changedRange
 {
