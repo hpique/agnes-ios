@@ -843,7 +843,8 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 - (void)keyboardWillShowNotification:(NSNotification*)notification
 {
     NSDictionary *info = notification.userInfo;
-    CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+    CGRect keyboardRect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGSize keyboardSize = [self.view convertRect:keyboardRect fromView:nil].size; // Account for orientation changes
     
     _originalBodyTextViewInset = _bodyTextView.contentInset;
     UIEdgeInsets insets = UIEdgeInsetsMake(_originalBodyTextViewInset.top, _originalBodyTextViewInset.left, keyboardSize.height, _originalBodyTextViewInset.right);
