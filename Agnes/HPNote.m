@@ -11,15 +11,12 @@
 #import "HPTagManager.h"
 #import "HPAttachment.h" 
 #import "HPData.h"
-#import "HPFontManager.h"
 #import "NSString+hp_utils.h"
-#import "UIImage+hp_utils.h"
 
 NSString* const HPNoteAttachmentAttributeName = @"HPNoteAttachment";
 const NSInteger HPNoteDetailModeCount = 5;
 
 @implementation HPNote {
-    NSCache *_imageCache;
     NSString *_body;
     NSString *_title;
 }
@@ -236,44 +233,13 @@ const NSInteger HPNoteDetailModeCount = 5;
     self.text = mutableText;
 }
 
-- (NSDictionary*)attributesForAttachment:(HPAttachment*)attachment maxWidth:(CGFloat)maxWidth
-{
-    if (!_imageCache) _imageCache = [[NSCache alloc] init];
-    
-    UIImage *image = attachment.image;
-    UIImage *scaledImage = [_imageCache objectForKey:attachment.objectID];
-    CGSize maxSize = [self sizeForAttachmentMode:attachment.mode maxWidth:maxWidth];
-    if (!scaledImage || scaledImage.size.width > maxSize.width || scaledImage.size.height > maxSize.height)
-    {
-        CGSize scaledImageSize = [image hp_aspectFitRectForSize:maxSize].size;
-        scaledImage = [image hp_imageByScalingToSize:scaledImageSize];
-        [_imageCache setObject:scaledImage forKey:attachment.objectID];
-    }
-    
-    NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
-    textAttachment.image = scaledImage;
-
-    NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
-    [attributes setObject:textAttachment forKey:NSAttachmentAttributeName];
-    
-    if (attachment.mode == HPAttachmentModeDefault)
-    {
-        NSMutableParagraphStyle *paragraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
-        paragraphStyle.alignment = NSTextAlignmentCenter;
-        [attributes setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    }
-    [attributes setObject:attachment forKey:HPNoteAttachmentAttributeName];
-    
-    return attributes;
-}
-
 - (void)replaceAttachments:(NSArray*)attachments
 {
     NSMutableOrderedSet *removedAttachments = self.attachments.mutableCopy;
     [removedAttachments minusSet:[NSSet setWithArray:attachments]];
     for (HPAttachment *attachment in removedAttachments)
     {
-        [_imageCache removeObjectForKey:attachment.objectID];
+        [self.managedObjectContext deleteObject:attachment];
     }
     for (HPAttachment *attachment in attachments)
     { // TODO: Why is this necessary? See: http://stackoverflow.com/questions/21518469/core-data-does-not-save-one-to-many-relationship
@@ -284,36 +250,6 @@ const NSInteger HPNoteDetailModeCount = 5;
     NSMutableOrderedSet *mutableAttachments = [self mutableOrderedSetValueForKey:NSStringFromSelector(@selector(attachments))];
     [mutableAttachments removeAllObjects];
     [mutableAttachments addObjectsFromArray:attachments];
-}
-
-- (NSAttributedString*)attributedTextForWidth:(CGFloat)width
-{
-    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text];
-    __block NSInteger index = 0;
-    [self.text hp_enumerateOccurrencesOfString:[HPNote attachmentString] options:kNilOptions usingBlock:^(NSRange matchRange, BOOL *stop) {
-        if (index >= self.attachments.count)
-        {
-            *stop = YES;
-            return;
-        }
-        HPAttachment *attachment = self.attachments[index];
-        NSDictionary *attributes = [self attributesForAttachment:attachment maxWidth:width];
-        [attributedString setAttributes:attributes range:matchRange];
-        index++;
-    }];
-    return attributedString;
-}
-
-#pragma mark - Private
-
-- (CGSize)sizeForAttachmentMode:(HPAttachmentMode)mode maxWidth:(CGFloat)maxWidth
-{
-    switch (mode) {
-        case HPAttachmentModeDefault:
-            return CGSizeMake(maxWidth, maxWidth);
-        case HPAttachmentModeCharacter:
-            return CGSizeMake(maxWidth, [HPFontManager sharedManager].noteBodyLineHeight);
-    }
 }
 
 @end

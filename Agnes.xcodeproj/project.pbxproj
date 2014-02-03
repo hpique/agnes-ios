@@ -62,6 +62,8 @@
 		87AA3CF8189C13E100FBEAAF /* HPImageViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AA3CF3189C13E100FBEAAF /* HPImageViewController.xib */; };
 		87AA3D08189F342800FBEAAF /* HPNote+Thumbnail.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3D07189F342800FBEAAF /* HPNote+Thumbnail.m */; };
 		87AA3D0E189FA74B00FBEAAF /* HPAttachment+Template.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3D0D189FA74B00FBEAAF /* HPAttachment+Template.m */; };
+		87AA3D11189FF79B00FBEAAF /* HPNote+AttributedText.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3D10189FF79B00FBEAAF /* HPNote+AttributedText.m */; };
+		87AA3D1418A0026400FBEAAF /* HPAttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3D1318A0026400FBEAAF /* HPAttachmentManager.m */; };
 		87AD2F83188E900B0065EEBA /* HPNoteListTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */; };
 		87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 87D02E18188ECBA600273DEC /* HPNoteExporter.m */; };
 		87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E3D188B57C0000333EA /* HPPreferencesManager.m */; };
@@ -184,6 +186,10 @@
 		87AA3D07189F342800FBEAAF /* HPNote+Thumbnail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "HPNote+Thumbnail.m"; sourceTree = "<group>"; };
 		87AA3D0C189FA74B00FBEAAF /* HPAttachment+Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HPAttachment+Template.h"; sourceTree = "<group>"; };
 		87AA3D0D189FA74B00FBEAAF /* HPAttachment+Template.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "HPAttachment+Template.m"; sourceTree = "<group>"; };
+		87AA3D0F189FF79B00FBEAAF /* HPNote+AttributedText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HPNote+AttributedText.h"; sourceTree = "<group>"; };
+		87AA3D10189FF79B00FBEAAF /* HPNote+AttributedText.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "HPNote+AttributedText.m"; sourceTree = "<group>"; };
+		87AA3D1218A0026400FBEAAF /* HPAttachmentManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAttachmentManager.h; sourceTree = "<group>"; };
+		87AA3D1318A0026400FBEAAF /* HPAttachmentManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAttachmentManager.m; sourceTree = "<group>"; };
 		87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteListTableViewCell.xib; sourceTree = "<group>"; };
 		87D02E17188ECBA600273DEC /* HPNoteExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteExporter.h; sourceTree = "<group>"; };
 		87D02E18188ECBA600273DEC /* HPNoteExporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteExporter.m; sourceTree = "<group>"; };
@@ -312,6 +318,8 @@
 				8763DA6618884650000D9569 /* HPNoteViewController.xib */,
 				8740FAEF188B2AC5004CF099 /* HPTagSuggestionsView.h */,
 				8740FAF0188B2AC5004CF099 /* HPTagSuggestionsView.m */,
+				87AA3D0F189FF79B00FBEAAF /* HPNote+AttributedText.h */,
+				87AA3D10189FF79B00FBEAAF /* HPNote+AttributedText.m */,
 			);
 			name = Note;
 			sourceTree = "<group>";
@@ -462,6 +470,8 @@
 				87E37EE9188C413D000333EA /* HPTag.m */,
 				87E37EEF188CA5F5000333EA /* HPTagManager.h */,
 				87E37EF0188CA5F5000333EA /* HPTagManager.m */,
+				87AA3D1218A0026400FBEAAF /* HPAttachmentManager.h */,
+				87AA3D1318A0026400FBEAAF /* HPAttachmentManager.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -677,9 +687,11 @@
 				87AA3D0E189FA74B00FBEAAF /* HPAttachment+Template.m in Sources */,
 				872C19B9189896B90013C9A5 /* HPNoteListSearchBar.m in Sources */,
 				87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */,
+				87AA3D11189FF79B00FBEAAF /* HPNote+AttributedText.m in Sources */,
 				871429F618955CF900DA588F /* HPNoteNavigationController.m in Sources */,
 				8763DA631888420A000D9569 /* HPNoteManager.m in Sources */,
 				871429A71892E84400DA588F /* HPIndexItemTableViewCell.m in Sources */,
+				87AA3D1418A0026400FBEAAF /* HPAttachmentManager.m in Sources */,
 				8763DA3718883ACF000D9569 /* main.m in Sources */,
 				870B5AEE18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m in Sources */,
 				87E37EE7188C413C000333EA /* HPNote.m in Sources */,

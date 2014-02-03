@@ -42,7 +42,7 @@
 
 - (NSString*)templateWithFilename:(NSString*)filename
 {
-    NSString *modeString = self.mode == HPAttachmentModeDefault ? @"" : [NSString stringWithFormat:@" mode=\"%d\"", self.mode];
+    NSString *modeString = self.mode == HPAttachmentModeDefault ? @"" : [NSString stringWithFormat:@" mode=\"%ld\"", (long)self.mode];
     NSString *template = [NSString stringWithFormat:@"{img%@}%@{/img}", modeString, filename];
     return template;
 }

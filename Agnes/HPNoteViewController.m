@@ -8,6 +8,7 @@
 
 #import "HPNoteViewController.h"
 #import "HPNote.h"
+#import "HPNote+AttributedText.h"
 #import "HPNoteManager.h"
 #import "HPBaseTextStorage.h"
 #import "HPTagSuggestionsView.h"

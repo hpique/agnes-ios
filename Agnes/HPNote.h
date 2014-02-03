@@ -60,8 +60,6 @@ extern const NSInteger HPNoteDetailModeCount;
 
 - (void)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index;
 
-- (NSAttributedString*)attributedTextForWidth:(CGFloat)width;
-
 + (NSString*)attachmentString;
 
 - (void)replaceAttachments:(NSArray*)attachments;
