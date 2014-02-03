@@ -12,6 +12,7 @@
 #import "HPNoteTableViewCell.h"
 #import "HPNoteNavigationController.h"
 #import "HPNote.h"
+#import "HPNote+Thumbnail.h"
 #import "HPAttachment.h"
 #import "UIImage+hp_utils.h"
 
@@ -135,11 +136,14 @@
     UIView *thumbnailViewCover = nil;
     UIImageView *thumbnailViewPlaceholder = nil;
     UIImageView *thumbnailView = cell.thumbnailView;
-    if (thumbnailView.image)
+    HPNote *note = cell.note;
+    HPAttachment *thumbnailAttachment = note.thumbnailAttachment;
+    NSInteger thumbnailCharacterIndex = NSNotFound;
+    if (thumbnailAttachment)
     {
         thumbnailViewCover = [self coverView:thumbnailView rect:thumbnailView.bounds color:[UIColor whiteColor] context:transitionContext];
-        NSInteger index = [noteTextView.text rangeOfString:[HPNote attachmentString]].location;
-        NSTextAttachment *attachment = [noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
+        thumbnailCharacterIndex = [self characterIndexForAttachment:thumbnailAttachment textView:noteTextView];
+        NSTextAttachment *attachment = [noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:thumbnailCharacterIndex effectiveRange:nil];
         thumbnailViewPlaceholder = [self addImageViewWithImage:attachment.image rect:thumbnailView.bounds fromView:thumbnailView context:transitionContext];
     }
     
@@ -165,7 +169,7 @@
         }
         if (thumbnailViewPlaceholder)
         {
-            CGRect rect = [self rectForText:[HPNote attachmentString] inTextView:noteTextView];
+            CGRect rect = [self rectForCharacterRange:NSMakeRange(thumbnailCharacterIndex, 1) inTextView:noteTextView];
             rect = [transitionContext.containerView convertRect:rect fromView:noteTextView];
             thumbnailViewPlaceholder.frame = CGRectMake(rect.origin.x, rect.origin.y, thumbnailViewPlaceholder.image.size.width, thumbnailViewPlaceholder.image.size.height);
         }
@@ -234,15 +238,15 @@
         bodyCover = [self coverView:noteTextView rect:bodyRect color:[UIColor whiteColor] context:transitionContext];
     }
     
-    UIView *thumbnailView = cell.thumbnailView;
     UIView *thumbnailCover, *thumbnailViewPlaceholder = nil;
-    if (!thumbnailView.hidden)
+    HPAttachment *thumbnailAttachment = cell.note.thumbnailAttachment;
+    if (thumbnailAttachment)
     {
-        CGRect thumbnailRect = [self rectForText:[HPNote attachmentString] inTextView:noteTextView];
+        NSInteger index = [self characterIndexForAttachment:thumbnailAttachment textView:noteTextView];
+        CGRect thumbnailRect = [self rectForCharacterRange:NSMakeRange(index, 1) inTextView:noteTextView];
         thumbnailCover = [self coverView:noteTextView rect:thumbnailRect color:[UIColor whiteColor] context:transitionContext];
-        NSInteger index = [noteTextView.text rangeOfString:[HPNote attachmentString]].location;
-        NSTextAttachment *attachment = [noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
-        thumbnailViewPlaceholder = [self addImageViewWithImage:attachment.image rect:thumbnailRect fromView:noteTextView context:transitionContext];
+        NSTextAttachment *textAttachment = [noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
+        thumbnailViewPlaceholder = [self addImageViewWithImage:textAttachment.image rect:thumbnailRect fromView:noteTextView context:transitionContext];
     }
     
     UIView *titlePlaceholder = [self fakeView:noteTextView rect:titleRect failsafeView:titleLabel context:transitionContext];
@@ -286,6 +290,18 @@
             [transitionContext completeTransition:YES];
         }];
     }];
+}
+
+- (NSInteger)characterIndexForAttachment:(HPAttachment*)attachment textView:(UITextView*)textView
+{
+    __block NSInteger characterIndex = NSNotFound;
+    NSAttributedString *attributedText = textView.attributedText;
+    [attributedText enumerateAttribute:HPNoteAttachmentAttributeName inRange:NSMakeRange(0, attributedText.length) options:kNilOptions usingBlock:^(HPAttachment *value, NSRange range, BOOL *stop) {
+        if (!value) return;
+        if (value != attachment) return;
+        characterIndex = range.location;
+    }];
+    return characterIndex;
 }
 
 #pragma mark - Utils
@@ -385,9 +401,14 @@
 
 - (CGRect)rectForText:(NSString*)text inTextView:(UITextView*)textView
 {
-    NSLayoutManager *layoutManager = textView.layoutManager;
     NSRange charRange = [textView.text rangeOfString:text];
     if (charRange.location == NSNotFound) return CGRectNull;
+    return [self rectForCharacterRange:charRange inTextView:textView];
+}
+
+- (CGRect)rectForCharacterRange:(NSRange)charRange inTextView:(UITextView*)textView
+{
+    NSLayoutManager *layoutManager = textView.layoutManager;
     NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:charRange actualCharacterRange:nil];
     [layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, charRange.location)];
     CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textView.textContainer];

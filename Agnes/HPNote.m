@@ -279,6 +279,8 @@ const NSInteger HPNoteDetailModeCount = 5;
     { // TODO: Why is this necessary? See: http://stackoverflow.com/questions/21518469/core-data-does-not-save-one-to-many-relationship
         attachment.note = self;
     }
+    
+    // Core Data NSOrderedSet generated accesors are broken as of iOS 7. See: http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors
     NSMutableOrderedSet *mutableAttachments = [self mutableOrderedSetValueForKey:NSStringFromSelector(@selector(attachments))];
     [mutableAttachments removeAllObjects];
     [mutableAttachments addObjectsFromArray:attachments];
@@ -349,13 +351,6 @@ const NSInteger HPNoteDetailModeCount = 5;
     return bodyForTag;
 }
 
-- (BOOL)hasThumbnail
-{
-    HPAttachment *attachment = [self.attachments firstObject];
-    if (!attachment) return NO;
-    return attachment.mode == HPAttachmentModeDefault;
-}
-
 - (NSString*)modifiedAtDescription
 {
     NSTimeInterval interval = -[self.modifiedAt timeIntervalSinceNow];
@@ -378,14 +373,6 @@ const NSInteger HPNoteDetailModeCount = 5;
         formatter.locale = [NSLocale currentLocale];
     }
     return [formatter stringFromDate:self.modifiedAt];
-}
-
-- (UIImage*)thumbnail
-{
-    HPAttachment *attachment = [self.attachments firstObject];
-    if (!attachment) return nil;
-    if (attachment.mode != HPAttachmentModeDefault) return nil;
-    return attachment.thumbnail;
 }
 
 - (NSString*)title

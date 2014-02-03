@@ -8,6 +8,7 @@
 
 #import "HPNoteSearchTableViewCell.h"
 #import "HPNote.h"
+#import "HPNote+Thumbnail.h"
 #import "HPPreferencesManager.h"
 #import "HPFontManager.h"
 #import "NSString+hp_utils.h"

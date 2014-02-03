@@ -27,10 +27,7 @@ extern const NSInteger HPNoteDetailModeCount;
 @interface HPNote : NSManagedObject
 
 @property (nonatomic, retain) NSNumber * cd_archived;
-/**
- Should be an ordered set but ordered relations in Core Data are broken as of iOS 7.
- See for one of the problems: http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors
- */
+
 @property (nonatomic, retain) NSOrderedSet *attachments;
 @property (nonatomic, retain) NSNumber * cd_detailMode;
 @property (nonatomic, retain) NSNumber * cd_views;
@@ -74,10 +71,8 @@ extern const NSInteger HPNoteDetailModeCount;
 @interface HPNote (View)
 
 @property (nonatomic, readonly) NSString *body;
-@property (nonatomic, readonly) BOOL hasThumbnail;
 @property (nonatomic, readonly) NSString *modifiedAtDescription;
 @property (nonatomic, readonly) NSString *modifiedAtLongDescription;
-@property (nonatomic, readonly) UIImage *thumbnail;
 @property (nonatomic, readonly) NSString *title;
 
 - (NSString*)bodyForTagWithName:(NSString*)tagName;
