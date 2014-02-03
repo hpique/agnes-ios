@@ -43,17 +43,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)addTutorialNotes
 {
     [self performNoUndoModelUpdateAndSave:YES block:^{
-        NSArray *notes = [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
-        for (HPNote *note in notes)
-        {
-            if ([note.text rangeOfString:[HPNote attachmentString]].location != NSNotFound)
-            {
-                UIImage *image = [UIImage imageNamed:@"sample.jpg"];
-                HPAttachment *attachment = [HPAttachment attachmentWithImage:image context:note.managedObjectContext];
-                [note hp_addAttachmentsObject:attachment];
-                break;
-            }
-        }
+        [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
     }];
 }
 
@@ -112,6 +102,8 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (NSArray*)notesWithKeyFormat:(NSString*)keyFormat context:(NSManagedObjectContext*)context
 {
+    static NSString *attachmentPattern = @"\\{img(?: mode=\"(.+)\")?\\}(.+)\\{/img\\}";
+    NSRegularExpression *attachmentRegex = [NSRegularExpression regularExpressionWithPattern:attachmentPattern options:kNilOptions error:nil];
     NSString *text;
     long i = 1;
     NSMutableArray *texts = [NSMutableArray array];
@@ -123,12 +115,38 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     NSMutableArray *notes = [NSMutableArray array];
     for (i = texts.count - 1; i >= 0; i--)
     {
-        NSString *text = texts[i];
+        NSMutableString *mutableText = [texts[i] mutableCopy];
         HPNote *note = [HPNote insertNewObjectIntoContext:context];
         note.createdAt = [NSDate date];
         note.modifiedAt = note.createdAt;
         note.detailMode = HPNoteDetailModeNone;
-        note.text = text;
+        
+        NSMutableArray *attachments = [NSMutableArray array];
+        NSArray *matches = [attachmentRegex matchesInString:mutableText options:kNilOptions range:NSMakeRange(0, mutableText.length)];
+        for (NSInteger i = matches.count - 1; i >= 0; i--)
+        {
+            NSTextCheckingResult *result = matches[i];
+            HPAttachmentMode mode = HPAttachmentModeDefault;
+            NSRange modeRange = [result rangeAtIndex:1];
+            if (modeRange.location != NSNotFound)
+            {
+                NSString *modeString = [mutableText substringWithRange:modeRange];
+                mode = [modeString integerValue];
+            }
+            NSRange imageNameRange = [result rangeAtIndex:2];
+            NSString *imageName = [mutableText substringWithRange:imageNameRange];
+            UIImage *image = [UIImage imageNamed:imageName];
+            if (!image) continue;
+            HPAttachment *attachment = [HPAttachment attachmentWithImage:image context:context];
+            attachment.createdAt = [NSDate date];
+            attachment.mode = mode;
+            [attachments insertObject:attachment atIndex:0]; // Reverse order
+            
+            NSRange matchRange = [result rangeAtIndex:0];
+            [mutableText replaceCharactersInRange:matchRange withString:[HPNote attachmentString]];
+        }
+        note.text = mutableText;
+        [note replaceAttachments:attachments];
         [notes addObject:note];
     }
     return notes;
@@ -189,7 +207,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     return note;
 }
 
-- (void)editNote:(HPNote*)note text:(NSString*)text attachments:(NSOrderedSet*)attachments
+- (void)editNote:(HPNote*)note text:(NSString*)text attachments:(NSArray*)attachments
 {
     BOOL isNew = note.managedObjectContext == nil;
     NSString *actionName = isNew ? NSLocalizedString(@"Add Note", @"") : NSLocalizedString(@"Edit Note", @"");
@@ -218,8 +236,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             [self.context insertObject:attachment.thumbnailData];
             [self.context insertObject:attachment];
         }
-        NSOrderedSet *attachmentSet = [NSOrderedSet orderedSetWithArray:attachments];
-        [note hp_addAttachments:attachmentSet];
+        [note replaceAttachments:attachments];
     }];
 }
 

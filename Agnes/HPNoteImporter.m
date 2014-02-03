@@ -95,7 +95,7 @@
 
 - (NSArray*)attachmentsInText:(NSMutableString*)text directory:(NSString*)directory
 {
-    static NSString *attachmentPattern = @"\\{img\\}(.+)\\{/img\\}";
+    static NSString *attachmentPattern = @"\\{img(?: mode=\"(.+)\")?\\}(.+)\\{/img\\}";
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:attachmentPattern options:kNilOptions error:nil];
     NSAssert(regex, @"Regex failed");
     

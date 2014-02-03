@@ -8,7 +8,6 @@
 
 #import "HPNoteTableViewCell.h"
 #import "HPNote.h"
-#import "HPAttachment.h"
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
 #import "NSString+hp_utils.h"
@@ -98,8 +97,8 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)updateConstraints
 {
-    const BOOL hasAttachment = self.note.attachments.count > 0;
-    if (hasAttachment)
+    const BOOL hasThumbnail = self.note.hasThumbnail;
+    if (hasThumbnail)
     {
         if (self.hasDetail)
         {
@@ -185,9 +184,9 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 + (CGFloat)estimatedHeightForNote:(HPNote*)note
 {
     CGFloat estimatedHeight = HPNoteTableViewCellMargin * 2;
-    if (note.attachments.count > 0)
+    if (note.hasThumbnail)
     {
-        estimatedHeight += [HPFontManager sharedManager].noteTitleLineHeight * 3;
+        estimatedHeight += [self thumbnailViewWidth];
     }
     else
     {
@@ -214,19 +213,20 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
     
     CGFloat height = titleLines * titleLineHeight + bodyLines * bodyLineHeight + HPNoteTableViewCellMargin * 2;
-    return note.attachments.count > 0 ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
+    
+    const BOOL hasThumbnail = note.hasThumbnail;
+    return hasThumbnail ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
 }
 
 + (CGFloat)thumbnailViewWidth
 {
-    return [HPFontManager sharedManager].noteTitleLineHeight * 3;
+    return [HPFontManager sharedManager].noteTitleLineHeight * HPNoteTableViewCellLineCount;
 }
 
 + (CGFloat)widthForTitleOfNote:(HPNote*)note cellWidth:(CGFloat)cellWidth
 {
     CGFloat width = cellWidth - HPNoteTableViewCellMarginLeft * 2;
-    const BOOL hasAttachment = note.attachments.count > 0;
-    if (hasAttachment)
+    if (note.hasThumbnail)
     {
         width -= HPNoteTableViewCellThumbnailMarginLeadgin + [self thumbnailViewWidth];
     }
@@ -267,7 +267,6 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     
     NSString *title = self.note.title;
 
-    const BOOL hasAttachment = self.note.attachments.count > 0;
     const CGFloat titleWidth = [HPNoteTableViewCell widthForTitleOfNote:self.note cellWidth:self.bounds.size.width];
     
     self.titleLabel.preferredMaxLayoutWidth = titleWidth; // See: http://johnszumski.com/blog/auto-layout-for-table-view-cells-with-dynamic-heights
@@ -281,11 +280,11 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     self.bodyLabel.hidden = maximumBodyLines == 0;
     self.bodyLabel.numberOfLines = maximumBodyLines;
     
-    if (hasAttachment)
+    const BOOL hasThumbnail = self.note.hasThumbnail;
+    if (hasThumbnail)
     {
-        HPAttachment *attachment = [self.note.attachments firstObject];
         self.thumbnailView.hidden = NO;
-        self.thumbnailView.image = attachment.thumbnail;
+        self.thumbnailView.image = self.note.thumbnail;
     }
     else
     {
@@ -335,6 +334,5 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [self applyPreferences];
     [self displayNote];
 }
-
 
 @end

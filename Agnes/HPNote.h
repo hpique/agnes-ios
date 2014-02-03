@@ -26,8 +26,12 @@ extern const NSInteger HPNoteDetailModeCount;
 
 @interface HPNote : NSManagedObject
 
-@property (nonatomic, retain) NSOrderedSet *attachments;
 @property (nonatomic, retain) NSNumber * cd_archived;
+/**
+ Should be an ordered set but ordered relations in Core Data are broken as of iOS 7.
+ See for one of the problems: http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors
+ */
+@property (nonatomic, retain) NSOrderedSet *attachments;
 @property (nonatomic, retain) NSNumber * cd_detailMode;
 @property (nonatomic, retain) NSNumber * cd_views;
 @property (nonatomic, retain) NSNumber * cd_inboxOrder;
@@ -37,15 +41,9 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, retain) NSDictionary *tagOrder;
 @property (nonatomic, retain) NSString * text;
 
-@property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) BOOL empty;
-@property (nonatomic, readonly) NSString *body;
-@property (nonatomic, readonly) NSString *modifiedAtDescription;
-@property (nonatomic, readonly) NSString *modifiedAtLongDescription;
 @property (nonatomic, readonly) NSArray *tags;
 @property (nonatomic, readonly) BOOL isNew;
-
-- (NSString*)bodyForTagWithName:(NSString*)tagName;
 
 - (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
 
@@ -67,11 +65,22 @@ extern const NSInteger HPNoteDetailModeCount;
 
 - (NSAttributedString*)attributedTextForWidth:(CGFloat)width;
 
-//- (HPAttachment*)attachmentAtCharacterIndex:(NSUInteger)characterIndex;
-
 + (NSString*)attachmentString;
 
-- (void)replaceAttachments:(NSOrderedSet*)attachments;
+- (void)replaceAttachments:(NSArray*)attachments;
+
+@end
+
+@interface HPNote (View)
+
+@property (nonatomic, readonly) NSString *body;
+@property (nonatomic, readonly) BOOL hasThumbnail;
+@property (nonatomic, readonly) NSString *modifiedAtDescription;
+@property (nonatomic, readonly) NSString *modifiedAtLongDescription;
+@property (nonatomic, readonly) UIImage *thumbnail;
+@property (nonatomic, readonly) NSString *title;
+
+- (NSString*)bodyForTagWithName:(NSString*)tagName;
 
 @end
 
@@ -81,27 +90,6 @@ extern const NSInteger HPNoteDetailModeCount;
 - (void)removeCd_tagsObject:(HPTag *)value;
 - (void)addCd_tags:(NSSet *)values;
 - (void)removeCd_tags:(NSSet *)values;
-
-//- (void)insertObject:(HPAttachment *)value inAttachmentsAtIndex:(NSUInteger)idx;
-//- (void)removeObjectFromAttachmentsAtIndex:(NSUInteger)idx;
-//- (void)insertAttachments:(NSArray *)value atIndexes:(NSIndexSet *)indexes;
-//- (void)removeAttachmentsAtIndexes:(NSIndexSet *)indexes;
-//- (void)replaceObjectInAttachmentsAtIndex:(NSUInteger)idx withObject:(HPAttachment *)value;
-//- (void)replaceAttachmentsAtIndexes:(NSIndexSet *)indexes withAttachments:(NSArray *)values;
-//- (void)addAttachmentsObject:(HPAttachment *)value;
-//- (void)removeAttachmentsObject:(HPAttachment *)value;
-//- (void)removeAttachments:(NSOrderedSet *)values;
-
-@end
-
-/** See: http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors
- */
-@interface HPNote (CoreDataWorkaroundAccessors)
-
-- (void)hp_addAttachments:(NSOrderedSet *)values;
-- (void)hp_addAttachmentsObject:(HPAttachment *)value;
-- (void)hp_insertObject:(HPAttachment *)value inAttachmentsAtIndex:(NSUInteger)idx;
-- (void)hp_removeAttachments:(NSOrderedSet *)values;
 
 @end
 

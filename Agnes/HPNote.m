@@ -11,6 +11,7 @@
 #import "HPTagManager.h"
 #import "HPAttachment.h" 
 #import "HPData.h"
+#import "HPFontManager.h"
 #import "NSString+hp_utils.h"
 #import "UIImage+hp_utils.h"
 
@@ -19,6 +20,8 @@ const NSInteger HPNoteDetailModeCount = 5;
 
 @implementation HPNote {
     NSCache *_imageCache;
+    NSString *_body;
+    NSString *_title;
 }
 
 @dynamic attachments;
@@ -32,9 +35,7 @@ const NSInteger HPNoteDetailModeCount = 5;
 @dynamic tagOrder;
 @dynamic text;
 
-@synthesize body = _body;
 @synthesize tags = _tags;
-@synthesize title = _title;
 
 #pragma mark - NSManagedObject
 
@@ -101,19 +102,6 @@ const NSInteger HPNoteDetailModeCount = 5;
     return [NSString stringWithFormat:@"\n\n\n\n%@", tag];
 }
 
-- (NSString*)bodyForTagWithName:(NSString*)tagName
-{
-    NSString *body = self.body;
-    if (!tagName) return body;
-    if (body.length == 0) return body;
-    NSRange lastLineRange = [body lineRangeForRange:NSMakeRange(body.length - 1, 1)];
-    NSString *lastLine = [body substringWithRange:lastLineRange];
-    if (![lastLine isEqualToString:tagName]) return body;
-    NSString *bodyForTag = [body stringByReplacingCharactersInRange:lastLineRange withString:@""];
-    bodyForTag = [bodyForTag stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    return bodyForTag;
-}
-
 - (BOOL)isNew
 {
     return self.managedObjectContext == nil;
@@ -123,48 +111,6 @@ const NSInteger HPNoteDetailModeCount = 5;
 {
     NSString *trimmedText = [self.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     return trimmedText.length == 0;
-}
-
-- (NSString*)body
-{
-    if (!self.text) return nil;
-    if (!_body)
-    {
-        NSString *text = [self.text stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
-        NSString *title = self.title;
-        NSRange titleRange = [text rangeOfString:title];
-        NSString *body;
-        if (titleRange.location != NSNotFound)
-        {
-            body = [text stringByReplacingCharactersInRange:titleRange withString:@""];
-        }
-        _body = [body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    }
-    return _body;
-}
-
-- (NSString*)modifiedAtDescription
-{
-    NSTimeInterval interval = -[self.modifiedAt timeIntervalSinceNow];
-    if (interval < 2) return [NSString stringWithFormat:NSLocalizedString(@"now", @""), interval];
-    if (interval < 60) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfs", @""), interval];
-    if (interval < 3600) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfm", @""), interval / 60];
-    if (interval < 86400) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfh", @""), interval / 3600];
-    if (interval < 31556926) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfd", @""), interval / 86400];
-    return [NSString stringWithFormat:NSLocalizedString(@"%.0lfy", @""), interval / 31556926];
-}
-
-- (NSString*)modifiedAtLongDescription
-{
-    static NSDateFormatter *formatter;
-    if (!formatter)
-    {
-        formatter = [[NSDateFormatter alloc] init];
-        formatter.dateStyle = NSDateFormatterLongStyle;
-        formatter.doesRelativeDateFormatting = YES;
-        formatter.locale = [NSLocale currentLocale];
-    }
-    return [formatter stringFromDate:self.modifiedAt];
 }
 
 - (NSArray*)tags
@@ -186,22 +132,6 @@ const NSInteger HPNoteDetailModeCount = 5;
         _tags = tags;
     }
     return _tags;
-}
-
-- (NSString*)title
-{
-    if (!self.text) return nil;
-    if (!_title)
-    {
-        NSString *text = [self.text stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
-        NSString *trimmedText = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-        _title = [trimmedText componentsSeparatedByString:@"\n"][0];
-        if (_title.length == 0)
-        {
-            _title = NSLocalizedString(@"Untitled note", @"");
-        }
-    }
-    return _title;
 }
 
 - (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
@@ -273,49 +203,7 @@ const NSInteger HPNoteDetailModeCount = 5;
 
 @end
 
-@implementation HPNote(CoreDataWorkaroundAccessors)
-
-
-- (void)hp_addAttachmentsObject:(HPAttachment *)value
-{
-    [[self mutableAttachments] addObject:value];
-}
-
-- (void)hp_addAttachments:(NSOrderedSet *)values
-{
-    [[self mutableAttachments] addObjectsFromArray:values.array];
-}
-
-- (void)hp_insertObject:(HPAttachment *)value inAttachmentsAtIndex:(NSUInteger)idx
-{
-    [[self mutableAttachments] insertObject:value atIndex:idx];
-}
-
-- (void)hp_removeAttachments:(NSOrderedSet *)values
-{
-    [[self mutableAttachments] removeObjectsInArray:values.array];
-}
-
-#pragma mark - Private
-
-- (NSMutableOrderedSet*)mutableAttachments
-{
-    static NSString *attachmentKey = @"attachments";
-    return [self mutableOrderedSetValueForKey:attachmentKey];
-}
-
-@end
-
 @implementation HPNote(Attachments)
-
-//- (HPAttachment*)attachmentAtCharacterIndex:(NSUInteger)characterIndex
-//{
-//    NSRange searchRange = NSMakeRange(0, characterIndex + 1);
-//    NSUInteger attachmentCount = [self.text hp_numberOfOccurencesOfString:[HPNote attachmentString] range:searchRange];
-//    if (attachmentCount == 0) return nil;
-//    if (attachmentCount > self.attachments.count) return nil;
-//    return [self.attachments objectAtIndex:attachmentCount - 1];
-//}
 
 + (NSString*)attachmentString
 {
@@ -331,7 +219,7 @@ const NSInteger HPNoteDetailModeCount = 5;
 - (void)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index
 {
     NSString *text = self.text;
-    NSRange searchRange = NSMakeRange(0, index + 1);
+    NSRange searchRange = NSMakeRange(0, index);
     NSUInteger attachmentIndex = [text hp_numberOfOccurencesOfString:[HPNote attachmentString] range:searchRange];
     attachmentIndex = MIN(attachmentIndex, self.attachments.count);
     
@@ -342,7 +230,9 @@ const NSInteger HPNoteDetailModeCount = 5;
     {
         [mutableText insertString:@"\n" atIndex:index];
     }
-    [self hp_insertObject:attachment inAttachmentsAtIndex:attachmentIndex];
+    NSMutableOrderedSet *mutableAttachments = self.attachments.mutableCopy;
+    [mutableAttachments insertObject:attachment atIndex:attachmentIndex];
+    [self replaceAttachments:mutableAttachments.array];
     self.text = mutableText;
 }
 
@@ -352,36 +242,47 @@ const NSInteger HPNoteDetailModeCount = 5;
     
     UIImage *image = attachment.image;
     UIImage *scaledImage = [_imageCache objectForKey:attachment.objectID];
-    if (!scaledImage || scaledImage.size.width > maxWidth || scaledImage.size.height > maxWidth)
+    CGSize maxSize = [self sizeForAttachmentMode:attachment.mode maxWidth:maxWidth];
+    if (!scaledImage || scaledImage.size.width > maxSize.width || scaledImage.size.height > maxSize.height)
     {
-        CGSize scaledImageSize = [image hp_aspectFitRectForSize:CGSizeMake(maxWidth, maxWidth)].size;
+        CGSize scaledImageSize = [image hp_aspectFitRectForSize:maxSize].size;
         scaledImage = [image hp_imageByScalingToSize:scaledImageSize];
         [_imageCache setObject:scaledImage forKey:attachment.objectID];
     }
     
     NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
     textAttachment.image = scaledImage;
+
+    NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
+    [attributes setObject:textAttachment forKey:NSAttachmentAttributeName];
     
-    NSMutableParagraphStyle *paragraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
-    paragraphStyle.alignment = NSTextAlignmentCenter;
+    if (attachment.mode == HPAttachmentModeDefault)
+    {
+        NSMutableParagraphStyle *paragraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
+        paragraphStyle.alignment = NSTextAlignmentCenter;
+        [attributes setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
+    }
+    [attributes setObject:attachment forKey:HPNoteAttachmentAttributeName];
     
-    NSDictionary *attributes = @{NSAttachmentAttributeName : textAttachment, NSParagraphStyleAttributeName : paragraphStyle, HPNoteAttachmentAttributeName : attachment};
     return attributes;
 }
 
-- (void)replaceAttachments:(NSOrderedSet*)attachments
+- (void)replaceAttachments:(NSArray*)attachments
 {
     NSMutableOrderedSet *removedAttachments = self.attachments.mutableCopy;
-    [removedAttachments minusOrderedSet:attachments];
+    [removedAttachments minusSet:[NSSet setWithArray:attachments]];
     for (HPAttachment *attachment in removedAttachments)
     {
         [_imageCache removeObjectForKey:attachment.objectID];
     }
-    [self hp_removeAttachments:self.attachments];
-    [self hp_addAttachments:attachments];
+    for (HPAttachment *attachment in attachments)
+    { // TODO: Why is this necessary? See: http://stackoverflow.com/questions/21518469/core-data-does-not-save-one-to-many-relationship
+        attachment.note = self;
+    }
+    NSMutableOrderedSet *mutableAttachments = [self mutableOrderedSetValueForKey:NSStringFromSelector(@selector(attachments))];
+    [mutableAttachments removeAllObjects];
+    [mutableAttachments addObjectsFromArray:attachments];
 }
-
-#pragma mark - Private
 
 - (NSAttributedString*)attributedTextForWidth:(CGFloat)width
 {
@@ -399,6 +300,108 @@ const NSInteger HPNoteDetailModeCount = 5;
         index++;
     }];
     return attributedString;
+}
+
+#pragma mark - Private
+
+- (CGSize)sizeForAttachmentMode:(HPAttachmentMode)mode maxWidth:(CGFloat)maxWidth
+{
+    switch (mode) {
+        case HPAttachmentModeDefault:
+            return CGSizeMake(maxWidth, maxWidth);
+        case HPAttachmentModeInlineFitLineHeight:
+            return CGSizeMake(maxWidth, [HPFontManager sharedManager].noteBodyLineHeight);
+    }
+}
+
+@end
+
+@implementation HPNote(View)
+
+- (NSString*)body
+{
+    if (!self.text) return nil;
+    if (!_body)
+    {
+        NSString *text = [self.text stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
+        NSString *title = self.title;
+        NSRange titleRange = [text rangeOfString:title];
+        NSString *body;
+        if (titleRange.location != NSNotFound)
+        {
+            body = [text stringByReplacingCharactersInRange:titleRange withString:@""];
+        }
+        _body = [body stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    }
+    return _body;
+}
+
+- (NSString*)bodyForTagWithName:(NSString*)tagName
+{
+    NSString *body = self.body;
+    if (!tagName) return body;
+    if (body.length == 0) return body;
+    NSRange lastLineRange = [body lineRangeForRange:NSMakeRange(body.length - 1, 1)];
+    NSString *lastLine = [body substringWithRange:lastLineRange];
+    if (![lastLine isEqualToString:tagName]) return body;
+    NSString *bodyForTag = [body stringByReplacingCharactersInRange:lastLineRange withString:@""];
+    bodyForTag = [bodyForTag stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return bodyForTag;
+}
+
+- (BOOL)hasThumbnail
+{
+    HPAttachment *attachment = [self.attachments firstObject];
+    if (!attachment) return NO;
+    return attachment.mode == HPAttachmentModeDefault;
+}
+
+- (NSString*)modifiedAtDescription
+{
+    NSTimeInterval interval = -[self.modifiedAt timeIntervalSinceNow];
+    if (interval < 2) return [NSString stringWithFormat:NSLocalizedString(@"now", @""), interval];
+    if (interval < 60) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfs", @""), interval];
+    if (interval < 3600) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfm", @""), interval / 60];
+    if (interval < 86400) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfh", @""), interval / 3600];
+    if (interval < 31556926) return [NSString stringWithFormat:NSLocalizedString(@"%.0lfd", @""), interval / 86400];
+    return [NSString stringWithFormat:NSLocalizedString(@"%.0lfy", @""), interval / 31556926];
+}
+
+- (NSString*)modifiedAtLongDescription
+{
+    static NSDateFormatter *formatter;
+    if (!formatter)
+    {
+        formatter = [[NSDateFormatter alloc] init];
+        formatter.dateStyle = NSDateFormatterLongStyle;
+        formatter.doesRelativeDateFormatting = YES;
+        formatter.locale = [NSLocale currentLocale];
+    }
+    return [formatter stringFromDate:self.modifiedAt];
+}
+
+- (UIImage*)thumbnail
+{
+    HPAttachment *attachment = [self.attachments firstObject];
+    if (!attachment) return nil;
+    if (attachment.mode != HPAttachmentModeDefault) return nil;
+    return attachment.thumbnail;
+}
+
+- (NSString*)title
+{
+    if (!self.text) return nil;
+    if (!_title)
+    {
+        NSString *text = [self.text stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
+        NSString *trimmedText = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        _title = [trimmedText componentsSeparatedByString:@"\n"][0];
+        if (_title.length == 0)
+        {
+            _title = NSLocalizedString(@"Untitled note", @"");
+        }
+    }
+    return _title;
 }
 
 @end

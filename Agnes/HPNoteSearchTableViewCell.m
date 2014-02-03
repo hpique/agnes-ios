@@ -44,7 +44,8 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
     bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
     
     CGFloat height = titleLines * titleLineHeight + bodyLines * bodyLineHeight + HPNoteTableViewCellMargin * 2;
-    return note.attachments.count > 0 ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
+    const BOOL hasThumbnail = note.hasThumbnail;
+    return hasThumbnail ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
 }
 
 #pragma mark - Private

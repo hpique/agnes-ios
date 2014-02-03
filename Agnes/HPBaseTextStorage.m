@@ -8,6 +8,7 @@
 
 #import "HPBaseTextStorage.h"
 #import "HPNote.h"
+#import "HPAttachment.h"
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
 #import <MessageUI/MessageUI.h>
@@ -140,10 +141,25 @@
             paragraphIndex++;
         }
 
-        BOOL hasAttachment = [substring rangeOfString:[HPNote attachmentString]].location != NSNotFound;
-        NSParagraphStyle *paragraphStyle = hasAttachment ? attachmentParagraphStyle : defaultParagraphStyle;
+        const BOOL hasCenteredAttachment = [self hasCenteredAttachmentInRange:substringRange];
+        NSParagraphStyle *paragraphStyle = hasCenteredAttachment ? attachmentParagraphStyle : defaultParagraphStyle;
         [_backingStore addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:substringRange];
     }];
+}
+
+- (BOOL)hasCenteredAttachmentInRange:(NSRange)range
+{
+    __block BOOL center = NO;
+    [_backingStore enumerateAttribute:HPNoteAttachmentAttributeName inRange:range options:kNilOptions usingBlock:^(HPAttachment *value, NSRange range, BOOL *stop) {
+        if (!value) return;
+        
+        if (value.mode == HPAttachmentModeDefault)
+        {
+            center = YES;
+            *stop = YES;
+        }
+    }];
+    return center;
 }
 
 - (void)highlightTags:(NSRange)changedRange

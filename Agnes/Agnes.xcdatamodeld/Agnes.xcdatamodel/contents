@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3401" systemVersion="13B42" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Attachment" representedClassName="HPAttachment" syncable="YES">
+        <attribute name="cd_mode" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="cd_order" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="mode" optional="YES" transient="YES" syncable="YES"/>
+        <attribute name="order" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="type" attributeType="String" syncable="YES"/>
         <relationship name="data" maxCount="1" deletionRule="Cascade" destinationEntity="Data" inverseName="attachment" inverseEntity="Data" syncable="YES"/>
         <relationship name="note" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Note" inverseName="attachments" inverseEntity="Note" syncable="YES"/>
@@ -25,8 +29,8 @@
         <attribute name="tagOrder" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="views" optional="YES" transient="YES" syncable="YES"/>
-        <relationship name="attachments" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Attachment" inverseName="note" inverseEntity="Attachment" syncable="YES"/>
-        <relationship name="cd_tags" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Tag" inverseName="cd_notes" inverseEntity="Tag" syncable="YES"/>
+        <relationship name="attachments" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Attachment" inverseName="note" inverseEntity="Attachment" syncable="YES"/>
+        <relationship name="cd_tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="cd_notes" inverseEntity="Tag" syncable="YES"/>
     </entity>
     <entity name="Tag" representedClassName="HPTag" syncable="YES">
         <attribute name="cd_order" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -37,9 +41,9 @@
         <relationship name="cd_notes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Note" inverseName="cd_tags" inverseEntity="Note" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Attachment" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Data" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Note" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Tag" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Attachment" positionX="25" positionY="-171" width="128" height="180"/>
+        <element name="Data" positionX="214" positionY="-90" width="128" height="90"/>
+        <element name="Note" positionX="-162" positionY="-207" width="128" height="255"/>
+        <element name="Tag" positionX="-342" positionY="-45" width="128" height="135"/>
     </elements>
 </model>

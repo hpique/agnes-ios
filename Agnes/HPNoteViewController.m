@@ -233,7 +233,7 @@
     {
         NSMutableString *mutableText = [NSMutableString stringWithString:self.noteTextView.text];
         const BOOL changed = [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
-        NSOrderedSet *attachments = [self attachments];
+        NSArray *attachments = [self attachments];
         [[HPNoteManager sharedManager] editNote:self.note text:mutableText attachments:attachments];
         if (changed)
         {
@@ -305,10 +305,10 @@
     return [self.note attributedTextForWidth:width];
 }
 
-- (NSOrderedSet*)attachments
+- (NSArray*)attachments
 {
     NSAttributedString *attributedText = self.noteTextView.attributedText;
-    NSMutableOrderedSet *attachments = [NSMutableOrderedSet orderedSet];
+    NSMutableArray *attachments = [NSMutableArray array];
     [attributedText enumerateAttribute:HPNoteAttachmentAttributeName inRange:NSMakeRange(0, attributedText.length) options:kNilOptions usingBlock:^(id value, NSRange range, BOOL *stop) {
         if (!value) return;
         [attachments addObject:value];

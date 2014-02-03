@@ -15,6 +15,7 @@
 
 @implementation HPAttachment
 
+@dynamic cd_mode;
 @dynamic createdAt;
 @dynamic type;
 @dynamic note;
@@ -94,6 +95,32 @@
 + (instancetype)insertNewObjectIntoContext:(NSManagedObjectContext *)context
 {
     return [NSEntityDescription insertNewObjectForEntityForName:[self entityName] inManagedObjectContext:context];
+}
+
+@end
+
+@implementation HPAttachment(Transient)
+
+- (HPAttachmentMode)mode
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(mode));
+    
+    [self willAccessValueForKey:key];
+    NSNumber *value = self.cd_mode;
+    [self didAccessValueForKey:key];
+    return [value integerValue];
+}
+
+- (void)setMode:(HPAttachmentMode)mode
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(mode));
+    
+    NSNumber *value = @(mode);
+    [self willChangeValueForKey:key];
+    self.cd_mode = value;
+    [self willChangeValueForKey:key];
 }
 
 @end

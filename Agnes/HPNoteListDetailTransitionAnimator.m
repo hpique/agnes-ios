@@ -234,10 +234,11 @@
         bodyCover = [self coverView:noteTextView rect:bodyRect color:[UIColor whiteColor] context:transitionContext];
     }
     
+    UIView *thumbnailView = cell.thumbnailView;
     UIView *thumbnailCover, *thumbnailViewPlaceholder = nil;
-    CGRect thumbnailRect = [self rectForText:[HPNote attachmentString] inTextView:noteTextView];
-    if (!CGRectIsNull(thumbnailRect))
+    if (!thumbnailView.hidden)
     {
+        CGRect thumbnailRect = [self rectForText:[HPNote attachmentString] inTextView:noteTextView];
         thumbnailCover = [self coverView:noteTextView rect:thumbnailRect color:[UIColor whiteColor] context:transitionContext];
         NSInteger index = [noteTextView.text rangeOfString:[HPNote attachmentString]].location;
         NSTextAttachment *attachment = [noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];

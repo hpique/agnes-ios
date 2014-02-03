@@ -9,15 +9,22 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+typedef NS_ENUM(NSInteger, HPAttachmentMode) {
+    HPAttachmentModeDefault = 0,
+    HPAttachmentModeInlineFitLineHeight = 1,
+};
+
 @class HPData, HPNote;
 
 @interface HPAttachment : NSManagedObject
 
+@property (nonatomic, retain) NSNumber * cd_mode;
 @property (nonatomic, retain) NSDate * createdAt;
 @property (nonatomic, retain) NSString * type;
 @property (nonatomic, retain) HPNote *note;
 @property (nonatomic, retain) HPData *data;
 @property (nonatomic, retain) HPData *thumbnailData;
+
 @property (nonatomic, readonly) UIImage *image;
 @property (nonatomic, readonly) UIImage *thumbnail;
 
@@ -30,5 +37,11 @@
 + (NSString *)entityName;
 
 + (instancetype)insertNewObjectIntoContext:(NSManagedObjectContext *)context;
+
+@end
+
+@interface HPAttachment (Transient)
+
+@property (nonatomic, assign) HPAttachmentMode mode;
 
 @end
