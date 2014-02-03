@@ -9,6 +9,7 @@
 #import "HPNoteImporter.h"
 #import "HPNoteManager.h"
 #import "HPAttachment.h"
+#import "HPAttachment+Template.h"
 #import "HPData.h"
 #import "MHWDirectoryWatcher.h"
 #import "SSZipArchive.h"
@@ -95,18 +96,14 @@
 
 - (NSArray*)attachmentsInText:(NSMutableString*)text directory:(NSString*)directory
 {
-    static NSString *attachmentPattern = @"\\{img(?: mode=\"(.+)\")?\\}(.+)\\{/img\\}";
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:attachmentPattern options:kNilOptions error:nil];
-    NSAssert(regex, @"Regex failed");
-    
+    NSRegularExpression *regex = [HPAttachment templateRegex];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSMutableArray *attachments = [NSMutableArray array];
     NSArray *matches = [regex matchesInString:text options:kNilOptions range:NSMakeRange(0, text.length)];
     for (NSInteger i = matches.count - 1; i >= 0; i--)
     {
         NSTextCheckingResult *result = matches[i];
-        NSRange filenameRange = [result rangeAtIndex:1];
-        NSString *filename = [text substringWithRange:filenameRange];
+        NSString *filename = [HPAttachment imageNameFromTemplate:text match:result];
         NSString *path = [directory stringByAppendingPathComponent:filename];
         NSData *data = [NSData dataWithContentsOfFile:path];
         if (!data) break;
@@ -123,7 +120,8 @@
             break;
         }
         attachment.createdAt = [attributes objectForKey:NSFileCreationDate];
-        [attachments addObject:attachment];
+        attachment.mode = [HPAttachment modeFromTemplate:text match:result];
+        [attachments insertObject:attachment atIndex:0]; // Reverse order
         BOOL removed = [fileManager removeItemAtPath:path error:&error];
         if (!removed)
         {

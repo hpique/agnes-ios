@@ -31,7 +31,7 @@
             const NSUInteger preBlockLength = self.length;
             block(matchRange, &stop);
             const NSUInteger afterBlockLength = self.length;
-            NSUInteger lengthDelta = preBlockLength - afterBlockLength;
+            NSInteger lengthDelta = afterBlockLength - preBlockLength;
             searchRange.location = matchRange.location + matchRange.length + lengthDelta;
             searchRange.length = self.length - searchRange.location;
         } else break;

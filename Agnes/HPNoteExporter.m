@@ -10,6 +10,7 @@
 #import "HPNote.h"
 #import "SSZipArchive.h"
 #import "HPAttachment.h"
+#import "HPAttachment+Template.h"
 #import "HPData.h"
 #import "NSString+hp_utils.h"
 
@@ -91,8 +92,11 @@
     NSMutableString *text = note.text.mutableCopy;
     __block NSInteger attachmentIndex = 0;
     [text hp_enumerateOccurrencesOfString:[HPNote attachmentString] options:kNilOptions usingBlock:^(NSRange matchRange, BOOL *stop) {
+        if (attachmentIndex >= note.attachments.count) return;
+        
         NSString *attachmentFilename = [NSString stringWithFormat:@"%@ attachment %ld.jpg", name, (long)attachmentIndex + 1];
-        NSString *replacement = [NSString stringWithFormat:@"{img}%@{/img}", attachmentFilename];
+        HPAttachment *attachment = note.attachments[attachmentIndex];
+        NSString *replacement = [attachment templateWithFilename:attachmentFilename];
         [text replaceCharactersInRange:matchRange withString:replacement];
         attachmentIndex++;
     }];

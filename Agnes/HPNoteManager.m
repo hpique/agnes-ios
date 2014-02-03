@@ -12,6 +12,7 @@
 #import "HPNote.h"
 #import "HPTag.h"
 #import "HPAttachment.h"
+#import "HPAttachment+Template.h"
 #import "HPData.h"
 #import "UIImage+hp_utils.h"
 #import <CoreData/CoreData.h>
@@ -102,8 +103,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (NSArray*)notesWithKeyFormat:(NSString*)keyFormat context:(NSManagedObjectContext*)context
 {
-    static NSString *attachmentPattern = @"\\{img(?: mode=\"(.+)\")?\\}(.+)\\{/img\\}";
-    NSRegularExpression *attachmentRegex = [NSRegularExpression regularExpressionWithPattern:attachmentPattern options:kNilOptions error:nil];
     NSString *text;
     long i = 1;
     NSMutableArray *texts = [NSMutableArray array];
@@ -112,6 +111,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         [texts addObject:text];
         i++;
     };
+    NSRegularExpression *attachmentRegex = [HPAttachment templateRegex];
     NSMutableArray *notes = [NSMutableArray array];
     for (i = texts.count - 1; i >= 0; i--)
     {
@@ -126,20 +126,12 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         for (NSInteger i = matches.count - 1; i >= 0; i--)
         {
             NSTextCheckingResult *result = matches[i];
-            HPAttachmentMode mode = HPAttachmentModeDefault;
-            NSRange modeRange = [result rangeAtIndex:1];
-            if (modeRange.location != NSNotFound)
-            {
-                NSString *modeString = [mutableText substringWithRange:modeRange];
-                mode = [modeString integerValue];
-            }
-            NSRange imageNameRange = [result rangeAtIndex:2];
-            NSString *imageName = [mutableText substringWithRange:imageNameRange];
+            NSString *imageName = [HPAttachment imageNameFromTemplate:mutableText match:result];
             UIImage *image = [UIImage imageNamed:imageName];
             if (!image) continue;
             HPAttachment *attachment = [HPAttachment attachmentWithImage:image context:context];
             attachment.createdAt = [NSDate date];
-            attachment.mode = mode;
+            attachment.mode = [HPAttachment modeFromTemplate:mutableText match:result];
             [attachments insertObject:attachment atIndex:0]; // Reverse order
             
             NSRange matchRange = [result rangeAtIndex:0];
