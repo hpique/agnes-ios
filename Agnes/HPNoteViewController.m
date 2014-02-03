@@ -369,10 +369,15 @@
 
 - (UIImage*)imageOfFirstAttachment
 {
-    NSInteger index = [self.noteTextView.text rangeOfString:[HPNote attachmentString]].location;
-    if (index == NSNotFound) return nil;
-    NSTextAttachment *attachment = [self.noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
-    return attachment.image;
+    __block UIImage *image = nil;
+    NSAttributedString *attributedText = self.noteTextView.attributedText;
+    [attributedText enumerateAttribute:HPNoteAttachmentAttributeName inRange:NSMakeRange(0, attributedText.length) options:kNilOptions usingBlock:^(HPAttachment *attachment, NSRange range, BOOL *stop) {
+        if (!attachment) return;
+        if (attachment.mode != HPAttachmentModeDefault) return;
+        image = attachment.image;
+        *stop = YES;
+    }];
+    return image;
 }
 
 - (void)finishEditing
@@ -465,6 +470,10 @@
 - (void)presentTextAttachment:(NSTextAttachment*)textAttachment atIndex:(NSInteger)characterIndex
 {
     UITextView *textView = self.noteTextView;
+    HPAttachment *attachment = [textView.attributedText attribute:HPNoteAttachmentAttributeName atIndex:characterIndex effectiveRange:nil];
+    // Ignore character attachments
+    if (attachment.mode != HPAttachmentModeDefault) return;
+    
     NSLayoutManager *layoutManager = textView.layoutManager;
     const NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:NSMakeRange(characterIndex, 1) actualCharacterRange:nil];
     [layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, characterIndex)];
@@ -475,9 +484,7 @@
     _presentedImageRect = rect;
     _presentedImageMedium = textAttachment.image;
     
-    HPAttachment *attachment = [textView.attributedText attribute:HPNoteAttachmentAttributeName atIndex:characterIndex effectiveRange:nil];
     UIImage *fullSizeImage = attachment.image;
-    
     HPImageViewController *viewController = [[HPImageViewController alloc] initWithImage:fullSizeImage];
     viewController.delegate = self;
     viewController.transitioningDelegate = self;

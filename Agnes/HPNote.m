@@ -309,7 +309,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     switch (mode) {
         case HPAttachmentModeDefault:
             return CGSizeMake(maxWidth, maxWidth);
-        case HPAttachmentModeInlineFitLineHeight:
+        case HPAttachmentModeCharacter:
             return CGSizeMake(maxWidth, [HPFontManager sharedManager].noteBodyLineHeight);
     }
 }

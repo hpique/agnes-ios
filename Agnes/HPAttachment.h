@@ -11,7 +11,7 @@
 
 typedef NS_ENUM(NSInteger, HPAttachmentMode) {
     HPAttachmentModeDefault = 0,
-    HPAttachmentModeInlineFitLineHeight = 1,
+    HPAttachmentModeCharacter = 1,
 };
 
 @class HPData, HPNote;
