@@ -153,6 +153,7 @@
     _viewDidAppear = YES;
     if ([self.note isNew])
     {
+        _bodyTextView.selectedRange = NSMakeRange(0, 0);
         [self.noteTextView becomeFirstResponder];
     }
     self.transitioning = NO;
@@ -330,6 +331,7 @@
     _bodyTextView.attributedText = attributedText;
     if ([self.note isNew] && _viewDidAppear)
     {
+        _bodyTextView.selectedRange = NSMakeRange(0, 0);
         [_bodyTextView becomeFirstResponder];
     }
     [[HPNoteManager sharedManager] viewNote:self.note];
