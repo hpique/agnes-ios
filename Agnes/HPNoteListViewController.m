@@ -106,11 +106,13 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         _searchBar.actionButton.frame = CGRectMake(0, 0, MAX(image.size.width, 40), _searchBar.frame.size.height);
         [_searchBar.actionButton addTarget:self action:@selector(optionsButtonItemAction:) forControlEvents:UIControlEventTouchUpInside];
     }
-    
-    self.searchDisplayController.searchBar.keyboardType = UIKeyboardTypeTwitter;
-    self.searchDisplayController.searchBar.translucent = YES;
-    self.searchDisplayController.searchBar.backgroundImage = [UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)];
-
+    {
+        UISearchBar *searchBar = self.searchDisplayController.searchBar;
+        searchBar.keyboardType = UIKeyboardTypeTwitter;
+        searchBar.translucent = YES;
+        searchBar.backgroundImage = [UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)];
+        searchBar.autocorrectionType = UITextAutocorrectionTypeNo; // HACK: See: http://stackoverflow.com/questions/8608529/autocorrect-in-uisearchbar-interferes-when-i-hit-didselectrowatindexpath
+    }
     [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
     [self updateIndexItem];
 
