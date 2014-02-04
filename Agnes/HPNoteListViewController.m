@@ -496,6 +496,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         case HPTagSortModeAlphabetical: return NSLocalizedString(@"a-z", @"");
         case HPTagSortModeModifiedAt: return NSLocalizedString(@"by date", @"");
         case HPTagSortModeViews: return NSLocalizedString(@"most viewed", @"");
+        case HPTagSortModeTag: return NSLocalizedString(@"by tag", @"");
     }
 }
 

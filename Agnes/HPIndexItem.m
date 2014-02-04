@@ -65,7 +65,7 @@
         instance.emptyTitle = NSLocalizedString(@"No notes", @"");
         instance.emptySubtitle = NSLocalizedString(@"An empty inbox is a good inbox", @"");
         instance.defaultSortMode = HPTagSortModeOrder;
-        instance.allowedSortModes = @[@(HPTagSortModeOrder), @(HPTagSortModeModifiedAt), @(HPTagSortModeAlphabetical), @(HPTagSortModeViews)];
+        instance.allowedSortModes = @[@(HPTagSortModeOrder), @(HPTagSortModeModifiedAt), @(HPTagSortModeAlphabetical), @(HPTagSortModeViews), @(HPTagSortModeTag)];
     });
     return instance;
 }
@@ -83,7 +83,7 @@
         instance.emptyTitleFont = [[HPFontManager sharedManager] fontForArchivedNoteTitle];
         instance.emptySubtitleFont = [[HPFontManager sharedManager] fontForArchivedNoteBody];
         instance.defaultSortMode = HPTagSortModeModifiedAt;
-        instance.allowedSortModes = @[@(HPTagSortModeModifiedAt), @(HPTagSortModeAlphabetical), @(HPTagSortModeViews)];
+        instance.allowedSortModes = @[@(HPTagSortModeModifiedAt), @(HPTagSortModeAlphabetical), @(HPTagSortModeViews), @(HPTagSortModeTag)];
         instance->_disableAdd = YES;
     });
     return instance;

@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+extern const NSUInteger HPTableViewMaxChangesWithoutFullReload;
+
 @interface UITableView (hp_reloadChanges)
 
 - (void)hp_reloadChangesWithPreviousData:(NSArray*)previousData

@@ -15,6 +15,7 @@ typedef NS_ENUM(NSInteger, HPTagSortMode) {
     HPTagSortModeModifiedAt,
     HPTagSortModeAlphabetical,
     HPTagSortModeViews,
+    HPTagSortModeTag
 };
 
 @interface HPTag : NSManagedObject

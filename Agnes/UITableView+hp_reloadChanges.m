@@ -8,6 +8,8 @@
 
 #import "UITableView+hp_reloadChanges.h"
 
+const NSUInteger HPTableViewMaxChangesWithoutFullReload = 20;
+
 @implementation UITableView (hp_reloadChanges)
 
 - (void)hp_reloadChangesWithPreviousData:(NSArray*)previousData
@@ -25,7 +27,8 @@
     NSMutableArray *indexPathsToInsert = [NSMutableArray array];
     NSMutableArray *indexPathsToMove = [NSMutableArray array];
     NSMutableArray *indexPathsToReload = [NSMutableArray array];
-    for (NSInteger sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++)
+    __block NSUInteger changeCount = 0;
+    for (NSInteger sectionIndex = 0; sectionIndex < sectionCount && changeCount <= HPTableViewMaxChangesWithoutFullReload; sectionIndex++)
     {
         NSArray *previousObjects = previousData[sectionIndex];
         NSArray *currentObjects = currentData[sectionIndex];
@@ -39,6 +42,7 @@
              {
                  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
                  [indexPathsToDelete addObject:indexPath];
+                 changeCount++;
              }
          }];
         
@@ -50,6 +54,7 @@
              {
                  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
                  [indexPathsToInsert addObject:indexPath];
+                 changeCount++;
              }
              else
              {
@@ -59,6 +64,7 @@
                      NSIndexPath *fromIndexPath = [NSIndexPath indexPathForRow:previousIndex inSection:sectionIndex];
                      NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
                      [indexPathsToMove addObject:@[fromIndexPath, toIndexPath]];
+                     changeCount++;
                  }
                  else
                  {
@@ -69,6 +75,7 @@
                          {
                              NSIndexPath *indexPath = [NSIndexPath indexPathForRow:previousIndex inSection:sectionIndex];
                              [indexPathsToReload addObject:indexPath];
+                             changeCount++;
                          }
                      }
                  }
@@ -76,8 +83,11 @@
          }];
     }
     
-    NSInteger changesCount = indexPathsToDelete.count + indexPathsToMove.count + indexPathsToReload.count + indexPathsToInsert.count;
-    if (changesCount > 0)
+    if (changeCount > HPTableViewMaxChangesWithoutFullReload)
+    {
+        [self reloadData];
+    }
+    else if (changeCount > 0)
     {
         [self beginUpdates];
         [self deleteRowsAtIndexPaths:indexPathsToDelete withRowAnimation:UITableViewRowAnimationAutomatic];

@@ -110,6 +110,11 @@ const NSInteger HPNoteDetailModeCount = 5;
     return trimmedText.length == 0;
 }
 
+- (NSString*)firstTagName
+{
+    return [self.tags firstObject];
+}
+
 - (NSArray*)tags
 {
     if (!_tags)

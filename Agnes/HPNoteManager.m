@@ -72,7 +72,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 + (NSArray*)sortedNotes:(NSArray*)notes mode:(HPTagSortMode)mode tag:(HPTag*)tag
 {
-    NSSortDescriptor *sortDescriptor;
     switch (mode)
     {
         case HPTagSortModeOrder:
@@ -91,10 +90,12 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             break;
         case HPTagSortModeModifiedAt:
             return [HPNoteManager sortedNotes:notes selector:@selector(modifiedAt) ascending:NO];
-            sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
             break;
         case HPTagSortModeViews:
             return [HPNoteManager sortedNotes:notes selector:@selector(views) ascending:NO];
+            break;
+        case HPTagSortModeTag:
+            return [HPNoteManager sortedNotes:notes selector:@selector(firstTagName) ascending:YES];
             break;
     }
 }

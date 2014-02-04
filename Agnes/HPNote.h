@@ -39,6 +39,7 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, retain) NSString * text;
 
 @property (nonatomic, readonly) BOOL empty;
+@property (nonatomic, readonly) NSString *firstTagName;
 @property (nonatomic, readonly) NSArray *tags;
 @property (nonatomic, readonly) BOOL isNew;
 

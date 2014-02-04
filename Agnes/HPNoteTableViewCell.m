@@ -268,6 +268,9 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
         case HPTagSortModeModifiedAt:
             detailText = self.note.modifiedAtDescription;
             break;
+        case HPTagSortModeTag:
+            detailText = self.note.firstTagName ? : NSLocalizedString(@"untagged", @"");
+            break;
         default:
             break;
     }
@@ -316,7 +319,13 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (BOOL)hasDetail
 {
-    return self.sortMode == HPTagSortModeModifiedAt;
+    switch (self.sortMode) {
+        case HPTagSortModeModifiedAt:
+        case HPTagSortModeTag:
+            return YES;
+        default:
+            return NO;
+    }
 }
 
 - (void)invalidateConstraints
