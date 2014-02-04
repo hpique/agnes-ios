@@ -15,6 +15,7 @@
 #import "HPNote+Thumbnail.h"
 #import "HPAttachment.h"
 #import "UIImage+hp_utils.h"
+#import "PSPDFTextView.h"
 
 @interface UIView(Utils)
 
@@ -97,6 +98,9 @@
     UIView *containerView = transitionContext.containerView;
     [transitionContext.containerView addSubview:toViewController.view];
     toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
+    
+    // HACK: We need to call this here to ensure that the text is properly positioned. Doing this in viewWillAppear: or viewWillLayoutSubviews conflicted with the animations.
+    [toViewController.noteTextView scrollToVisibleCaretAnimated:NO];
     
     UITableView *tableView = fromViewController.tableView;
     NSIndexPath *selectedIndexPath = fromViewController.indexPathOfSelectedNote;

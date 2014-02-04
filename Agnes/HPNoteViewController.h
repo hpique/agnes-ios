@@ -11,6 +11,7 @@
 #import "HPNoteNavigationController.h"
 @class HPNote;
 @class HPIndexItem;
+@class PSPDFTextView;
 
 @protocol HPNoteViewControllerDelegate;
 
@@ -20,7 +21,7 @@
 @property (nonatomic, weak) id<HPNoteViewControllerDelegate> delegate;
 @property (nonatomic, copy) HPIndexItem *indexItem;
 @property (nonatomic, strong) NSMutableArray *notes;
-@property (nonatomic, strong) UITextView *noteTextView;
+@property (nonatomic, strong) PSPDFTextView *noteTextView; // Needs to be PSPDFTextView for a hack in HPNoteListDetailTransitionAnimator
 @property (nonatomic, copy) NSString *search;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 

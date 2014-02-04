@@ -80,6 +80,11 @@
 @synthesize typing = _typing;
 @synthesize wantsDefaultTransition = _wantsDefaultTransition;
 
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -341,9 +346,9 @@
     NSMutableAttributedString *attributedText = [self attributedNoteText].mutableCopy;
     [HPNoteAction willDisplayNote:self.note text:attributedText view:self.noteTextView];
     _bodyTextView.attributedText = attributedText;
+    _bodyTextView.selectedRange = NSMakeRange(0, 0);
     if ([self.note isNew] && _viewDidAppear)
     {
-        _bodyTextView.selectedRange = NSMakeRange(0, 0);
         [_bodyTextView becomeFirstResponder];
     }
     [[HPNoteManager sharedManager] viewNote:self.note];
@@ -416,10 +421,12 @@
 
 - (void)changeNoteWithTransitionOptions:(UIViewAnimationOptions)options
 {
+
+    [_bodyTextView scrollToVisibleCaretAnimated:NO];
     [UIView transitionWithView:self.view duration:1.0 options:options animations:^{
         [self displayNote];
     } completion:^(BOOL finished) {
-        [_bodyTextView scrollRangeToVisible:NSMakeRange(0, 0)];
+//        [_bodyTextView scrollToVisibleCaretAnimated:NO];
     }];
 }
 

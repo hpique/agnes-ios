@@ -27,7 +27,7 @@ DEPENDENCIES:
   - MCSwipeTableViewCell (from `https://github.com/hpique/MCSwipeTableViewCell`, commit `65ceb6e599f95dec5093f8f65b8d093ed29fdd7d`)
   - MHWDirectoryWatcher (~> 0.0)
   - MMDrawerController (~> 0.5)
-  - PSPDFTextView (from `https://github.com/steipete/PSPDFTextView.git`)
+  - PSPDFTextView (from `https://github.com/hpique/PSPDFTextView.git`)
   - SSZipArchive (~> 0.3)
   - TTTAttributedLabel (from `https://github.com/hpique/TTTAttributedLabel.git`)
 
@@ -38,7 +38,7 @@ EXTERNAL SOURCES:
     :commit: 65ceb6e599f95dec5093f8f65b8d093ed29fdd7d
     :git: https://github.com/hpique/MCSwipeTableViewCell
   PSPDFTextView:
-    :git: https://github.com/steipete/PSPDFTextView.git
+    :git: https://github.com/hpique/PSPDFTextView.git
   TTTAttributedLabel:
     :git: https://github.com/hpique/TTTAttributedLabel.git
 
