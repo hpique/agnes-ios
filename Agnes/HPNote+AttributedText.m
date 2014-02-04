@@ -148,3 +148,32 @@
 }
 
 @end
+
+@implementation NSAttributedString(HPNote)
+
+- (NSArray*)hp_attachments
+{
+    NSMutableArray *attachments = [NSMutableArray array];
+    [self enumerateAttribute:HPNoteAttachmentAttributeName inRange:NSMakeRange(0, self.length) options:kNilOptions usingBlock:^(id value, NSRange range, BOOL *stop) {
+        if (!value) return;
+        [attachments addObject:value];
+    }];
+    return attachments;
+}
+
+- (UIImage*)hp_imageOfFirstAttachment
+{
+    __block UIImage *image = nil;
+    [self enumerateAttribute:HPNoteAttachmentAttributeName inRange:NSMakeRange(0, self.length) options:kNilOptions usingBlock:^(HPAttachment *attachment, NSRange range, BOOL *stop) {
+        if (!attachment) return;
+        if (attachment.mode != HPAttachmentModeDefault) return;
+        image = attachment.image;
+        *stop = YES;
+    }];
+    return image;
+}
+
+@end
+
+
+

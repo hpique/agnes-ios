@@ -15,3 +15,11 @@
 + (NSParagraphStyle*)paragraphStyleOfAttributedText:(NSAttributedString*)attributedText paragraphRange:(NSRange)paragraphRange;
 
 @end
+
+@interface NSAttributedString(HPNote)
+
+- (NSArray*)hp_attachments;
+
+- (UIImage*)hp_imageOfFirstAttachment;
+
+@end

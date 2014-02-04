@@ -254,7 +254,8 @@
     {
         NSMutableString *mutableText = [NSMutableString stringWithString:self.noteTextView.text];
         const BOOL changed = [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
-        NSArray *attachments = [self attachments];
+        NSAttributedString *attributedText = self.noteTextView.attributedText;
+        NSArray *attachments = [attributedText hp_attachments];
         [[HPNoteManager sharedManager] editNote:self.note text:mutableText attachments:attachments];
         if (changed)
         {
@@ -326,17 +327,6 @@
     return [self.note attributedTextForWidth:width];
 }
 
-- (NSArray*)attachments
-{
-    NSAttributedString *attributedText = self.noteTextView.attributedText;
-    NSMutableArray *attachments = [NSMutableArray array];
-    [attributedText enumerateAttribute:HPNoteAttachmentAttributeName inRange:NSMakeRange(0, attributedText.length) options:kNilOptions usingBlock:^(id value, NSRange range, BOOL *stop) {
-        if (!value) return;
-        [attachments addObject:value];
-    }];
-    return attachments;
-}
-
 - (void)autosave
 {
     [self saveNote:NO];
@@ -387,19 +377,6 @@
             break;
     }
     _detailLabel.text = text;
-}
-
-- (UIImage*)imageOfFirstAttachment
-{
-    __block UIImage *image = nil;
-    NSAttributedString *attributedText = self.noteTextView.attributedText;
-    [attributedText enumerateAttribute:HPNoteAttachmentAttributeName inRange:NSMakeRange(0, attributedText.length) options:kNilOptions usingBlock:^(HPAttachment *attachment, NSRange range, BOOL *stop) {
-        if (!attachment) return;
-        if (attachment.mode != HPAttachmentModeDefault) return;
-        image = attachment.image;
-        *stop = YES;
-    }];
-    return image;
 }
 
 - (void)finishEditing
@@ -640,7 +617,8 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 {
     HPNoteActivityItemSource *activityItem = [[HPNoteActivityItemSource alloc] initWithNote:self.note];
     NSMutableArray *items = [NSMutableArray arrayWithObject:activityItem];
-    UIImage *attachmentImage = [self imageOfFirstAttachment];
+    NSAttributedString *attributedText = self.noteTextView.attributedText;
+    UIImage *attachmentImage = [attributedText hp_imageOfFirstAttachment];
     if (attachmentImage) [items addObject:attachmentImage];
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
     [self presentViewController:activityViewController animated:YES completion:nil];
@@ -942,7 +920,8 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     if (!phoneNumber) phoneNumber = [self valueInLinkWithScheme:@"tel"];
     if (!image)
     {
-        image = [self imageOfFirstAttachment];
+        NSAttributedString *attributedText = self.noteTextView.attributedText;
+        image = [attributedText hp_imageOfFirstAttachment];
     }
     [super addContactWithEmail:email phoneNumber:phoneNumber image:image];
 }
