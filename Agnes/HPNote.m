@@ -319,7 +319,7 @@ const NSInteger HPNoteDetailModeCount = 5;
         NSString *text = [self.text stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
         NSString *trimmedText = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         _title = [trimmedText componentsSeparatedByString:@"\n"][0];
-        if (_title.length == 0)
+        if (_title.length == 0 && self.attachments.count > 0)
         {
             _title = NSLocalizedString(@"Untitled note", @"");
         }
