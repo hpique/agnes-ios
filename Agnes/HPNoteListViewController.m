@@ -501,6 +501,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (NSArray*)notesWithSearchString:(NSString*)searchString archived:(BOOL)archived
 {
+    if (searchString.length < 2) return @[];
+    
     // TODO: Move to HPNoteManager
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ contains[cd] %@ && SELF.%@ == %d",
                               NSStringFromSelector(@selector(text)),
