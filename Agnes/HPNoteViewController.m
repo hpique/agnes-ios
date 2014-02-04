@@ -23,6 +23,7 @@
 #import "HPImageViewController.h"
 #import "HPImageZoomAnimationController.h"
 #import "NSString+hp_utils.h"
+#import "HPNoFirstResponderActionSheet.h"
 
 @interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate>
 
@@ -152,6 +153,14 @@ static NSTimeInterval _typingSpeed = 1;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    // Restore status bar from presented view controllers such as UIImagePickerController
+    [UIApplication sharedApplication].statusBarHidden = [HPPreferencesManager sharedManager].statusBarHidden;
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -647,7 +656,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)attachmentBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    _attachmentActionSheet = [[UIActionSheet alloc] init];
+    _attachmentActionSheet = [[HPNoFirstResponderActionSheet alloc] init];
     _attachmentActionSheet.delegate = self;
     _attachmentActionSheetCameraIndex = -1;
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
@@ -963,10 +972,6 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     
     [self dismissViewControllerAnimated:YES completion:^{}];
     
-    { // Restore status bar
-        [UIApplication sharedApplication].statusBarHidden = [HPPreferencesManager sharedManager].statusBarHidden;
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    }
     self.noteTextView.attributedText = [self attributedNoteText];
     self.textChanged = YES;
 }
