@@ -728,7 +728,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     location.y -= textView.textContainerInset.top;
     
     NSUInteger characterIndex;
-    CGFloat fraction = 0; // When an attachment is the only character the fraction tells us if the location is outside the image
+    CGFloat fraction = 0; // When an attachment or url are the last elements, the fraction tells us if the location is outside the image
     characterIndex = [layoutManager characterIndexForPoint:location inTextContainer:textView.textContainer fractionOfDistanceBetweenInsertionPoints:&fraction];
     
     if (characterIndex >= textView.textStorage.length)
@@ -746,12 +746,13 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     }
     
     NSURL *url = [textView.attributedText attribute:NSLinkAttributeName atIndex:characterIndex effectiveRange:&range];
-    if (url)
+    if (url && fraction < 1)
     {
         [self handleURL:url];
         return;
     }
 
+    characterIndex = MIN(characterIndex + round(fraction), textView.text.length); // In case fraction > 1, although it doesn't appear it can be
     [textView setSelectedRange:NSMakeRange(characterIndex, 0)];
     [textView becomeFirstResponder];
 }
