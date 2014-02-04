@@ -68,6 +68,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     BOOL _ignoreNotesDidChangeNotification;
     BOOL _visible;
     NSMutableSet *_pendingUpdatedNotes;
+    
+    NSTimer *_restoreTitleTimer;
 }
 
 @synthesize indexPathOfSelectedNote = _indexPathOfSelectedNote;
@@ -76,6 +78,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)dealloc
 {
+    [_restoreTitleTimer invalidate];
     [self stopObserving];
 }
 
@@ -274,7 +277,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _sortMode = [values[index] intValue];
     self.indexItem.sortMode = _sortMode;
     [self updateNotes:YES /* animated */ reloadNotes:[NSSet set]];
-    [self updateSortMode:NO /* animated */];
+    [self updateSortMode:YES /* animated */];
 }
 
 #pragma mark - Private
@@ -351,6 +354,18 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         [_notesTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self updateEmptyView:YES];
     }];
+}
+
+- (void)restoreNavigationBarTitle
+{
+    CATransition *animation = [CATransition animation];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    animation.type = kCATransitionFade;
+    animation.duration = 0.2;
+    [_titleView.layer addAnimation:animation forKey:nil];
+    
+    _titleLabel.text = self.title;
+    _sortModeLabel.text = nil;
 }
 
 - (void)stopObserving
@@ -456,6 +471,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)updateSortMode:(BOOL)animated
 {
+    [_restoreTitleTimer invalidate];
     NSString *criteriaDescription = [self descriptionForSortMode:_sortMode];
     if (animated)
     {
@@ -471,12 +487,25 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         [_titleView.layer addAnimation:animation forKey:nil];
         
     }
-    _sortModeLabel.text = criteriaDescription;
+    
+    BOOL landscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
+    if (landscape)
+    {
+        _titleLabel.text = criteriaDescription;
+        _sortModeLabel.text = @"";
+        
+    }
+    else
+    {
+        _titleLabel.text = self.title;
+        _sortModeLabel.text = criteriaDescription;
+    }
     
     const HPTagSortMode sortMode = _sortMode;
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
         [cell setSortMode:sortMode animated:animated];
     }];
+    _restoreTitleTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(restoreNavigationBarTitle) userInfo:nil repeats:NO];
 }
 
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
@@ -492,7 +521,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     if (!_userChangedSortMode) return @"";
     switch (criteria)
     {
-        case HPTagSortModeOrder: return NSLocalizedString(@"custom", @"");
+        case HPTagSortModeOrder: return NSLocalizedString(@"manual order", @"");
         case HPTagSortModeAlphabetical: return NSLocalizedString(@"a-z", @"");
         case HPTagSortModeModifiedAt: return NSLocalizedString(@"by date", @"");
         case HPTagSortModeViews: return NSLocalizedString(@"most viewed", @"");
