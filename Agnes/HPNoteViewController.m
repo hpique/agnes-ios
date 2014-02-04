@@ -161,14 +161,6 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    // Restore status bar from presented view controllers such as UIImagePickerController
-    [UIApplication sharedApplication].statusBarHidden = [HPPreferencesManager sharedManager].statusBarHidden;
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-}
-
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];

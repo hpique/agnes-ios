@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HPAgnesViewController.h"
 
-@interface HPIndexViewController : UITableViewController
+@interface HPIndexViewController : HPAgnesViewController
 
 @end

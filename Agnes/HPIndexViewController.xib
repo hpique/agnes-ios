@@ -6,6 +6,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HPIndexViewController">
             <connections>
+                <outlet property="tableView" destination="4" id="Ebl-BL-La5"/>
                 <outlet property="view" destination="4" id="5"/>
             </connections>
         </placeholder>

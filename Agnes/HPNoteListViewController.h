@@ -8,10 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import "HPNoteNavigationController.h"
+#import "HPAgnesViewController.h"
 @class HPIndexItem;
 @class HPNote;
 
-@interface HPNoteListViewController : UIViewController<HPNoteTransitionViewController>
+@interface HPNoteListViewController : HPAgnesViewController<HPNoteTransitionViewController>
 
 @property (nonatomic, strong) HPIndexItem *indexItem;
 @property (nonatomic, readonly) UITableView *tableView;

@@ -22,6 +22,8 @@
 
 @interface HPIndexViewController ()
 
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+
 @end
 
 static NSString *HPIndexCellIdentifier = @"Cell";
@@ -30,14 +32,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSMutableArray *_items;
 }
 
-- (id)initWithStyle:(UITableViewStyle)style
-{
-    self = [super initWithStyle:style];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
+@synthesize tableView = _tableView;
 
 - (void)dealloc
 {

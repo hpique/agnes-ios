@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HPAgnesViewController.h"
 
-@interface HPDataActionViewController : UIViewController<UIActionSheetDelegate>
+@interface HPDataActionViewController : HPAgnesViewController<UIActionSheetDelegate>
 
 - (void)addContactWithEmail:(NSString*)email phoneNumber:(NSString*)phoneNumber image:(UIImage*)image;
 

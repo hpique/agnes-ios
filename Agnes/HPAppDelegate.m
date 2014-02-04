@@ -36,7 +36,7 @@
     }
         
     [UIApplication sharedApplication].statusBarHidden = preferences.statusBarHidden;
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
     [UINavigationBar appearance].barTintColor = preferences.barTintColor;
     [UINavigationBar appearance].tintColor = [UIColor whiteColor];
     [UINavigationBar appearance].titleTextAttributes = @{ NSForegroundColorAttributeName : [UIColor whiteColor]};
