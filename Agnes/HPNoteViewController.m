@@ -322,8 +322,10 @@
 
 - (NSAttributedString*)attributedNoteText
 {
-    const UIEdgeInsets insets = _bodyTextView.textContainerInset;
-    const CGFloat width = _bodyTextView.bounds.size.width - insets.left - insets.right - _bodyTextView.textContainer.lineFragmentPadding * 2;
+    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait]; // Portrait has the smallest margins
+    const CGSize screenSize = [UIScreen mainScreen].bounds.size;
+    const CGFloat minLength = MIN(screenSize.width, screenSize.height);
+    const CGFloat width = minLength - sideMargin * 2;
     return [self.note attributedTextForWidth:width];
 }
 
