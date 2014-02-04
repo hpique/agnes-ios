@@ -56,11 +56,13 @@
 {
     if (_needsUpdate)
     {
+        [_backingStore beginEditing];
         _needsUpdate = NO;
         [self addLinks];
         [self styleParagraphs];
         [self highlightTags:self.editedRange];
         [self highlightSearch]; // TODO: Title is not highligted
+        [_backingStore endEditing];
     }
     [super processEditing];
 }
