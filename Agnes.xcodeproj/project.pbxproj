@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3980E9A5F51A4472B7514BF4 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9553C6822D1E4B5082F74644 /* libPods.a */; };
+		8704D60718A109EB00C8977E /* HPAgnesUIMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 8704D60618A109EB00C8977E /* HPAgnesUIMetrics.m */; };
 		870B5AEE18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m in Sources */ = {isa = PBXBuildFile; fileRef = 870B5AED18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m */; };
 		870B5AF118903BE4009A11AB /* HPFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 870B5AF018903BE4009A11AB /* HPFontManager.m */; };
 		871429A71892E84400DA588F /* HPIndexItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429A61892E84400DA588F /* HPIndexItemTableViewCell.m */; };
@@ -97,6 +98,8 @@
 
 /* Begin PBXFileReference section */
 		09E94F643D944B4DAEA256D1 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
+		8704D60518A109EB00C8977E /* HPAgnesUIMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAgnesUIMetrics.h; sourceTree = "<group>"; };
+		8704D60618A109EB00C8977E /* HPAgnesUIMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAgnesUIMetrics.m; sourceTree = "<group>"; };
 		870B5AEC18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteListDetailTransitionAnimator.h; sourceTree = "<group>"; };
 		870B5AED18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListDetailTransitionAnimator.m; sourceTree = "<group>"; };
 		870B5AEF18903BE4009A11AB /* HPFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPFontManager.h; sourceTree = "<group>"; };
@@ -454,6 +457,8 @@
 				8740FAE0188A8B79004CF099 /* Index */,
 				8740FAE1188A8B87004CF099 /* List */,
 				8740FAE2188A8BA2004CF099 /* Note */,
+				8704D60518A109EB00C8977E /* HPAgnesUIMetrics.h */,
+				8704D60618A109EB00C8977E /* HPAgnesUIMetrics.m */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -687,6 +692,7 @@
 				87AA3CF7189C13E100FBEAAF /* HPImageViewController.m in Sources */,
 				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
 				87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */,
+				8704D60718A109EB00C8977E /* HPAgnesUIMetrics.m in Sources */,
 				87142A001896CFC900DA588F /* HPNoteImporter.m in Sources */,
 				873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */,
 				87E37F07188E4CD4000333EA /* HPKeyboardButton.m in Sources */,

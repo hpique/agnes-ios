@@ -13,6 +13,7 @@
 #import "HPPreferencesManager.h"
 #import "NSString+hp_utils.h"
 #import "UIColor+hp_utils.h"
+#import "HPAgnesUIMetrics.h"
 
 NSInteger const HPNoteTableViewCellLabelMaxLength = 150;
 CGFloat const HPNoteTableViewCellMargin = 10;
@@ -96,8 +97,21 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 #pragma mark - UIView
 
+- (void)layoutSubviews
+{
+    [self setNeedsUpdateConstraints];
+    [super layoutSubviews];
+}
+
 - (void)updateConstraints
 {
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:orientation];
+    self.titleLabelLeadingSpaceConstraint.constant = sideMargin;
+    self.titleLabelTrailingSpaceConstraint.constant = sideMargin;
+    self.detailLabelTrailingSpaceConstraint.constant = sideMargin;
+    self.thumbnailViewTrailingSpaceConstraint.constant = sideMargin;
+
     const BOOL hasThumbnail = self.note.hasThumbnail;
     if (hasThumbnail)
     {
@@ -226,7 +240,8 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 + (CGFloat)widthForTitleOfNote:(HPNote*)note cellWidth:(CGFloat)cellWidth
 {
-    CGFloat width = cellWidth - HPNoteTableViewCellMarginLeft * 2;
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    CGFloat width = cellWidth - [HPAgnesUIMetrics sideMarginForInterfaceOrientation:orientation] * 2;
     if (note.hasThumbnail)
     {
         width -= HPNoteTableViewCellThumbnailMarginLeadgin + [self thumbnailViewWidth];

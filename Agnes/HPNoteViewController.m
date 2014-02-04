@@ -24,6 +24,7 @@
 #import "HPImageZoomAnimationController.h"
 #import "NSString+hp_utils.h"
 #import "HPNoFirstResponderActionSheet.h"
+#import "HPAgnesUIMetrics.h"
 
 @interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate>
 
@@ -32,8 +33,6 @@
 @property (nonatomic, readonly) BOOL typing;
 
 @end
-
-static NSTimeInterval _typingSpeed = 1;
 
 @implementation HPNoteViewController {
     PSPDFTextView *_bodyTextView;
@@ -126,7 +125,9 @@ static NSTimeInterval _typingSpeed = 1;
         _bodyTextView.backgroundColor = [UIColor clearColor];
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _bodyTextView.font = [HPFontManager sharedManager].fontForNoteBody;
-        _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, 10, 20 + self.toolbar.frame.size.height, 10);
+
+        CGFloat sideInset = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation] - _bodyTextView.textContainer.lineFragmentPadding;
+        _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, sideInset, 20 + self.toolbar.frame.size.height, sideInset);
         _bodyTextView.delegate = self;
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
         [self.view addSubview:_bodyTextView];
@@ -208,6 +209,8 @@ static NSTimeInterval _typingSpeed = 1;
 {
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     [self layoutToolbar];
+    CGFloat sideInset = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation] - _bodyTextView.textContainer.lineFragmentPadding;
+    _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, sideInset, 20 + self.toolbar.frame.size.height, sideInset);
 }
 
 #pragma mark - Class

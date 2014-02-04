@@ -40,6 +40,7 @@ extern NSUInteger const HPNoteTableViewCellLineCount;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *thumbnailViewWidthConstraint;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *thumbnailViewHeightConstraint;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *titleLabelLeadingSpaceConstraint;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *thumbnailViewTrailingSpaceConstraint;
 
 - (void)displayNote;
 

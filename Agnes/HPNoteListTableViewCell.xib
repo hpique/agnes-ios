@@ -61,6 +61,7 @@
                 <outlet property="detailLabelTrailingSpaceConstraint" destination="8Tb-0y-3aD" id="f7a-wO-Jpd"/>
                 <outlet property="thumbnailView" destination="1IA-1B-tUh" id="t32-gK-HZy"/>
                 <outlet property="thumbnailViewHeightConstraint" destination="aRM-lo-aKE" id="D2n-6b-GnI"/>
+                <outlet property="thumbnailViewTrailingSpaceConstraint" destination="3n9-uB-Gkr" id="e7w-qF-FRC"/>
                 <outlet property="thumbnailViewWidthConstraint" destination="9ms-Ap-VVA" id="uPJ-0Y-H3I"/>
                 <outlet property="titleLabel" destination="gGa-AF-l4x" id="TRd-md-m9v"/>
                 <outlet property="titleLabelLeadingSpaceConstraint" destination="OFA-4M-G06" id="Lf4-tR-xrC"/>
