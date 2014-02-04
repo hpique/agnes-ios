@@ -122,7 +122,7 @@
         
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
         _bodyTextView.opaque = NO;
-        _bodyTextView.backgroundColor = [UIColor clearColor];
+        _bodyTextView.backgroundColor = [UIColor clearColor]; // Allows nicer transition for text elements when returning to the list
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _bodyTextView.font = [HPFontManager sharedManager].fontForNoteBody;
 
