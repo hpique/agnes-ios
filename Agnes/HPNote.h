@@ -36,6 +36,7 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, retain) NSDate * modifiedAt;
 @property (nonatomic, retain) NSDictionary *tagOrder;
 @property (nonatomic, retain) NSString * text;
+@property (nonatomic, retain) NSString * uuid;
 
 @property (nonatomic, readonly) BOOL empty;
 @property (nonatomic, readonly) NSString *firstTagName;

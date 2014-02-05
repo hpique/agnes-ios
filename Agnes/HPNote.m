@@ -31,6 +31,7 @@ const NSInteger HPNoteDetailModeCount = 5;
 @dynamic modifiedAt;
 @dynamic tagOrder;
 @dynamic text;
+@dynamic uuid;
 
 @synthesize tags = _tags;
 

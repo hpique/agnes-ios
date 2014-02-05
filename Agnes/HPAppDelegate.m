@@ -59,8 +59,7 @@
     self.window.tintColor = preferences.tintColor;
     
     [self.managedObjectContext save:nil];
-    
-    [self reloadRootViewController];
+    [self loadRootViewController];
     [self.window makeKeyAndVisible];
     
     [[HPNoteImporter sharedImporter] startWatching];
@@ -88,7 +87,7 @@
 
 #pragma mark - Private
 
-- (void)reloadRootViewController
+- (void)loadRootViewController
 {
     UINavigationController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
     HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
@@ -102,7 +101,10 @@
 
 - (void)storesDidChangeNotification:(NSNotification*)notification
 {
-    [self reloadRootViewController];
+    if (self.window.rootViewController)
+    {
+        [self loadRootViewController];
+    }
 }
 
 @end

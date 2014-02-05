@@ -7,6 +7,7 @@
 //
 
 #import "HPNoteManager.h"
+#import "HPPreferencesManager.h"
 #import "HPNote.h"
 #import "HPAppDelegate.h"
 #import "HPNote.h"
@@ -14,7 +15,6 @@
 #import "HPAttachment.h"
 #import "HPAttachment+Template.h"
 #import "HPData.h"
-#import "HPTagManager.h"
 #import "UIImage+hp_utils.h"
 #import <CoreData/CoreData.h>
 
@@ -45,9 +45,30 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)addTutorialNotes
 {
     [self performNoUndoModelUpdateAndSave:YES block:^{
-        [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
+        NSArray *notes = [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
+        NSMutableArray *tutorialUUIDs = [NSMutableArray array];
+        for (HPNote *note in notes)
+        {
+            [tutorialUUIDs addObject:note.uuid];
+        }
+        [HPPreferencesManager sharedManager].tutorialUUIDs = tutorialUUIDs;
     }];
-    [[HPTagManager sharedManager] removeDuplicates];
+}
+
+- (void)removeTutorialNotes
+{
+    NSArray *tutorialUUIDs = [HPPreferencesManager sharedManager].tutorialUUIDs;
+    for (NSString *uuid in tutorialUUIDs)
+    {
+        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", NSStringFromSelector(@selector(uuid)), uuid];
+        fetchRequest.predicate = predicate;
+        NSError *error;
+        NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
+        NSAssert(result, @"Fetch %@ failed with error %@", fetchRequest, error);
+        HPNote *note = [result firstObject];
+        [self.context deleteObject:note];
+    }
 }
 
 - (NSArray*)systemNotes
@@ -120,6 +141,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     {
         NSMutableString *mutableText = [texts[i] mutableCopy];
         HPNote *note = [HPNote insertNewObjectIntoContext:context];
+        note.uuid = [[NSUUID UUID] UUIDString];
         note.createdAt = [NSDate date];
         note.modifiedAt = note.createdAt;
         note.detailMode = HPNoteDetailModeNone;
@@ -195,6 +217,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 {
     NSEntityDescription *entityDescription = [NSEntityDescription entityForName:[self entityName] inManagedObjectContext:self.context];
     HPNote *note = [[HPNote alloc] initWithEntity:entityDescription insertIntoManagedObjectContext:nil];
+    note.uuid = [[NSUUID UUID] UUIDString];
     note.createdAt = [NSDate date];
     note.modifiedAt = note.createdAt;
     note.detailMode = HPNoteDetailModeModifiedAt;

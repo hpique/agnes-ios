@@ -9,6 +9,7 @@
 #import "HPAgnesCoreDataStack.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
+#import "HPPreferencesManager.h"
 
 NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreDataStackStoresDidChangeNotification";
 
@@ -22,6 +23,7 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
 
 @implementation HPAgnesCoreDataStack {
     NSManagedObjectModel *_managedObjectModel;
+    NSInteger _noteCountBeforeStoreChange;
 }
 
 - (id)init
@@ -30,7 +32,7 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
     {
         _storeURL = [[self applicationHiddenDocumentsDirectory] URLByAppendingPathComponent:@"Agnes.sqlite"];
         _modelURL = [[NSBundle mainBundle] URLForResource:@"Agnes" withExtension:@"momd"];
- //       [self removeStore];
+        // [self removeStore];
         [self setupManagedObjectContext];
     }
     return self;
@@ -169,14 +171,15 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
 {
     NSLog(@"%s", __PRETTY_FUNCTION__);
     NSLog(@"%@", notification.userInfo.description);
-    
+
     NSManagedObjectContext *moc = self.managedObjectContext;
     [moc performBlockAndWait:^{
+        _noteCountBeforeStoreChange = [HPNoteManager sharedManager].objects.count;
         NSError *error = nil;
-        if ([moc hasChanges]) {
+        if ([moc hasChanges])
+        {
             [moc save:&error];
         }
-        
         [moc reset];
     }];
     
@@ -195,6 +198,12 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
     if (transitionType == NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted)
     {
         [self.managedObjectContext performBlockAndWait:^{
+            HPNoteManager *noteManager = [HPNoteManager sharedManager];
+            NSInteger noteCountAfterStoreChange = noteManager.objects.count;
+            if (noteCountAfterStoreChange != _noteCountBeforeStoreChange)
+            {
+                [noteManager removeTutorialNotes];
+            }
             [[HPTagManager sharedManager] removeDuplicates];
         }];
     }

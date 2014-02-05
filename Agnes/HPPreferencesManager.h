@@ -32,6 +32,7 @@ extern NSString* const HPPreferencesManagerDidChangePreferencesNotification;
 @property (nonatomic, assign) BOOL statusBarHidden;
 @property (nonatomic, strong) UIColor *tintColor;
 @property (nonatomic, readonly) NSString *tintColorName;
+@property (nonatomic, strong) NSArray *tutorialUUIDs;
 @property (nonatomic, assign) NSTimeInterval typingSpeed;
 
 @end

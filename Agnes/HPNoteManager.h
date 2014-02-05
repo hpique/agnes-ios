@@ -21,6 +21,8 @@
 
 + (NSArray*)sortedNotes:(NSArray*)notes mode:(HPTagSortMode)mode tag:(HPTag*)tag;
 
+- (void)removeTutorialNotes;
+
 @end
 
 @interface HPNoteManager(Actions)
