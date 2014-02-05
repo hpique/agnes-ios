@@ -37,6 +37,7 @@
 @implementation HPNoteViewController {
     PSPDFTextView *_bodyTextView;
     UIEdgeInsets _originalBodyTextViewInset;
+    UIEdgeInsets _originalTextContainerInset;
     HPBaseTextStorage *_bodyTextStorage;
     UITapGestureRecognizer *_textTapGestureRecognizer;
 
@@ -79,11 +80,6 @@
 @synthesize transitioning = _transitioning;
 @synthesize typing = _typing;
 @synthesize wantsDefaultTransition = _wantsDefaultTransition;
-
-- (void)viewDidLayoutSubviews
-{
-    [super viewDidLayoutSubviews];
-}
 
 - (void)viewDidLoad
 {
@@ -577,6 +573,10 @@
         if (!self.navigationController.navigationBarHidden)
         {
             [self.navigationController setNavigationBarHidden:YES animated:animated];
+            if (![UIApplication sharedApplication].statusBarHidden)
+            {
+                [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
+            }
         }
         static CGFloat stopMultiplier = 5;
         static CGFloat minimumDelay = 2;
@@ -585,6 +585,10 @@
     }
     else if (self.navigationController.navigationBarHidden)
     {
+        if ([UIApplication sharedApplication].statusBarHidden && ![HPPreferencesManager sharedManager].statusBarHidden)
+        {
+            [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
+        }
         _typingPreviousDate = nil;
         [self.navigationController setNavigationBarHidden:NO animated:animated];
         [_bodyTextView scrollToVisibleCaretAnimated:NO];
@@ -878,26 +882,28 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     _detailLabel.font = manager.fontForDetail;
 }
 
-- (void)keyboardWillShowNotification:(NSNotification*)notification
+- (void)keyboardWillShowNotification:(NSNotification *)notification
 {
     NSDictionary *info = notification.userInfo;
     CGRect keyboardRect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     CGSize keyboardSize = [self.view convertRect:keyboardRect fromView:nil].size; // Account for orientation changes
     
     _originalBodyTextViewInset = _bodyTextView.contentInset;
-    UIEdgeInsets insets = UIEdgeInsetsMake(_originalBodyTextViewInset.top, _originalBodyTextViewInset.left, keyboardSize.height, _originalBodyTextViewInset.right);
-
+    UIEdgeInsets contentInset = UIEdgeInsetsMake(_originalBodyTextViewInset.top, _originalBodyTextViewInset.left, keyboardSize.height, _originalBodyTextViewInset.right);
+    _originalTextContainerInset = _bodyTextView.textContainerInset;
+    UIEdgeInsets textContainerInset = UIEdgeInsetsMake(_originalTextContainerInset.top, _originalTextContainerInset.left, 0, _originalTextContainerInset.right);
     NSTimeInterval duration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     UIViewAnimationOptions animationCurve = [[info objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
     [UIView animateWithDuration:duration delay:0 options:animationCurve animations:^{
-        _bodyTextView.contentInset = insets;
-        _bodyTextView.scrollIndicatorInsets = insets;
+        _bodyTextView.contentInset = contentInset;
+        _bodyTextView.scrollIndicatorInsets = contentInset;
+        _bodyTextView.textContainerInset = textContainerInset;
         [_bodyTextView scrollToVisibleCaretAnimated:NO];
     } completion:^(BOOL finished) {
     }];
 }
 
-- (void)keyboardWillHideNotification:(NSNotification*)notification
+- (void)keyboardWillHideNotification:(NSNotification *)notification
 {
     if (self.transitioning) return; // Do not animate keyboard when animating to list
     
@@ -906,10 +912,11 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     NSDictionary *info = notification.userInfo;
     NSTimeInterval duration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     UIViewAnimationOptions animationCurve = [[info objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
+    UIEdgeInsets contentInset = UIEdgeInsetsMake(_bodyTextView.contentInset.top, _originalBodyTextViewInset.left, _originalBodyTextViewInset.bottom, _originalBodyTextViewInset.right);
     [UIView animateWithDuration:duration delay:0 options:animationCurve animations:^{
-        _bodyTextView.contentInset = _originalBodyTextViewInset;
-        _bodyTextView.scrollIndicatorInsets = UIEdgeInsetsZero;
-        [_bodyTextView scrollToVisibleCaretAnimated:NO];
+        _bodyTextView.contentInset = contentInset;
+        _bodyTextView.scrollIndicatorInsets = contentInset;
+        _bodyTextView.textContainerInset = _originalTextContainerInset;
     } completion:^(BOOL finished) {
     }];
 }
