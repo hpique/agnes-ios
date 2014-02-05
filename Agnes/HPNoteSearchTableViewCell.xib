@@ -46,8 +46,8 @@
                 </subviews>
                 <constraints>
                     <constraint firstItem="kLe-Lw-9x3" firstAttribute="leading" secondItem="hog-Ka-v1c" secondAttribute="leading" constant="15" id="4Ef-Gl-jw3"/>
-                    <constraint firstItem="1sz-Bo-Ep3" firstAttribute="trailing" secondItem="Tpj-zK-DUf" secondAttribute="trailing" id="Bcb-Mo-W3q"/>
                     <constraint firstAttribute="trailing" secondItem="kLe-Lw-9x3" secondAttribute="trailing" constant="15" id="DsE-QP-OAk"/>
+                    <constraint firstItem="1sz-Bo-Ep3" firstAttribute="trailing" secondItem="kLe-Lw-9x3" secondAttribute="trailing" id="KTU-ZG-PZG"/>
                     <constraint firstAttribute="trailing" secondItem="Tpj-zK-DUf" secondAttribute="trailing" constant="15" id="QgA-U6-1jY"/>
                     <constraint firstItem="1sz-Bo-Ep3" firstAttribute="top" secondItem="kLe-Lw-9x3" secondAttribute="bottom" id="Ssv-an-FSO"/>
                     <constraint firstItem="kLe-Lw-9x3" firstAttribute="centerY" secondItem="Tpj-zK-DUf" secondAttribute="centerY" id="YEJ-xa-zA9"/>
@@ -59,7 +59,7 @@
             </tableViewCellContentView>
             <connections>
                 <outlet property="bodyLabel" destination="1sz-Bo-Ep3" id="d1M-l1-KRt"/>
-                <outlet property="bodyLabelRightConstraint" destination="Bcb-Mo-W3q" id="usF-7V-OWc"/>
+                <outlet property="bodyLabelAlignRightToTitleConstraint" destination="KTU-ZG-PZG" id="sIQ-zh-EbX"/>
                 <outlet property="detailLabel" destination="Tpj-zK-DUf" id="8Tx-yb-o5o"/>
                 <outlet property="detailLabelTrailingSpaceConstraint" destination="QgA-U6-1jY" id="YfI-VO-1kc"/>
                 <outlet property="thumbnailView" destination="aTd-uL-zWK" id="Rck-OS-ZNQ"/>

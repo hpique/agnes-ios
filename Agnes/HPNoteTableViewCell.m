@@ -23,6 +23,15 @@ NSUInteger const HPNoteTableViewCellLineCount = 3;
 
 static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
+
+typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
+{
+    HPNoteTableViewCellLayoutModeDefault,
+    HPNoteTableViewCellLayoutModeDetail,
+    HPNoteTableViewCellLayoutModeThumbnail,
+    HPNoteTableViewCellLayoutModeDetailThumbnail,
+};
+
 @interface HPNoteTableViewCell()
 
 @property (nonatomic, readonly) BOOL hasDetail;
@@ -34,9 +43,13 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     NSArray *_titleDetailConstraints;
     NSArray *_thumbnailDetailConstraints;
     NSArray *_thumbnailTitleConstraints;
-    NSLayoutConstraint *_bodyLabelAlignRightWithTitleLabelConstraint;
+    NSLayoutConstraint *_bodyLabelAlignRightToDetailConstraint;
     NSTimer *_modifiedAtSortModeTimer;
+    HPNoteTableViewCellLayoutMode _layoutMode;
 }
+
+@synthesize tagName = _tagName;
+@synthesize detailMode = _detailMode;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
@@ -63,16 +76,14 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
         _titleDetailConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-8-[_detailLabel]" options:kNilOptions metrics:nil views:viewsDictionary];
         _thumbnailDetailConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_detailLabel]-8-[_thumbnailView]" options:kNilOptions metrics:nil views:viewsDictionary];
         _thumbnailTitleConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-8-[_thumbnailView]" options:kNilOptions metrics:nil views:viewsDictionary];
-        _bodyLabelAlignRightWithTitleLabelConstraint = [NSLayoutConstraint constraintWithItem:_bodyLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:_titleLabel attribute:NSLayoutAttributeRight multiplier:1 constant:0];
+        _bodyLabelAlignRightToDetailConstraint = [NSLayoutConstraint constraintWithItem:_bodyLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:_detailLabel attribute:NSLayoutAttributeRight multiplier:1 constant:0];
         
         self.thumbnailViewWidthConstraint.constant = [HPNoteTableViewCell thumbnailViewWidth];
         self.thumbnailViewHeightConstraint.constant = self.thumbnailViewWidthConstraint.constant;
-        
-        [self invalidateConstraints];
     }
-
+    
+    _layoutMode = HPNoteTableViewCellLayoutModeDefault;
     self.thumbnailView.layer.borderWidth = 1;
-
     [self applyPreferences];
 }
 
@@ -99,47 +110,34 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 - (void)layoutSubviews
 {
-    [self setNeedsUpdateConstraints];
+    [self setMargins];
     [super layoutSubviews];
 }
 
 - (void)updateConstraints
 {
-    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-    CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:orientation];
-    self.titleLabelLeadingSpaceConstraint.constant = sideMargin;
-    self.titleLabelTrailingSpaceConstraint.constant = sideMargin;
-    self.detailLabelTrailingSpaceConstraint.constant = sideMargin;
-    self.thumbnailViewTrailingSpaceConstraint.constant = sideMargin;
+    [self setMargins];
 
-    const BOOL hasThumbnail = self.note.hasThumbnail;
-    if (hasThumbnail)
-    {
-        if (self.hasDetail)
-        {
-            [self.contentView addConstraints:_titleDetailConstraints];
-            [self.contentView addConstraint:self.bodyLabelRightConstraint];
-            [self.contentView addConstraints:_thumbnailDetailConstraints];
-        }
-        else
-        {
-            [self.contentView addConstraint:_bodyLabelAlignRightWithTitleLabelConstraint];
-            [self.contentView addConstraints:_thumbnailTitleConstraints];
-        }
-    }
-    else
-    {
-        if (self.hasDetail)
-        {
+    switch (_layoutMode) {
+        case HPNoteTableViewCellLayoutModeDefault:
+            [self.contentView addConstraint:self.titleLabelTrailingSpaceConstraint];
+            [self.contentView addConstraint:self.bodyLabelAlignRightToTitleConstraint];
+            break;
+        case HPNoteTableViewCellLayoutModeDetail:
             [self.contentView addConstraint:self.detailLabelTrailingSpaceConstraint];
             [self.contentView addConstraints:_titleDetailConstraints];
-            [self.contentView addConstraint:self.bodyLabelRightConstraint];
-        }
-        else
-        {
-            [self.contentView addConstraint:self.titleLabelTrailingSpaceConstraint];
-            [self.contentView addConstraint:_bodyLabelAlignRightWithTitleLabelConstraint];
-        }
+            [self.contentView addConstraint:_bodyLabelAlignRightToDetailConstraint];
+            break;
+        case HPNoteTableViewCellLayoutModeThumbnail:
+            [self.contentView addConstraint:self.bodyLabelAlignRightToTitleConstraint];
+            [self.contentView addConstraints:_thumbnailTitleConstraints];
+            break;
+        case HPNoteTableViewCellLayoutModeDetailThumbnail:
+            [self.contentView addConstraints:_titleDetailConstraints];
+            [self.contentView addConstraint:_bodyLabelAlignRightToDetailConstraint];
+            [self.contentView addConstraints:_thumbnailDetailConstraints];
+        default:
+            break;
     }
     [super updateConstraints];
 }
@@ -151,16 +149,18 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [super prepareForReuse];
     [self removeNoteObserver];
     self.thumbnailView.image = nil;
-    self.tagName = nil;
+    _tagName = nil;
     self.thumbnailView.hidden = YES;
 }
 
 #pragma mark - Public
 
-- (void)setNote:(HPNote *)note
+- (void)setNote:(HPNote *)note ofTagNamed:(NSString*)tagName detailMode:(HPTagSortMode)detailMode
 {
     [self removeNoteObserver];
     _note = note;
+    _tagName = [tagName copy];
+    self.detailMode = detailMode;
     
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(cd_archived)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(cd_views)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
@@ -172,18 +172,10 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [self displayNote];
 }
 
-- (void)setSortMode:(HPTagSortMode)sortMode animated:(BOOL)animated
+- (void)setDetailMode:(HPTagSortMode)detailMode animated:(BOOL)animated
 {
-    [_modifiedAtSortModeTimer invalidate];
-    _sortMode = sortMode;
-    [self displayDetail];
-    if (_sortMode == HPTagSortModeModifiedAt)
-    {
-        static NSTimeInterval updateDetailDelay = 30;
-        _modifiedAtSortModeTimer = [NSTimer scheduledTimerWithTimeInterval:updateDetailDelay target:self selector:@selector(displayDetail) userInfo:nil repeats:YES];
-    }
-    [self invalidateConstraints];
-    [self setNeedsUpdateConstraints];
+    self.detailMode = detailMode;
+    [self invalidateConstraintsIfNeeded];
     if (animated)
     {
         [UIView animateWithDuration:0.2 animations:^{
@@ -258,12 +250,21 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     self.thumbnailView.layer.borderColor = borderColor.CGColor;
 }
 
+- (HPNoteTableViewCellLayoutMode)calculateLayoutMode
+{
+    if (self.note.hasThumbnail)
+    {
+        return self.hasDetail ? HPNoteTableViewCellLayoutModeDetailThumbnail : HPNoteTableViewCellLayoutModeThumbnail;
+    }
+    return self.hasDetail ? HPNoteTableViewCellLayoutModeDetail : HPNoteTableViewCellLayoutModeDefault;
+}
+
 - (void)displayDetail
 {
     self.detailLabel.hidden = !self.hasDetail;
     self.detailLabel.font = [[HPFontManager sharedManager] fontForDetail];
     NSString *detailText = @"";
-    switch (self.sortMode)
+    switch (self.detailMode)
     {
         case HPTagSortModeModifiedAt:
             detailText = self.note.modifiedAtDescription;
@@ -312,14 +313,12 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     }
 
     [self displayDetail];
-
-    [self invalidateConstraints];
-    [self setNeedsUpdateConstraints];
+    [self invalidateConstraintsIfNeeded];
 }
 
 - (BOOL)hasDetail
 {
-    switch (self.sortMode) {
+    switch (self.detailMode) {
         case HPTagSortModeModifiedAt:
         case HPTagSortModeTag:
             return YES;
@@ -335,8 +334,19 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [self.contentView removeConstraints:_titleDetailConstraints];
     [self.contentView removeConstraints:_thumbnailTitleConstraints];
     [self.contentView removeConstraints:_thumbnailDetailConstraints];
-    [self.contentView removeConstraint:_bodyLabelAlignRightWithTitleLabelConstraint];
-    [self.contentView removeConstraint:self.bodyLabelRightConstraint];
+    [self.contentView removeConstraint:self.bodyLabelAlignRightToTitleConstraint];
+    [self.contentView removeConstraint:_bodyLabelAlignRightToDetailConstraint];
+}
+
+- (void)invalidateConstraintsIfNeeded
+{
+    const HPNoteTableViewCellLayoutMode previousLayoutMode = _layoutMode;
+    _layoutMode = [self calculateLayoutMode];
+    if (_layoutMode != previousLayoutMode)
+    {
+        [self invalidateConstraints];
+        [self setNeedsUpdateConstraints];
+    }
 }
 
 - (void)removeNoteObserver
@@ -349,6 +359,37 @@ static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(modifiedAt))];
     [_note removeObserver:self forKeyPath:NSStringFromSelector(@selector(isDeleted))];
     _removedObserver = YES;
+}
+
+- (void)setDetailMode:(HPTagSortMode)detailMode
+{
+    [_modifiedAtSortModeTimer invalidate];
+    _detailMode = detailMode;
+    [self displayDetail];
+    if (_detailMode == HPTagSortModeModifiedAt)
+    {
+        static NSTimeInterval updateDetailDelay = 30;
+        _modifiedAtSortModeTimer = [NSTimer scheduledTimerWithTimeInterval:updateDetailDelay target:self selector:@selector(displayDetail) userInfo:nil repeats:YES];
+    }
+}
+
+- (void)setMargins
+{
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:orientation];
+    self.titleLabelLeadingSpaceConstraint.constant = sideMargin;
+    switch (_layoutMode) {
+        case HPNoteTableViewCellLayoutModeDefault:
+            self.titleLabelTrailingSpaceConstraint.constant = sideMargin;
+            break;
+        case HPNoteTableViewCellLayoutModeDetail:
+            self.detailLabelTrailingSpaceConstraint.constant = sideMargin;
+            break;
+        case HPNoteTableViewCellLayoutModeThumbnail:
+        case HPNoteTableViewCellLayoutModeDetailThumbnail:
+            self.thumbnailViewTrailingSpaceConstraint.constant = sideMargin;
+            break;
+    }
 }
 
 #pragma mark - Actions

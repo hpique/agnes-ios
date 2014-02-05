@@ -59,7 +59,7 @@
             </tableViewCellContentView>
             <connections>
                 <outlet property="bodyLabel" destination="3G4-fU-BQj" id="BVX-Oe-mMZ"/>
-                <outlet property="bodyLabelRightConstraint" destination="dlr-ea-DHv" id="yz4-tK-4uc"/>
+                <outlet property="bodyLabelAlignRightToTitleConstraint" destination="dlr-ea-DHv" id="mbk-lD-usK"/>
                 <outlet property="detailLabel" destination="dvo-eq-00b" id="N4Z-8U-IfJ"/>
                 <outlet property="detailLabelTrailingSpaceConstraint" destination="8Tb-0y-3aD" id="f7a-wO-Jpd"/>
                 <outlet property="thumbnailView" destination="1IA-1B-tUh" id="t32-gK-HZy"/>

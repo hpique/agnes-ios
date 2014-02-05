@@ -509,7 +509,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     const HPTagSortMode sortMode = _sortMode;
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
-        [cell setSortMode:sortMode animated:animated];
+        [cell setDetailMode:sortMode animated:animated];
     }];
     _restoreTitleTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(restoreNavigationBarTitle) userInfo:nil repeats:NO];
 }
@@ -637,21 +637,17 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     HPNoteTableViewCell *cell = (HPNoteTableViewCell*)[tableView dequeueReusableCellWithIdentifier:HPNoteListTableViewCellReuseIdentifier forIndexPath:indexPath];
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    cell.tagName = self.indexItem.tag.name;
     
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
+    HPNote *note = [objects objectAtIndex:indexPath.row];
     if (self.searchDisplayController.searchResultsTableView == tableView)
     {
         HPNoteSearchTableViewCell *searchCell = (HPNoteSearchTableViewCell*)cell;
-        HPNote *note = [objects objectAtIndex:indexPath.row];
         searchCell.searchText = _searchString;
-        searchCell.note = note;
     }
     else
     {
         HPNoteListTableViewCell *noteCell = (HPNoteListTableViewCell*)cell;
-        HPNote *note = [objects objectAtIndex:indexPath.row];
-        noteCell.note = note;
         noteCell.separatorInset = UIEdgeInsetsZero;
 
         noteCell.shouldAnimateIcons = NO;
@@ -673,7 +669,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
             }];
         }
     }
-    [cell setSortMode:_sortMode animated:NO];
+    [cell setNote:note ofTagNamed:self.indexItem.tag.name detailMode:_sortMode];
     return cell;
 }
 

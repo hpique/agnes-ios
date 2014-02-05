@@ -17,30 +17,26 @@ extern NSUInteger const HPNoteTableViewCellLineCount;
 
 @interface HPNoteTableViewCell : MCSwipeTableViewCell
 
-@property (nonatomic, strong) HPNote *note;
-
-@property (nonatomic, readonly) HPTagSortMode sortMode;
-
-- (void)setSortMode:(HPTagSortMode)sortMode animated:(BOOL)animated;
-
-/** Needs to be set before the note. */
-@property (nonatomic, copy) NSString *tagName;
-
 @property (weak, nonatomic) IBOutlet UILabel *bodyLabel;
-
 @property (weak, nonatomic) IBOutlet UILabel *detailLabel;
-
 @property (weak, nonatomic) IBOutlet UIImageView *thumbnailView;
-
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *titleLabelTrailingSpaceConstraint;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *detailLabelTrailingSpaceConstraint;
-@property (strong, nonatomic) IBOutlet NSLayoutConstraint *bodyLabelRightConstraint;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *bodyLabelAlignRightToTitleConstraint;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *thumbnailViewWidthConstraint;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *thumbnailViewHeightConstraint;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *titleLabelLeadingSpaceConstraint;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *thumbnailViewTrailingSpaceConstraint;
+
+@property (nonatomic, readonly) HPNote *note;
+@property (nonatomic, readonly) HPTagSortMode detailMode;
+@property (nonatomic, readonly) NSString *tagName;
+
+- (void)setNote:(HPNote *)note ofTagNamed:(NSString*)tagName detailMode:(HPTagSortMode)detailMode;
+
+- (void)setDetailMode:(HPTagSortMode)detailMode animated:(BOOL)animated;
 
 - (void)displayNote;
 
