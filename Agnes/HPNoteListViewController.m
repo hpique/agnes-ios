@@ -573,19 +573,54 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void)setSwipeActionTo:(HPNoteListTableViewCell*)cell imageNamed:(NSString*)imageName color:(UIColor*)color state:(MCSwipeTableViewCellState)state block:(void (^)(HPNoteListTableViewCell *cell))block
 {
+    static NSCache *imageCache = nil;
+    if (!imageCache)
+    {
+        imageCache = [[NSCache alloc] init];
+    }
+    UIImage *image = [imageCache objectForKey:imageName];
+    if (!image)
+    {
+        image = [UIImage imageNamed:imageName];
+        image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [imageCache setObject:image forKey:imageName];
+    }
     cell.firstTrigger = 1.0f/3.0f;
+    UIImageView *swipeView = nil;
     switch (state) {
         case MCSwipeTableViewCellState1:
         case MCSwipeTableViewCellState2:
         default:
+        {
+            if (!cell.view1)
+            {
+                UIImageView *imageView = [[UIImageView alloc] init];
+                imageView.tintColor = [UIColor whiteColor];
+                cell.view1 = imageView;
+            }
+            swipeView = (UIImageView*)cell.view1;
             cell.defaultColor1 = color;
+        }
             break;
         case MCSwipeTableViewCellState3:
         case MCSwipeTableViewCellState4:
+        {
+            if (!cell.view3)
+            {
+                UIImageView *imageView = [[UIImageView alloc] init];
+                imageView.tintColor = [UIColor whiteColor];
+                cell.view3 = imageView;
+            }
+            swipeView = (UIImageView*)cell.view3;
             cell.defaultColor3 = color;
+        }
             break;
     }
-    UIImageView *swipeView = [self swipeViewWithImageNamed:imageName];
+    if (swipeView.image != image)
+    {
+        swipeView.image = image;
+    }
+    swipeView.frame = CGRectMake(0, 0, image.size.width, image.size.height);
     CGFloat offsetDirection = state == MCSwipeTableViewCellState1 || state == MCSwipeTableViewCellState2 ? 1 : -1;
     swipeView.center = CGPointMake(swipeView.center.x + 20 * offsetDirection, swipeView.center.y);
     __weak id weakCell = cell;
@@ -597,15 +632,6 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
              block(weakCell);
          });
      }];
-}
-
-- (UIImageView*)swipeViewWithImageNamed:(NSString*)imageName
-{
-    UIImage *image = [UIImage imageNamed:imageName];
-    image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-    imageView.tintColor = [UIColor whiteColor];
-    return imageView;
 }
 
 - (NSArray*)tableView:(UITableView*)tableView notesInSection:(NSInteger)section
@@ -649,7 +675,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     {
         HPNoteListTableViewCell *noteCell = (HPNoteListTableViewCell*)cell;
         noteCell.separatorInset = UIEdgeInsetsZero;
-
+        noteCell.reuseSwipeViews = YES;
         noteCell.shouldAnimateIcons = NO;
         
         __weak id weakSelf = self;

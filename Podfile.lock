@@ -24,7 +24,7 @@ DEPENDENCIES:
   - ColorUtils (~> 1.1)
   - HPReorderTableView (from `https://github.com/hpique/HPReorderTableView.git`)
   - iOS7Colors (~> 2.0.0)
-  - MCSwipeTableViewCell (from `https://github.com/hpique/MCSwipeTableViewCell`, commit `65ceb6e599f95dec5093f8f65b8d093ed29fdd7d`)
+  - MCSwipeTableViewCell (from `https://github.com/hpique/MCSwipeTableViewCell.git`)
   - MHWDirectoryWatcher (~> 0.0)
   - MMDrawerController (~> 0.5)
   - PSPDFTextView (from `https://github.com/hpique/PSPDFTextView.git`, branch `agnes`)
@@ -35,8 +35,7 @@ EXTERNAL SOURCES:
   HPReorderTableView:
     :git: https://github.com/hpique/HPReorderTableView.git
   MCSwipeTableViewCell:
-    :commit: 65ceb6e599f95dec5093f8f65b8d093ed29fdd7d
-    :git: https://github.com/hpique/MCSwipeTableViewCell
+    :git: https://github.com/hpique/MCSwipeTableViewCell.git
   PSPDFTextView:
     :branch: agnes
     :git: https://github.com/hpique/PSPDFTextView.git
