@@ -27,8 +27,7 @@ extern const NSInteger HPNoteDetailModeCount;
 @interface HPNote : NSManagedObject
 
 @property (nonatomic, retain) NSNumber * cd_archived;
-
-@property (nonatomic, retain) NSOrderedSet *attachments;
+@property (nonatomic, retain) NSSet *cd_attachments; // iCloud doesn't support ordered relationships
 @property (nonatomic, retain) NSNumber * cd_detailMode;
 @property (nonatomic, retain) NSNumber * cd_views;
 @property (nonatomic, retain) NSNumber * cd_inboxOrder;
@@ -64,6 +63,8 @@ extern const NSInteger HPNoteDetailModeCount;
 + (NSString*)attachmentString;
 
 - (void)replaceAttachments:(NSArray*)attachments;
+
+@property (nonatomic, readonly) NSArray *attachments;
 
 @end
 

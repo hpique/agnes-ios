@@ -16,6 +16,7 @@
 @implementation HPAttachment
 
 @dynamic cd_mode;
+@dynamic cd_order;
 @dynamic createdAt;
 @dynamic type;
 @dynamic note;
@@ -120,6 +121,28 @@
     NSNumber *value = @(mode);
     [self willChangeValueForKey:key];
     self.cd_mode = value;
+    [self willChangeValueForKey:key];
+}
+
+- (NSInteger)order
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(order));
+    
+    [self willAccessValueForKey:key];
+    NSNumber *value = self.cd_order;
+    [self didAccessValueForKey:key];
+    return [value integerValue];
+}
+
+- (void)setOrder:(NSInteger)order
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(order));
+    
+    NSNumber *value = @(order);
+    [self willChangeValueForKey:key];
+    self.cd_order = value;
     [self willChangeValueForKey:key];
 }
 

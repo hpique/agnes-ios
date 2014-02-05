@@ -19,6 +19,7 @@ typedef NS_ENUM(NSInteger, HPAttachmentMode) {
 @interface HPAttachment : NSManagedObject
 
 @property (nonatomic, retain) NSNumber * cd_mode;
+@property (nonatomic, retain) NSNumber * cd_order;
 @property (nonatomic, retain) NSDate * createdAt;
 @property (nonatomic, retain) NSString * type;
 @property (nonatomic, retain) HPNote *note;
@@ -43,5 +44,6 @@ typedef NS_ENUM(NSInteger, HPAttachmentMode) {
 @interface HPAttachment (Transient)
 
 @property (nonatomic, assign) HPAttachmentMode mode;
+@property (nonatomic, assign) NSInteger order;
 
 @end

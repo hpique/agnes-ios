@@ -21,7 +21,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     NSString *_title;
 }
 
-@dynamic attachments;
+@dynamic cd_attachments;
 @dynamic cd_archived;
 @dynamic cd_detailMode;
 @dynamic cd_inboxOrder;
@@ -207,6 +207,18 @@ const NSInteger HPNoteDetailModeCount = 5;
 
 @implementation HPNote(Attachments)
 
+- (NSArray*)attachments
+{
+    static NSArray *sortDescriptors = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(order)) ascending:YES];
+        sortDescriptors = @[sortDescriptor];
+    });
+    NSArray *attachments = [self.cd_attachments sortedArrayUsingDescriptors:sortDescriptors];
+    return attachments;
+}
+
 + (NSString*)attachmentString
 {
     static NSString *attachmentString = nil;
@@ -232,27 +244,27 @@ const NSInteger HPNoteDetailModeCount = 5;
     {
         [mutableText insertString:@"\n" atIndex:index];
     }
-    NSMutableOrderedSet *mutableAttachments = self.attachments.mutableCopy;
+    NSMutableArray *mutableAttachments = self.attachments.mutableCopy;
     [mutableAttachments insertObject:attachment atIndex:attachmentIndex];
-    [self replaceAttachments:mutableAttachments.array];
+    [self replaceAttachments:mutableAttachments];
     self.text = mutableText;
 }
 
 - (void)replaceAttachments:(NSArray*)attachments
 {
-    NSMutableOrderedSet *removedAttachments = self.attachments.mutableCopy;
+    NSMutableSet *removedAttachments = self.cd_attachments.mutableCopy;
     [removedAttachments minusSet:[NSSet setWithArray:attachments]];
     for (HPAttachment *attachment in removedAttachments)
     {
         [self.managedObjectContext deleteObject:attachment];
     }
-    for (HPAttachment *attachment in attachments)
-    { // TODO: Why is this necessary? See: http://stackoverflow.com/questions/21518469/core-data-does-not-save-one-to-many-relationship
-        attachment.note = self;
-    }
+    [attachments enumerateObjectsUsingBlock:^(HPAttachment *attachment, NSUInteger idx, BOOL *stop) {
+        attachment.order = idx;
+        attachment.note = self; // TODO: Why is this necessary? See: http://stackoverflow.com/questions/21518469/core-data-does-not-save-one-to-many-relationship
+    }];
     
     // Core Data NSOrderedSet generated accesors are broken as of iOS 7. See: http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors
-    NSMutableOrderedSet *mutableAttachments = [self mutableOrderedSetValueForKey:NSStringFromSelector(@selector(attachments))];
+    NSMutableSet *mutableAttachments = [self mutableSetValueForKey:NSStringFromSelector(@selector(cd_attachments))];
     [mutableAttachments removeAllObjects];
     [mutableAttachments addObjectsFromArray:attachments];
 }
