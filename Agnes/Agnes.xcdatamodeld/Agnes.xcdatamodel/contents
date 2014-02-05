@@ -38,6 +38,7 @@
         <attribute name="name" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="order" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="sortMode" optional="YES" transient="YES" syncable="YES"/>
+        <attribute name="uuid" attributeType="String" syncable="YES"/>
         <relationship name="cd_notes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Note" inverseName="cd_tags" inverseEntity="Note" syncable="YES"/>
     </entity>
     <elements>

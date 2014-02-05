@@ -10,6 +10,7 @@
 #import "HPTag.h"
 #import "HPAppDelegate.h"
 #import "NDTrie.h"
+#import "HPNote.h"
 #import <CoreData/CoreData.h>
 
 @implementation HPTagManager
@@ -22,6 +23,7 @@
 - (void)didInsertObject:(HPTag*)object
 {
     [_tagTrie addString:object.name];
+    [self removeDuplicatesOfTag:object];
 }
 
 - (void)didDeleteObject:(HPTag*)object
@@ -51,16 +53,12 @@
 
 - (HPTag*)tagWithName:(NSString*)name
 {
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", NSStringFromSelector(@selector(name)), name];
-    fetchRequest.predicate = predicate;
-    NSError *error;
-    NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
-    NSAssert(result, @"Fetch %@ failed with error %@", fetchRequest, error);
+    NSArray *result = [self tagsWithName:name];
     HPTag *tag = [result firstObject];
     if (!tag)
     {
         tag = [HPTag insertNewObjectIntoContext:self.context];
+        tag.uuid = [[NSUUID UUID] UUIDString];
         tag.name = name;
         tag.order = NSIntegerMax;
     }
@@ -89,6 +87,41 @@
             tag.order = count - idx;
         }];
     }];
+}
+
+#pragma mark - Private
+
+- (void)removeDuplicatesOfTag:(HPTag*)tag
+{
+    NSArray *tags = [self tagsWithName:tag.name];
+    if (tags.count < 2) return;
+    
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(uuid)) ascending:YES];
+    NSArray *sortedTags = [tags sortedArrayUsingDescriptors:@[sortDescriptor]];
+    HPTag *mainTag = [sortedTags firstObject];
+    NSArray *duplicateTags = [sortedTags subarrayWithRange:NSMakeRange(1, sortedTags.count - 1)];
+    for (HPTag *duplicate in duplicateTags)
+    {
+        for (HPNote *note in duplicate.cd_notes)
+        {
+            [duplicate removeCd_notesObject:note];
+            [note removeCd_tagsObject:duplicate];
+            [mainTag addCd_notesObject:note];
+            [note addCd_tagsObject:mainTag];
+        }
+        [self.context deleteObject:duplicate];
+    }
+}
+
+- (NSArray*)tagsWithName:(NSString*)name
+{
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", NSStringFromSelector(@selector(name)), name];
+    fetchRequest.predicate = predicate;
+    NSError *error;
+    NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
+    NSAssert(result, @"Fetch %@ failed with error %@", fetchRequest, error);
+    return result;
 }
 
 @end

@@ -69,6 +69,7 @@
 		87AA3D1718A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3D1618A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m */; };
 		87AD2F83188E900B0065EEBA /* HPNoteListTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */; };
 		87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 87D02E18188ECBA600273DEC /* HPNoteExporter.m */; };
+		87DA062918A27ADC00762E12 /* HPAgnesCoreDataStack.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DA062818A27ADC00762E12 /* HPAgnesCoreDataStack.m */; };
 		87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E3D188B57C0000333EA /* HPPreferencesManager.m */; };
 		87E37E41188B6158000333EA /* HPNoteAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E40188B6158000333EA /* HPNoteAction.m */; };
 		87E37E88188BDFA6000333EA /* Agnes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */; };
@@ -202,6 +203,9 @@
 		87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteListTableViewCell.xib; sourceTree = "<group>"; };
 		87D02E17188ECBA600273DEC /* HPNoteExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteExporter.h; sourceTree = "<group>"; };
 		87D02E18188ECBA600273DEC /* HPNoteExporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteExporter.m; sourceTree = "<group>"; };
+		87DA062618A27A6E00762E12 /* Agnes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Agnes.entitlements; sourceTree = "<group>"; };
+		87DA062718A27ADC00762E12 /* HPAgnesCoreDataStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAgnesCoreDataStack.h; sourceTree = "<group>"; };
+		87DA062818A27ADC00762E12 /* HPAgnesCoreDataStack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAgnesCoreDataStack.m; sourceTree = "<group>"; };
 		87E37E3C188B57C0000333EA /* HPPreferencesManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPPreferencesManager.h; sourceTree = "<group>"; };
 		87E37E3D188B57C0000333EA /* HPPreferencesManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPPreferencesManager.m; sourceTree = "<group>"; };
 		87E37E3F188B6158000333EA /* HPNoteAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteAction.h; sourceTree = "<group>"; };
@@ -386,6 +390,7 @@
 		8763DA3018883ACF000D9569 /* Agnes */ = {
 			isa = PBXGroup;
 			children = (
+				87DA062618A27A6E00762E12 /* Agnes.entitlements */,
 				87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */,
 				8740FAF2188B39FC004CF099 /* External */,
 				8763DA3918883ACF000D9569 /* HPAppDelegate.h */,
@@ -487,6 +492,8 @@
 				87E37EF0188CA5F5000333EA /* HPTagManager.m */,
 				87AA3D1218A0026400FBEAAF /* HPAttachmentManager.h */,
 				87AA3D1318A0026400FBEAAF /* HPAttachmentManager.m */,
+				87DA062718A27ADC00762E12 /* HPAgnesCoreDataStack.h */,
+				87DA062818A27ADC00762E12 /* HPAgnesCoreDataStack.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -572,6 +579,11 @@
 				TargetAttributes = {
 					8763DA2618883ACF000D9569 = {
 						DevelopmentTeam = 7WDCU7A2S4;
+						SystemCapabilities = {
+							com.apple.iCloud = {
+								enabled = 1;
+							};
+						};
 					};
 					8763DA4118883ACF000D9569 = {
 						TestTargetID = 8763DA2618883ACF000D9569;
@@ -667,6 +679,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				87AA3D08189F342800FBEAAF /* HPNote+Thumbnail.m in Sources */,
+				87DA062918A27ADC00762E12 /* HPAgnesCoreDataStack.m in Sources */,
 				8763DA5B18883B2B000D9569 /* HPNoteListViewController.m in Sources */,
 				8740FAF1188B2AC5004CF099 /* HPTagSuggestionsView.m in Sources */,
 				8740FAE8188AA7DB004CF099 /* HPNoteTableViewCell.m in Sources */,
@@ -851,6 +864,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = Agnes/Agnes.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -877,6 +891,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = Agnes/Agnes.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
