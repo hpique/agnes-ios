@@ -47,6 +47,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     IBOutlet UIView *_titleView;
     __weak IBOutlet UILabel *_sortModeLabel;
     __weak IBOutlet UILabel *_titleLabel;
+    UIFont *_titleLabelFont;
     
     HPTagSortMode _sortMode;
     BOOL _userChangedSortMode;
@@ -116,6 +117,9 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         searchBar.backgroundImage = [UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)];
         searchBar.autocorrectionType = UITextAutocorrectionTypeNo; // HACK: See: http://stackoverflow.com/questions/8608529/autocorrect-in-uisearchbar-interferes-when-i-hit-didselectrowatindexpath
     }
+    
+    _titleLabelFont = _titleLabel.font;
+    
     [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
     [self updateIndexItem];
 
@@ -364,6 +368,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     animation.duration = 0.2;
     [_titleView.layer addAnimation:animation forKey:nil];
     
+    _titleLabel.font = _titleLabelFont;
     _titleLabel.text = self.title;
     _sortModeLabel.text = nil;
 }
@@ -491,12 +496,13 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     BOOL landscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
     if (landscape)
     {
+        _titleLabel.font = [_titleLabelFont fontWithSize:_titleLabelFont.pointSize * 0.75];
         _titleLabel.text = criteriaDescription;
         _sortModeLabel.text = @"";
-        
     }
     else
     {
+        _titleLabel.font = _titleLabelFont;
         _titleLabel.text = self.title;
         _sortModeLabel.text = criteriaDescription;
     }
