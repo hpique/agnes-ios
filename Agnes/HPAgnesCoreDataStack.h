@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 @import CoreData;
 
+extern NSString *const HPAgnesCoreDataStackStoresDidChangeNotification;
+
 @interface HPAgnesCoreDataStack : NSObject
 
 - (id)init;

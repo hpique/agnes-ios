@@ -23,7 +23,7 @@
 - (void)didInsertObject:(HPTag*)object
 {
     [_tagTrie addString:object.name];
-    [self removeDuplicatesOfTag:object];
+    [self removeDuplicatesOfTagNamed:object.name];
 }
 
 - (void)didDeleteObject:(HPTag*)object
@@ -78,6 +78,13 @@
     return [_tagTrie everyObjectForKeyWithPrefix:prefix];
 }
 
+- (void)removeDuplicates
+{
+    [self removeDuplicatesWithUniquePropertyNamed:NSStringFromSelector(@selector(name)) removeBlock:^(id uniqueValue) {
+        [self removeDuplicatesOfTagNamed:uniqueValue];
+    }];
+}
+
 - (void)reorderTagsWithNames:(NSArray*)names
 {
     [self performModelUpdateWithName:NSLocalizedString(@"Reorder", @"") save:NO block:^{
@@ -91,9 +98,9 @@
 
 #pragma mark - Private
 
-- (void)removeDuplicatesOfTag:(HPTag*)tag
+- (void)removeDuplicatesOfTagNamed:(NSString*)tagName
 {
-    NSArray *tags = [self tagsWithName:tag.name];
+    NSArray *tags = [self tagsWithName:tagName];
     if (tags.count < 2) return;
     
     NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(uuid)) ascending:YES];
@@ -102,7 +109,8 @@
     NSArray *duplicateTags = [sortedTags subarrayWithRange:NSMakeRange(1, sortedTags.count - 1)];
     for (HPTag *duplicate in duplicateTags)
     {
-        for (HPNote *note in duplicate.cd_notes)
+        NSSet *notes = [NSSet setWithSet:duplicate.cd_notes];
+        for (HPNote *note in notes)
         {
             [duplicate removeCd_notesObject:note];
             [note removeCd_tagsObject:duplicate];

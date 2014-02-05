@@ -23,6 +23,8 @@ extern NSString* const HPEntityManagerObjectsDidChangeNotification;
 
 - (void)performNoUndoModelUpdateAndSave:(BOOL)save block:(void (^)())block;
 
+- (void)removeDuplicatesWithUniquePropertyNamed:(NSString*)propertyName removeBlock:(void (^)(id uniqueValue))removeBlock;
+
 @end
 
 @interface HPEntityManager (Subclassing)

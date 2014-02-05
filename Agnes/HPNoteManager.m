@@ -14,6 +14,7 @@
 #import "HPAttachment.h"
 #import "HPAttachment+Template.h"
 #import "HPData.h"
+#import "HPTagManager.h"
 #import "UIImage+hp_utils.h"
 #import <CoreData/CoreData.h>
 
@@ -46,6 +47,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     [self performNoUndoModelUpdateAndSave:YES block:^{
         [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
     }];
+    [[HPTagManager sharedManager] removeDuplicates];
 }
 
 - (NSArray*)systemNotes

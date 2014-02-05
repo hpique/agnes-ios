@@ -7,7 +7,10 @@
 //
 
 #import "HPAgnesCoreDataStack.h"
+#import "HPNoteManager.h"
+#import "HPTagManager.h"
 
+NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreDataStackStoresDidChangeNotification";
 
 @interface HPAgnesCoreDataStack()
 
@@ -27,7 +30,7 @@
     {
         _storeURL = [[self applicationHiddenDocumentsDirectory] URLByAppendingPathComponent:@"Agnes.sqlite"];
         _modelURL = [[NSBundle mainBundle] URLForResource:@"Agnes" withExtension:@"momd"];
-//        [self removeStore];
+ //       [self removeStore];
         [self setupManagedObjectContext];
     }
     return self;
@@ -187,8 +190,17 @@
 {
     NSLog(@"%s", __PRETTY_FUNCTION__);
     NSLog(@"%@", notification.userInfo.description);
-    // here is when you can refresh your UI and
-    // load new data from the new store
+    NSDictionary *userInfo = notification.userInfo;
+    NSPersistentStoreUbiquitousTransitionType transitionType = [[userInfo objectForKey:NSPersistentStoreUbiquitousTransitionTypeKey] integerValue];
+    if (transitionType == NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted)
+    {
+        [self.managedObjectContext performBlockAndWait:^{
+            [[HPTagManager sharedManager] removeDuplicates];
+        }];
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:HPAgnesCoreDataStackStoresDidChangeNotification object:self];
+    });
 }
 
 

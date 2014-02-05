@@ -20,4 +20,6 @@
 
 - (void)reorderTagsWithNames:(NSArray*)names;
 
+- (void)removeDuplicates;
+
 @end

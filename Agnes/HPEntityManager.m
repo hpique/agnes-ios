@@ -46,6 +46,39 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     NSAssert([_context save:&error], @"Context save failed with error %@", error.localizedDescription);
 }
 
+- (void)removeDuplicatesWithUniquePropertyNamed:(NSString*)propertyName removeBlock:(void (^)(id uniqueValue))removeBlock
+{
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
+    fetchRequest.includesPendingChanges = NO;
+    
+    NSExpression *countExpr = [NSExpression expressionWithFormat:@"count:(%K)", propertyName];
+    NSExpressionDescription *countExprDesc = [[NSExpressionDescription alloc] init];
+    static NSString *countKey = @"count";
+    countExprDesc.name = countKey;
+    countExprDesc.expression = countExpr;
+    countExprDesc.expressionResultType = NSInteger64AttributeType;
+    
+    NSManagedObjectModel *model = self.context.persistentStoreCoordinator.managedObjectModel;
+    NSEntityDescription *entity = [[model entitiesByName] objectForKey:[self entityName]];
+    NSAttributeDescription *uniqueAttribute = [[entity propertiesByName] objectForKey:propertyName];
+    fetchRequest.propertiesToFetch = @[uniqueAttribute, countExprDesc];
+    fetchRequest.propertiesToGroupBy = @[uniqueAttribute];
+    fetchRequest.resultType = NSDictionaryResultType;
+    
+    NSError *error = nil;
+    NSArray *countDictionaries = [self.context executeFetchRequest:fetchRequest error:&error];
+    NSAssert(countDictionaries, @"Fetch %@ failed with error %@", fetchRequest, error);
+    for (NSDictionary *dictionary in countDictionaries)
+    {
+        id uniqueValue = [dictionary objectForKey:uniqueAttribute.name];
+        NSInteger count = [[dictionary objectForKey:countKey] integerValue];
+        if (count > 1)
+        {
+            removeBlock(uniqueValue);
+        }
+    }
+}
+
 #pragma mark - Private
 
 - (void)objectsDidChangeNotification:(NSNotification*)notification

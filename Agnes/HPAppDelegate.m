@@ -24,12 +24,19 @@
 
 @synthesize managedObjectContext = _managedObjectContext;
 
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPAgnesCoreDataStackStoresDidChangeNotification object:_coreDataStack];
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {   
     [TestFlight takeOff:@"21242682-ac9b-48b1-a8d6-a3ba293c3135"];
     
     {
         _coreDataStack = [[HPAgnesCoreDataStack alloc] init];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(storesDidChangeNotification:) name:HPAgnesCoreDataStackStoresDidChangeNotification object:_coreDataStack];
     }
     
     HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
@@ -53,12 +60,7 @@
     
     [self.managedObjectContext save:nil];
     
-    UINavigationController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
-    HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
-    HPAgnesNavigationController *leftNavigationController = [[HPAgnesNavigationController alloc] initWithRootViewController:indexViewController];
-    HPRootViewController *drawerController = [[HPRootViewController alloc] initWithCenterViewController:centerController leftDrawerViewController:leftNavigationController];
-    centerController.delegate = drawerController;
-    self.window.rootViewController = drawerController;
+    [self reloadRootViewController];
     [self.window makeKeyAndVisible];
     
     [[HPNoteImporter sharedImporter] startWatching];
@@ -82,6 +84,25 @@
 - (NSManagedObjectContext*)managedObjectContext
 {
     return _coreDataStack.managedObjectContext;
+}
+
+#pragma mark - Private
+
+- (void)reloadRootViewController
+{
+    UINavigationController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
+    HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
+    HPAgnesNavigationController *leftNavigationController = [[HPAgnesNavigationController alloc] initWithRootViewController:indexViewController];
+    HPRootViewController *drawerController = [[HPRootViewController alloc] initWithCenterViewController:centerController leftDrawerViewController:leftNavigationController];
+    centerController.delegate = drawerController;
+    self.window.rootViewController = drawerController;
+}
+
+#pragma mark - Notifications
+
+- (void)storesDidChangeNotification:(NSNotification*)notification
+{
+    [self reloadRootViewController];
 }
 
 @end
