@@ -511,6 +511,10 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
         [cell setDetailMode:sortMode animated:animated];
     }];
+    
+    CGFloat offsetY = _notesTableView.tableHeaderView.bounds.size.height - _notesTableView.contentInset.top;
+    [_notesTableView setContentOffset:CGPointMake(0, offsetY) animated:animated];
+
     _restoreTitleTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(restoreNavigationBarTitle) userInfo:nil repeats:NO];
 }
 
@@ -723,7 +727,13 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 {
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     HPNote *note = [objects objectAtIndex:indexPath.row];
-    return [HPNoteTableViewCell estimatedHeightForNote:note];
+    NSString *tagName = nil;
+    if (_notesTableView == tableView)
+    { // Search doesn't care about tags
+        HPTag *tag = self.indexItem.tag;
+        tagName = tag.name;
+    }
+    return [HPNoteTableViewCell estimatedHeightForNote:note inTagNamed:tagName];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath

@@ -21,8 +21,84 @@ CGFloat const HPNoteTableViewCellMarginLeft = 15;
 CGFloat const HPNoteTableViewCellThumbnailMarginLeadgin = 8;
 NSUInteger const HPNoteTableViewCellLineCount = 3;
 
-static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
+NSString *const HPNoteHeightCacheDefault = @"d";
 
+@interface HPNoteHeightCache : NSObject
+
+- (CGFloat)heightForNote:(HPNote*)note kind:(NSString*)kind;
+
+- (void)setHeight:(CGFloat)height forNote:(HPNote*)note kind:(NSString*)kind;
+
+@end
+
+@implementation HPNoteHeightCache {
+    NSCache *_cache;
+}
+
+- (id)init
+{
+    if (self = [super init])
+    {
+        _cache = [[NSCache alloc] init];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fontsDidChangeNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+    }
+    return self;
+}
+
+- (CGFloat)heightForNote:(HPNote*)note kind:(NSString*)kind
+{
+    NSDictionary *dictionary = [_cache objectForKey:note.uuid];
+    NSNumber *value = [dictionary objectForKey:kind];
+    return value ? [value floatValue] : 0;
+}
+
+- (void)setHeight:(CGFloat)height forNote:(HPNote*)note kind:(NSString*)kind
+{
+    NSDictionary *dictionary = [_cache objectForKey:note.uuid];
+    if (!dictionary) dictionary = [NSDictionary dictionary];
+    NSMutableDictionary *updatedDictionary = dictionary.mutableCopy;
+    [updatedDictionary setObject:@(height) forKey:kind];
+    [_cache setObject:updatedDictionary forKey:note.uuid];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+}
+
++ (HPNoteHeightCache*)sharedCache
+{
+    static HPNoteHeightCache *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[HPNoteHeightCache alloc] init];
+    });
+    return instance;
+}
+
+- (void)notesDidChangeNotification:(NSNotification*)notification
+{
+    NSDictionary *userInfo = [notification userInfo];
+    NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
+    NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
+    NSSet *invalidated = [deleted setByAddingObjectsFromSet:updated];
+    for (HPNote *note in invalidated)
+    {
+        [_cache removeObjectForKey:note.uuid];
+    }
+}
+
+- (void)fontsDidChangeNotification:(NSNotification*)notification
+{
+    [_cache removeAllObjects];
+}
+
+@end
+
+
+static void *HPNoteTableViewCellContext = &HPNoteTableViewCellContext;
 
 typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 {
@@ -188,9 +264,17 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     }
 }
 
-+ (CGFloat)estimatedHeightForNote:(HPNote*)note
++ (CGFloat)estimatedHeightForNote:(HPNote*)note inTagNamed:(NSString *)tagName
 {
-    CGFloat estimatedHeight = HPNoteTableViewCellMargin * 2;
+    CGFloat estimatedHeight = [[HPNoteHeightCache sharedCache] heightForNote:note kind:tagName ? : HPNoteHeightCacheDefault];
+    if (estimatedHeight > 0) return estimatedHeight;
+    if (tagName)
+    { // Try default height
+        estimatedHeight = [[HPNoteHeightCache sharedCache] heightForNote:note kind:HPNoteHeightCacheDefault];
+    }
+    if (estimatedHeight > 0) return estimatedHeight;
+    
+    estimatedHeight = HPNoteTableViewCellMargin * 2;
     if (note.hasThumbnail)
     {
         estimatedHeight += [self thumbnailViewWidth];
@@ -205,6 +289,10 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 
 + (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tagName:(NSString*)tagName
 {
+    CGFloat cachedHeight = [[HPNoteHeightCache sharedCache] heightForNote:note kind:tagName ? : HPNoteHeightCacheDefault];
+    if (cachedHeight > 0) return cachedHeight;
+    NSLog(@"miss");
+
     HPFontManager *fonts = [HPFontManager sharedManager];
     
     UIFont *titleFont = [fonts fontForTitleOfNote:note];
@@ -222,7 +310,9 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     CGFloat height = titleLines * titleLineHeight + bodyLines * bodyLineHeight + HPNoteTableViewCellMargin * 2;
     
     const BOOL hasThumbnail = note.hasThumbnail;
-    return hasThumbnail ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
+    height = hasThumbnail ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
+    [[HPNoteHeightCache sharedCache] setHeight:height forNote:note kind:tagName ? : HPNoteHeightCacheDefault];
+    return height;
 }
 
 + (CGFloat)thumbnailViewWidth
