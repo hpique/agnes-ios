@@ -214,8 +214,8 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 
     UIFont *bodyFont = [fonts fontForBodyOfNote:note];
     const CGFloat bodyLineHeight = fonts.noteBodyLineHeight;
-    NSString *body = [note bodyForTagWithName:tagName];
-    NSUInteger bodyLines = body.length > 0 ? [body hp_linesWithFont:bodyFont width:titleWidth lineHeight:bodyLineHeight] : 0;
+    NSString *summary = [note summaryForTagNamed:tagName];
+    NSUInteger bodyLines = summary.length > 0 ? [summary hp_linesWithFont:bodyFont width:titleWidth lineHeight:bodyLineHeight] : 0;
     const NSUInteger maximumBodyLines = HPNoteTableViewCellLineCount - titleLines;
     bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
     

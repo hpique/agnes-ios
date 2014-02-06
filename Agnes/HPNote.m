@@ -18,6 +18,7 @@ const NSInteger HPNoteDetailModeCount = 5;
 
 @implementation HPNote {
     NSString *_body;
+    NSString *_summary;
     NSString *_title;
 }
 
@@ -47,6 +48,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     [self setPrimitiveText:text];
     _title = nil;
     _body = nil;
+    _summary = nil;
     _tags = nil;
     [self updateTags];
     [self didChangeValueForKey:key];
@@ -67,6 +69,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     {
         _title = nil;
         _body = nil;
+        _summary = nil;
         _tags = nil;
     }
 }
@@ -292,17 +295,36 @@ const NSInteger HPNoteDetailModeCount = 5;
     return _body;
 }
 
-- (NSString*)bodyForTagWithName:(NSString*)tagName
+- (NSString*)summary
 {
-    NSString *body = self.body;
-    if (!tagName) return body;
-    if (body.length == 0) return body;
-    NSRange lastLineRange = [body lineRangeForRange:NSMakeRange(body.length - 1, 1)];
-    NSString *lastLine = [body substringWithRange:lastLineRange];
-    if (![lastLine isEqualToString:tagName]) return body;
-    NSString *bodyForTag = [body stringByReplacingCharactersInRange:lastLineRange withString:@""];
-    bodyForTag = [bodyForTag stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    return bodyForTag;
+    if (!self.text) return nil;
+    if (!_summary)
+    {
+        NSString *body = self.body;
+        NSMutableString *summary = [NSMutableString string];
+        __block NSInteger index = 0;
+        [body enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
+            [summary appendString:line];
+            if (index == 0) [summary appendString:@"\n"];
+            if (index == 1) *stop = YES;
+            index++;
+        }];
+        _summary = summary;
+    }
+    return _summary;
+}
+
+- (NSString*)summaryForTagNamed:(NSString*)tagName
+{
+    NSString *summary = self.body;
+    if (!tagName) return summary;
+    if (summary.length == 0) return summary;
+    NSRange lastLineRange = [summary lineRangeForRange:NSMakeRange(summary.length - 1, 1)];
+    NSString *lastLine = [summary substringWithRange:lastLineRange];
+    if (![lastLine isEqualToString:tagName]) return summary;
+    NSString *summaryForTag = [summary stringByReplacingCharactersInRange:lastLineRange withString:@""];
+    summaryForTag = [summaryForTag stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return summaryForTag;
 }
 
 - (NSString*)modifiedAtDescription

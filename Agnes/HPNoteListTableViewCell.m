@@ -44,10 +44,11 @@
     { // KVO notifies nil property changes after note is deleted
         self.titleLabel.text = nil;
     }
-    NSString *bodyForTag = [self.note bodyForTagWithName:self.tagName];
-    if (bodyForTag)
+    NSString *summaryForTag = [self.note summaryForTagNamed:self.tagName];
+    if (summaryForTag)
     {
-        [self setHighlightedText:bodyForTag inLabel:self.bodyLabel];
+        // TODO: Show the ellipsis when the summary is two lines that fit in bodyLabel (e.g., 'Line 1\nLine 2') and there's more text in the body
+        [self setHighlightedText:summaryForTag inLabel:self.bodyLabel];
     }
     else
     {

@@ -74,9 +74,10 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, readonly) NSString *body;
 @property (nonatomic, readonly) NSString *modifiedAtDescription;
 @property (nonatomic, readonly) NSString *modifiedAtLongDescription;
+@property (nonatomic, readonly) NSString *summary;
 @property (nonatomic, readonly) NSString *title;
 
-- (NSString*)bodyForTagWithName:(NSString*)tagName;
+- (NSString*)summaryForTagNamed:(NSString*)tagName;
 
 @end
 
