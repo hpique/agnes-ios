@@ -291,7 +291,6 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 {
     CGFloat cachedHeight = [[HPNoteHeightCache sharedCache] heightForNote:note kind:tagName ? : HPNoteHeightCacheDefault];
     if (cachedHeight > 0) return cachedHeight;
-    NSLog(@"miss");
 
     HPFontManager *fonts = [HPFontManager sharedManager];
     

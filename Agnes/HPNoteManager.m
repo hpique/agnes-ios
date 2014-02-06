@@ -193,7 +193,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)archiveNote:(HPNote*)note
 {
-    [self performModelUpdateWithName:NSLocalizedString(@"Archive", @"") save:NO block:^{
+    [self performModelUpdateWithName:NSLocalizedString(@"Archive", @"") save:YES block:^{
         note.archived = YES;
     }];
 }
@@ -286,7 +286,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 - (void)unarchiveNote:(HPNote*)note
 {
-    [self performModelUpdateWithName:NSLocalizedString(@"Unarchive", @"") save:NO block:^{
+    [self performModelUpdateWithName:NSLocalizedString(@"Unarchive", @"") save:YES block:^{
         note.archived = NO;
     }];
 }
@@ -294,7 +294,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)trashNote:(HPNote*)note
 {
     if (note.managedObjectContext == nil) return;
-    [self performModelUpdateWithName:NSLocalizedString(@"Delete Note", @"") save:NO block:^{
+    [self performModelUpdateWithName:NSLocalizedString(@"Delete Note", @"") save:YES block:^{
         [self.context deleteObject:note];
     }];
 }

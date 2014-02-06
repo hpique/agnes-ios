@@ -779,6 +779,8 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     self.title = self.indexItem.title;
     _searching = NO;
     _searchString = nil;
+    _searchResults = nil;
+    _archivedSearchResults = nil;
 }
 
 - (void)searchDisplayController:(UISearchDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView
