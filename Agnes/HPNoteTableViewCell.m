@@ -81,10 +81,22 @@ NSString *const HPNoteHeightCacheDefault = @"d";
 - (void)notesDidChangeNotification:(NSNotification*)notification
 {
     NSDictionary *userInfo = [notification userInfo];
+    id invalidatedAll = [userInfo objectForKey:NSInvalidatedAllObjectsKey];
+    if (invalidatedAll)
+    {
+        [_cache removeAllObjects];
+        return;
+    }
     NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
     NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
-    NSSet *invalidated = [deleted setByAddingObjectsFromSet:updated];
-    for (HPNote *note in invalidated)
+    NSSet *invalidated = [userInfo objectForKey:NSInvalidatedObjectsKey];
+    NSSet *refreshed = [userInfo objectForKey:NSRefreshedObjectsKey];
+    NSMutableSet *evicted = [NSMutableSet set];
+    [evicted unionSet:deleted];
+    [evicted unionSet:updated];
+    [evicted unionSet:invalidated];
+    [evicted unionSet:refreshed]; // TODO: Check if note.uuid is the same instance when refreshed
+    for (HPNote *note in evicted)
     {
         [_cache removeObjectForKey:note.uuid];
     }

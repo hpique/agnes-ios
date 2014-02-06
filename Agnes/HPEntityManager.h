@@ -37,4 +37,8 @@ extern NSString* const HPEntityManagerObjectsDidChangeNotification;
 
 - (void)didDeleteObject:(id)object;
 
+- (void)didRefreshObject:(id)object;
+
+- (void)didInvalidateObject:(id)object;
+
 @end

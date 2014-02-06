@@ -84,14 +84,22 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
 - (void)objectsDidChangeNotification:(NSNotification*)notification
 {
     NSDictionary *userInfo = notification.userInfo;
+    id invalidatedAll = [userInfo objectForKey:NSInvalidatedAllObjectsKey];
+    if (invalidatedAll)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:HPEntityManagerObjectsDidChangeNotification object:self userInfo:userInfo];
+        return;
+    }
     
     NSSet *inserted = [self filterUserInfo:userInfo key:NSInsertedObjectsKey selector:@selector(didInsertObject:)];
     NSSet *updated = [self filterUserInfo:userInfo key:NSUpdatedObjectsKey selector:@selector(didUpdateObject:)];
     NSSet *deleted = [self filterUserInfo:userInfo key:NSDeletedObjectsKey selector:@selector(didDeleteObject:)];
+    NSSet *refreshed = [self filterUserInfo:userInfo key:NSRefreshedObjectsKey selector:@selector(didRefreshObject:)];
+    NSSet *invalidated = [self filterUserInfo:userInfo key:NSInvalidatedObjectsKey selector:@selector(didInvalidateObject:)];
     
-    if (inserted.count > 0 || updated.count > 0 || deleted.count > 0)
+    if (inserted.count > 0 || updated.count > 0 || deleted.count > 0 || refreshed.count > 0 || invalidated.count > 0)
     {
-        NSDictionary *userInfo = @{NSInsertedObjectsKey : inserted, NSUpdatedObjectsKey : updated, NSDeletedObjectsKey : deleted};
+        NSDictionary *userInfo = @{NSInsertedObjectsKey : inserted, NSUpdatedObjectsKey : updated, NSDeletedObjectsKey : deleted, NSRefreshedObjectsKey : refreshed, NSInvalidatedObjectsKey : invalidated};
         [[NSNotificationCenter defaultCenter] postNotificationName:HPEntityManagerObjectsDidChangeNotification object:self userInfo:userInfo];
     }
 }
@@ -149,6 +157,10 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
 - (void)didUpdateObject:(id)object {}
 
 - (void)didDeleteObject:(id)object {}
+
+- (void)didRefreshObject:(id)object {}
+
+- (void)didInvalidateObject:(id)object {}
 
 - (NSString*)entityName
 {
