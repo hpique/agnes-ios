@@ -38,6 +38,13 @@
     }
 }
 
+- (NSRange)hp_extendedRangeForRange:(NSRange)range
+{
+    NSRange extendedRange = NSUnionRange(range, [self lineRangeForRange:NSMakeRange(range.location, 0)]);
+    extendedRange = NSUnionRange(extendedRange, [self lineRangeForRange:NSMakeRange(NSMaxRange(range), 0)]);
+    return extendedRange;
+}
+
 - (NSUInteger)hp_numberOfOccurencesOfString:(NSString*)target range:(NSRange)range
 {
     NSString *pattern = [NSRegularExpression escapedPatternForString:target];
@@ -46,7 +53,7 @@
     return [regex numberOfMatchesInString:self options:kNilOptions range:range];
 }
 
-- (NSInteger)wordCount
+- (NSInteger)hp_wordCount
 {
     __block int wordCount =0;
     NSRange range = NSMakeRange(0, self.length);

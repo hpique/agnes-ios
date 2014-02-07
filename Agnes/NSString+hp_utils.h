@@ -12,10 +12,12 @@
 
 - (void)hp_enumerateOccurrencesOfString:(NSString*)target options:(NSStringCompareOptions)opts usingBlock:(void (^)(NSRange matchRange, BOOL *stop))block;
 
+- (NSRange)hp_extendedRangeForRange:(NSRange)range;
+
 - (NSInteger)hp_linesWithFont:(UIFont*)font width:(CGFloat)width lineHeight:(CGFloat)lineHeight;
 
 - (NSUInteger)hp_numberOfOccurencesOfString:(NSString*)target range:(NSRange)range;
 
-@property (nonatomic, readonly) NSInteger wordCount;
+@property (nonatomic, readonly) NSInteger hp_wordCount;
 
 @end

@@ -368,7 +368,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         }
         case HPNoteDetailModeWords:
         {
-            NSInteger wordCount = _bodyTextView.text.wordCount;
+            NSInteger wordCount = _bodyTextView.text.hp_wordCount;
             text = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld words", @""), (long)wordCount];
             break;
         }

@@ -14,6 +14,7 @@
 #import "HPPreferencesManager.h"
 #import <MessageUI/MessageUI.h>
 #import "UIColor+hp_utils.h"
+#import "NSString+hp_utils.h"
 
 @implementation HPBaseTextStorage {
     NSMutableAttributedString *_backingStore;
@@ -58,9 +59,10 @@
     {
         [_backingStore beginEditing];
         _needsUpdate = NO;
-        [self addLinks];
+        NSRange extendedRange = [_backingStore.string hp_extendedRangeForRange:self.editedRange];
+        [self addLinksInRange:extendedRange];
         [self styleParagraphs];
-        [self highlightTags:self.editedRange];
+        [self highlightTags:extendedRange];
         [self highlightSearch]; // TODO: Title is not highligted
         [_backingStore endEditing];
     }
@@ -99,33 +101,31 @@
 
 #pragma mark - Private
 
-- (void)addLinks
+- (void)addLinksInRange:(NSRange)range
 {
-    NSString *text = _backingStore.string;
-    NSRange textRange = NSMakeRange(0, text.length);
-    [_backingStore removeAttribute:NSLinkAttributeName range:textRange];
+    [_backingStore removeAttribute:NSLinkAttributeName range:range];
     
     if ([MFMailComposeViewController canSendMail])
     {
-        [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink scheme:@"mailto" urlFormat:@"%@:%@" containing:@"@"];
+        [self addLinksInRange:range matchingDataDetectorType:NSTextCheckingTypeLink scheme:@"mailto" urlFormat:@"%@:%@" containing:@"@"];
     }
-    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypeLink scheme:@"http" urlFormat:@"%@://%@" containing:nil];
-    [self addLinksToMatchesOfDataDetectorType:NSTextCheckingTypePhoneNumber scheme:@"tel" urlFormat:@"%@://%@" containing:nil];
+    [self addLinksInRange:range matchingDataDetectorType:NSTextCheckingTypeLink scheme:@"http" urlFormat:@"%@://%@" containing:nil];
+    [self addLinksInRange:range matchingDataDetectorType:NSTextCheckingTypePhoneNumber scheme:@"tel" urlFormat:@"%@://%@" containing:nil];
 }
 
-- (void)addLinksToMatchesOfDataDetectorType:(NSTextCheckingType)type scheme:(NSString*)scheme urlFormat:(NSString*)format containing:(NSString*)extra
+- (void)addLinksInRange:(NSRange)range matchingDataDetectorType:(NSTextCheckingType)type scheme:(NSString*)scheme urlFormat:(NSString*)format containing:(NSString*)extra
 {
     NSError *error = nil;
     NSDataDetector *detector = [NSDataDetector dataDetectorWithTypes:type error:&error];
     NSAssert(detector, @"Data detector error %@", error);
     NSString *text = _backingStore.string;
-    [detector enumerateMatchesInString:text options:kNilOptions range:NSMakeRange(0, text.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
+    [detector enumerateMatchesInString:text options:kNilOptions range:range usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
      {
-         NSRange range = result.range;
-         NSURL *previousUrl = [_backingStore attribute:NSLinkAttributeName atIndex:range.location effectiveRange:nil];
+         NSRange resultRange = result.range;
+         NSURL *previousUrl = [_backingStore attribute:NSLinkAttributeName atIndex:resultRange.location effectiveRange:nil];
          if (previousUrl) return;
          
-         NSString *substring = [text substringWithRange:range];
+         NSString *substring = [text substringWithRange:resultRange];
          if (extra != nil && [substring rangeOfString:extra].location == NSNotFound) return;
 
          if (![substring hasPrefix:scheme])
@@ -133,7 +133,7 @@
              substring = [NSString stringWithFormat:format, scheme, [substring stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
          }
          NSURL *url = [NSURL URLWithString:substring];
-         [_backingStore addAttribute:NSLinkAttributeName value:url range:result.range];
+         [_backingStore addAttribute:NSLinkAttributeName value:url range:resultRange];
      }];
 }
 
@@ -154,35 +154,26 @@
         if (paragraphIndex != 0 || trimmed.length > 0)
         {
             UIFont *font = paragraphIndex == 0 && ![self.tag isEqualToString:trimmed] ? titleFont : bodyFont;
-            [_backingStore addAttribute:NSFontAttributeName value:font range:substringRange];
+            [_backingStore addAttribute:NSFontAttributeName value:font range:enclosingRange];
             paragraphIndex++;
         }
 
         NSParagraphStyle *paragraphStyle = [HPNote paragraphStyleOfAttributedText:_backingStore paragraphRange:substringRange];
-        [_backingStore addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:substringRange];
+        [_backingStore addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:enclosingRange];
     }];
 }
 
-
-
 - (void)highlightTags:(NSRange)changedRange
-{
-    NSRange extendedRange = NSUnionRange(changedRange, [_backingStore.string lineRangeForRange:NSMakeRange(changedRange.location, 0)]);
-    extendedRange = NSUnionRange(changedRange, [_backingStore.string lineRangeForRange:NSMakeRange(NSMaxRange(changedRange), 0)]);
-    [self applyStylesToRange:extendedRange];
-}
-
-- (void)applyStylesToRange:(NSRange)searchRange
 {
     NSRegularExpression* regex = [HPNote tagRegularExpression];
     UIColor *color = [HPPreferencesManager sharedManager].tintColor;
     NSDictionary* attributes = @{ NSForegroundColorAttributeName : color };
     
-    [self removeAttribute:NSForegroundColorAttributeName range:searchRange];
+    [self removeAttribute:NSForegroundColorAttributeName range:changedRange];
     
     [regex enumerateMatchesInString:_backingStore.string
                             options:0
-                              range:searchRange
+                              range:changedRange
                          usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop)
     {
         NSRange matchRange = [match rangeAtIndex:0];
