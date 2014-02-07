@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString* const HPEntityManagerObjectsDidChangeNotification;
 
 @interface HPEntityManager : NSObject
 
@@ -40,5 +39,16 @@ extern NSString* const HPEntityManagerObjectsDidChangeNotification;
 - (void)didRefreshObject:(id)object;
 
 - (void)didInvalidateObject:(id)object;
+
+@end
+
+extern NSString* const HPEntityManagerObjectsDidChangeNotification;
+
+@interface NSNotification(HPEntityManager)
+
+/** Returns inserted, deleted, updated, invalidated and refreshed objects of a HPEntityManagerObjectsDidChangeNotification. **/
+- (NSSet*)hp_changedObjects;
+
+- (BOOL)hp_invalidatedAllObjects;
 
 @end

@@ -87,6 +87,7 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     id invalidatedAll = [userInfo objectForKey:NSInvalidatedAllObjectsKey];
     if (invalidatedAll)
     {
+        NSLog(@"%s %@ %@", __PRETTY_FUNCTION__, self, userInfo);
         [[NSNotificationCenter defaultCenter] postNotificationName:HPEntityManagerObjectsDidChangeNotification object:self userInfo:userInfo];
         return;
     }
@@ -100,6 +101,7 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     if (inserted.count > 0 || updated.count > 0 || deleted.count > 0 || refreshed.count > 0 || invalidated.count > 0)
     {
         NSDictionary *userInfo = @{NSInsertedObjectsKey : inserted, NSUpdatedObjectsKey : updated, NSDeletedObjectsKey : deleted, NSRefreshedObjectsKey : refreshed, NSInvalidatedObjectsKey : invalidated};
+        NSLog(@"%s %@ %@", __PRETTY_FUNCTION__, self, userInfo);
         [[NSNotificationCenter defaultCenter] postNotificationName:HPEntityManagerObjectsDidChangeNotification object:self userInfo:userInfo];
     }
 }
@@ -165,6 +167,34 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
 - (NSString*)entityName
 {
     @throw NSInternalInconsistencyException;
+}
+
+@end
+
+@implementation NSNotification(HPEntityManager)
+
+- (NSSet*)hp_changedObjects
+{
+    NSDictionary *userInfo = self.userInfo;
+    NSSet *inserted = [userInfo objectForKey:NSInsertedObjectsKey];
+    NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
+    NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
+    NSSet *invalidated = [userInfo objectForKey:NSInvalidatedObjectsKey];
+    NSSet *refreshed = [userInfo objectForKey:NSRefreshedObjectsKey];
+    NSMutableSet *changed = [NSMutableSet set];
+    [changed unionSet:inserted];
+    [changed unionSet:deleted];
+    [changed unionSet:updated];
+    [changed unionSet:invalidated];
+    [changed unionSet:refreshed];
+    return changed;
+}
+
+- (BOOL)hp_invalidatedAllObjects
+{
+    NSDictionary *userInfo = self.userInfo;
+    id invalidatedAll = [userInfo objectForKey:NSInvalidatedAllObjectsKey];
+    return invalidatedAll != nil;
 }
 
 @end
