@@ -198,10 +198,11 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }];
 }
 
-- (void)attachToNote:(HPNote*)note image:(UIImage*)image index:(NSInteger)index
+- (NSUInteger)attachToNote:(HPNote*)note image:(UIImage*)image index:(NSInteger)index
 {
     BOOL isNew = note.managedObjectContext == nil;
     NSString *actionName = isNew ? NSLocalizedString(@"Add Note", @"") : NSLocalizedString(@"Attach Image", @"");
+    __block NSUInteger attachmentIndex = 0;
     [self performModelUpdateWithName:actionName save:YES block:
      ^{
          if (isNew)
@@ -209,8 +210,9 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
              [self.context insertObject:note];
          }
          HPAttachment *attachment = [HPAttachment attachmentWithImage:image context:note.managedObjectContext];
-         [note addAttachment:attachment atIndex:index];
+         attachmentIndex = [note addAttachment:attachment atIndex:index];
      }];
+    return attachmentIndex;
 }
 
 - (HPNote*)blankNoteWithTagOfName:(NSString*)tag
