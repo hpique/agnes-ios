@@ -59,7 +59,7 @@ extern const NSInteger HPNoteDetailModeCount;
 
 @interface HPNote (Attachments)
 
-- (void)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index;
+- (NSUInteger)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index;
 
 + (NSString*)attachmentString;
 

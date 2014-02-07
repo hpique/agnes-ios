@@ -29,7 +29,7 @@
 
 - (void)archiveNote:(HPNote*)note;
 
-- (void)attachToNote:(HPNote*)note image:(UIImage*)image index:(NSInteger)index;
+- (NSUInteger)attachToNote:(HPNote*)note image:(UIImage*)image index:(NSInteger)index;
 
 - (HPNote*)blankNoteWithTagOfName:(NSString*)tag;
 

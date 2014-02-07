@@ -13,5 +13,9 @@
 @property (nonatomic, copy) NSString *tag;
 @property (nonatomic, copy) NSString *search;
 
+- (void)beginAnimatingAttachmentAtIndex:(NSUInteger)index;
+- (void)endAnimatingAttachmentAtIndex:(NSUInteger)index;
+- (void)setAnimationProgress:(CGFloat)progress ofAttachmentAtIndex:(NSUInteger)index;
+
 @end
 

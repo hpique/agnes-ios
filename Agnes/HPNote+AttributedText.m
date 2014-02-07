@@ -13,6 +13,42 @@
 #import "NSString+hp_utils.h"
 #import "UIImage+hp_utils.h"
 
+@implementation HPAnimatedTextAttachment
+
+- (void)setAnimating:(BOOL)animating
+{
+    if (_animating != _animating) return;
+    _animating = animating;
+    if (_animating)
+    {
+        _animationProgress = 0;
+    }
+}
+
+- (CGRect)attachmentBoundsForTextContainer:(NSTextContainer *)textContainer proposedLineFragment:(CGRect)lineFrag glyphPosition:(CGPoint)position characterIndex:(NSUInteger)charIndex
+{
+    if (!self.animating)
+    {
+        CGRect result = [super attachmentBoundsForTextContainer:textContainer proposedLineFragment:lineFrag glyphPosition:position characterIndex:charIndex];
+        return result;
+    }
+    CGSize imageSize = self.image.size;
+    CGFloat width = imageSize.width * _animationProgress;
+    CGFloat height = imageSize.height * _animationProgress;
+    return CGRectMake(0, 0, width, height);
+}
+
+- (UIImage *)imageForBounds:(CGRect)imageBounds textContainer:(NSTextContainer *)textContainer characterIndex:(NSUInteger)charIndex
+{
+    if (!self.animating)
+    {
+        return [super imageForBounds:imageBounds textContainer:textContainer characterIndex:charIndex];
+    }
+    return nil;
+}
+
+@end
+
 @interface HPNoteImageCache : NSObject
 
 - (UIImage*)imageForAttachment:(HPAttachment*)attachment maxSize:(CGSize)maxSize;
@@ -98,7 +134,7 @@
     CGSize maxSize = [self sizeForAttachmentMode:attachment.mode maxWidth:maxWidth];
     UIImage *scaledImage = [[HPNoteImageCache sharedCache] imageForAttachment:attachment maxSize:maxSize];
     
-    NSTextAttachment *textAttachment = [[NSTextAttachment alloc] init];
+    HPAnimatedTextAttachment *textAttachment = [[HPAnimatedTextAttachment alloc] init];
     textAttachment.image = scaledImage;
     
     NSMutableDictionary *attributes = [NSMutableDictionary dictionary];

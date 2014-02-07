@@ -76,6 +76,27 @@
     [self highlightSearch];
 }
 
+- (void)beginAnimatingAttachmentAtIndex:(NSUInteger)index
+{
+    HPAnimatedTextAttachment *textAttachment = [_backingStore attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
+    textAttachment.animating = YES;
+    [self edited:NSTextStorageEditedAttributes range:NSMakeRange(index, 1) changeInLength:0];
+}
+
+- (void)endAnimatingAttachmentAtIndex:(NSUInteger)index
+{
+    HPAnimatedTextAttachment *textAttachment = [_backingStore attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
+    textAttachment.animating = NO;
+    [self edited:NSTextStorageEditedAttributes range:NSMakeRange(index, 1) changeInLength:0];
+}
+
+- (void)setAnimationProgress:(CGFloat)progress ofAttachmentAtIndex:(NSUInteger)index
+{
+    HPAnimatedTextAttachment *textAttachment = [_backingStore attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
+    textAttachment.animationProgress = progress;
+    [self edited:NSTextStorageEditedAttributes range:NSMakeRange(index, 1) changeInLength:0];
+}
+
 #pragma mark - Private
 
 - (void)addLinks

@@ -234,7 +234,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     return attachmentString;
 }
 
-- (void)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index
+- (NSUInteger)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index
 {
     NSString *text = self.text;
     NSRange searchRange = NSMakeRange(0, index);
@@ -247,11 +247,13 @@ const NSInteger HPNoteDetailModeCount = 5;
     if (index > 0)
     {
         [mutableText insertString:@"\n" atIndex:index];
+        index++;
     }
     NSMutableArray *mutableAttachments = self.attachments.mutableCopy;
     [mutableAttachments insertObject:attachment atIndex:attachmentIndex];
     [self replaceAttachments:mutableAttachments];
     self.text = mutableText;
+    return index;
 }
 
 - (void)replaceAttachments:(NSArray*)attachments

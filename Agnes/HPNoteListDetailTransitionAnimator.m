@@ -15,6 +15,7 @@
 #import "HPNote+Thumbnail.h"
 #import "HPAttachment.h"
 #import "UIImage+hp_utils.h"
+#import "UITextView+hp_utils.h"
 #import "PSPDFTextView.h"
 
 @interface UIView(Utils)
@@ -173,7 +174,7 @@
         }
         if (thumbnailViewPlaceholder)
         {
-            CGRect rect = [self rectForCharacterRange:NSMakeRange(thumbnailCharacterIndex, 1) inTextView:noteTextView];
+            CGRect rect = [noteTextView hp_rectForCharacterRange:NSMakeRange(thumbnailCharacterIndex, 1)];
             rect = [transitionContext.containerView convertRect:rect fromView:noteTextView];
             thumbnailViewPlaceholder.frame = CGRectMake(rect.origin.x, rect.origin.y, thumbnailViewPlaceholder.image.size.width, thumbnailViewPlaceholder.image.size.height);
         }
@@ -247,7 +248,7 @@
     if (thumbnailAttachment)
     {
         NSInteger index = [self characterIndexForAttachment:thumbnailAttachment textView:noteTextView];
-        CGRect thumbnailRect = [self rectForCharacterRange:NSMakeRange(index, 1) inTextView:noteTextView];
+        CGRect thumbnailRect = [noteTextView hp_rectForCharacterRange:NSMakeRange(index, 1)];
         thumbnailCover = [self coverView:noteTextView rect:thumbnailRect color:[UIColor whiteColor] context:transitionContext];
         NSTextAttachment *textAttachment = [noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
         thumbnailViewPlaceholder = [self addImageViewWithImage:textAttachment.image rect:thumbnailRect fromView:noteTextView context:transitionContext];
@@ -397,27 +398,10 @@
         visibleRange = [textView.text lineRangeForRange:NSMakeRange(0, 0)];
     }
     NSString *substring = label.text.length >= NSMaxRange(visibleRange) ? [label.text substringWithRange:visibleRange] : @"";
-    CGRect rect = [self rectForText:substring inTextView:textView];
+    CGRect rect = [textView hp_rectForSubstring:substring];
     if (CGRectIsNull(rect)) return rect;
     rect = [transitionContext.containerView convertRect:rect fromView:textView];
     return rect;
-}
-
-- (CGRect)rectForText:(NSString*)text inTextView:(UITextView*)textView
-{
-    NSRange charRange = [textView.text rangeOfString:text];
-    if (charRange.location == NSNotFound) return CGRectNull;
-    return [self rectForCharacterRange:charRange inTextView:textView];
-}
-
-- (CGRect)rectForCharacterRange:(NSRange)charRange inTextView:(UITextView*)textView
-{
-    NSLayoutManager *layoutManager = textView.layoutManager;
-    NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:charRange actualCharacterRange:nil];
-    [layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, charRange.location)];
-    CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textView.textContainer];
-    rect = CGRectOffset(rect, textView.textContainerInset.left, textView.textContainerInset.top);
-    return CGRectMake(rect.origin.x, rect.origin.y, ceil(rect.size.width), ceil(rect.size.height));
 }
 
 - (CGRect)rectForLabel:(UILabel*)label inTextView:(UITextView*)textView
@@ -428,7 +412,7 @@
         visibleRange = [textView.text lineRangeForRange:NSMakeRange(0, 0)];
     }
     NSString *substring = label.text.length >= NSMaxRange(visibleRange) ? [label.text substringWithRange:visibleRange] : @"";
-    return [self rectForText:substring inTextView:textView];
+    return [textView hp_rectForSubstring:substring];
 }
 
 - (void)translateView:(UIView*)fromView toView:(UIView*)toView containerView:(UIView*)containerView

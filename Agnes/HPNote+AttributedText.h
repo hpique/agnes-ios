@@ -8,6 +8,14 @@
 
 #import "HPNote.h"
 
+@interface HPAnimatedTextAttachment : NSTextAttachment
+
+@property (nonatomic, assign) BOOL animating;
+
+@property (nonatomic, assign) CGFloat animationProgress;
+
+@end
+
 @interface HPNote (AttributedText)
 
 - (NSAttributedString*)attributedTextForWidth:(CGFloat)width;

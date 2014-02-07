@@ -25,6 +25,11 @@
 #import "NSString+hp_utils.h"
 #import "HPNoFirstResponderActionSheet.h"
 #import "HPAgnesUIMetrics.h"
+#import "UIImage+hp_utils.h"
+#import "UITextView+hp_utils.h"
+
+const NSTimeInterval HPNoteEditorAttachmentAnimationDuration = 0.3;
+const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 @interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate>
 
@@ -73,6 +78,8 @@
     NSDate *_typingPreviousDate;
     
     __weak IBOutlet NSLayoutConstraint *_toolbarHeightConstraint;
+    
+    NSDate *_attachmentAnimationStartDate;
 }
 
 @synthesize noteTextView = _bodyTextView;
@@ -152,6 +159,7 @@
 - (void)dealloc
 {
     [_autosaveTimer invalidate];
+    [NSThread cancelPreviousPerformRequestsWithTarget:self]; // For attachment animations
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
@@ -160,12 +168,12 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    _viewDidAppear = YES;
-    if ([self.note isNew])
+    if ([self.note isNew] && !_viewDidAppear)
     {
         _bodyTextView.selectedRange = NSMakeRange(0, 0);
         [self.noteTextView becomeFirstResponder];
     }
+    _viewDidAppear = YES;
     self.transitioning = NO;
 }
 
@@ -600,15 +608,6 @@
     [self setTyping:NO animated:YES];
 }
 
-UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
-{
-    UITextPosition *beginning = textView.beginningOfDocument;
-    UITextPosition *start = [textView positionFromPosition:beginning offset:range.location];
-    UITextPosition *end = [textView positionFromPosition:start offset:range.length];
-    UITextRange *textRange = [textView textRangeFromPosition:start toPosition:end];
-    return textRange;
-}
-
 - (void)updateToolbar:(BOOL)animated
 {
     UIBarButtonItem *rightBarButtonItem = self.note.archived ? _unarchiveBarButtonItem : _archiveBarButtonItem;
@@ -822,7 +821,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
     NSString *tag = [self selectedTagEnclosing:YES range:&foundRange];
     if (!tag) return;
     
-    UITextRange *textRange = UITextRangeFromNSRange(_bodyTextView, foundRange);
+    UITextRange *textRange = [_bodyTextView hp_textRangeFromRange:foundRange];
     
     // Add space if there is none
     NSString *text = _bodyTextView.text;
@@ -838,7 +837,7 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 {
     [[UIDevice currentDevice] playInputClick];
     NSRange replacementRange = _bodyTextView.selectedRange;
-    UITextRange *textRange = UITextRangeFromNSRange(_bodyTextView, replacementRange);
+    UITextRange *textRange = [_bodyTextView hp_textRangeFromRange:replacementRange];
     
     [_bodyTextView replaceRange:textRange withText:key];
 }
@@ -956,15 +955,50 @@ UITextRange* UITextRangeFromNSRange(UITextView* textView, NSRange range)
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-    NSInteger index = _hasEnteredEditingModeOnce ? _bodyTextView.selectedRange.location : 0; // selectedRange gives the last position by default
-    if (index == NSNotFound) index = 0;
-    [[HPNoteManager sharedManager] attachToNote:self.note image:image index:index]; // TODO: What happens with settings notes?
-    
-    [self dismissViewControllerAnimated:YES completion:^{}];
-    
-    self.noteTextView.attributedText = [self attributedNoteText];
-    self.textChanged = YES;
+    [self dismissViewControllerAnimated:YES completion:^{
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        NSInteger index = _hasEnteredEditingModeOnce ? _bodyTextView.selectedRange.location : 0; // selectedRange gives the last position by default
+        if (index == NSNotFound) index = 0;
+        index = [[HPNoteManager sharedManager] attachToNote:self.note image:image index:index]; // TODO: What happens with settings notes?
+        
+        self.noteTextView.attributedText = [self attributedNoteText];
+        self.textChanged = YES;
+        
+        CGRect destinationRect = [self.noteTextView hp_rectForCharacterRange:NSMakeRange(index, 1)];
+        destinationRect = [self.view convertRect:destinationRect fromView:self.noteTextView];
+        NSTextAttachment *textAttachment = [self.noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
+        UIImage *scaledImage = textAttachment.image;
+        [_bodyTextStorage beginAnimatingAttachmentAtIndex:index];
+        CGRect originRect = [self.noteTextView hp_rectForCharacterRange:NSMakeRange(index, 1)];
+        originRect = [self.view convertRect:originRect fromView:self.noteTextView];
+        
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:scaledImage];
+        imageView.frame = originRect;
+        [self.view addSubview:imageView];
+        [self.view bringSubviewToFront:self.toolbar];
+        [UIView animateWithDuration:HPNoteEditorAttachmentAnimationDuration animations:^{
+            imageView.frame = destinationRect;
+        } completion:^(BOOL finished) {
+            [imageView removeFromSuperview];
+        }];
+        _attachmentAnimationStartDate = [NSDate date];
+        [self performSelector:@selector(animateAttachmentAtIndex:) withObject:@(index) afterDelay:1.0/HPNoteEditorAttachmentAnimationFrameRate];
+    }];
+}
+
+- (void)animateAttachmentAtIndex:(NSNumber*)number
+{
+    NSDate *now = [NSDate date];
+    NSTimeInterval interval = [now timeIntervalSinceDate:_attachmentAnimationStartDate];
+    NSInteger index = [number integerValue];
+    CGFloat progress = interval / HPNoteEditorAttachmentAnimationDuration;
+    if (progress < 1)
+    {
+        [_bodyTextStorage setAnimationProgress:progress ofAttachmentAtIndex:index];
+        [self performSelector:@selector(animateAttachmentAtIndex:) withObject:number afterDelay:1.0/HPNoteEditorAttachmentAnimationFrameRate];
+    } else {
+        [_bodyTextStorage endAnimatingAttachmentAtIndex:index];
+    }
 }
 
 #pragma mark - UIViewControllerTransitioningDelegate
