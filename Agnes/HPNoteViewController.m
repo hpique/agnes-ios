@@ -79,7 +79,9 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     
     __weak IBOutlet NSLayoutConstraint *_toolbarHeightConstraint;
     
-    NSDate *_attachmentAnimationStartDate;
+    CFTimeInterval _attachmentAnimationStart;
+    CADisplayLink *_attachmentAnimationDisplayLink;
+    NSUInteger _attachmentAnimationIndex;
 }
 
 @synthesize noteTextView = _bodyTextView;
@@ -159,7 +161,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)dealloc
 {
     [_autosaveTimer invalidate];
-    [NSThread cancelPreviousPerformRequestsWithTarget:self]; // For attachment animations
+    [_attachmentAnimationDisplayLink invalidate];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
@@ -957,7 +959,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     [self dismissViewControllerAnimated:YES completion:^{
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-        NSInteger index = _hasEnteredEditingModeOnce ? _bodyTextView.selectedRange.location : 0; // selectedRange gives the last position by default
+        NSUInteger index = _hasEnteredEditingModeOnce ? _bodyTextView.selectedRange.location : 0; // selectedRange gives the last position by default
         if (index == NSNotFound) index = 0;
         index = [[HPNoteManager sharedManager] attachToNote:self.note image:image index:index]; // TODO: What happens with settings notes?
         
@@ -981,23 +983,25 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         } completion:^(BOOL finished) {
             [imageView removeFromSuperview];
         }];
-        _attachmentAnimationStartDate = [NSDate date];
-        [self performSelector:@selector(animateAttachmentAtIndex:) withObject:@(index) afterDelay:1.0/HPNoteEditorAttachmentAnimationFrameRate];
+        _attachmentAnimationStart = CACurrentMediaTime();
+        _attachmentAnimationIndex = index;
+        _attachmentAnimationDisplayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(attachmentAnimation:)];
+        [_attachmentAnimationDisplayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+
     }];
 }
 
-- (void)animateAttachmentAtIndex:(NSNumber*)number
+- (void)attachmentAnimation:(CADisplayLink*)displayLink
 {
-    NSDate *now = [NSDate date];
-    NSTimeInterval interval = [now timeIntervalSinceDate:_attachmentAnimationStartDate];
-    NSInteger index = [number integerValue];
+    CFTimeInterval timestamp = displayLink.timestamp;
+    CFTimeInterval interval = timestamp - _attachmentAnimationStart;
     CGFloat progress = interval / HPNoteEditorAttachmentAnimationDuration;
     if (progress < 1)
     {
-        [_bodyTextStorage setAnimationProgress:progress ofAttachmentAtIndex:index];
-        [self performSelector:@selector(animateAttachmentAtIndex:) withObject:number afterDelay:1.0/HPNoteEditorAttachmentAnimationFrameRate];
+        [_bodyTextStorage setAnimationProgress:progress ofAttachmentAtIndex:_attachmentAnimationIndex];
     } else {
-        [_bodyTextStorage endAnimatingAttachmentAtIndex:index];
+        [_bodyTextStorage endAnimatingAttachmentAtIndex:_attachmentAnimationIndex];
+        [displayLink invalidate];
     }
 }
 
