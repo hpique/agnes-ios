@@ -30,4 +30,6 @@
 
 - (UIImage*)hp_imageOfFirstAttachment;
 
+- (NSString*)hp_valueOfLinkWithScheme:(NSString*)scheme;
+
 @end

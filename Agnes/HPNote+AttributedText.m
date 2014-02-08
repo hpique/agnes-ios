@@ -209,6 +209,22 @@
     return image;
 }
 
+- (NSString*)hp_valueOfLinkWithScheme:(NSString*)scheme
+{
+    __block NSString *foundValue = nil;
+    NSRange allRange = NSMakeRange(0, self.length);
+    [self enumerateAttribute:NSLinkAttributeName inRange:allRange options:0 usingBlock:^(NSURL *value, NSRange range, BOOL *stop) {
+        NSString *valueScheme = value.scheme;
+        if (![valueScheme isEqualToString:scheme]) return;
+        
+        NSString *remove = [NSString stringWithFormat:@"%@:", scheme];
+        foundValue = [value.absoluteString stringByReplacingOccurrencesOfString:remove withString:@""];
+        foundValue = [foundValue stringByRemovingPercentEncoding];
+        *stop = YES;
+    }];
+    return foundValue;
+}
+
 @end
 
 

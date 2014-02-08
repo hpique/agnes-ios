@@ -926,31 +926,15 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)addContactWithEmail:(NSString *)email phoneNumber:(NSString *)phoneNumber image:(UIImage*)image
 { // Attempt to find addditional contact data in the note
-    if (!email) email = [self valueInLinkWithScheme:@"mailto"];
-    if (!phoneNumber) phoneNumber = [self valueInLinkWithScheme:@"tel"];
+    NSAttributedString *attributedText = self.noteTextView.attributedText;
+    if (!email) email = [attributedText hp_valueOfLinkWithScheme:@"mailto"];
+    if (!phoneNumber) phoneNumber = [attributedText hp_valueOfLinkWithScheme:@"tel"];
     if (!image)
     {
         NSAttributedString *attributedText = self.noteTextView.attributedText;
         image = [attributedText hp_imageOfFirstAttachment];
     }
     [super addContactWithEmail:email phoneNumber:phoneNumber image:image];
-}
-
-- (NSString*)valueInLinkWithScheme:(NSString*)scheme
-{
-    __block NSString *foundValue = nil;
-    NSAttributedString *text = self.noteTextView.attributedText;
-    NSRange allRange = NSMakeRange(0, text.length);
-    [text enumerateAttribute:NSLinkAttributeName inRange:allRange options:0 usingBlock:^(NSURL *value, NSRange range, BOOL *stop) {
-        NSString *valueScheme = value.scheme;
-        if (![valueScheme isEqualToString:scheme]) return;
-        
-        NSString *remove = [NSString stringWithFormat:@"%@:", scheme];
-        foundValue = [value.absoluteString stringByReplacingOccurrencesOfString:remove withString:@""];
-        foundValue = [foundValue stringByRemovingPercentEncoding];
-        *stop = YES;
-    }];
-    return foundValue;
 }
 
 #pragma mark - UIImagePickerControllerDelegate
