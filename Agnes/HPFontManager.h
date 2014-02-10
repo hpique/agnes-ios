@@ -10,16 +10,22 @@
 @class HPNote;
 
 extern NSString* const HPFontManagerDidChangeFontsNotification;
+extern NSString* const HPFontManagerSystemFontName;
 
 @interface HPFontManager : NSObject
 
 + (HPFontManager*)sharedManager;
 
-- (UIFont*)fontForDetail;
-- (UIFont*)fontForNoteTitle;
-- (UIFont*)fontForNoteBody;
 - (UIFont*)fontForArchivedNoteTitle;
 - (UIFont*)fontForArchivedNoteBody;
+- (UIFont*)fontForBarButtonTitle;
+- (UIFont*)fontForDetail;
+- (UIFont*)fontForIndexCellTitle;
+- (UIFont*)fontForIndexCellDetail;
+- (UIFont*)fontForNavigationBarTitle;
+- (UIFont*)fontForNavigationBarDetail;
+- (UIFont*)fontForNoteTitle;
+- (UIFont*)fontForNoteBody;
 
 - (UIFont*)fontForTitleOfNote:(HPNote*)note;
 - (UIFont*)fontForBodyOfNote:(HPNote*)note;

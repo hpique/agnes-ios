@@ -49,9 +49,8 @@
         
     [UIApplication sharedApplication].statusBarHidden = preferences.statusBarHidden;
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
-    [UINavigationBar appearance].barTintColor = preferences.barTintColor;
-    [UINavigationBar appearance].tintColor = [UIColor whiteColor];
-    [UINavigationBar appearance].titleTextAttributes = @{ NSForegroundColorAttributeName : [UIColor whiteColor]};
+    [UIApplication sharedApplication].keyWindow.tintColor = preferences.tintColor;
+    [preferences styleNavigationBar:[UINavigationBar appearance]];
     
     application.applicationSupportsShakeToEdit = YES;
     

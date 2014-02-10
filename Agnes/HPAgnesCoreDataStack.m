@@ -32,7 +32,6 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
     {
         _storeURL = [[self applicationHiddenDocumentsDirectory] URLByAppendingPathComponent:@"Agnes.sqlite"];
         _modelURL = [[NSBundle mainBundle] URLForResource:@"Agnes" withExtension:@"momd"];
-        // [self removeStore];
         [self setupManagedObjectContext];
     }
     return self;
@@ -53,11 +52,13 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
     [notificationCenter addObserver:self selector:@selector(persistentStoreDidImportUbiquitousContentChanges:) name:NSPersistentStoreDidImportUbiquitousContentChangesNotification object:psc];
     
     NSError* error;
-    NSPersistentStore *persistentStore = [self.managedObjectContext.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
-                                                                       configuration:nil
-                                                                                 URL:self.storeURL
-                                                                             options:@{ NSPersistentStoreUbiquitousContentNameKey : @"notes" }
-                                                                               error:&error];
+    NSPersistentStore *persistentStore = [self.managedObjectContext.persistentStoreCoordinator
+                                          addPersistentStoreWithType:NSSQLiteStoreType
+                                          configuration:nil
+                                          URL:self.storeURL
+                                          // options:@{ NSPersistentStoreUbiquitousContentNameKey : @"notes" }
+                                          options:nil
+                                          error:&error];
     if (!persistentStore)
     {
         NSLog(@"Unresolved error %@, %@", error, [error userInfo]);

@@ -7,4 +7,4 @@ pod 'HPReorderTableView', :git => 'https://github.com/hpique/HPReorderTableView.
 pod 'iOS7Colors', '~> 2.0.0'
 pod 'TTTAttributedLabel', :git => 'https://github.com/hpique/TTTAttributedLabel.git'
 pod 'MHWDirectoryWatcher', '~> 0.0'
-pod 'ColorUtils', '~> 1.1'
+pod 'ColorUtils', :git => 'https://github.com/hpique/ColorUtils.git', :branch=>'agnes'

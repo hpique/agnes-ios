@@ -118,13 +118,15 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         searchBar.autocorrectionType = UITextAutocorrectionTypeNo; // HACK: See: http://stackoverflow.com/questions/8608529/autocorrect-in-uisearchbar-interferes-when-i-hit-didselectrowatindexpath
     }
     
-    _titleLabelFont = _titleLabel.font;
+    [self applyNavigationBarColors];
+    [self applyNavigationBarFonts];
     
     [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
     [self updateIndexItem];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferencesNotification:) name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -194,13 +196,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [self removeNoteInCell:cell modelBlock:^{
         [[HPNoteManager sharedManager] archiveNote:cell.note];
     }];
-}
-
-- (void)didChangeFontsNotification:(NSNotification*)notification
-{
-    [_notesTableView reloadData];
-    UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
-    [searchTableView reloadData];
 }
 
 - (void)exportNotes
@@ -285,6 +280,21 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 }
 
 #pragma mark - Private
+
+- (void)applyNavigationBarColors
+{
+    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    UIColor *barForegroundColor = preferences.barForegroundColor;
+    _titleLabel.textColor = barForegroundColor;
+    _sortModeLabel.textColor = barForegroundColor;
+}
+
+- (void)applyNavigationBarFonts
+{
+    _titleLabel.font = [HPFontManager sharedManager].fontForNavigationBarTitle;
+    _sortModeLabel.font = [HPFontManager sharedManager].fontForNavigationBarDetail;
+    _titleLabelFont = _titleLabel.font;
+}
 
 - (void)alertErrorWithTitle:(NSString*)title message:(NSString*)message
 {
@@ -375,6 +385,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)stopObserving
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 }
@@ -841,6 +852,21 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (void)noteViewController:(HPNoteViewController*)viewController shouldReturnToIndexItem:(HPIndexItem*)indexItem
 {
     self.indexItem = indexItem;
+}
+
+#pragma mark - Notifications
+
+- (void)didChangeFontsNotification:(NSNotification*)notification
+{
+    [self applyNavigationBarFonts];
+    [_notesTableView reloadData];
+    UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
+    [searchTableView reloadData];
+}
+
+- (void)didChangePreferencesNotification:(NSNotification*)notification
+{
+    [self applyNavigationBarColors];
 }
 
 @end

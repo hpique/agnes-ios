@@ -12,4 +12,10 @@
 
 - (UIColor *)hp_lighterColor;
 
+/**
+ * Calculate relative luminance in sRGB colour space for use in WCAG 2.0 compliance
+ * @link http://www.w3.org/TR/WCAG20/#relativeluminancedef
+ */
+- (CGFloat)hp_luminance;
+
 @end

@@ -8,6 +8,7 @@
 
 #import "HPAgnesNavigationController.h"
 #import "HPPreferencesManager.h"
+#import "HPFontManager.h"
 
 @interface HPAgnesNavigationController ()
 
@@ -33,7 +34,8 @@
 
 - (void)didChangePreferences:(NSNotification*)notification
 {
-    self.navigationBar.barTintColor = [HPPreferencesManager sharedManager].barTintColor;
+    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    [preferences styleNavigationBar:self.navigationBar];
 }
 
 @end

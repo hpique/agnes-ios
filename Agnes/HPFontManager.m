@@ -11,11 +11,17 @@
 #import "HPNote.h"
 
 NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChangeFontsNotification";
+NSString *const HPFontManagerSystemFontName = @"system";
 
 @implementation HPFontManager {
     UIFont *_archivedNoteBodyFont;
     UIFont *_archivedNoteTitleFont;
+    UIFont *_barButtonTitleFont;
     UIFont *_detailFont;
+    UIFont *_indexCellDetailFont;
+    UIFont *_indexCellTitleFont;
+    UIFont *_navigationBarTitleFont;
+    UIFont *_navigationBarDetailFont;
     UIFont *_noteBodyFont;
     UIFont *_noteTitleFont;
 }
@@ -50,16 +56,46 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
     return instance;
 }
 
+- (UIFont*)fontForBarButtonTitle
+{
+    if (!_barButtonTitleFont) _barButtonTitleFont = [self.fontForNoteBody fontWithSize:17];
+    return _barButtonTitleFont;
+}
+
 - (UIFont*)fontForDetail
 {
     if (!_detailFont) _detailFont = [self fontWithTextStyle:UIFontTextStyleFootnote addingTraits:kNilOptions scale:0.75];
     return _detailFont;
 }
 
+- (UIFont*)fontForIndexCellDetail
+{
+    if (!_indexCellDetailFont) _indexCellDetailFont = [self.fontForDetail fontWithSize:16];
+    return _indexCellDetailFont;
+}
+
+- (UIFont*)fontForIndexCellTitle
+{
+    if (!_indexCellTitleFont) _indexCellTitleFont = [self.fontForNoteBody fontWithSize:18];
+    return _indexCellTitleFont;
+}
+
 - (UIFont*)fontForNoteTitle
 {
     if (!_noteTitleFont) _noteTitleFont = [self fontWithTextStyle:UIFontTextStyleBody addingTraits:UIFontDescriptorTraitBold];
     return _noteTitleFont;
+}
+
+- (UIFont*)fontForNavigationBarTitle
+{
+    if (!_navigationBarTitleFont) _navigationBarTitleFont = [self.fontForNoteTitle fontWithSize:17];
+    return _navigationBarTitleFont;
+}
+
+- (UIFont*)fontForNavigationBarDetail
+{
+    if (!_navigationBarDetailFont) _navigationBarDetailFont = [self.fontForNoteBody fontWithSize:10];
+    return _navigationBarDetailFont;
 }
 
 - (UIFont*)fontForNoteBody
@@ -153,10 +189,9 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
     }
     else
     {
-        static NSString *systemFontName = @"system";
         UIFontDescriptor *descriptor;
         CGFloat fontSize = ceil(self.fontSize * scale);
-        if ([[self.fontName lowercaseString] isEqualToString:systemFontName])
+        if ([[self.fontName lowercaseString] isEqualToString:HPFontManagerSystemFontName])
         {
             UIFont *systemFont = [UIFont systemFontOfSize:fontSize];
             descriptor = systemFont.fontDescriptor;
@@ -182,7 +217,12 @@ NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChan
     
     _archivedNoteBodyFont = nil;
     _archivedNoteTitleFont = nil;
+    _barButtonTitleFont = nil;
     _detailFont = nil;
+    _indexCellDetailFont = nil;
+    _indexCellTitleFont = nil;
+    _navigationBarDetailFont = nil;
+    _navigationBarTitleFont = nil;
     _noteBodyFont = nil;
     _noteTitleFont = nil;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPFontManagerDidChangeFontsNotification object:self];

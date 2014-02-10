@@ -9,6 +9,8 @@
 #import "HPPreferencesManager.h"
 #import "HPFontManager.h"
 #import "ColorUtils.h"
+#import "UIColor+iOS7Colors.h"
+#import "UIColor+hp_utils.h"
 
 NSString *const HPPreferencesManagerDidChangePreferencesNotification = @"HPPreferencesManagerDidChangePreferencesNotification";
 
@@ -33,8 +35,8 @@ NSString *const HPAgnesPreferencesValueDefault = @"default";
 
 static UIColor* HPAgnesDefaultBarTintColor = nil;
 static BOOL HPAgnesDefaultDynamicType = NO;
-static NSString* HPAgnesDefaultFontName = @"System";
-static NSInteger HPAgnesDefaultFontSize = 16;
+static NSString* HPAgnesDefaultFontName = @"AvenirNext-Regular";
+static NSInteger HPAgnesDefaultFontSize = 15;
 static UIColor* HPAgnesDefaultTintColor = nil;
 static BOOL HPAgnesDefaultStatusBarHidden = NO;
 static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
@@ -46,6 +48,18 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     HPAgnesDefaultTintColor = [UIColor colorWithRed:198.0f/255.0f green:67.0f/255.0f blue:252.0f/255.0f alpha:1.0];
     HPAgnesDefaultBarTintColor = [UIColor colorWithRed:200.0f/255.0f green:110.0f/255.0f blue:223.0f/255.0f alpha:1.0];
     HPAgnesDefaultStatusBarHidden = [UIScreen mainScreen].bounds.size.height < 568.0;
+
+    [UIColor registerColor:[UIColor iOS7lightBlueColor] forName:@"lightBlue"];
+    [UIColor registerColor:[UIColor iOS7lightGrayColor] forName:@"lightGray"];
+    [UIColor registerColor:[UIColor iOS7darkBlueColor] forName:@"blue"];
+    [UIColor registerColor:[UIColor iOS7darkGrayColor] forName:@"gray"];
+    [UIColor registerColor:[UIColor iOS7greenColor] forName:@"green"];
+    [UIColor registerColor:[UIColor iOS7orangeColor] forName:@"orange"];
+    [UIColor registerColor:[UIColor iOS7pinkColor] forName:@"pink"];
+    [UIColor registerColor:[UIColor iOS7purpleColor] forName:@"purple"];
+    [UIColor registerColor:[UIColor iOS7redColor] forName:@"red"];
+    [UIColor registerColor:HPAgnesDefaultBarTintColor forName:@"violet"];
+    [UIColor registerColor:[UIColor iOS7yellowColor] forName:@"yellow"];
 }
 
 + (HPPreferencesManager*)sharedManager
@@ -56,6 +70,14 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
         instance = [[HPPreferencesManager alloc] init];
     });
     return instance;
+}
+
+- (UIColor*)barForegroundColor
+{
+    UIColor *barTintColor = self.barTintColor;
+    const CGFloat luminance = [barTintColor hp_luminance];
+    if (luminance > 0.6) return [UIColor darkGrayColor];
+    return [UIColor whiteColor];
 }
 
 - (UIColor*)barTintColor
@@ -92,6 +114,7 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     [userDefaults setObject:fontName forKey:HPAgnesDefaultsKeyFontName];
     [HPFontManager sharedManager].fontName = fontName;
+    [self styleNavigationBar:[UINavigationBar appearance]];
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
@@ -133,7 +156,7 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSString *colorString = [barTintColor stringValue];
     [userDefaults setValue:colorString forKey:HPAgnesDefaultsKeyBarTintColor];
-    [UINavigationBar appearance].barTintColor = barTintColor;
+    [self styleNavigationBar:[UINavigationBar appearance]];
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
@@ -158,7 +181,7 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSString *colorString = [tintColor stringValue];
     [userDefaults setValue:colorString forKey:HPAgnesDefaultsKeyTintColor];
-    [UIApplication sharedApplication].keyWindow.tintColor = tintColor;
+    [UIApplication sharedApplication].keyWindow.tintColor = self.tintColor;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
@@ -213,7 +236,7 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     static NSRegularExpression *preferenceLineRegex;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSString* pattern = @"(\\w+)=([\\w#]+)";
+        NSString* pattern = @"(\\w+)=([\\w#-]+)";
         preferenceLineRegex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
     });
     [preferenceLineRegex enumerateMatchesInString:preferences options:0 range:NSMakeRange(0, preferences.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
@@ -223,6 +246,18 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
         NSString *value = [preferences substringWithRange:valueRange];
         [self setPreferenceValue:value forKey:key];
     }];
+}
+
+- (void)styleNavigationBar:(UINavigationBar*)navigationBar
+{
+    navigationBar.barTintColor = self.barTintColor;
+    UIColor *barForegroundColor = self.barForegroundColor;
+    navigationBar.tintColor = barForegroundColor;
+    HPFontManager *fontManager = [HPFontManager sharedManager];
+    navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : barForegroundColor, NSFontAttributeName : fontManager.fontForNavigationBarTitle};
+    NSDictionary *barButtontitleTextAttributes = @{ NSFontAttributeName : fontManager.fontForBarButtonTitle};
+    [[UIBarButtonItem appearance] setTitleTextAttributes:barButtontitleTextAttributes forState:UIControlStateNormal];
+    // TODO: Update current back button. Don't know how to access it.
 }
 
 #pragma mark - Private
@@ -292,9 +327,15 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
 - (void)updateFontNameFromValue:(NSString*)value
 {
     NSString *fontName = [value isEqualToString:HPAgnesPreferencesValueDefault] ? HPAgnesDefaultFontName : value;
-    UIFont *font = [UIFont fontWithName:fontName size:10];
-    if (!font) return;
-    if ([self.fontName isEqualToString:fontName]) return;
+    fontName = fontName.lowercaseString;
+    if (![fontName isEqualToString:HPFontManagerSystemFontName])
+    {
+        UIFont *font = [UIFont fontWithName:fontName size:10];
+        if (!font) return;
+        NSString *resultFontName = font.fontName;
+        if (![resultFontName.lowercaseString hasPrefix:fontName]) return;
+        fontName = resultFontName;
+    }
     self.fontName = fontName;
 }
 

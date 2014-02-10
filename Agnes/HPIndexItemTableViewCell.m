@@ -9,6 +9,7 @@
 #import "HPIndexItemTableViewCell.h"
 #import "HPIndexItem.h"
 #import "HPNoteManager.h"
+#import "HPFontManager.h"
 
 @implementation HPIndexItemTableViewCell
 {
@@ -35,7 +36,10 @@
 
 - (void)initHelper
 {
+    _titleView.font = [HPFontManager sharedManager].fontForIndexCellTitle;
+    _detailView.font = [HPFontManager sharedManager].fontForIndexCellDetail;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(objectsDidChange:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFonts:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
 }
 
 - (void)dealloc
@@ -51,14 +55,20 @@
     _detailView.text = [NSString stringWithFormat:@"%ld", (long)self.indexItem.notes.count];
 }
 
-#pragma mark - Private
+#pragma mark - Notifications
+
+- (void)didChangeFonts:(NSNotification*)notification
+{
+    _titleView.font = [HPFontManager sharedManager].fontForIndexCellTitle;
+    _detailView.font = [HPFontManager sharedManager].fontForIndexCellDetail;
+}
 
 - (void)objectsDidChange:(NSNotification*)notification
 {
     if (self.indexItem)
     {
         _iconView.image = self.indexItem.icon;
-        _detailView.text = [NSString stringWithFormat:@"%ld", (long)self.indexItem.notes.count];        
+        _detailView.text = [NSString stringWithFormat:@"%ld", (long)self.indexItem.notes.count];
     }
 }
 
