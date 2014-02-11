@@ -18,7 +18,7 @@
 
 @interface HPNote (AttributedText)
 
-- (NSAttributedString*)attributedTextForWidth:(CGFloat)width;
+@property (nonatomic, readonly) NSAttributedString *attributedText;
 
 + (NSParagraphStyle*)paragraphStyleOfAttributedText:(NSAttributedString*)attributedText paragraphRange:(NSRange)paragraphRange;
 

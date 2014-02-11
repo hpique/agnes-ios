@@ -45,13 +45,16 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)addTutorialNotes
 {
     [self performNoUndoModelUpdateAndSave:YES block:^{
-        NSArray *notes = [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
-        NSMutableArray *tutorialUUIDs = [NSMutableArray array];
-        for (HPNote *note in notes)
+        for (NSInteger i = 0; i < 50; i++)
         {
-            [tutorialUUIDs addObject:note.uuid];
+            NSArray *notes = [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
+            NSMutableArray *tutorialUUIDs = [NSMutableArray array];
+            for (HPNote *note in notes)
+            {
+                [tutorialUUIDs addObject:note.uuid];
+            }
+            [HPPreferencesManager sharedManager].tutorialUUIDs = tutorialUUIDs;
         }
-        [HPPreferencesManager sharedManager].tutorialUUIDs = tutorialUUIDs;
     }];
 }
 
@@ -128,9 +131,9 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (NSArray*)notesWithKeyFormat:(NSString*)keyFormat context:(NSManagedObjectContext*)context
 {
     NSString *text;
-    long i = 1;
+    long i = 3;
     NSMutableArray *texts = [NSMutableArray array];
-    while ((text = [self stringWithFormat:keyFormat index:i]))
+    while ((text = [self stringWithFormat:keyFormat index:i]) && i == 3)
     {
         [texts addObject:text];
         i++;
@@ -253,7 +256,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         for (HPAttachment *attachment in attachments)
         {
             [self.context insertObject:attachment.data];
-            [self.context insertObject:attachment.thumbnailData];
             [self.context insertObject:attachment];
         }
         [note replaceAttachments:attachments];

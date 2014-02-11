@@ -13,6 +13,5 @@
 
 @property (nonatomic, readonly) BOOL hasThumbnail;
 @property (nonatomic, readonly) HPAttachment *thumbnailAttachment;
-@property (nonatomic, readonly) UIImage *thumbnail;
 
 @end

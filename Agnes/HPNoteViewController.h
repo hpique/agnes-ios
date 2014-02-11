@@ -29,6 +29,8 @@
 
 + (HPNoteViewController*)noteViewControllerWithNote:(HPNote*)note notes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;
 
++ (CGFloat)minimumNoteWidth;
+
 - (BOOL)saveNote:(BOOL)animated;
 
 @end

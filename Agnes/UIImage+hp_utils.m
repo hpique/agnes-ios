@@ -10,6 +10,27 @@
 
 @implementation UIImage (hp_utils)
 
+- (CGRect)hp_aspectFillRectForSize:(CGSize)size
+{
+    CGFloat targetAspect = size.width / size.height;
+    CGFloat sourceAspect = self.size.width / self.size.height;
+    CGRect rect = CGRectZero;
+    
+    if (targetAspect > sourceAspect)
+    {
+        rect.size.height = size.height;
+        rect.size.width = rect.size.height * sourceAspect;
+        rect.origin.x = (size.width - rect.size.width) * 0.5;
+    }
+    else
+    {
+        rect.size.height = size.height;
+        rect.size.width = rect.size.height * sourceAspect;
+        rect.origin.x = (size.width - rect.size.width) * 0.5;
+    }
+    return CGRectIntegral(rect);
+}
+
 - (CGRect)hp_aspectFitRectForSize:(CGSize)size
 {
     CGFloat targetAspect = size.width / size.height;
@@ -19,16 +40,16 @@
     if (targetAspect > sourceAspect)
     {
         rect.size.height = size.height;
-        rect.size.width = ceilf(rect.size.height * sourceAspect);
-        rect.origin.x = ceilf((size.width - rect.size.width) * 0.5);
+        rect.size.width = rect.size.height * sourceAspect;
+        rect.origin.x = (size.width - rect.size.width) * 0.5;
     }
     else
     {
         rect.size.width = size.width;
-        rect.size.height = ceilf(rect.size.width / sourceAspect);
-        rect.origin.y = ceilf((size.height - rect.size.height) * 0.5);
+        rect.size.height = rect.size.width / sourceAspect;
+        rect.origin.y = (size.height - rect.size.height) * 0.5;
     }
-    return rect;
+    return CGRectIntegral(rect);
 }
 
 - (UIImage *)hp_imageByScalingToSize:(CGSize)newSize

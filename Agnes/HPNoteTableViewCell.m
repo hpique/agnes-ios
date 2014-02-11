@@ -11,9 +11,11 @@
 #import "HPNote+Thumbnail.h"
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
+#import "HPAgnesImageCache.h"
+#import "HPAgnesUIMetrics.h"
+#import "HPAttachment.h"
 #import "NSString+hp_utils.h"
 #import "UIColor+hp_utils.h"
-#import "HPAgnesUIMetrics.h"
 
 NSInteger const HPNoteTableViewCellLabelMaxLength = 150;
 CGFloat const HPNoteTableViewCellMargin = 10;
@@ -394,7 +396,20 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     if (hasThumbnail)
     {
         self.thumbnailView.hidden = NO;
-        self.thumbnailView.image = self.note.thumbnail;
+        self.thumbnailView.image = nil;
+        HPAttachment *thumbnailAttachment = self.note.thumbnailAttachment;
+        NSString *attachmentUUID = thumbnailAttachment.uuid;
+        [[HPAgnesImageCache sharedCache] retrieveListImageForAttachment:thumbnailAttachment completionBlock:^(HPAttachment *attachment, UIImage *image) {
+            if ([attachment.uuid isEqualToString:attachmentUUID])
+            {
+                [UIView transitionWithView:self.thumbnailView
+                                  duration:0.2
+                                   options:UIViewAnimationOptionTransitionCrossDissolve
+                                animations:^{
+                                    self.thumbnailView.image = image;
+                                } completion:nil];
+            }
+        }];
     }
     else
     {

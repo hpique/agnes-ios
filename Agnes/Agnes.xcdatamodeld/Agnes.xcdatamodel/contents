@@ -7,14 +7,13 @@
         <attribute name="mode" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="order" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="type" attributeType="String" syncable="YES"/>
+        <attribute name="uuid" attributeType="String" syncable="YES"/>
         <relationship name="data" maxCount="1" deletionRule="Cascade" destinationEntity="Data" inverseName="attachment" inverseEntity="Data" syncable="YES"/>
         <relationship name="note" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Note" inverseName="cd_attachments" inverseEntity="Note" syncable="YES"/>
-        <relationship name="thumbnailData" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Data" inverseName="thumbnailAttachment" inverseEntity="Data" syncable="YES"/>
     </entity>
     <entity name="Data" representedClassName="HPData" syncable="YES">
         <attribute name="data" attributeType="Binary" syncable="YES"/>
         <relationship name="attachment" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Attachment" inverseName="data" inverseEntity="Attachment" syncable="YES"/>
-        <relationship name="thumbnailAttachment" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Attachment" inverseName="thumbnailData" inverseEntity="Attachment" syncable="YES"/>
     </entity>
     <entity name="Note" representedClassName="HPNote" syncable="YES">
         <attribute name="archived" optional="YES" transient="YES" syncable="YES"/>

@@ -10,6 +10,7 @@
 #import "HPAttachment.h"
 #import "HPFontManager.h"
 #import "HPAttachmentManager.h"
+#import "HPAgnesImageCache.h"
 #import "NSString+hp_utils.h"
 #import "UIImage+hp_utils.h"
 
@@ -49,69 +50,9 @@
 
 @end
 
-@interface HPNoteImageCache : NSObject
-
-- (UIImage*)imageForAttachment:(HPAttachment*)attachment maxSize:(CGSize)maxSize;
-
-@end
-
-@implementation HPNoteImageCache {
-    NSCache *_cache;
-}
-
-- (id)init
-{
-    if (self = [super init])
-    {
-        _cache = [[NSCache alloc] init];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(attachmentsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPAttachmentManager sharedManager]];
-    }
-    return self;
-}
-
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPAttachmentManager sharedManager]];
-}
-
-+ (HPNoteImageCache*)sharedCache
-{
-    static HPNoteImageCache *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [[HPNoteImageCache alloc] init];
-    });
-    return instance;
-}
-
-- (UIImage*)imageForAttachment:(HPAttachment*)attachment maxSize:(CGSize)maxSize
-{
-    UIImage *image = attachment.image;
-    UIImage *scaledImage = [_cache objectForKey:attachment.objectID];
-    if (!scaledImage || scaledImage.size.width > maxSize.width || scaledImage.size.height > maxSize.height)
-    {
-        CGSize scaledImageSize = [image hp_aspectFitRectForSize:maxSize].size;
-        scaledImage = [image hp_imageByScalingToSize:scaledImageSize];
-        [_cache setObject:scaledImage forKey:attachment.objectID];
-    }
-    return scaledImage;
-}
-
-- (void)attachmentsDidChangeNotification:(NSNotification*)notification
-{
-    NSDictionary *userInfo = [notification userInfo];
-    NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
-    for (HPAttachment *attachment in deleted)
-    {
-        [_cache removeObjectForKey:attachment.objectID];
-    }
-}
-
-@end
-
 @implementation HPNote (AttributedText)
 
-- (NSAttributedString*)attributedTextForWidth:(CGFloat)width
+- (NSAttributedString*)attributedText
 {
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text];
     __block NSInteger index = 0;
@@ -122,17 +63,16 @@
             return;
         }
         HPAttachment *attachment = self.attachments[index];
-        NSDictionary *attributes = [self attributesForAttachment:attachment maxWidth:width];
+        NSDictionary *attributes = [self attributesForAttachment:attachment];
         [attributedString setAttributes:attributes range:matchRange];
         index++;
     }];
     return attributedString;
 }
 
-- (NSDictionary*)attributesForAttachment:(HPAttachment*)attachment maxWidth:(CGFloat)maxWidth
+- (NSDictionary*)attributesForAttachment:(HPAttachment*)attachment
 {
-    CGSize maxSize = [self sizeForAttachmentMode:attachment.mode maxWidth:maxWidth];
-    UIImage *scaledImage = [[HPNoteImageCache sharedCache] imageForAttachment:attachment maxSize:maxSize];
+    UIImage *scaledImage = [[HPAgnesImageCache sharedCache] noteDetailImageForAttachment:attachment];
     
     HPAnimatedTextAttachment *textAttachment = [[HPAnimatedTextAttachment alloc] init];
     textAttachment.image = scaledImage;

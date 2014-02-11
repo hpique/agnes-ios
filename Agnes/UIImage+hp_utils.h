@@ -10,6 +10,8 @@
 
 @interface UIImage (hp_utils)
 
+- (CGRect)hp_aspectFillRectForSize:(CGSize)size;
+
 - (CGRect)hp_aspectFitRectForSize:(CGSize)size;
 
 - (UIImage *)hp_imageByScalingToSize:(CGSize)newSize;

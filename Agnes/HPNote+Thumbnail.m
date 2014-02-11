@@ -25,9 +25,4 @@
     return nil;
 }
 
-- (UIImage*)thumbnail
-{
-    return self.thumbnailAttachment.thumbnail;
-}
-
 @end

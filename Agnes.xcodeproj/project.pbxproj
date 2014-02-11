@@ -32,6 +32,8 @@
 		872C19B118987BC80013C9A5 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 872C19B018987BC80013C9A5 /* libz.dylib */; };
 		872C19B9189896B90013C9A5 /* HPNoteListSearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 872C19B8189896B90013C9A5 /* HPNoteListSearchBar.m */; };
 		87393C5318A55F0D006AB087 /* UITextView+hp_utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 87393C5218A55F0D006AB087 /* UITextView+hp_utils.m */; };
+		873E227F18A98EE200E7919C /* HPImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E227E18A98EE200E7919C /* HPImageCache.m */; };
+		873E228218A9AFB500E7919C /* HPAgnesImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E228118A9AFB500E7919C /* HPAgnesImageCache.m */; };
 		873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */; };
 		8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */; };
 		8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FADC188A8B69004CF099 /* HPIndexViewController.m */; };
@@ -144,6 +146,10 @@
 		872C19B8189896B90013C9A5 /* HPNoteListSearchBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListSearchBar.m; sourceTree = "<group>"; };
 		87393C5118A55F0D006AB087 /* UITextView+hp_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextView+hp_utils.h"; sourceTree = "<group>"; };
 		87393C5218A55F0D006AB087 /* UITextView+hp_utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextView+hp_utils.m"; sourceTree = "<group>"; };
+		873E227D18A98EE200E7919C /* HPImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPImageCache.h; sourceTree = "<group>"; };
+		873E227E18A98EE200E7919C /* HPImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPImageCache.m; sourceTree = "<group>"; };
+		873E228018A9AFB500E7919C /* HPAgnesImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAgnesImageCache.h; sourceTree = "<group>"; };
+		873E228118A9AFB500E7919C /* HPAgnesImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAgnesImageCache.m; sourceTree = "<group>"; };
 		873E9CCD189174F8003364E7 /* UITableView+hp_reloadChanges.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableView+hp_reloadChanges.h"; sourceTree = "<group>"; };
 		873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+hp_reloadChanges.m"; sourceTree = "<group>"; };
 		8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteSearchTableViewCell.h; sourceTree = "<group>"; };
@@ -284,6 +290,8 @@
 		87393C5418A55F27006AB087 /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				873E227D18A98EE200E7919C /* HPImageCache.h */,
+				873E227E18A98EE200E7919C /* HPImageCache.m */,
 				87E37F05188E4CD4000333EA /* HPKeyboardButton.h */,
 				87E37F06188E4CD4000333EA /* HPKeyboardButton.m */,
 				87AA3D1518A0E22800FBEAAF /* HPNoFirstResponderActionSheet.h */,
@@ -480,6 +488,8 @@
 		87D02E1A188EE7DC00273DEC /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				873E228018A9AFB500E7919C /* HPAgnesImageCache.h */,
+				873E228118A9AFB500E7919C /* HPAgnesImageCache.m */,
 				87142A041897CDA300DA588F /* HPAgnesNavigationController.h */,
 				87142A051897CDA300DA588F /* HPAgnesNavigationController.m */,
 				8704D60518A109EB00C8977E /* HPAgnesUIMetrics.h */,
@@ -709,6 +719,7 @@
 				871429AC18933D6600DA588F /* HPNoteActivityItemSource.m in Sources */,
 				8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */,
 				87393C5318A55F0D006AB087 /* UITextView+hp_utils.m in Sources */,
+				873E227F18A98EE200E7919C /* HPImageCache.m in Sources */,
 				87AA3CF6189C13E100FBEAAF /* HPImageZoomAnimationController.m in Sources */,
 				87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */,
 				8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */,
@@ -725,6 +736,7 @@
 				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
 				87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */,
 				8704D60718A109EB00C8977E /* HPAgnesUIMetrics.m in Sources */,
+				873E228218A9AFB500E7919C /* HPAgnesImageCache.m in Sources */,
 				87142A001896CFC900DA588F /* HPNoteImporter.m in Sources */,
 				873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */,
 				87E37F07188E4CD4000333EA /* HPKeyboardButton.m in Sources */,

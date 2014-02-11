@@ -262,7 +262,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         [[HPNoteManager sharedManager] editNote:self.note text:mutableText attachments:attachments];
         if (changed)
         {
-            NSMutableAttributedString *attributedText = [self attributedNoteText].mutableCopy;
+            NSMutableAttributedString *attributedText = self.note.attributedText.mutableCopy;
             [HPNoteAction willDisplayNote:self.note text:attributedText view:self.noteTextView];
             _bodyTextView.attributedText = attributedText;
         }
@@ -302,6 +302,15 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     return [HPIndexItem inboxIndexItem];
 }
 
++ (CGFloat)minimumNoteWidth
+{
+    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait]; // Portrait has the smallest margins
+    const CGSize screenSize = [UIScreen mainScreen].bounds.size;
+    const CGFloat minLength = MIN(screenSize.width, screenSize.height);
+    const CGFloat width = minLength - sideMargin * 2;
+    return width;
+}
+
 - (void)setNote:(HPNote *)note
 {
     _note = note;
@@ -323,15 +332,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 #pragma mark - Private
 
-- (NSAttributedString*)attributedNoteText
-{
-    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait]; // Portrait has the smallest margins
-    const CGSize screenSize = [UIScreen mainScreen].bounds.size;
-    const CGFloat minLength = MIN(screenSize.width, screenSize.height);
-    const CGFloat width = minLength - sideMargin * 2;
-    return [self.note attributedTextForWidth:width];
-}
-
 - (void)autosave
 {
     [self saveNote:NO];
@@ -341,7 +341,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     _hasEnteredEditingModeOnce = NO;
     _bodyTextStorage.search = self.search;
-    NSMutableAttributedString *attributedText = [self attributedNoteText].mutableCopy;
+    NSMutableAttributedString *attributedText = self.note.attributedText.mutableCopy;
     [HPNoteAction willDisplayNote:self.note text:attributedText view:self.noteTextView];
     _bodyTextView.attributedText = attributedText;
     _bodyTextView.selectedRange = NSMakeRange(0, 0);
@@ -947,7 +947,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         if (index == NSNotFound) index = 0;
         index = [[HPNoteManager sharedManager] attachToNote:self.note image:image index:index]; // TODO: What happens with settings notes?
         
-        self.noteTextView.attributedText = [self attributedNoteText];
+        self.noteTextView.attributedText = self.note.attributedText;
         self.textChanged = YES;
         
         CGRect destinationRect = [self.noteTextView hp_rectForCharacterRange:NSMakeRange(index, 1)];
