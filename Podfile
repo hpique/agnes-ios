@@ -8,3 +8,5 @@ pod 'iOS7Colors', '~> 2.0.0'
 pod 'TTTAttributedLabel', :git => 'https://github.com/hpique/TTTAttributedLabel.git'
 pod 'MHWDirectoryWatcher', '~> 0.0'
 pod 'ColorUtils', :git => 'https://github.com/hpique/ColorUtils.git', :branch=>'agnes'
+pod 'Haneke', :git => 'https://github.com/hpique/Haneke.git'
+

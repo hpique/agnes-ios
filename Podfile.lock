@@ -1,20 +1,21 @@
 PODS:
   - ColorUtils (1.1.2)
+  - Haneke (0.0.1)
   - HPReorderTableView (0.0.1)
   - iOS7Colors (2.0.0)
   - MCSwipeTableViewCell (2.0.0)
   - MHWDirectoryWatcher (0.0.4)
-  - MMDrawerController (0.5.1):
+  - MMDrawerController (0.5.2):
     - MMDrawerController/Core
     - MMDrawerController/MMDrawerBarButtonItem
     - MMDrawerController/MMDrawerVisualStates
     - MMDrawerController/Subclass
-  - MMDrawerController/Core (0.5.1)
-  - MMDrawerController/MMDrawerBarButtonItem (0.5.1):
+  - MMDrawerController/Core (0.5.2)
+  - MMDrawerController/MMDrawerBarButtonItem (0.5.2):
     - MMDrawerController/Core
-  - MMDrawerController/MMDrawerVisualStates (0.5.1):
+  - MMDrawerController/MMDrawerVisualStates (0.5.2):
     - MMDrawerController/Core
-  - MMDrawerController/Subclass (0.5.1):
+  - MMDrawerController/Subclass (0.5.2):
     - MMDrawerController/Core
   - PSPDFTextView (1.1.0)
   - SSZipArchive (0.3.1)
@@ -22,6 +23,7 @@ PODS:
 
 DEPENDENCIES:
   - ColorUtils (from `https://github.com/hpique/ColorUtils.git`, branch `agnes`)
+  - Haneke (from `https://github.com/hpique/Haneke.git`)
   - HPReorderTableView (from `https://github.com/hpique/HPReorderTableView.git`)
   - iOS7Colors (~> 2.0.0)
   - MCSwipeTableViewCell (from `https://github.com/hpique/MCSwipeTableViewCell.git`)
@@ -35,6 +37,8 @@ EXTERNAL SOURCES:
   ColorUtils:
     :branch: agnes
     :git: https://github.com/hpique/ColorUtils.git
+  Haneke:
+    :git: https://github.com/hpique/Haneke.git
   HPReorderTableView:
     :git: https://github.com/hpique/HPReorderTableView.git
   MCSwipeTableViewCell:
@@ -47,11 +51,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   ColorUtils: 5740b610eb7b50833f46d6d9863ebaa1da55301d
+  Haneke: 9f24e2ea2beb854b84fa253a9bc8d695a5786b4e
   HPReorderTableView: ed45d7dcd241f0a989ea259ffe8a1523e2a82650
   iOS7Colors: 80d700ca0fe4415eeea1cfb74d4d790ffa0375ab
   MCSwipeTableViewCell: 40d2d91d618ed5248d20b7d75018a4a33b0477dc
   MHWDirectoryWatcher: c8d2677e94ab6e078d321f87c58be5fa101ae457
-  MMDrawerController: 3e22aec684dbee5307ff9d1e76523003a3303a2d
+  MMDrawerController: 60bce0387ff42670d9a5a392e2f531be2fd39ce9
   PSPDFTextView: f078c6015a9568241c9518a7bb284bb4cc2fa9e2
   SSZipArchive: 47d0589a15452311749a4eeecb97e12800d127de
   TTTAttributedLabel: 3a571d73e055f4a79c304240598e4bfd199238e4

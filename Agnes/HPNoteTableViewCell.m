@@ -399,11 +399,13 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
         self.thumbnailView.image = nil;
         HPAttachment *thumbnailAttachment = self.note.thumbnailAttachment;
         NSString *attachmentUUID = thumbnailAttachment.uuid;
-        [[HPAgnesImageCache sharedCache] retrieveListImageForAttachment:thumbnailAttachment completionBlock:^(HPAttachment *attachment, UIImage *image) {
-            if ([attachment.uuid isEqualToString:attachmentUUID])
+        __block BOOL sync = NO;
+        sync = [[HPAgnesImageCache sharedCache] retrieveListImageForAttachment:thumbnailAttachment completionBlock:^(HPAttachment *attachment, UIImage *image) {
+            HPAttachment *thumbnailAttachment = self.note.thumbnailAttachment;
+            if ([thumbnailAttachment.uuid isEqualToString:attachmentUUID])
             {
                 [UIView transitionWithView:self.thumbnailView
-                                  duration:0.2
+                                  duration:sync ? 0 : 0.2
                                    options:UIViewAnimationOptionTransitionCrossDissolve
                                 animations:^{
                                     self.thumbnailView.image = image;

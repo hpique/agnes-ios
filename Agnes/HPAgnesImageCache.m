@@ -7,7 +7,7 @@
 //
 
 #import "HPAgnesImageCache.h"
-#import "HPImageCache.h"
+#import "HNKCache.h"
 #import "HPAttachment.h"
 #import "HPData.h"
 #import "HPNoteTableViewCell.h"
@@ -20,13 +20,13 @@ static NSString *const HPAgnesImageCacheFormatList = @"list";
 static NSString *const HPAgnesImageCacheFormatDetailDefault = @"detail";
 static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
 
-@interface HPAttachment(HPImageCacheEntity)<HPImageCacheEntity>
+@interface HPAttachment(HPImageCacheEntity)<HNKCacheEntity>
 
 @end
 
 @implementation HPAgnesImageCache {
-    HPImageCacheFormat *_listFormat;
-    HPImageCacheFormat *_characterFormat;
+    HNKCacheFormat *_listFormat;
+    HNKCacheFormat *_characterFormat;
 }
 
 - (id)init
@@ -34,27 +34,30 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
     self = [super init];
     if (self)
     {
-        HPImageCache *cache = [HPImageCache sharedCache];
+        HNKCache *cache = [HNKCache sharedCache];
         {
-            _listFormat = [[HPImageCacheFormat alloc] initWithName:HPAgnesImageCacheFormatList];
+            _listFormat = [[HNKCacheFormat alloc] initWithName:HPAgnesImageCacheFormatList];
             CGFloat length = [HPNoteTableViewCell thumbnailViewWidth];
             _listFormat.size = CGSizeMake(length, length);
             _listFormat.allowUpscaling = YES;
-            _listFormat.scaleMode = HPImageCacheFormatScaleModeAspectFill;
+            _listFormat.scaleMode = HNKScaleModeAspectFill;
+            _listFormat.diskCapacity = 25 * 1024 * 1024;
             [cache registerFormat:_listFormat];
         }
         const CGFloat minimumNoteWidth = [HPNoteViewController minimumNoteWidth];
         {
-            HPImageCacheFormat *format = [[HPImageCacheFormat alloc] initWithName:HPAgnesImageCacheFormatDetailDefault];
+            HNKCacheFormat *format = [[HNKCacheFormat alloc] initWithName:HPAgnesImageCacheFormatDetailDefault];
             format.size = CGSizeMake(minimumNoteWidth, minimumNoteWidth);
-            format.scaleMode = HPImageCacheFormatScaleModeAspectFit;
+            format.scaleMode = HNKScaleModeAspectFit;
+            format.diskCapacity = 100 * 1024 * 1024;
             [cache registerFormat:format];
         }
         {
-            _characterFormat = [[HPImageCacheFormat alloc] initWithName:HPAgnesImageCacheFormatDetailCharacter];
+            _characterFormat = [[HNKCacheFormat alloc] initWithName:HPAgnesImageCacheFormatDetailCharacter];
             const CGFloat height = [HPFontManager sharedManager].noteBodyLineHeight;
             _characterFormat.size = CGSizeMake(minimumNoteWidth, height);
-            _characterFormat.scaleMode = HPImageCacheFormatScaleModeAspectFit;
+            _characterFormat.scaleMode = HNKScaleModeAspectFit;
+            _characterFormat.diskCapacity = 1 * 1024 * 1024;
             [cache registerFormat:_characterFormat];
         }
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(attachmentsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPAttachmentManager sharedManager]];
@@ -91,12 +94,12 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
             formatName = HPAgnesImageCacheFormatDetailCharacter;
             break;
     }
-    return [[HPImageCache sharedCache] imageForEntity:attachment formatName:formatName];
+    return [[HNKCache sharedCache] imageForEntity:attachment formatName:formatName];
 }
 
 - (BOOL)retrieveListImageForAttachment:(HPAttachment*)attachment completionBlock:(void(^)(HPAttachment *attachment, UIImage *image))completionBlock
 {
-    return [[HPImageCache sharedCache] retrieveImageForEntity:attachment formatName:HPAgnesImageCacheFormatList completionBlock:^(id<HPImageCacheEntity> entity, NSString *formatName, UIImage *image) {
+    return [[HNKCache sharedCache] retrieveImageForEntity:attachment formatName:HPAgnesImageCacheFormatList completionBlock:^(id<HNKCacheEntity> entity, NSString *formatName, UIImage *image) {
         completionBlock(entity, image);
     }];
 }
@@ -107,7 +110,7 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
 {
     NSDictionary *userInfo = [notification userInfo];
     NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
-    HPImageCache *cache = [HPImageCache sharedCache];
+    HNKCache *cache = [HNKCache sharedCache];
     for (HPAttachment *attachment in deleted)
     {
         [cache removeImagesOfEntity:attachment];
@@ -116,7 +119,7 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
 
 - (void)didChangeFontsNotification:(NSNotification*)notification
 {
-    HPImageCache *cache = [HPImageCache sharedCache];
+    HNKCache *cache = [HNKCache sharedCache];
     {
         [cache clearFormatNamed:_listFormat.name];
         CGFloat length = [HPNoteTableViewCell thumbnailViewWidth];
@@ -133,14 +136,16 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
 
 @implementation HPAttachment(HPImageCacheEntity)
 
-- (NSString*)imageCacheId
+- (NSString*)cacheId
 {
     return self.uuid;
 }
 
-- (NSData*)imageCacheData
+- (NSData*)cacheOriginalData
 {
     return self.data.data;
 }
+
+- (UIImage*)cacheOriginalImage { return nil; }
 
 @end
