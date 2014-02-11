@@ -63,6 +63,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     NSInteger _attachmentActionSheetPhotosIndex;
     UIActionSheet *_deleteNoteActionSheet;
     
+    NSMutableArray *_notes;
     NSInteger _noteIndex;
 
     HPTagSuggestionsView *_suggestionsView;
@@ -85,6 +86,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     NSUInteger _attachmentAnimationIndex;
 }
 
+@synthesize notes = _notes;
 @synthesize noteTextView = _bodyTextView;
 @synthesize search = _search;
 @synthesize transitioning = _transitioning;
@@ -319,9 +321,10 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     _noteIndex = [self.notes indexOfObject:self.note];
 }
 
-- (void)setNotes:(NSMutableArray *)notes
+- (void)setNotes:(NSArray*)notes
 {
-    _notes = notes;
+    NSArray *reversed = [notes reverseObjectEnumerator].allObjects;
+    _notes = reversed.mutableCopy;
     _noteIndex = [self.notes indexOfObject:self.note];
 }
 
