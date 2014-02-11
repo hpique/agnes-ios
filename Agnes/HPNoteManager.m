@@ -45,16 +45,13 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (void)addTutorialNotes
 {
     [self performNoUndoModelUpdateAndSave:YES block:^{
-        for (NSInteger i = 0; i < 50; i++)
+        NSArray *notes = [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
+        NSMutableArray *tutorialUUIDs = [NSMutableArray array];
+        for (HPNote *note in notes)
         {
-            NSArray *notes = [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
-            NSMutableArray *tutorialUUIDs = [NSMutableArray array];
-            for (HPNote *note in notes)
-            {
-                [tutorialUUIDs addObject:note.uuid];
-            }
-            [HPPreferencesManager sharedManager].tutorialUUIDs = tutorialUUIDs;
+            [tutorialUUIDs addObject:note.uuid];
         }
+        [HPPreferencesManager sharedManager].tutorialUUIDs = tutorialUUIDs;
     }];
 }
 
@@ -131,9 +128,9 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 - (NSArray*)notesWithKeyFormat:(NSString*)keyFormat context:(NSManagedObjectContext*)context
 {
     NSString *text;
-    long i = 3;
+    long i = 1;
     NSMutableArray *texts = [NSMutableArray array];
-    while ((text = [self stringWithFormat:keyFormat index:i]) && i == 3)
+    while ((text = [self stringWithFormat:keyFormat index:i]))
     {
         [texts addObject:text];
         i++;

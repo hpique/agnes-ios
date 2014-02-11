@@ -119,7 +119,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }
     
     [self applyNavigationBarColors];
-    [self applyNavigationBarFonts];
+    [self applyFonts];
     
     [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
     [self updateIndexItem];
@@ -289,11 +289,13 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _sortModeLabel.textColor = barForegroundColor;
 }
 
-- (void)applyNavigationBarFonts
+- (void)applyFonts
 {
-    _titleLabel.font = [HPFontManager sharedManager].fontForNavigationBarTitle;
-    _sortModeLabel.font = [HPFontManager sharedManager].fontForNavigationBarDetail;
+    HPFontManager *fonts = [HPFontManager sharedManager];
+    _titleLabel.font = fonts.fontForNavigationBarTitle;
+    _sortModeLabel.font = fonts.fontForNavigationBarDetail;
     _titleLabelFont = _titleLabel.font;
+    [[UITextField appearanceWhenContainedIn:[HPNoteListSearchBar class], nil] setFont:fonts.fontForSearchBar];
 }
 
 - (void)alertErrorWithTitle:(NSString*)title message:(NSString*)message
@@ -843,7 +845,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void)didChangeFontsNotification:(NSNotification*)notification
 {
-    [self applyNavigationBarFonts];
+    [self applyFonts];
     [_notesTableView reloadData];
     UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
     [searchTableView reloadData];

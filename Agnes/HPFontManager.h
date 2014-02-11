@@ -26,6 +26,7 @@ extern NSString* const HPFontManagerSystemFontName;
 - (UIFont*)fontForNavigationBarDetail;
 - (UIFont*)fontForNoteTitle;
 - (UIFont*)fontForNoteBody;
+- (UIFont*)fontForSearchBar;
 
 - (UIFont*)fontForTitleOfNote:(HPNote*)note;
 - (UIFont*)fontForBodyOfNote:(HPNote*)note;

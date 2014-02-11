@@ -24,6 +24,7 @@ NSString *const HPFontManagerSystemFontName = @"system";
     UIFont *_navigationBarDetailFont;
     UIFont *_noteBodyFont;
     UIFont *_noteTitleFont;
+    UIFont *_searchBarFont;
 }
 
 @synthesize noteBodyLineHeight = _noteBodyLineHeight;
@@ -102,6 +103,12 @@ NSString *const HPFontManagerSystemFontName = @"system";
 {
     if (!_noteBodyFont) _noteBodyFont = [self fontWithTextStyle:UIFontTextStyleBody addingTraits:kNilOptions];
     return _noteBodyFont;
+}
+
+- (UIFont*)fontForSearchBar
+{
+    if (!_searchBarFont) _searchBarFont = [self.fontForNoteBody fontWithSize:14];
+    return _searchBarFont;
 }
 
 - (UIFont*)fontForArchivedNoteTitle
@@ -225,6 +232,8 @@ NSString *const HPFontManagerSystemFontName = @"system";
     _navigationBarTitleFont = nil;
     _noteBodyFont = nil;
     _noteTitleFont = nil;
+    _searchBarFont = nil;
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:HPFontManagerDidChangeFontsNotification object:self];
 }
 

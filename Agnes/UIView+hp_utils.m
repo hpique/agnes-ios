@@ -17,7 +17,7 @@
     UIViewAnimationCurve animationCurve = [[info objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
     
     // We can't use animateWithDuration:delay:options:animations:completion because animationCurve has no UIViewAnimationOptions equivalent in iOS 7. See: http://stackoverflow.com/a/19235995/143378
-    [UIView beginAnimations:nil context:NULL];
+    [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:duration];
     [UIView setAnimationCurve:animationCurve];
     [UIView setAnimationBeginsFromCurrentState:YES];
