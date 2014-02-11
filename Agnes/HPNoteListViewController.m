@@ -372,15 +372,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)restoreNavigationBarTitle
 {
-    CATransition *animation = [CATransition animation];
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-    animation.type = kCATransitionFade;
-    animation.duration = 0.2;
-    [_titleView.layer addAnimation:animation forKey:nil];
-    
-    _titleLabel.font = _titleLabelFont;
-    _titleLabel.text = self.title;
-    _sortModeLabel.text = nil;
+    [UIView transitionWithView:_titleView duration:0.2 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+        _titleLabel.font = _titleLabelFont;
+        _titleLabel.text = self.title;
+        _sortModeLabel.text = nil;
+    } completion:^(BOOL finished) {}];
 }
 
 - (void)stopObserving
@@ -489,34 +485,23 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     [_restoreTitleTimer invalidate];
     NSString *criteriaDescription = [self descriptionForSortMode:_sortMode];
-    if (animated)
-    {
-        // For some reason the following doesn't work
-        /* [UIView animateWithDuration:0.2 animations:^{
-         _displayCriteriaLabel.text = criteriaDescription;
-         }]; */
-        
-        CATransition *animation = [CATransition animation];
-        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-        animation.type = kCATransitionFade;
-        animation.duration = 0.2;
-        [_titleView.layer addAnimation:animation forKey:nil];
-        
-    }
+    NSTimeInterval duration = animated ? 0.2 : 0;
     
-    BOOL landscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
-    if (landscape)
-    {
-        _titleLabel.font = [_titleLabelFont fontWithSize:_titleLabelFont.pointSize * 0.75];
-        _titleLabel.text = criteriaDescription;
-        _sortModeLabel.text = @"";
-    }
-    else
-    {
-        _titleLabel.font = _titleLabelFont;
-        _titleLabel.text = self.title;
-        _sortModeLabel.text = criteriaDescription;
-    }
+    [UIView transitionWithView:_titleView duration:duration options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+        BOOL landscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
+        if (landscape)
+        {
+            _titleLabel.font = [_titleLabelFont fontWithSize:_titleLabelFont.pointSize * 0.75];
+            _titleLabel.text = criteriaDescription;
+            _sortModeLabel.text = @"";
+        }
+        else
+        {
+            _titleLabel.font = _titleLabelFont;
+            _titleLabel.text = self.title;
+            _sortModeLabel.text = criteriaDescription;
+        }
+    } completion:^(BOOL finished) {}];
     
     const HPTagSortMode sortMode = _sortMode;
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {

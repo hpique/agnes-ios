@@ -27,6 +27,7 @@
 #import "HPAgnesUIMetrics.h"
 #import "UIImage+hp_utils.h"
 #import "UITextView+hp_utils.h"
+#import "UIView+hp_utils.h"
 
 const NSTimeInterval HPNoteEditorAttachmentAnimationDuration = 0.3;
 const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
@@ -893,14 +894,12 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     UIEdgeInsets contentInset = UIEdgeInsetsMake(_originalBodyTextViewInset.top, _originalBodyTextViewInset.left, keyboardSize.height, _originalBodyTextViewInset.right);
     _originalTextContainerInset = _bodyTextView.textContainerInset;
     UIEdgeInsets textContainerInset = UIEdgeInsetsMake(_originalTextContainerInset.top, _originalTextContainerInset.left, 0, _originalTextContainerInset.right);
-    NSTimeInterval duration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    UIViewAnimationOptions animationCurve = [[info objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
-    [UIView animateWithDuration:duration delay:0 options:animationCurve animations:^{
+    
+    [UIView hp_animateWithKeyboardNotification:notification animations:^{
         _bodyTextView.contentInset = contentInset;
         _bodyTextView.scrollIndicatorInsets = contentInset;
         _bodyTextView.textContainerInset = textContainerInset;
         [_bodyTextView scrollToVisibleCaretAnimated:NO];
-    } completion:^(BOOL finished) {
     }];
 }
 
@@ -910,15 +909,12 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     
     [self setTyping:NO animated:YES];
     
-    NSDictionary *info = notification.userInfo;
-    NSTimeInterval duration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    UIViewAnimationOptions animationCurve = [[info objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
     UIEdgeInsets contentInset = UIEdgeInsetsMake(_bodyTextView.contentInset.top, _originalBodyTextViewInset.left, _originalBodyTextViewInset.bottom, _originalBodyTextViewInset.right);
-    [UIView animateWithDuration:duration delay:0 options:animationCurve animations:^{
+    
+    [UIView hp_animateWithKeyboardNotification:notification animations:^{
         _bodyTextView.contentInset = contentInset;
         _bodyTextView.scrollIndicatorInsets = contentInset;
         _bodyTextView.textContainerInset = _originalTextContainerInset;
-    } completion:^(BOOL finished) {
     }];
 }
 
