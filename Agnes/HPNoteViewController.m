@@ -347,6 +347,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     _bodyTextStorage.search = self.search;
     NSMutableAttributedString *attributedText = self.note.attributedText.mutableCopy;
     [HPNoteAction willDisplayNote:self.note text:attributedText view:self.noteTextView];
+    _bodyTextView.text = @" "; // HACK: See: http://stackoverflow.com/questions/21731207/how-to-clear-uitextview-for-real
     _bodyTextView.attributedText = attributedText;
     _bodyTextView.selectedRange = NSMakeRange(0, 0);
     if ([self.note isNew] && _viewDidAppear)
