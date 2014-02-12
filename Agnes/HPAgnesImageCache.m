@@ -14,12 +14,10 @@
 #import "HPFontManager.h"
 #import "UIImage+hp_utils.h"
 
-static NSString *const HPAgnesImageCacheFormatList = @"list";
 static NSString *const HPAgnesImageCacheFormatDetailDefault = @"detail";
 static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
 
 @implementation HPAgnesImageCache {
-    HNKCacheFormat *_listFormat;
     HNKCacheFormat *_characterFormat;
 }
 
@@ -29,16 +27,6 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
     if (self)
     {
         HNKCache *cache = [HNKCache sharedCache];
-        {
-            _listFormat = [[HNKCacheFormat alloc] initWithName:HPAgnesImageCacheFormatList];
-            CGFloat length = [HPNoteTableViewCell thumbnailViewWidth];
-            _listFormat.size = CGSizeMake(length, length);
-            _listFormat.allowUpscaling = YES;
-            _listFormat.scaleMode = HNKScaleModeAspectFill;
-            _listFormat.diskCapacity = 25 * 1024 * 1024;
-            _listFormat.compressionQuality = 0.75;
-            [cache registerFormat:_listFormat];
-        }
         const CGFloat minimumNoteWidth = [HPNoteViewController minimumNoteWidth];
         {
             HNKCacheFormat *format = [[HNKCacheFormat alloc] initWithName:HPAgnesImageCacheFormatDetailDefault];
@@ -93,13 +81,6 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
     return [[HNKCache sharedCache] imageForEntity:attachment formatName:formatName];
 }
 
-- (BOOL)retrieveListImageForAttachment:(HPAttachment*)attachment completionBlock:(void(^)(HPAttachment *attachment, UIImage *image))completionBlock
-{
-    return [[HNKCache sharedCache] retrieveImageForEntity:attachment formatName:HPAgnesImageCacheFormatList completionBlock:^(id<HNKCacheEntity> entity, NSString *formatName, UIImage *image) {
-        completionBlock(entity, image);
-    }];
-}
-
 #pragma mark - Notifications
 
 - (void)attachmentsDidChangeNotification:(NSNotification*)notification
@@ -116,16 +97,9 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
 - (void)didChangeFontsNotification:(NSNotification*)notification
 {
     HNKCache *cache = [HNKCache sharedCache];
-    {
-        [cache clearFormatNamed:_listFormat.name];
-        CGFloat length = [HPNoteTableViewCell thumbnailViewWidth];
-        _listFormat.size = CGSizeMake(length, length);
-    }
-    {
-        const CGFloat height = [HPFontManager sharedManager].noteBodyLineHeight;
-        _characterFormat.size = CGSizeMake(_characterFormat.size.width, height);
-        [cache clearFormatNamed:_characterFormat.name];
-    }
+    const CGFloat height = [HPFontManager sharedManager].noteBodyLineHeight;
+    _characterFormat.size = CGSizeMake(_characterFormat.size.width, height);
+    [cache clearFormatNamed:_characterFormat.name];
 }
 
 @end

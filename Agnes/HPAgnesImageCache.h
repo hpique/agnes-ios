@@ -18,8 +18,6 @@
 
 + (HPAgnesImageCache*)sharedCache;
 
-- (BOOL)retrieveListImageForAttachment:(HPAttachment*)attachment completionBlock:(void(^)(HPAttachment *attachment, UIImage *image))completionBlock;
-
 - (UIImage*)noteDetailImageForAttachment:(HPAttachment*)attachment;
 
 @end
