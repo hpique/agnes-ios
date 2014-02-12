@@ -38,7 +38,7 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
         }
         {
             _characterFormat = [[HNKCacheFormat alloc] initWithName:HPAgnesImageCacheFormatDetailCharacter];
-            const CGFloat height = [HPFontManager sharedManager].noteBodyLineHeight;
+            const CGFloat height = [HPFontManager sharedManager].fontForNoteBody.pointSize;
             _characterFormat.size = CGSizeMake(minimumNoteWidth, height);
             _characterFormat.scaleMode = HNKScaleModeAspectFit;
             _characterFormat.diskCapacity = 1 * 1024 * 1024;
@@ -97,7 +97,7 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
 - (void)didChangeFontsNotification:(NSNotification*)notification
 {
     HNKCache *cache = [HNKCache sharedCache];
-    const CGFloat height = [HPFontManager sharedManager].noteBodyLineHeight;
+    const CGFloat height = [HPFontManager sharedManager].fontForNoteBody.pointSize;
     _characterFormat.size = CGSizeMake(_characterFormat.size.width, height);
     [cache clearFormatNamed:_characterFormat.name];
 }
