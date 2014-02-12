@@ -16,6 +16,7 @@
 #import "HPAttachment.h"
 #import "NSString+hp_utils.h"
 #import "UIColor+hp_utils.h"
+#import "UIImageView+Haneke.h"
 
 NSInteger const HPNoteTableViewCellLabelMaxLength = 150;
 CGFloat const HPNoteTableViewCellMargin = 10;
@@ -398,20 +399,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
         self.thumbnailView.hidden = NO;
         self.thumbnailView.image = nil;
         HPAttachment *thumbnailAttachment = self.note.thumbnailAttachment;
-        NSString *attachmentUUID = thumbnailAttachment.uuid;
-        __block BOOL sync = NO;
-        sync = [[HPAgnesImageCache sharedCache] retrieveListImageForAttachment:thumbnailAttachment completionBlock:^(HPAttachment *attachment, UIImage *image) {
-            HPAttachment *thumbnailAttachment = self.note.thumbnailAttachment;
-            if ([thumbnailAttachment.uuid isEqualToString:attachmentUUID])
-            {
-                [UIView transitionWithView:self.thumbnailView
-                                  duration:sync ? 0 : 0.2
-                                   options:UIViewAnimationOptionTransitionCrossDissolve
-                                animations:^{
-                                    self.thumbnailView.image = image;
-                                } completion:nil];
-            }
-        }];
+        [self.thumbnailView hnk_setImageFromEntity:thumbnailAttachment];
     }
     else
     {

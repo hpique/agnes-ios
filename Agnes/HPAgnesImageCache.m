@@ -7,8 +7,6 @@
 //
 
 #import "HPAgnesImageCache.h"
-#import "HNKCache.h"
-#import "HPAttachment.h"
 #import "HPData.h"
 #import "HPNoteTableViewCell.h"
 #import "HPNoteViewController.h"
@@ -19,10 +17,6 @@
 static NSString *const HPAgnesImageCacheFormatList = @"list";
 static NSString *const HPAgnesImageCacheFormatDetailDefault = @"detail";
 static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
-
-@interface HPAttachment(HPImageCacheEntity)<HNKCacheEntity>
-
-@end
 
 @implementation HPAgnesImageCache {
     HNKCacheFormat *_listFormat;
@@ -42,6 +36,7 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
             _listFormat.allowUpscaling = YES;
             _listFormat.scaleMode = HNKScaleModeAspectFill;
             _listFormat.diskCapacity = 25 * 1024 * 1024;
+            _listFormat.compressionQuality = 0.75;
             [cache registerFormat:_listFormat];
         }
         const CGFloat minimumNoteWidth = [HPNoteViewController minimumNoteWidth];
@@ -50,6 +45,7 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
             format.size = CGSizeMake(minimumNoteWidth, minimumNoteWidth);
             format.scaleMode = HNKScaleModeAspectFit;
             format.diskCapacity = 100 * 1024 * 1024;
+            format.compressionQuality = 0.75;
             [cache registerFormat:format];
         }
         {

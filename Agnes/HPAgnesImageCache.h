@@ -7,7 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-@class HPAttachment;
+#import "HPAttachment.h"
+#import "HNKCache.h"
+
+@interface HPAttachment(HPImageCacheEntity)<HNKCacheEntity>
+
+@end
 
 @interface HPAgnesImageCache : NSObject
 
