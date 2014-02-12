@@ -34,39 +34,28 @@
 
 + (HPAttachment*)attachmentWithImage:(UIImage*)image context:(NSManagedObjectContext*)context
 {
+    NSData *data = UIImageJPEGRepresentation(image, 1);
+    HPAttachment *attachment = [HPAttachment attachmentWithData:data type:(NSString*)kUTTypeImage context:context];
+    return attachment;
+}
+
++ (HPAttachment*)attachmentWithData:(NSData*)data type:(NSString*)type context:(NSManagedObjectContext*)context
+{
     NSManagedObjectContext *modelContext = [HPNoteManager sharedManager].context;
     NSEntityDescription *entityAttachment = [NSEntityDescription entityForName:[self entityName] inManagedObjectContext:modelContext];
     HPAttachment *attachment = [[HPAttachment alloc] initWithEntity:entityAttachment insertIntoManagedObjectContext:context];
     attachment.uuid = [[NSUUID UUID] UUIDString];
-    attachment.type = (NSString*) kUTTypeImage;
-    
+    attachment.type = type;
+
     NSEntityDescription *entityData = [NSEntityDescription entityForName:[HPData entityName] inManagedObjectContext:modelContext];
     HPData *modelData = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
-    modelData.data = UIImageJPEGRepresentation(image, 1);
+    modelData.data = data;
     attachment.data = modelData;
-    
-//    {
-//        CGSize thumbnailSize;
-//        CGSize imageSize = image.size;
-//        if (imageSize.height < imageSize.width)
-//        {
-//            thumbnailSize.height = 240;
-//            thumbnailSize.width = imageSize.width / (imageSize.height / thumbnailSize.height);
-//        }
-//        else
-//        {
-//            thumbnailSize.width = 240;
-//            thumbnailSize.height = imageSize.height / (imageSize.width / thumbnailSize.width);
-//        }
-//        UIImage *thumbnail = [image hp_imageByScalingToSize:thumbnailSize];
-//        HPData *thumbnailModelData = [[HPData alloc] initWithEntity:entityData insertIntoManagedObjectContext:attachment.managedObjectContext];
-//        thumbnailModelData.data = UIImageJPEGRepresentation(thumbnail, 1);
-//        attachment.thumbnailData = thumbnailModelData;
-//    }
     
     attachment.createdAt = [NSDate date];
     return attachment;
 }
+
 
 @end
 

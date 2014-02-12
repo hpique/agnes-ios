@@ -17,6 +17,7 @@
 #import "HPData.h"
 #import "UIImage+hp_utils.h"
 #import <CoreData/CoreData.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 static void *HPNoteManagerContext = &HPNoteManagerContext;
 
@@ -148,13 +149,15 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         
         NSMutableArray *attachments = [NSMutableArray array];
         NSArray *matches = [attachmentRegex matchesInString:mutableText options:kNilOptions range:NSMakeRange(0, mutableText.length)];
+        NSString *resourceDirectory = [NSBundle mainBundle].resourcePath;
         for (NSInteger i = matches.count - 1; i >= 0; i--)
         {
             NSTextCheckingResult *result = matches[i];
             NSString *imageName = [HPAttachment imageNameFromTemplate:mutableText match:result];
-            UIImage *image = [UIImage imageNamed:imageName];
-            if (!image) continue;
-            HPAttachment *attachment = [HPAttachment attachmentWithImage:image context:context];
+            NSString *path = [resourceDirectory stringByAppendingPathComponent:imageName];
+            NSData *data = [NSData dataWithContentsOfFile:path];
+            if (!data) continue;
+            HPAttachment *attachment = [HPAttachment attachmentWithData:data type:(NSString*)kUTTypeImage context:context];
             attachment.createdAt = [NSDate date];
             attachment.mode = [HPAttachment modeFromTemplate:mutableText match:result];
             [attachments insertObject:attachment atIndex:0]; // Reverse order
@@ -198,7 +201,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }];
 }
 
-- (NSUInteger)attachToNote:(HPNote*)note image:(UIImage*)image index:(NSInteger)index
+- (NSUInteger)attachToNote:(HPNote*)note data:(NSData*)data type:(NSString*)type index:(NSInteger)index
 {
     BOOL isNew = note.managedObjectContext == nil;
     NSString *actionName = isNew ? NSLocalizedString(@"Add Note", @"") : NSLocalizedString(@"Attach Image", @"");
@@ -209,7 +212,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
          {
              [self.context insertObject:note];
          }
-         HPAttachment *attachment = [HPAttachment attachmentWithImage:image context:note.managedObjectContext];
+         HPAttachment *attachment = [HPAttachment attachmentWithData:data type:type context:note.managedObjectContext];
          attachmentIndex = [note addAttachment:attachment atIndex:index];
      }];
     return attachmentIndex;

@@ -28,6 +28,7 @@
 #import "UIImage+hp_utils.h"
 #import "UITextView+hp_utils.h"
 #import "UIView+hp_utils.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 const NSTimeInterval HPNoteEditorAttachmentAnimationDuration = 0.3;
 const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
@@ -82,6 +83,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     __weak IBOutlet NSLayoutConstraint *_toolbarHeightConstraint;
     
     CFTimeInterval _attachmentAnimationStart;
+    UIView *_attachmentAnimationView;
     CADisplayLink *_attachmentAnimationDisplayLink;
     NSUInteger _attachmentAnimationIndex;
 }
@@ -941,38 +943,55 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    NSUInteger index = _hasEnteredEditingModeOnce ? _bodyTextView.selectedRange.location : 0; // selectedRange gives the last position by default
+    if (index == NSNotFound) index = 0;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        NSData *data = UIImageJPEGRepresentation(image, 1);
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            
+            NSUInteger actualIndex = [[HPNoteManager sharedManager] attachToNote:self.note data:data type:(NSString*)kUTTypeImage index:index]; // TODO: What happens with settings notes?
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                
+                NSAttributedString *attributedText = self.note.attributedText;
+                dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    [self animateAttachmentAtIndex:actualIndex inAttributedText:attributedText];
+                });
+            });
+        });
+    });
     [self dismissViewControllerAnimated:YES completion:^{
-        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-        NSUInteger index = _hasEnteredEditingModeOnce ? _bodyTextView.selectedRange.location : 0; // selectedRange gives the last position by default
-        if (index == NSNotFound) index = 0;
-        index = [[HPNoteManager sharedManager] attachToNote:self.note image:image index:index]; // TODO: What happens with settings notes?
-        
-        self.noteTextView.attributedText = self.note.attributedText;
-        self.textChanged = YES;
-        
-        CGRect destinationRect = [self.noteTextView hp_rectForCharacterRange:NSMakeRange(index, 1)];
-        destinationRect = [self.view convertRect:destinationRect fromView:self.noteTextView];
-        NSTextAttachment *textAttachment = [self.noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
-        UIImage *scaledImage = textAttachment.image;
-        [_bodyTextStorage beginAnimatingAttachmentAtIndex:index];
-        CGRect originRect = [self.noteTextView hp_rectForCharacterRange:NSMakeRange(index, 1)];
-        originRect = [self.view convertRect:originRect fromView:self.noteTextView];
-        
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:scaledImage];
-        imageView.frame = originRect;
-        [self.view addSubview:imageView];
-        [self.view bringSubviewToFront:self.toolbar];
-        [UIView animateWithDuration:HPNoteEditorAttachmentAnimationDuration animations:^{
-            imageView.frame = destinationRect;
-        } completion:^(BOOL finished) {
-            [imageView removeFromSuperview];
-        }];
-        _attachmentAnimationStart = CACurrentMediaTime();
-        _attachmentAnimationIndex = index;
-        _attachmentAnimationDisplayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(attachmentAnimation:)];
-        [_attachmentAnimationDisplayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
-
+        dispatch_semaphore_signal(sema);
     }];
+}
+
+- (void)animateAttachmentAtIndex:(NSUInteger)index inAttributedText:(NSAttributedString*)attributedText
+{
+    self.noteTextView.attributedText = attributedText;
+    self.textChanged = YES;
+    
+    CGRect destinationRect = [self.noteTextView hp_rectForCharacterRange:NSMakeRange(index, 1)];
+    destinationRect = [self.view convertRect:destinationRect fromView:self.noteTextView];
+    NSTextAttachment *textAttachment = [self.noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:index effectiveRange:nil];
+    UIImage *scaledImage = textAttachment.image;
+    [_bodyTextStorage beginAnimatingAttachmentAtIndex:index];
+    CGRect originRect = [self.noteTextView hp_rectForCharacterRange:NSMakeRange(index, 1)];
+    originRect = [self.view convertRect:originRect fromView:self.noteTextView];
+    
+    _attachmentAnimationView = [[UIImageView alloc] initWithImage:scaledImage];
+    _attachmentAnimationView.frame = originRect;
+    [self.view addSubview:_attachmentAnimationView];
+    [self.view bringSubviewToFront:self.toolbar];
+    [UIView animateWithDuration:HPNoteEditorAttachmentAnimationDuration animations:^{
+        _attachmentAnimationView.frame = destinationRect;
+    }];
+    _attachmentAnimationStart = CACurrentMediaTime();
+    _attachmentAnimationIndex = index;
+    _attachmentAnimationDisplayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(attachmentAnimation:)];
+    [_attachmentAnimationDisplayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 }
 
 - (void)attachmentAnimation:(CADisplayLink*)displayLink
@@ -986,6 +1005,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     } else {
         [_bodyTextStorage endAnimatingAttachmentAtIndex:_attachmentAnimationIndex];
         [displayLink invalidate];
+        [_attachmentAnimationView removeFromSuperview];
+        _attachmentAnimationView = nil;
     }
 }
 

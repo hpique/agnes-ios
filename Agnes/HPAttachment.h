@@ -29,6 +29,7 @@ typedef NS_ENUM(NSInteger, HPAttachmentMode) {
 @property (nonatomic, readonly) UIImage *image;
 
 + (HPAttachment*)attachmentWithImage:(UIImage*)image context:(NSManagedObjectContext*)context;
++ (HPAttachment*)attachmentWithData:(NSData*)data type:(NSString*)type context:(NSManagedObjectContext*)context;
 
 @end
 
