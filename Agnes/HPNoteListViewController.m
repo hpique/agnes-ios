@@ -167,19 +167,19 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     _indexItem = indexItem;
     [self updateIndexItem];
+    [self updateNotes:NO reloadNotes:[NSSet set]];
+}
+
+- (void)showBlankNote
+{
+    HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:@[] indexItem:self.indexItem];
+    noteViewController.delegate = self;
+    [self.navigationController pushViewController:noteViewController animated:NO];
 }
 
 - (UITableView*)tableView
 {
     return _searching ? self.searchDisplayController.searchResultsTableView : _notesTableView;
-}
-
-+ (UINavigationController*)controllerWithIndexItem:(HPIndexItem*)indexItem
-{
-    HPNoteListViewController *noteListViewController = [[HPNoteListViewController alloc] init];
-    noteListViewController.indexItem = indexItem;
-    HPNoteNavigationController *controller = [[HPNoteNavigationController alloc] initWithRootViewController:noteListViewController];
-    return controller;
 }
 
 #pragma mark - Actions
@@ -360,8 +360,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     return nil;
 }
 
-
-
 - (void)removeNoteInCell:(HPNoteListTableViewCell*)cell modelBlock:(void (^)())block
 {
     NSIndexPath *indexPath = [_notesTableView indexPathForCell:cell];
@@ -372,9 +370,15 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }];
 }
 
-- (void)restoreNavigationBarTitle
+- (void)restoreNavigationBarTitleFromTimer:(NSTimer*)timer
 {
-    [UIView transitionWithView:_titleView duration:0.2 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+    [self restoreNavigationBarTitleAnimated:YES];
+}
+
+- (void)restoreNavigationBarTitleAnimated:(BOOL)animated
+{
+    const NSTimeInterval duration = animated ? 0.2 : 0;
+    [UIView transitionWithView:_titleView duration:duration options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
         _titleLabel.font = _titleLabelFont;
         _titleLabel.text = self.title;
         _sortModeLabel.text = nil;
@@ -469,6 +473,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)updateIndexItem
 {
+    [self restoreNavigationBarTitleAnimated:NO];
+
     self.title = self.indexItem.title;
     _titleLabel.text = self.title;
     _emptyTitleLabel.text = self.indexItem.emptyTitle;
@@ -480,7 +486,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     _addNoteBarButtonItem.enabled = !self.indexItem.disableAdd;
     _sortMode = self.indexItem.sortMode;
-    [self updateSortMode:NO /* animated */];
 }
 
 - (void)updateSortMode:(BOOL)animated
@@ -513,7 +518,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     CGFloat offsetY = _notesTableView.tableHeaderView.bounds.size.height - _notesTableView.contentInset.top;
     [_notesTableView setContentOffset:CGPointMake(0, offsetY) animated:animated];
 
-    _restoreTitleTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(restoreNavigationBarTitle) userInfo:nil repeats:NO];
+    _restoreTitleTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(restoreNavigationBarTitleFromTimer:) userInfo:nil repeats:NO];
 }
 
 - (void)showNote:(HPNote*)note in:(NSArray*)notes

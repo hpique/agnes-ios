@@ -7,8 +7,6 @@
 //
 
 #import "HPAppDelegate.h"
-#import "HPNoteListViewController.h"
-#import "HPIndexViewController.h"
 #import "HPIndexItem.h"
 #import "HPPreferencesManager.h"
 #import "HPRootViewController.h"
@@ -88,11 +86,7 @@
 
 - (void)loadRootViewController
 {
-    UINavigationController *centerController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
-    HPIndexViewController *indexViewController = [[HPIndexViewController alloc] init];
-    HPAgnesNavigationController *leftNavigationController = [[HPAgnesNavigationController alloc] initWithRootViewController:indexViewController];
-    HPRootViewController *drawerController = [[HPRootViewController alloc] initWithCenterViewController:centerController leftDrawerViewController:leftNavigationController];
-    centerController.delegate = drawerController;
+    HPRootViewController *drawerController = [[HPRootViewController alloc] init];
     self.window.rootViewController = drawerController;
 }
 

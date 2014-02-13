@@ -14,7 +14,6 @@
 #import "HPIndexItemTableViewCell.h"
 #import "HPNote.h"
 #import "HPTag.h"
-#import "HPNoteViewController.h"
 #import "HPRootViewController.h"
 #import "MMDrawerController.h"
 #import "UITableView+hp_reloadChanges.h"
@@ -159,21 +158,14 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     HPIndexItem *item = [_items objectAtIndex:indexPath.row];
-    UINavigationController *centerViewController = [HPNoteListViewController controllerWithIndexItem:item];
-    centerViewController.delegate = [self hp_rootViewController];
-    [self.mm_drawerController setCenterViewController:centerViewController withCloseAnimation:YES completion:nil];
+    [self.hp_rootViewController setListIndexItem:item animated:YES];
 }
 
 #pragma mark - Actions
 
 - (void)addBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    UINavigationController *centerViewController = [HPNoteListViewController controllerWithIndexItem:[HPIndexItem inboxIndexItem]];
-    centerViewController.delegate = [self hp_rootViewController];
-    HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:@[] indexItem:nil];
-    noteViewController.delegate = (id<HPNoteViewControllerDelegate>) centerViewController.topViewController;
-    [centerViewController pushViewController:noteViewController animated:NO];
-    [self.mm_drawerController setCenterViewController:centerViewController withCloseAnimation:YES completion:nil];
+    [self.hp_rootViewController showBlankNote];
 }
 
 - (void)notesDidChangeNotification:(NSNotification*)notification

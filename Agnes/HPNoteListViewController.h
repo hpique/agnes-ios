@@ -17,10 +17,10 @@
 @property (nonatomic, strong) HPIndexItem *indexItem;
 @property (nonatomic, readonly) UITableView *tableView;
 
-+ (UINavigationController*)controllerWithIndexItem:(HPIndexItem*)indexItem;
-
 @property (nonatomic, readonly) NSIndexPath *indexPathOfSelectedNote;
 
 - (BOOL)selectNote:(HPNote*)note;
+
+- (void)showBlankNote;
 
 @end

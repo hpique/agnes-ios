@@ -7,8 +7,13 @@
 //
 
 #import "MMDrawerController.h"
+@class HPIndexItem;
 
 @interface HPRootViewController : MMDrawerController<UINavigationControllerDelegate>
+
+- (void)setListIndexItem:(HPIndexItem*)indexItem animated:(BOOL)animated;
+
+- (void)showBlankNote;
 
 @end
 
