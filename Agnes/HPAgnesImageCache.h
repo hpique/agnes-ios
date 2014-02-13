@@ -10,14 +10,18 @@
 #import "HPAttachment.h"
 #import "HNKCache.h"
 
-@interface HPAttachment(HPImageCacheEntity)<HNKCacheEntity>
-
-@end
-
 @interface HPAgnesImageCache : NSObject
 
 + (HPAgnesImageCache*)sharedCache;
 
+@property (nonatomic, readonly) HNKCacheFormat *thumbnailFormat;
+
 - (UIImage*)noteDetailImageForAttachment:(HPAttachment*)attachment;
+
+- (void)prePopulateCacheWithThumbnailOfImageNamed:(NSString*)name atttachment:(HPAttachment*)attachment;
+
+@end
+
+@interface HPAttachment(HPImageCacheEntity)<HNKCacheEntity>
 
 @end

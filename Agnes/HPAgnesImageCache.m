@@ -16,10 +16,14 @@
 
 static NSString *const HPAgnesImageCacheFormatDetailDefault = @"detail";
 static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
+static NSString *const HPAgnesImageCacheFormatThumbnail = @"thumbnail";
 
 @implementation HPAgnesImageCache {
     HNKCacheFormat *_characterFormat;
+    HNKCacheFormat *_thumbnailFormat;
 }
+
+@synthesize thumbnailFormat = _thumbnailFormat;
 
 - (id)init
 {
@@ -34,6 +38,7 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
             format.scaleMode = HNKScaleModeAspectFit;
             format.diskCapacity = 100 * 1024 * 1024;
             format.compressionQuality = 0.75;
+            format.preloadPolicy = HNKPreloadPolicyLastSession;
             [cache registerFormat:format];
         }
         {
@@ -43,6 +48,17 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
             _characterFormat.scaleMode = HNKScaleModeAspectFit;
             _characterFormat.diskCapacity = 1 * 1024 * 1024;
             [cache registerFormat:_characterFormat];
+        }
+        {
+            _thumbnailFormat = [[HNKCacheFormat alloc] initWithName:HPAgnesImageCacheFormatThumbnail];
+            CGFloat length = [HPNoteTableViewCell thumbnailViewWidth];
+            _thumbnailFormat.size = CGSizeMake(length, length);
+            _thumbnailFormat.allowUpscaling = YES;
+            _thumbnailFormat.scaleMode = HNKScaleModeAspectFill;
+            _thumbnailFormat.diskCapacity = 25 * 1024 * 1024;
+            _thumbnailFormat.compressionQuality = 0.75;
+            _thumbnailFormat.preloadPolicy = HNKPreloadPolicyLastSession;
+            [cache registerFormat:_thumbnailFormat];
         }
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(attachmentsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPAttachmentManager sharedManager]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
@@ -81,6 +97,16 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
     return [[HNKCache sharedCache] imageForEntity:attachment formatName:formatName];
 }
 
+- (void)prePopulateCacheWithThumbnailOfImageNamed:(NSString*)name atttachment:(HPAttachment*)attachment
+{
+    NSString *extension = [name pathExtension];
+    name = [name stringByDeletingPathExtension];
+    name = [NSString stringWithFormat:@"%@-thumbnail", name];
+    name = [name stringByAppendingPathExtension:extension];
+    UIImage *image = [UIImage imageNamed:name];
+    [[HNKCache sharedCache] setImage:image forKey:attachment.cacheKey formatName:_thumbnailFormat.name];
+}
+
 #pragma mark - Notifications
 
 - (void)attachmentsDidChangeNotification:(NSNotification*)notification
@@ -97,16 +123,23 @@ static NSString *const HPAgnesImageCacheFormatDetailCharacter = @"character";
 - (void)didChangeFontsNotification:(NSNotification*)notification
 {
     HNKCache *cache = [HNKCache sharedCache];
-    const CGFloat height = [HPFontManager sharedManager].fontForNoteBody.pointSize;
-    _characterFormat.size = CGSizeMake(_characterFormat.size.width, height);
-    [cache clearFormatNamed:_characterFormat.name];
+    {
+        [cache clearFormatNamed:_thumbnailFormat.name];
+        const CGFloat length = [HPNoteTableViewCell thumbnailViewWidth];
+        _thumbnailFormat.size = CGSizeMake(length, length);
+    }
+    {
+        const CGFloat height = [HPFontManager sharedManager].fontForNoteBody.pointSize;
+        _characterFormat.size = CGSizeMake(_characterFormat.size.width, height);
+        [cache clearFormatNamed:_characterFormat.name];
+    }
 }
 
 @end
 
 @implementation HPAttachment(HPImageCacheEntity)
 
-- (NSString*)cacheId
+- (NSString*)cacheKey
 {
     return self.uuid;
 }

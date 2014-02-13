@@ -15,6 +15,7 @@
 #import "HPAttachment.h"
 #import "HPAttachment+Template.h"
 #import "HPData.h"
+#import "HPAgnesImageCache.h"
 #import "UIImage+hp_utils.h"
 #import <CoreData/CoreData.h>
 #import <MobileCoreServices/MobileCoreServices.h>
@@ -156,7 +157,12 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             NSString *imageName = [HPAttachment imageNameFromTemplate:mutableText match:result];
             NSString *path = [resourceDirectory stringByAppendingPathComponent:imageName];
             NSData *data = [NSData dataWithContentsOfFile:path];
-            if (!data) continue;
+            if (!data)
+            {
+                UIImage *image = [UIImage imageNamed:imageName];
+                if (!image) continue;
+                data = UIImagePNGRepresentation(image);
+            }
             HPAttachment *attachment = [HPAttachment attachmentWithData:data type:(NSString*)kUTTypeImage context:context];
             attachment.createdAt = [NSDate date];
             attachment.mode = [HPAttachment modeFromTemplate:mutableText match:result];
@@ -164,6 +170,11 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             
             NSRange matchRange = [result rangeAtIndex:0];
             [mutableText replaceCharactersInRange:matchRange withString:[HPNote attachmentString]];
+            
+            if (attachment.mode == HPAttachmentModeDefault)
+            {
+                [[HPAgnesImageCache sharedCache] prePopulateCacheWithThumbnailOfImageNamed:imageName atttachment:attachment];
+            }
         }
         note.text = mutableText;
         [note replaceAttachments:attachments];

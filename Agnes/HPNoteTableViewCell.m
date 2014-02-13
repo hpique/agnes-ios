@@ -17,6 +17,7 @@
 #import "NSString+hp_utils.h"
 #import "UIColor+hp_utils.h"
 #import "UIImageView+Haneke.h"
+#import "HPAgnesImageCache.h"
 
 NSInteger const HPNoteTableViewCellLabelMaxLength = 150;
 CGFloat const HPNoteTableViewCellMargin = 10;
@@ -163,7 +164,9 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     }
     
     _layoutMode = HPNoteTableViewCellLayoutModeDefault;
+    
     self.thumbnailView.layer.borderWidth = 1;
+    self.thumbnailView.hnk_cacheFormat = [HPAgnesImageCache sharedCache].thumbnailFormat;
     [self applyPreferences];
 }
 
