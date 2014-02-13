@@ -249,6 +249,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 {
     [self performModelUpdateWithName:NSLocalizedString(@"Import Note", @"") save:YES block:^{
         HPNote *note = [HPNote insertNewObjectIntoContext:self.context];
+        note.uuid = [[NSUUID UUID] UUIDString];
         note.createdAt = createdAt;
         note.inboxOrder = NSIntegerMax;
         note.modifiedAt = modifiedAt;
