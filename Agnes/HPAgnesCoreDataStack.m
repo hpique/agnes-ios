@@ -137,9 +137,6 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
 
 - (void)persistentStoreDidImportUbiquitousContentChanges:(NSNotification*)notification
 {
-    NSLog(@"%s", __PRETTY_FUNCTION__);
-    NSLog(@"%@", notification.userInfo.description);
-    
     NSManagedObjectContext *moc = self.managedObjectContext;
     [moc performBlock:^{
         [moc mergeChangesFromContextDidSaveNotification:notification];
@@ -170,9 +167,6 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
 // iCloud accounts.
 - (void)storesWillChange:(NSNotification *)notification
 {
-    NSLog(@"%s", __PRETTY_FUNCTION__);
-    NSLog(@"%@", notification.userInfo.description);
-
     NSManagedObjectContext *moc = self.managedObjectContext;
     [moc performBlockAndWait:^{
         _noteCountBeforeStoreChange = [HPNoteManager sharedManager].objects.count;
@@ -192,8 +186,6 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
 // Subscribe to NSPersistentStoreCoordinatorStoresDidChangeNotification
 - (void)storesDidChange:(NSNotification *)notification
 {
-    NSLog(@"%s", __PRETTY_FUNCTION__);
-    NSLog(@"%@", notification.userInfo.description);
     NSDictionary *userInfo = notification.userInfo;
     NSPersistentStoreUbiquitousTransitionType transitionType = [[userInfo objectForKey:NSPersistentStoreUbiquitousTransitionTypeKey] integerValue];
     if (transitionType == NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted)
