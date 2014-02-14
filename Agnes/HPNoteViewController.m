@@ -193,7 +193,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     // TODO: Do this only when we're transitiong back to the list or to the menu
     for (HPNote *note in self.notes)
     {
-        if (!self.indexItem.disableRemove && [self isEmptyNote:note])
+        if (!self.indexItem.disableRemove && [note isEmptyInTag:self.indexItem.tag])
         {
             [[HPNoteManager sharedManager] trashNote:note];
         }
@@ -258,7 +258,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     if (!note) return NO;
     if (!self.textChanged) return NO;
     
-    if (![note isNew] || ![self isEmptyText])
+    if (![note isNew] || ![_bodyTextView.text hp_isEmptyInTag:self.indexItem.tag])
     {
         NSMutableString *mutableText = [NSMutableString stringWithString:self.noteTextView.text];
         const BOOL changed = [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
@@ -396,26 +396,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-- (BOOL)isEmptyText
-{
-    NSString *editText = [_bodyTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    if (editText.length == 0) return YES;
-    HPTag *tag = self.indexItem.tag;
-    NSString *blankText = [HPNote textOfBlankNoteWithTagOfName:tag.name];
-    blankText = [blankText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    if ([editText isEqualToString:blankText]) return YES;
-    return NO;
-}
-
-- (BOOL)isEmptyNote:(HPNote*)note
-{
-    if (note.empty) return YES;
-    HPTag *tag = self.indexItem.tag;
-    NSString *blankText = [HPNote textOfBlankNoteWithTagOfName:tag.name];
-    if ([note.text isEqualToString:blankText]) return YES;
-    return NO;
-}
-
 - (void)trashNote
 {
     [[HPNoteManager sharedManager] trashNote:self.note];
@@ -517,33 +497,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     controller.delegate = self;
     controller.sourceType = type;
     [self presentViewController:controller animated:YES completion:^{}];
-}
-
-- (NSString*)selectedTagEnclosing:(BOOL)enclosing range:(NSRange*)foundRange
-{
-    NSRange selectedRange = _bodyTextView.selectedRange;
-    NSRange lineRange = [_bodyTextView.text lineRangeForRange:NSMakeRange(selectedRange.location, 0)];
-    NSInteger length = enclosing ? lineRange.length : NSMaxRange(selectedRange) - lineRange.location;
-    NSString *line = [_bodyTextView.text substringWithRange:NSMakeRange(lineRange.location, length)];
-    NSInteger cursorLocationInLine = selectedRange.location - lineRange.location;
-    NSRegularExpression *regex = [HPNote tagRegularExpression];
-    
-    __block BOOL found = NO;
-    [regex enumerateMatchesInString:line options:0 range:NSMakeRange(0, line.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
-        NSRange resultRange = result.range;
-        if (!NSLocationInRange(cursorLocationInLine, resultRange) && NSMaxRange(resultRange) != cursorLocationInLine) return;
-        
-        *foundRange = resultRange;
-        found = YES;
-        *stop = YES;
-    }];
-    if (found)
-    {
-        NSString *tag = [line substringWithRange:*foundRange];
-        *foundRange = NSMakeRange(lineRange.location + (*foundRange).location, (*foundRange).length);
-        return tag;
-    }
-    return nil;
 }
 
 - (void)setDetailMode:(HPNoteDetailMode)detailMode
@@ -771,7 +724,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    if ([self isEmptyNote:self.note])
+    if ([self.note isEmptyInTag:self.indexItem.tag])
     {
         [self trashNote];
     }
@@ -817,7 +770,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)textViewDidChangeSelection:(UITextView *)textView
 {
     NSRange foundRange;
-    NSString *prefix = [self selectedTagEnclosing:NO range:&foundRange];
+    NSString *prefix = [_bodyTextView.text hp_tagInRange:_bodyTextView.selectedRange enclosing:NO tagRange:&foundRange];
     _suggestionsView.prefix = prefix;
 }
 
@@ -827,7 +780,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     [[UIDevice currentDevice] playInputClick];
     NSRange foundRange;
-    NSString *tag = [self selectedTagEnclosing:YES range:&foundRange];
+    NSString *tag = [_bodyTextView.text hp_tagInRange:_bodyTextView.selectedRange enclosing:YES tagRange:&foundRange];
     if (!tag) return;
     
     UITextRange *textRange = [_bodyTextView hp_textRangeFromRange:foundRange];

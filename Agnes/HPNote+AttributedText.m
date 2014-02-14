@@ -8,6 +8,7 @@
 
 #import "HPNote+AttributedText.h"
 #import "HPAttachment.h"
+#import "HPTag.h"
 #import "HPFontManager.h"
 #import "HPAttachmentManager.h"
 #import "HPAgnesImageCache.h"
@@ -91,6 +92,14 @@
     return attributes;
 }
 
+- (BOOL)isEmptyInTag:(HPTag*)tag
+{
+    if (self.empty) return YES;
+    NSString *blankText = [HPNote textOfBlankNoteWithTagOfName:tag.name];
+    if ([self.text isEqualToString:blankText]) return YES;
+    return NO;
+}
+
 + (NSParagraphStyle*)paragraphStyleOfAttributedText:(NSAttributedString*)attributedText paragraphRange:(NSRange)paragraphRange
 {
     NSMutableParagraphStyle *paragraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
@@ -167,5 +176,42 @@
 
 @end
 
+@implementation NSString(HPNote)
 
+- (NSString*)hp_tagInRange:(NSRange)selectedRange enclosing:(BOOL)enclosing tagRange:(NSRange*)foundRange
+{
+    NSRange lineRange = [self lineRangeForRange:NSMakeRange(selectedRange.location, 0)];
+    NSInteger length = enclosing ? lineRange.length : NSMaxRange(selectedRange) - lineRange.location;
+    NSString *line = [self substringWithRange:NSMakeRange(lineRange.location, length)];
+    NSInteger cursorLocationInLine = selectedRange.location - lineRange.location;
+    NSRegularExpression *regex = [HPNote tagRegularExpression];
+    
+    __block BOOL found = NO;
+    [regex enumerateMatchesInString:line options:0 range:NSMakeRange(0, line.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+        NSRange resultRange = result.range;
+        if (!NSLocationInRange(cursorLocationInLine, resultRange) && NSMaxRange(resultRange) != cursorLocationInLine) return;
+        
+        *foundRange = resultRange;
+        found = YES;
+        *stop = YES;
+    }];
+    if (found)
+    {
+        NSString *tag = [line substringWithRange:*foundRange];
+        *foundRange = NSMakeRange(lineRange.location + (*foundRange).location, (*foundRange).length);
+        return tag;
+    }
+    return nil;
+}
 
+- (BOOL)hp_isEmptyInTag:(HPTag*)tag
+{
+    NSString *editText = [self stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if (editText.length == 0) return YES;
+    NSString *blankText = [HPNote textOfBlankNoteWithTagOfName:tag.name];
+    blankText = [blankText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if ([editText isEqualToString:blankText]) return YES;
+    return NO;
+}
+
+@end

@@ -20,6 +20,8 @@
 
 @property (nonatomic, readonly) NSAttributedString *attributedText;
 
+- (BOOL)isEmptyInTag:(HPTag*)tag;
+
 + (NSParagraphStyle*)paragraphStyleOfAttributedText:(NSAttributedString*)attributedText paragraphRange:(NSRange)paragraphRange;
 
 @end
@@ -31,5 +33,13 @@
 - (UIImage*)hp_imageOfFirstAttachment;
 
 - (NSString*)hp_valueOfLinkWithScheme:(NSString*)scheme;
+
+@end
+
+@interface NSString(HPNote)
+
+- (BOOL)hp_isEmptyInTag:(HPTag*)tag;
+
+- (NSString*)hp_tagInRange:(NSRange)selectedRange enclosing:(BOOL)enclosing tagRange:(NSRange*)foundRange;
 
 @end
