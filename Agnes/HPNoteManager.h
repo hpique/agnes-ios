@@ -11,6 +11,19 @@
 #import "HPNote.h"
 #import "HPTag.h"
 
+@interface HPNoteImport : NSObject
+
+@property (nonatomic, strong) NSString *text;
+@property (nonatomic, strong) NSDate *createdAt;
+@property (nonatomic, strong) NSDate *modifiedAt;
+@property (nonatomic, strong) NSArray *attachments;
+
++ (HPNoteImport*)noteImportWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt attachments:(NSArray*)attachments;
+
+- (HPNote*)insertNoteInContext:(NSManagedObjectContext*)context;
+
+@end
+
 @interface HPNoteManager : HPEntityManager
 
 @property (nonatomic, readonly) NSArray *systemNotes;
@@ -35,7 +48,7 @@
 
 - (void)editNote:(HPNote*)note text:(NSString*)text attachments:(NSArray*)attachments;
 
-- (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt attachments:(NSArray*)attachments;
+- (void)importNotes:(NSArray*)notes;
 
 - (void)reorderNotes:(NSArray*)notes tagName:(NSString*)tagName;
 

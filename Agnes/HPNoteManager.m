@@ -256,21 +256,13 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }];
 }
 
-- (void)importNoteWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt attachments:(NSArray*)attachments
+- (void)importNotes:(NSArray*)notes
 {
-    [self performModelUpdateWithName:NSLocalizedString(@"Import Note", @"") save:YES block:^{
-        HPNote *note = [HPNote insertNewObjectIntoContext:self.context];
-        note.uuid = [[NSUUID UUID] UUIDString];
-        note.createdAt = createdAt;
-        note.inboxOrder = NSIntegerMax;
-        note.modifiedAt = modifiedAt;
-        note.text = text;
-        for (HPAttachment *attachment in attachments)
+    [self performModelUpdateWithName:NSLocalizedString(@"Import Notes", @"") save:YES block:^{
+        for (HPNoteImport *noteImport in notes)
         {
-            [self.context insertObject:attachment.data];
-            [self.context insertObject:attachment];
+            [noteImport insertNoteInContext:self.context];
         }
-        [note replaceAttachments:attachments];
     }];
 }
 
@@ -313,6 +305,37 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     [self performModelUpdateWithName:NSLocalizedString(@"Delete Note", @"") save:YES block:^{
         [self.context deleteObject:note];
     }];
+}
+
+@end
+
+@implementation HPNoteImport
+
++ (HPNoteImport*)noteImportWithText:(NSString*)text createdAt:(NSDate*)createdAt modifiedAt:(NSDate*)modifiedAt attachments:(NSArray*)attachments
+{
+    HPNoteImport *noteImport = [[HPNoteImport alloc] init];
+    noteImport.text = text;
+    noteImport.createdAt = createdAt;
+    noteImport.modifiedAt = modifiedAt;
+    noteImport.attachments = attachments;
+    return noteImport;
+}
+
+- (HPNote*)insertNoteInContext:(NSManagedObjectContext*)context
+{
+    HPNote *note = [HPNote insertNewObjectIntoContext:context];
+    note.uuid = [[NSUUID UUID] UUIDString];
+    note.createdAt = self.createdAt;
+    note.inboxOrder = NSIntegerMax;
+    note.modifiedAt = self.modifiedAt;
+    note.text = self.text;
+    for (HPAttachment *attachment in self.attachments)
+    {
+        [context insertObject:attachment.data];
+        [context insertObject:attachment];
+    }
+    [note replaceAttachments:self.attachments];
+    return note;
 }
 
 @end

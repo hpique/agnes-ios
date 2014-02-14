@@ -56,44 +56,6 @@
 
 #pragma mark - Private (background)
 
-- (void)importNotesAtPath:(NSString*)path
-{
-    [_directoryWatcher stopWatching];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self importNotesAtPath:path error:nil];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [_directoryWatcher startWatching];
-        });
-    });
-}
-
-- (BOOL)importNotesAtPath:(NSString*)path error:(NSError**)error
-{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSArray *allContents = [fileManager contentsOfDirectoryAtPath:path error:error];
-    {
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'txt'"];
-        NSArray *txtContents = [allContents filteredArrayUsingPredicate:predicate];
-        for (NSString *fileName in txtContents)
-        {
-            NSString *filePath = [path stringByAppendingPathComponent:fileName];
-            BOOL success = [self importNoteAtPath:filePath error:error];
-            if (!success) return NO;
-        }
-    }
-    {
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'zip'"];
-        NSArray *zipContents = [allContents filteredArrayUsingPredicate:predicate];
-        for (NSString *fileName in zipContents)
-        {
-            NSString *filePath = [path stringByAppendingPathComponent:fileName];
-            BOOL success = [self importNotesFromArchiveAtPath:filePath error:error];
-            if (!success) return NO;
-        }
-    }
-    return YES;
-}
-
 - (NSArray*)attachmentsInText:(NSMutableString*)text directory:(NSString*)directory
 {
     NSRegularExpression *regex = [HPAttachment templateRegex];
@@ -134,36 +96,84 @@
     return attachments;
 }
 
+- (void)importNotesAtPath:(NSString*)path
+{
+    [_directoryWatcher stopWatching];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self importNotesAtPath:path error:nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_directoryWatcher startWatching];
+        });
+    });
+}
+
+- (BOOL)importNotesAtPath:(NSString*)path error:(NSError**)error
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSArray *allContents = [fileManager contentsOfDirectoryAtPath:path error:error];
+    {
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'txt'"];
+        NSArray *txtContents = [allContents filteredArrayUsingPredicate:predicate];
+        for (NSString *fileName in txtContents)
+        {
+            NSString *filePath = [path stringByAppendingPathComponent:fileName];
+            BOOL success = [self importNoteAtPath:filePath error:error];
+            if (!success) return NO;
+        }
+    }
+    {
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'zip'"];
+        NSArray *zipContents = [allContents filteredArrayUsingPredicate:predicate];
+        for (NSString *fileName in zipContents)
+        {
+            NSString *filePath = [path stringByAppendingPathComponent:fileName];
+            BOOL success = [self importNotesFromArchiveAtPath:filePath error:error];
+            if (!success) return NO;
+        }
+    }
+    return YES;
+}
+
+- (BOOL)importNoteBatchAtPath:(NSString*)path error:(NSError**)error
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSMutableArray *noteImports = [NSMutableArray array];
+    NSArray *allContents = [fileManager contentsOfDirectoryAtPath:path error:error];
+
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'txt'"];
+    NSArray *txtContents = [allContents filteredArrayUsingPredicate:predicate];
+    for (NSString *fileName in txtContents)
+    {
+        NSString *filePath = [path stringByAppendingPathComponent:fileName];
+        HPNoteImport *noteImport = [self noteImportFromPath:filePath error:error];
+        BOOL removed = [fileManager removeItemAtPath:filePath error:error];
+        if (!removed)
+        {
+            NSLog(@"Remove file failed with error %@", [*error localizedDescription]);
+        }
+        if (!noteImport) return NO;
+        [noteImports addObject:noteImport];
+    }
+
+    HPNoteManager *noteManager = [HPNoteManager sharedManager];
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        [noteManager importNotes:noteImports];
+    });
+    return YES;
+}
+
 - (BOOL)importNoteAtPath:(NSString*)path error:(NSError**)error
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    HPNoteManager *noteManager = [HPNoteManager sharedManager];
-    NSString *text = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
-    if (!text)
-    {
-        NSLog(@"Read file failed with error %@", [*error localizedDescription]);
-        return NO;
-    }
-    NSMutableString *mutableText = text.mutableCopy;
-    NSString *directory = [path stringByDeletingLastPathComponent];
-    NSArray *attachments = [self attachmentsInText:mutableText directory:directory];
-
-    NSDictionary *attributes = [fileManager attributesOfItemAtPath:path error:error];
-    if (!attributes)
-    {
-        NSLog(@"Get attributes failed with error %@", [*error localizedDescription]);
-        return NO;
-    }
-    NSDate *createdAt = [attributes objectForKey:NSFileCreationDate];
-    NSDate *modifiedAt = [attributes objectForKey:NSFileModificationDate];
-    
+    HPNoteImport *noteImport = [self noteImportFromPath:path error:error];
     BOOL removed = [fileManager removeItemAtPath:path error:error];
     if (!removed)
     {
         NSLog(@"Remove file failed with error %@", [*error localizedDescription]);
     }
+    HPNoteManager *noteManager = [HPNoteManager sharedManager];
     dispatch_sync(dispatch_get_main_queue(), ^{
-        [noteManager importNoteWithText:mutableText createdAt:createdAt modifiedAt:modifiedAt attachments:attachments];
+        [noteManager importNotes:@[noteImport]];
     });
     return YES;
 }
@@ -198,7 +208,7 @@
     success = [SSZipArchive unzipFileAtPath:path toDestination:importPath];
     if (!success) return NO;
     
-    success = [self importNotesAtPath:importPath error:error];
+    success = [self importNoteBatchAtPath:importPath error:error];
     BOOL removed = [fileManager removeItemAtPath:importPath error:error];
     if (!removed)
     {
@@ -210,6 +220,33 @@
         NSLog(@"Remove file failed with error %@", [*error localizedDescription]);
     }
     return success;
+}
+
+- (HPNoteImport*)noteImportFromPath:(NSString*)path error:(NSError**)error
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *text = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
+    if (!text)
+    {
+        NSLog(@"Read file failed with error %@", [*error localizedDescription]);
+        return nil;
+    }
+    NSMutableString *mutableText = text.mutableCopy;
+    NSString *directory = [path stringByDeletingLastPathComponent];
+    NSArray *attachments = [self attachmentsInText:mutableText directory:directory];
+    
+    NSDictionary *attributes = [fileManager attributesOfItemAtPath:path error:error];
+    if (!attributes)
+    {
+        NSLog(@"Get attributes failed with error %@", [*error localizedDescription]);
+        return nil;
+    }
+    
+    NSDate *createdAt = [attributes objectForKey:NSFileCreationDate];
+    NSDate *modifiedAt = [attributes objectForKey:NSFileModificationDate];
+
+    HPNoteImport *noteImport = [HPNoteImport noteImportWithText:mutableText createdAt:createdAt modifiedAt:modifiedAt attachments:attachments];
+    return noteImport;
 }
 
 @end
