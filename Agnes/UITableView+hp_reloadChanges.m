@@ -32,8 +32,8 @@ const NSUInteger HPTableViewMaxChangesWithoutFullReload = 20;
     {
         NSArray *previousObjects = previousData[sectionIndex];
         NSArray *currentObjects = currentData[sectionIndex];
-        NSDictionary *previousIndexes = [UITableView dictionaryWithIndexesOfObjects:previousObjects keyBlock:keyBlock];
-        NSDictionary *currentIndexes = [UITableView dictionaryWithIndexesOfObjects:currentObjects keyBlock:keyBlock];
+        NSDictionary *previousIndexes = [UITableView hp_dictionaryWithIndexesOfObjects:previousObjects keyBlock:keyBlock];
+        NSDictionary *currentIndexes = [UITableView hp_dictionaryWithIndexesOfObjects:currentObjects keyBlock:keyBlock];
         
         [previousObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
          {
@@ -43,8 +43,19 @@ const NSUInteger HPTableViewMaxChangesWithoutFullReload = 20;
                  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
                  [indexPathsToDelete addObject:indexPath];
                  changeCount++;
+                 if (changeCount > HPTableViewMaxChangesWithoutFullReload)
+                 {
+                     *stop = YES;
+                     return;
+                 }
+                 
              }
          }];
+        
+        if (changeCount > HPTableViewMaxChangesWithoutFullReload)
+        {
+            break;
+        }
         
         [currentObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
          {
@@ -55,6 +66,11 @@ const NSUInteger HPTableViewMaxChangesWithoutFullReload = 20;
                  NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
                  [indexPathsToInsert addObject:indexPath];
                  changeCount++;
+                 if (changeCount > HPTableViewMaxChangesWithoutFullReload)
+                 {
+                     *stop = YES;
+                     return;
+                 }
              }
              else
              {
@@ -65,6 +81,11 @@ const NSUInteger HPTableViewMaxChangesWithoutFullReload = 20;
                      NSIndexPath *toIndexPath = [NSIndexPath indexPathForRow:idx inSection:sectionIndex];
                      [indexPathsToMove addObject:@[fromIndexPath, toIndexPath]];
                      changeCount++;
+                     if (changeCount > HPTableViewMaxChangesWithoutFullReload)
+                     {
+                         *stop = YES;
+                         return;
+                     }
                  }
                  else
                  {
@@ -76,6 +97,11 @@ const NSUInteger HPTableViewMaxChangesWithoutFullReload = 20;
                              NSIndexPath *indexPath = [NSIndexPath indexPathForRow:previousIndex inSection:sectionIndex];
                              [indexPathsToReload addObject:indexPath];
                              changeCount++;
+                             if (changeCount > HPTableViewMaxChangesWithoutFullReload)
+                             {
+                                 *stop = YES;
+                                 return;
+                             }
                          }
                      }
                  }
@@ -101,9 +127,10 @@ const NSUInteger HPTableViewMaxChangesWithoutFullReload = 20;
     }
 }
 
+
 #pragma mark - Private
 
-+ (NSDictionary*)dictionaryWithIndexesOfObjects:(NSArray*)objects keyBlock:(id<NSCopying>(^)(id object))keyBlock
++ (NSDictionary*)hp_dictionaryWithIndexesOfObjects:(NSArray*)objects keyBlock:(id<NSCopying>(^)(id object))keyBlock
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     [objects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
