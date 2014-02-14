@@ -53,7 +53,12 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
 - (void)save
 {
     NSError *error;
+    BOOL success = [_context save:&error];
     NSAssert([_context save:&error], @"Context save failed with error %@", error.localizedDescription);
+    if (!success)
+    {
+        NSLog(@"Context save failed with error %@", error);
+    }
 }
 
 - (void)removeDuplicatesWithUniquePropertyNamed:(NSString*)propertyName removeBlock:(void (^)(id uniqueValue))removeBlock
