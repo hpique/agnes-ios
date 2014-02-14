@@ -16,6 +16,8 @@
 
 - (id)initWithManagedObjectContext:(NSManagedObjectContext*)context;
 
+- (NSUInteger)countWithPredicate:(NSPredicate*)predicate;
+
 - (void)save;
 
 - (void)performModelUpdateWithName:(NSString*)actionName save:(BOOL)save block:(void (^)())block;

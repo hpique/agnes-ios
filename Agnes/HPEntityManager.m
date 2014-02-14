@@ -40,6 +40,16 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     return objects;
 }
 
+- (NSUInteger)countWithPredicate:(NSPredicate*)predicate
+{
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
+    fetchRequest.predicate = predicate;
+    NSError *error = nil;
+    NSUInteger count = [self.context countForFetchRequest:fetchRequest error:&error];
+    NSAssert(count != NSNotFound, @"Fetch %@ failed with error %@", fetchRequest, error);
+    return count;
+}
+
 - (void)save
 {
     NSError *error;
