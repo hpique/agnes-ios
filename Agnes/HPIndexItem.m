@@ -13,6 +13,8 @@
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
 
+NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotification";
+
 @interface HPIndexItemInbox : HPIndexItem
 @end
 
@@ -35,6 +37,8 @@
 @property (nonatomic, copy) NSString *imageName;
 @property (nonatomic, strong) HPTag *tag;
 
+@property (nonatomic, readonly) NSUInteger fasterNoteCount;
+
 @end
 
 @implementation HPIndexItem {
@@ -46,6 +50,11 @@
     UIFont *_emptyTitleFont;
     UIFont *_emptySubtitleFont;
     HPTag *_tag;
+
+    // Cache
+    UIImage *_icon;
+    NSUInteger _noteCount;
+    NSArray *_notes;
 }
 
 @synthesize emptySubtitle = _emptySubtitle;
@@ -53,6 +62,22 @@
 @synthesize emptySubtitleFont = _emptySubtitleFont;
 @synthesize emptyTitleFont = _emptyTitleFont;
 @synthesize tag = _tag;
+
+- (id)init
+{
+    self = [super init];
+    if (self)
+    {
+        _noteCount = NSNotFound;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(objectsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+}
 
 + (HPIndexItem*)inboxIndexItem
 {
@@ -118,6 +143,11 @@
     return item;
 }
 
+- (BOOL)matchesNote:(HPNote*)note
+{
+    return NO;
+}
+
 - (BOOL)disableAdd
 {
     return _disableAdd;
@@ -145,21 +175,20 @@
     return self.title;
 }
 
+- (NSUInteger)fasterNoteCount
+{
+    return NSNotFound;
+}
+
 - (UIImage*)icon
 {
-    NSArray *notes = [self notes:NO /* archived */];
-    UIImage *image = nil;
-    if (notes.count > 0)
+    if (!_icon)
     {
-        NSString *fullImageName = [NSString stringWithFormat:@"%@-full", _imageName];
-        image = [UIImage imageNamed:fullImageName];
+        UIImage *image = [UIImage imageNamed:_imageName];
+        image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        _icon = image;
     }
-    if (!image)
-    {
-        image = [UIImage imageNamed:_imageName];
-    }
-    image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    return image;
+    return _icon;
 }
 
 - (NSString*)indexTitle
@@ -167,9 +196,35 @@
     return self.title;
 }
 
+- (NSUInteger)noteCount
+{
+    if (_noteCount != NSNotFound) return _noteCount;
+    if (_notes)
+    {
+        _noteCount = _notes.count;
+    }
+    else
+    {
+        const NSUInteger fasterCount = self.fasterNoteCount;
+        if (fasterCount != NSNotFound)
+        {
+            _noteCount = fasterCount;
+        }
+        else
+        {
+            _noteCount = self.notes.count;
+        }
+    }
+    return _noteCount;
+}
+
 - (NSArray*)notes
 {
-    return [self notes:NO /* archived */];
+    if (!_notes)
+    {
+        _notes = [self notes:NO /* archived */];
+    }
+    return _notes;
 }
 
 - (NSArray*)notes:(BOOL)archived
@@ -187,9 +242,69 @@
     return [[HPPreferencesManager sharedManager] sortModeForListTitle:self.title default:self.defaultSortMode];
 }
 
+#pragma mark - Notifications
+
+- (void)objectsDidChangeNotification:(NSNotification*)notification
+{
+    NSDictionary *userInfo = notification.userInfo;
+    NSSet *insertedObjects = userInfo[NSInsertedObjectsKey];
+    NSSet *updatedObjects = userInfo[NSUpdatedObjectsKey];
+    NSSet *deletedObjects = userInfo[NSDeletedObjectsKey];
+    
+    for (HPNote *note in insertedObjects)
+    {
+        if ([self matchesNote:note])
+        {
+            [self invalidateNotesAndNotifyChange];
+            return;
+        }
+    }
+    for (HPNote *note in deletedObjects)
+    {
+        if ([self matchesNote:note])
+        {
+            [self invalidateNotesAndNotifyChange];
+            return;
+        }
+    }
+    for (HPNote *note in updatedObjects)
+    {
+        if ([self.notes containsObject:note])
+        {
+            [self invalidateNotesAndNotifyChange];
+            return;
+        }
+    }
+}
+
+- (void)invalidateNotesAndNotifyChange
+{
+    _noteCount = NSNotFound;
+    _notes = nil;
+    [[NSNotificationCenter defaultCenter] postNotificationName:HPIndexItemDidChangeNotification object:self];
+}
+
 @end
 
-@implementation HPIndexItemInbox
+@implementation HPIndexItemInbox {
+    UIImage *_iconFull;
+}
+
+- (UIImage*)icon
+{
+    if (self.noteCount > 0)
+    {
+        if (!_iconFull)
+        {
+            NSString *fullImageName = [NSString stringWithFormat:@"%@-full", self.imageName];
+            UIImage *image = [UIImage imageNamed:fullImageName];
+            image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            _iconFull = image;
+        }
+        return _iconFull;
+    }
+    return [super icon];
+}
 
 - (NSArray*)notes:(BOOL)archived
 {
@@ -198,9 +313,34 @@
     return [notes filteredArrayUsingPredicate:predicate];
 }
 
+- (BOOL)matchesNote:(HPNote*)note
+{
+    return !(note.archived);
+}
+
+- (NSUInteger)fasterNoteCount
+{
+    static NSPredicate *predicate = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(cd_archived))];
+    });
+    return [[HPNoteManager sharedManager] countWithPredicate:predicate];
+}
+
 @end
 
 @implementation HPIndexItemArchive
+
+- (NSUInteger)fasterNoteCount
+{
+    static NSPredicate *predicate = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        predicate = [NSPredicate predicateWithFormat:@"%K == YES", NSStringFromSelector(@selector(cd_archived))];
+    });
+    return [[HPNoteManager sharedManager] countWithPredicate:predicate];
+}
 
 - (NSArray*)notes
 {
@@ -214,15 +354,30 @@
     return [notes filteredArrayUsingPredicate:predicate];
 }
 
+- (BOOL)matchesNote:(HPNote*)note
+{
+    return note.archived;
+}
+
 @end
 
 @implementation HPIndexItemTag
+
+- (NSUInteger)fasterNoteCount
+{
+    return self.tag.cd_notes.count;
+}
 
 - (NSArray*)notes:(BOOL)archived
 {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == %d", NSStringFromSelector(@selector(cd_archived)), archived];
     NSSet *notes = [self.tag.cd_notes filteredSetUsingPredicate:predicate];
     return [notes allObjects];
+}
+
+- (NSUInteger)noteCount
+{
+    return [super noteCount];
 }
 
 - (NSString*)indexTitle
@@ -247,6 +402,11 @@
     return [value integerValue];
 }
 
+- (BOOL)matchesNote:(HPNote*)note
+{
+    return [note.cd_tags containsObject:self.tag];
+}
+
 @end
 
 @implementation HPIndexItemSystem
@@ -254,6 +414,12 @@
 - (NSArray*)notes:(BOOL)archived
 {
     return [HPNoteManager sharedManager].systemNotes;
+}
+
+- (BOOL)matchesNote:(HPNote *)note
+{
+    // TODO: Expose systemContext in sharedManager
+    return note.managedObjectContext != [HPNoteManager sharedManager].context;
 }
 
 @end

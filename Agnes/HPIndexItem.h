@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "HPTag.h"
 
+extern NSString* const HPIndexItemDidChangeNotification;
+
 @interface HPIndexItem : NSObject
 
 @property (nonatomic, strong) NSArray *allowedSortModes;
@@ -22,11 +24,13 @@
 @property (nonatomic, readonly) UIImage *icon;
 @property (nonatomic, readonly) NSString *indexTitle;
 @property (nonatomic, readonly) NSArray *notes;
+/**
+ Return the number of notes. Use instead of notes.count to improve performance.
+ */
+@property (nonatomic, readonly) NSUInteger noteCount;
 @property (nonatomic, assign) HPTagSortMode sortMode;
 @property (nonatomic, readonly) HPTag *tag;
 @property (nonatomic, copy) NSString *title;
-
-
 + (HPIndexItem*)inboxIndexItem;
 
 + (HPIndexItem*)archiveIndexItem;
@@ -36,5 +40,7 @@
 + (HPIndexItem*)systemIndexItem;
 
 - (NSArray*)notes:(BOOL)archived;
+
+- (BOOL)matchesNote:(HPNote*)note;
 
 @end

@@ -38,21 +38,34 @@
 {
     _titleView.font = [HPFontManager sharedManager].fontForIndexCellTitle;
     _detailView.font = [HPFontManager sharedManager].fontForIndexCellDetail;
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(objectsDidChange:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFonts:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
 }
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+    if (self.indexItem)
+    {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:HPIndexItemDidChangeNotification object:self.indexItem];
+    }
+}
+
+- (void)prepareForReuse
+{
+    if (self.indexItem)
+    {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:HPIndexItemDidChangeNotification object:self.indexItem];
+        _indexItem = nil;
+    }
 }
 
 - (void)setIndexItem:(HPIndexItem *)indexItem
 {
     _indexItem = indexItem;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(indexItemDidChangeNotification:) name:HPIndexItemDidChangeNotification object:self.indexItem];
     _titleView.text = self.indexItem.indexTitle;
     _iconView.image = self.indexItem.icon;
-    _detailView.text = [NSString stringWithFormat:@"%ld", (long)self.indexItem.notes.count];
+    _detailView.text = [NSString stringWithFormat:@"%ld", (long)self.indexItem.noteCount];
 }
 
 #pragma mark - Notifications
@@ -63,12 +76,12 @@
     _detailView.font = [HPFontManager sharedManager].fontForIndexCellDetail;
 }
 
-- (void)objectsDidChange:(NSNotification*)notification
+- (void)indexItemDidChangeNotification:(NSNotification*)notification
 {
     if (self.indexItem)
     {
         _iconView.image = self.indexItem.icon;
-        _detailView.text = [NSString stringWithFormat:@"%ld", (long)self.indexItem.notes.count];
+        _detailView.text = [NSString stringWithFormat:@"%ld", (long)self.indexItem.noteCount];
     }
 }
 
