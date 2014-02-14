@@ -168,6 +168,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _indexItem = indexItem;
     [self updateIndexItem];
     [self updateNotes:NO reloadNotes:[NSSet set]];
+    _sortModeLabel.text = @"";
+    [_notesTableView setContentOffset:CGPointMake(0, 0) animated:NO];
 }
 
 - (void)showBlankNote
@@ -515,8 +517,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         [cell setDetailMode:sortMode animated:animated];
     }];
     
-    CGFloat offsetY = _notesTableView.tableHeaderView.bounds.size.height - _notesTableView.contentInset.top;
-    [_notesTableView setContentOffset:CGPointMake(0, offsetY) animated:animated];
+    [_notesTableView setContentOffset:CGPointMake(0, 0) animated:animated];
 
     _restoreTitleTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(restoreNavigationBarTitleFromTimer:) userInfo:nil repeats:NO];
 }
@@ -576,7 +577,6 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     if (location1 > location2) return NSOrderedDescending;
     return NSOrderedSame;
 }
-
 
 - (void)setSwipeActionTo:(HPNoteListTableViewCell*)cell imageNamed:(NSString*)imageName color:(UIColor*)color state:(MCSwipeTableViewCellState)state block:(void (^)(HPNoteListTableViewCell *cell))block
 {
