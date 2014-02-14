@@ -13,4 +13,6 @@
 
 - (id)initWithNote:(HPNote*)note;
 
+@property (nonatomic, assign) NSRange selectedRange;
+
 @end

@@ -581,7 +581,9 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)actionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [self autosave];
     HPNoteActivityItemSource *activityItem = [[HPNoteActivityItemSource alloc] initWithNote:self.note];
+    activityItem.selectedRange = _bodyTextView.selectedRange;
     NSMutableArray *items = [NSMutableArray arrayWithObject:activityItem];
     NSAttributedString *attributedText = self.noteTextView.attributedText;
     UIImage *attachmentImage = [attributedText hp_imageOfFirstAttachment];

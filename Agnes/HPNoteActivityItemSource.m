@@ -20,6 +20,7 @@ static NSString* const HPActivityTypeMail = @"com.apple.UIKit.activity.Mail";
     if (self = [super init])
     {
         _note = note;
+        _selectedRange = NSMakeRange(0, 0);
     }
     return self;
 }
@@ -31,6 +32,11 @@ static NSString* const HPActivityTypeMail = @"com.apple.UIKit.activity.Mail";
 
 - (id)activityViewController:(UIActivityViewController *)activityViewController itemForActivityType:(NSString *)activityType
 {
+    if (_selectedRange.length > 0)
+    {
+        return [_note.text substringWithRange:_selectedRange];
+    }
+    
     if ([activityType isEqualToString:HPActivityTypeMail])
     {
         return _note.body;
@@ -43,6 +49,10 @@ static NSString* const HPActivityTypeMail = @"com.apple.UIKit.activity.Mail";
 
 - (NSString *)activityViewController:(UIActivityViewController *)activityViewController subjectForActivityType:(NSString *)activityType
 {
+    if (_selectedRange.length > 0)
+    {
+        return nil;
+    }
     return _note.title;
 }
 
