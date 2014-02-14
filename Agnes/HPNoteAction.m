@@ -71,7 +71,7 @@
 
 + (BOOL)willEditNote:(HPNote*)note text:(NSMutableString*)mutableText editor:(UITextView*)textView
 {
-    if ([[HPNoteManager sharedManager].systemNotes containsObject:note])
+    if (note.isSystem)
     {
         [[HPPreferencesManager sharedManager] applyPreferences:mutableText];
         [mutableText deleteCharactersInRange:NSMakeRange(0, mutableText.length)];
@@ -101,6 +101,20 @@
         if (!replacement) replacement = self.replacementBlock();
         [mutableText replaceCharactersInRange:matchRange withString:replacement];
     }];
+}
+
+@end
+
+@implementation HPNote(Action)
+
+- (BOOL)canAutosave
+{
+    return !(self.isSystem);
+}
+
+- (BOOL)isSystem
+{
+    return [[HPNoteManager sharedManager].systemNotes containsObject:self];
 }
 
 @end

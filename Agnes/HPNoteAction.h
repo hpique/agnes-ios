@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-@class HPNote;
+#import "HPNote.h"
 
 @interface HPNoteAction : NSObject
 
@@ -16,5 +16,13 @@
 + (void)willDisplayNote:(HPNote*)note text:(NSMutableAttributedString*)mutableText view:(id)view;
 
 + (BOOL)willEditNote:(HPNote*)note text:(NSMutableString*)mutableText editor:(UITextView*)textView;
+
+@end
+
+@interface HPNote(Action)
+
+- (BOOL)canAutosave;
+
+- (BOOL)isSystem;
 
 @end

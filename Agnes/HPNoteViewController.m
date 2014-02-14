@@ -340,6 +340,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)autosave
 {
+    if (!(self.note.canAutosave)) return;
     [self saveNote:NO];
 }
 
