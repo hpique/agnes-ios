@@ -12,7 +12,7 @@
 #import "HPNoteTableViewCell.h"
 #import "HPNoteNavigationController.h"
 #import "HPNote.h"
-#import "HPNote+Thumbnail.h"
+#import "HPNote+List.h"
 #import "HPAttachment.h"
 #import "UIImage+hp_utils.h"
 #import "UITextView+hp_utils.h"

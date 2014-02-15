@@ -101,11 +101,6 @@ const NSInteger HPNoteDetailModeCount = 5;
     return instance;
 }
 
-+ (NSString*)textOfBlankNoteWithTagOfName:(NSString*)tag
-{
-    return [NSString stringWithFormat:@"\n\n\n\n%@", tag];
-}
-
 - (BOOL)isNew
 {
     return self.managedObjectContext == nil;
@@ -314,22 +309,9 @@ const NSInteger HPNoteDetailModeCount = 5;
             if (index == 1) *stop = YES;
             index++;
         }];
-        _summary = summary;
+        _summary = [summary stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     }
     return _summary;
-}
-
-- (NSString*)summaryForTagNamed:(NSString*)tagName
-{
-    NSString *summary = self.body;
-    if (!tagName) return summary;
-    if (summary.length == 0) return summary;
-    NSRange lastLineRange = [summary lineRangeForRange:NSMakeRange(summary.length - 1, 1)];
-    NSString *lastLine = [summary substringWithRange:lastLineRange];
-    if (![lastLine isEqualToString:tagName]) return summary;
-    NSString *summaryForTag = [summary stringByReplacingCharactersInRange:lastLineRange withString:@""];
-    summaryForTag = [summaryForTag stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    return summaryForTag;
 }
 
 - (NSString*)modifiedAtDescription

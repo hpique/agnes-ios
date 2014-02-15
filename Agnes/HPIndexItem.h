@@ -31,6 +31,7 @@ extern NSString* const HPIndexItemDidChangeNotification;
 @property (nonatomic, assign) HPTagSortMode sortMode;
 @property (nonatomic, readonly) HPTag *tag;
 @property (nonatomic, copy) NSString *title;
+
 + (HPIndexItem*)inboxIndexItem;
 
 + (HPIndexItem*)archiveIndexItem;

@@ -1,14 +1,15 @@
 //
-//  HPNote+AttributedText.m
+//  HPNote+Detail.m
 //  Agnes
 //
 //  Created by Hermes on 03/02/14.
 //  Copyright (c) 2014 Hermes Pique. All rights reserved.
 //
 
-#import "HPNote+AttributedText.h"
+#import "HPNote+Detail.h"
 #import "HPAttachment.h"
 #import "HPTag.h"
+#import "HPNoteManager.h"
 #import "HPFontManager.h"
 #import "HPAttachmentManager.h"
 #import "HPAgnesImageCache.h"
@@ -51,7 +52,7 @@
 
 @end
 
-@implementation HPNote (AttributedText)
+@implementation HPNote (Detail)
 
 - (NSAttributedString*)attributedText
 {
@@ -95,7 +96,7 @@
 - (BOOL)isEmptyInTag:(HPTag*)tag
 {
     if (self.empty) return YES;
-    NSString *blankText = [HPNote textOfBlankNoteWithTagOfName:tag.name];
+    NSString *blankText = [HPNoteManager textOfBlankNoteWithTag:tag];
     if ([self.text isEqualToString:blankText]) return YES;
     return NO;
 }
@@ -208,7 +209,7 @@
 {
     NSString *editText = [self stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if (editText.length == 0) return YES;
-    NSString *blankText = [HPNote textOfBlankNoteWithTagOfName:tag.name];
+    NSString *blankText = [HPNoteManager textOfBlankNoteWithTag:tag];
     blankText = [blankText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if ([editText isEqualToString:blankText]) return YES;
     return NO;

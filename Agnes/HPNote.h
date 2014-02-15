@@ -52,8 +52,6 @@ extern const NSInteger HPNoteDetailModeCount;
 
 + (NSRegularExpression*)tagRegularExpression;
 
-+ (NSString*)textOfBlankNoteWithTagOfName:(NSString*)tag;
-
 @end
 
 @interface HPNote (Attachments)
@@ -75,8 +73,6 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, readonly) NSString *modifiedAtLongDescription;
 @property (nonatomic, readonly) NSString *summary;
 @property (nonatomic, readonly) NSString *title;
-
-- (NSString*)summaryForTagNamed:(NSString*)tagName;
 
 @end
 

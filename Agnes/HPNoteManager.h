@@ -28,7 +28,15 @@
 
 + (HPNoteManager*)sharedManager;
 
+#pragma mark Sorting notes
+
 + (NSArray*)sortedNotes:(NSArray*)notes mode:(HPTagSortMode)mode tag:(HPTag*)tag;
+
+#pragma mark Blank notes
+
+- (HPNote*)blankNoteWithTag:(HPTag*)tag;
+
++ (NSString*)textOfBlankNoteWithTag:(HPTag*)tag;
 
 #pragma mark Tutorial notes
 
@@ -47,8 +55,6 @@
 @interface HPNoteManager(Actions)
 
 - (NSUInteger)attachToNote:(HPNote*)note data:(NSData*)data type:(NSString*)type index:(NSInteger)index;
-
-- (HPNote*)blankNoteWithTagOfName:(NSString*)tag;
 
 - (void)editNote:(HPNote*)note text:(NSString*)text attachments:(NSArray*)attachments;
 

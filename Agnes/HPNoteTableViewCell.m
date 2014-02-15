@@ -8,7 +8,7 @@
 
 #import "HPNoteTableViewCell.h"
 #import "HPNote.h"
-#import "HPNote+Thumbnail.h"
+#import "HPNote+List.h"
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
 #import "HPAgnesImageCache.h"
@@ -24,8 +24,6 @@ CGFloat const HPNoteTableViewCellMargin = 10;
 CGFloat const HPNoteTableViewCellMarginLeft = 15;
 CGFloat const HPNoteTableViewCellThumbnailMarginLeadgin = 8;
 NSUInteger const HPNoteTableViewCellLineCount = 3;
-
-NSString *const HPNoteHeightCacheDefault = @"d";
 
 @interface HPNoteHeightCache : NSObject
 
@@ -129,7 +127,6 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     HPNoteTableViewCellLayoutMode _layoutMode;
 }
 
-@synthesize tagName = _tagName;
 @synthesize detailMode = _detailMode;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -232,17 +229,17 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     [super prepareForReuse];
     [self removeNoteObserver];
     self.thumbnailView.image = nil;
-    _tagName = nil;
+    _agnesTag = nil;
     self.thumbnailView.hidden = YES;
 }
 
 #pragma mark - Public
 
-- (void)setNote:(HPNote *)note ofTagNamed:(NSString*)tagName detailMode:(HPTagSortMode)detailMode
+- (void)setNote:(HPNote *)note ofTag:(HPTag*)agnesTag detailMode:(HPTagSortMode)detailMode
 {
     [self removeNoteObserver];
     _note = note;
-    _tagName = [tagName copy];
+    _agnesTag = agnesTag;
     self.detailMode = detailMode;
     
     [self.note addObserver:self forKeyPath:NSStringFromSelector(@selector(cd_archived)) options:NSKeyValueObservingOptionNew context:HPNoteTableViewCellContext];
@@ -271,14 +268,9 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     }
 }
 
-+ (CGFloat)estimatedHeightForNote:(HPNote*)note inTagNamed:(NSString *)tagName
++ (CGFloat)estimatedHeightForNote:(HPNote*)note inTag:(HPTag*)tag
 {
-    CGFloat estimatedHeight = [[HPNoteHeightCache sharedCache] heightForNote:note kind:tagName ? : HPNoteHeightCacheDefault];
-    if (estimatedHeight > 0) return estimatedHeight;
-    if (tagName)
-    { // Try default height
-        estimatedHeight = [[HPNoteHeightCache sharedCache] heightForNote:note kind:HPNoteHeightCacheDefault];
-    }
+    CGFloat estimatedHeight = [[HPNoteHeightCache sharedCache] heightForNote:note kind:tag.name];
     if (estimatedHeight > 0) return estimatedHeight;
     
     estimatedHeight = HPNoteTableViewCellMargin * 2;
@@ -294,9 +286,9 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     return estimatedHeight;
 }
 
-+ (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tagName:(NSString*)tagName
++ (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tag:(HPTag*)tag
 {
-    CGFloat cachedHeight = [[HPNoteHeightCache sharedCache] heightForNote:note kind:tagName ? : HPNoteHeightCacheDefault];
+    CGFloat cachedHeight = [[HPNoteHeightCache sharedCache] heightForNote:note kind:tag.name];
     if (cachedHeight > 0) return cachedHeight;
 
     HPFontManager *fonts = [HPFontManager sharedManager];
@@ -309,7 +301,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 
     UIFont *bodyFont = [fonts fontForBodyOfNote:note];
     const CGFloat bodyLineHeight = fonts.noteBodyLineHeight;
-    NSString *summary = [note summaryForTagNamed:tagName];
+    NSString *summary = [note summaryForTag:tag];
     NSUInteger bodyLines = summary.length > 0 ? [summary hp_linesWithFont:bodyFont width:titleWidth lineHeight:bodyLineHeight] : 0;
     const NSUInteger maximumBodyLines = HPNoteTableViewCellLineCount - titleLines;
     bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
@@ -318,7 +310,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     
     const BOOL hasThumbnail = note.hasThumbnail;
     height = hasThumbnail ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
-    [[HPNoteHeightCache sharedCache] setHeight:height forNote:note kind:tagName ? : HPNoteHeightCacheDefault];
+    [[HPNoteHeightCache sharedCache] setHeight:height forNote:note kind:tag.name];
     return height;
 }
 

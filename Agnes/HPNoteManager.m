@@ -7,6 +7,7 @@
 //
 
 #import "HPNoteManager.h"
+#import "HPTagManager.h"
 #import "HPPreferencesManager.h"
 #import "HPNote.h"
 #import "HPAppDelegate.h"
@@ -102,6 +103,8 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     return instance;
 }
 
+#pragma mark Sorting notes
+
 + (NSArray*)sortedNotes:(NSArray*)notes mode:(HPTagSortMode)mode tag:(HPTag*)tag
 {
     switch (mode)
@@ -158,6 +161,29 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             break;
         }
     }
+}
+
+#pragma mark Blank notes
+
+- (HPNote*)blankNoteWithTag:(HPTag*)tag
+{
+    NSEntityDescription *entityDescription = [NSEntityDescription entityForName:[self entityName] inManagedObjectContext:self.context];
+    HPNote *note = [[HPNote alloc] initWithEntity:entityDescription insertIntoManagedObjectContext:nil];
+    note.uuid = [[NSUUID UUID] UUIDString];
+    note.createdAt = [NSDate date];
+    note.modifiedAt = note.createdAt;
+    note.detailMode = HPNoteDetailModeModifiedAt;
+    note.text = [HPNoteManager textOfBlankNoteWithTag:tag];
+    return note;
+}
+
++ (NSString*)textOfBlankNoteWithTag:(HPTag*)tag
+{
+    if (tag == nil || tag == [HPTagManager sharedManager].inboxTag)
+    {
+        return @"";
+    }
+    return [NSString stringWithFormat:@"\n\n\n\n%@", tag.name];
 }
 
 #pragma mark - Private
@@ -254,18 +280,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
          attachmentIndex = [note addAttachment:attachment atIndex:index];
      }];
     return attachmentIndex;
-}
-
-- (HPNote*)blankNoteWithTagOfName:(NSString*)tag
-{
-    NSEntityDescription *entityDescription = [NSEntityDescription entityForName:[self entityName] inManagedObjectContext:self.context];
-    HPNote *note = [[HPNote alloc] initWithEntity:entityDescription insertIntoManagedObjectContext:nil];
-    note.uuid = [[NSUUID UUID] UUIDString];
-    note.createdAt = [NSDate date];
-    note.modifiedAt = note.createdAt;
-    note.detailMode = HPNoteDetailModeModifiedAt;
-    note.text = tag ? [NSString stringWithFormat:@"\n\n\n\n%@", tag] : @"";
-    return note;
 }
 
 - (void)editNote:(HPNote*)note text:(NSString*)text attachments:(NSArray*)attachments

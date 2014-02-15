@@ -9,7 +9,7 @@
 #import "HPBaseTextStorage.h"
 #import "HPNote.h"
 #import "HPAttachment.h"
-#import "HPNote+AttributedText.h"
+#import "HPNote+Detail.h"
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
 #import <MessageUI/MessageUI.h>

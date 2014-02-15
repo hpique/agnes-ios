@@ -1,5 +1,5 @@
 //
-//  HPNote+Thumbnail.h
+//  HPNote+List.h
 //  Agnes
 //
 //  Created by Hermes on 03/02/14.
@@ -8,10 +8,13 @@
 
 #import "HPNote.h"
 @class HPAttachment;
+@class HPTag;
 
-@interface HPNote (Thumbnail)
+@interface HPNote (List)
 
 @property (nonatomic, readonly) BOOL hasThumbnail;
 @property (nonatomic, readonly) HPAttachment *thumbnailAttachment;
+
+- (NSString*)summaryForTag:(HPTag*)tag;
 
 @end

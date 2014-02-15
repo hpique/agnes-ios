@@ -8,7 +8,7 @@
 
 #import "HPNoteViewController.h"
 #import "HPNote.h"
-#import "HPNote+AttributedText.h"
+#import "HPNote+Detail.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPBaseTextStorage.h"
@@ -226,7 +226,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 + (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem *)indexItem
 {
-    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTagOfName:indexItem.tag.name];
+    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:indexItem.tag];
     notes = [[NSArray arrayWithObject:note] arrayByAddingObjectsFromArray:notes];
     return [HPNoteViewController noteViewControllerWithNote:note notes:notes indexItem:indexItem];
 }
@@ -408,7 +408,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)changeNoteWithTransitionOptions:(UIViewAnimationOptions)options
 {
-
     [_bodyTextView scrollToVisibleCaretAnimated:NO];
     [UIView transitionWithView:self.view duration:1.0 options:options animations:^{
         [self displayNote];
@@ -423,7 +422,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     
     [self.view endEditing:YES];
     HPTag *tag = self.indexItem.tag;
-    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTagOfName:tag.name];
+    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:tag];
     [_notes insertObject:note atIndex:_noteIndex + 1];
     self.note = note;
     [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];

@@ -1,5 +1,5 @@
 //
-//  HPNote+AttributedText.h
+//  HPNote+Detail.h
 //  Agnes
 //
 //  Created by Hermes on 03/02/14.
@@ -16,7 +16,7 @@
 
 @end
 
-@interface HPNote (AttributedText)
+@interface HPNote (Detail)
 
 @property (nonatomic, readonly) NSAttributedString *attributedText;
 

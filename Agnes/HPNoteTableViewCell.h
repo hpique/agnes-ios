@@ -32,17 +32,17 @@ extern NSUInteger const HPNoteTableViewCellLineCount;
 
 @property (nonatomic, readonly) HPNote *note;
 @property (nonatomic, readonly) HPTagSortMode detailMode;
-@property (nonatomic, readonly) NSString *tagName;
+@property (nonatomic, readonly) HPTag *agnesTag;
 
-- (void)setNote:(HPNote *)note ofTagNamed:(NSString*)tagName detailMode:(HPTagSortMode)detailMode;
+- (void)setNote:(HPNote *)note ofTag:(HPTag*)agnesTag detailMode:(HPTagSortMode)detailMode;
 
 - (void)setDetailMode:(HPTagSortMode)detailMode animated:(BOOL)animated;
 
 - (void)displayNote;
 
-+ (CGFloat)estimatedHeightForNote:(HPNote*)note inTagNamed:(NSString*)tagName;
++ (CGFloat)estimatedHeightForNote:(HPNote*)note inTag:(HPTag*)tag;
 
-+ (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tagName:(NSString*)tagName;
++ (CGFloat)heightForNote:(HPNote*)note width:(CGFloat)width tag:(HPTag*)tag;
 
 + (CGFloat)thumbnailViewWidth;
 

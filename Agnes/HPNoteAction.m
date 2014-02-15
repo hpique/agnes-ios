@@ -114,7 +114,7 @@
 
 - (BOOL)isSystem
 {
-    return [[HPNoteManager sharedManager].systemNotes containsObject:self];
+    return [[HPNoteManager sharedManager] isSystemNote:self];
 }
 
 @end

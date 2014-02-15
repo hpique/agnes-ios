@@ -438,7 +438,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
             if (![[_notesTableView indexPathsForVisibleRows] containsObject:indexPath]) return NO;
             UITableViewCell *cell = [_notesTableView cellForRowAtIndexPath:indexPath];
-            return cell.frame.size.height != [HPNoteTableViewCell heightForNote:note width:cell.frame.size.width tagName:self.indexItem.tag.name];
+            return cell.frame.size.height != [HPNoteTableViewCell heightForNote:note width:cell.frame.size.width tag:self.indexItem.tag];
         }];
     }
     else
@@ -703,7 +703,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
             }];
         }
     }
-    [cell setNote:note ofTagNamed:self.indexItem.tag.name detailMode:_sortMode];
+    [cell setNote:note ofTag:self.indexItem.tag detailMode:_sortMode];
     return cell;
 }
 
@@ -731,13 +731,9 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 {
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     HPNote *note = [objects objectAtIndex:indexPath.row];
-    NSString *tagName = nil;
-    if (_notesTableView == tableView)
-    { // Search doesn't care about tags
-        HPTag *tag = self.indexItem.tag;
-        tagName = tag.name;
-    }
-    return [HPNoteTableViewCell estimatedHeightForNote:note inTagNamed:tagName];
+    // Search doesn't care about tags
+    HPTag *tag = _notesTableView == tableView ? self.indexItem.tag : [HPTagManager sharedManager].inboxTag;
+    return [HPNoteTableViewCell estimatedHeightForNote:note inTag:tag];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -748,7 +744,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     if (tableView == _notesTableView)
     {
         HPTag *tag = self.indexItem.tag;
-        return [HPNoteTableViewCell heightForNote:note width:width tagName:tag.name];
+        return [HPNoteTableViewCell heightForNote:note width:width tag:tag];
     }
     else
     {

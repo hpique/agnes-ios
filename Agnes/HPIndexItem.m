@@ -15,13 +15,10 @@
 
 NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotification";
 
-@interface HPIndexItemTag : HPIndexItem
+@interface HPIndexItemInbox : HPIndexItem
 @end
 
-@interface HPIndexItemInbox : HPIndexItemTag
-@end
-
-@interface HPIndexItemArchive : HPIndexItemTag
+@interface HPIndexItemArchive : HPIndexItem
 @end
 
 @interface HPIndexItemSystem : HPIndexItem
@@ -132,7 +129,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 + (HPIndexItem*)indexItemWithTag:(HPTag*)tag
 {
-    HPIndexItemTag *item = [[HPIndexItemTag alloc] init];
+    HPIndexItem *item = [[HPIndexItem alloc] init];
     item.tag = tag;
     item.title = tag.name;
     item.imageName = @"icon-hashtag";
@@ -141,11 +138,6 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     item.defaultSortMode = HPTagSortModeOrder;
     item.allowedSortModes = @[@(HPTagSortModeOrder), @(HPTagSortModeModifiedAt), @(HPTagSortModeAlphabetical), @(HPTagSortModeViews)];
     return item;
-}
-
-- (BOOL)matchesNote:(HPNote*)note
-{
-    return NO;
 }
 
 - (BOOL)disableAdd
@@ -170,14 +162,9 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return [[HPFontManager sharedManager] fontForNoteBody];
 }
 
-- (NSString*)exportPrefix
-{
-    return self.title;
-}
-
 - (NSUInteger)fasterNoteCount
 {
-    return NSNotFound;
+    return self.tag.cd_notes.count;
 }
 
 - (UIImage*)icon
@@ -193,7 +180,12 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 - (NSString*)indexTitle
 {
-    return self.title;
+    return [self.tag.name stringByReplacingOccurrencesOfString:@"#" withString:@""];
+}
+
+- (NSString*)exportPrefix
+{
+    return self.indexTitle;
 }
 
 - (NSUInteger)noteCount
@@ -229,10 +221,24 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 - (NSArray*)notes:(BOOL)archived
 {
-    return @[];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == %d", NSStringFromSelector(@selector(cd_archived)), archived];
+    NSSet *notes = [self.tag.cd_notes filteredSetUsingPredicate:predicate];
+    return [notes allObjects];
 }
 
-#pragma mark - Notifications
+- (void)setSortMode:(HPTagSortMode)sortMode
+{
+    self.tag.sortMode = sortMode;
+}
+
+- (HPTagSortMode)sortMode
+{
+    NSNumber *value = self.tag.cd_sortMode;
+    if (!value) return self.defaultSortMode;
+    return [value integerValue];
+}
+
+#pragma mark Notifications
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {
@@ -290,6 +296,11 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return self.tag.cd_notes.allObjects;
 }
 
+- (NSString*)indexTitle
+{
+    return self.title;
+}
+
 @end
 
 @implementation HPIndexItemArchive
@@ -309,62 +320,33 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return self.tag.cd_notes.allObjects;
 }
 
-@end
-
-@implementation HPIndexItemTag
-
-- (NSUInteger)fasterNoteCount
-{
-    return self.tag.cd_notes.count;
-}
-
-- (NSArray*)notes:(BOOL)archived
-{
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == %d", NSStringFromSelector(@selector(cd_archived)), archived];
-    NSSet *notes = [self.tag.cd_notes filteredSetUsingPredicate:predicate];
-    return [notes allObjects];
-}
-
-- (NSUInteger)noteCount
-{
-    return [super noteCount];
-}
-
 - (NSString*)indexTitle
 {
-    return [self.tag.name stringByReplacingOccurrencesOfString:@"#" withString:@""];
-}
-
-- (NSString*)exportPrefix
-{
-    return self.indexTitle;
-}
-
-- (void)setSortMode:(HPTagSortMode)sortMode
-{
-    self.tag.sortMode = sortMode;
-}
-
-- (HPTagSortMode)sortMode
-{
-    NSNumber *value = self.tag.cd_sortMode;
-    if (!value) return self.defaultSortMode;
-    return [value integerValue];
+    return self.title;
 }
 
 @end
 
 @implementation HPIndexItemSystem
 
+- (NSUInteger)fasterNoteCount
+{
+    return [HPNoteManager sharedManager].systemNotes.count;
+}
+
+- (HPTag*)tag
+{ // For cell height calculations
+    return [HPTagManager sharedManager].inboxTag;
+}
+
 - (NSArray*)notes:(BOOL)archived
 {
     return [HPNoteManager sharedManager].systemNotes;
 }
 
-- (BOOL)matchesNote:(HPNote *)note
+- (NSString*)indexTitle
 {
-    // TODO: Expose systemContext in sharedManager
-    return note.managedObjectContext != [HPNoteManager sharedManager].context;
+    return self.title;
 }
 
 @end

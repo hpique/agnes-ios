@@ -8,6 +8,8 @@
 
 #import "HPNoteListTableViewCell.h"
 #import "HPNote.h"
+#import "HPTag.h"
+#import "HPNote+List.h"
 #import "TTTAttributedLabel.h"
 #import "HPPreferencesManager.h"
 #import "HPFontManager.h"
@@ -44,7 +46,7 @@
     { // KVO notifies nil property changes after note is deleted
         self.titleLabel.text = nil;
     }
-    NSString *summaryForTag = [self.note summaryForTagNamed:self.tagName];
+    NSString *summaryForTag = [self.note summaryForTag:self.agnesTag];
     if (summaryForTag)
     {
         // TODO: Show the ellipsis when the summary is two lines that fit in bodyLabel (e.g., 'Line 1\nLine 2') and there's more text in the body
