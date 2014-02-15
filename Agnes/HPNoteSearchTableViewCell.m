@@ -29,8 +29,8 @@ static void *HPNoteSearchTableViewCellContext = &HPNoteSearchTableViewCellContex
     const CGFloat titleLineHeight = fonts.noteTitleLineHeight;
     NSString *title = titleMatch ? : note.title;
     NSUInteger titleLines = [title hp_linesWithFont:titleFont width:titleWidth lineHeight:titleLineHeight];
-    
-    
+    titleLines = MIN(HPNoteTableViewCellLineCount, titleLines);
+
     NSString *bodyMatch = HPLineWithMatch(note.body, searchText);
     if (titleMatch == nil && bodyMatch != nil)
     { // Give more lines to the body

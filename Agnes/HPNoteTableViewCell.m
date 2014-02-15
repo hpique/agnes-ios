@@ -305,6 +305,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     const CGFloat titleWidth = [self widthForTitleOfNote:note cellWidth:width];
     const CGFloat titleLineHeight = fonts.noteTitleLineHeight;
     NSUInteger titleLines = [note.title hp_linesWithFont:titleFont width:titleWidth lineHeight:titleLineHeight];
+    titleLines = MIN(HPNoteTableViewCellLineCount, titleLines);
 
     UIFont *bodyFont = [fonts fontForBodyOfNote:note];
     const CGFloat bodyLineHeight = fonts.noteBodyLineHeight;
@@ -317,7 +318,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     
     const BOOL hasThumbnail = note.hasThumbnail;
     height = hasThumbnail ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
-    [[HPNoteHeightCache sharedCache] setHeight:height forNote:note kind:tagName ? : HPNoteHeightCacheDefault];
+   // [[HPNoteHeightCache sharedCache] setHeight:height forNote:note kind:tagName ? : HPNoteHeightCacheDefault];
     return height;
 }
 
