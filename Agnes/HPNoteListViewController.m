@@ -9,6 +9,7 @@
 #import "HPNoteListViewController.h"
 #import "HPNoteViewController.h"
 #import "HPNoteManager.h"
+#import "HPTagManager.h"
 #import "HPNote.h"
 #import "HPNoteListTableViewCell.h"
 #import "HPNoteSearchTableViewCell.h"
@@ -196,7 +197,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)archiveNoteInCell:(HPNoteListTableViewCell*)cell
 {
     [self removeNoteInCell:cell modelBlock:^{
-        [[HPNoteManager sharedManager] archiveNote:cell.note];
+        [[HPTagManager sharedManager] archiveNote:cell.note];
     }];
 }
 
@@ -222,7 +223,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)unarchiveNoteInCell:(HPNoteListTableViewCell*)cell
 {
     [self removeNoteInCell:cell modelBlock:^{
-        [[HPNoteManager sharedManager] unarchiveNote:cell.note];
+        [[HPTagManager sharedManager] unarchiveNote:cell.note];
     }];
 }
 

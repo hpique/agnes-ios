@@ -12,11 +12,16 @@
 @interface HPEntityManager : NSObject
 
 @property (nonatomic, readonly) NSManagedObjectContext *context;
-@property (nonatomic, readonly) NSArray *objects;
 
 - (id)initWithManagedObjectContext:(NSManagedObjectContext*)context;
 
+#pragma mark Fetching objects
+
 - (NSUInteger)countWithPredicate:(NSPredicate*)predicate;
+
+@property (nonatomic, readonly) NSArray *objects;
+
+- (NSArray*)objectsWithPredicate:(NSPredicate*)predicate;
 
 - (void)save;
 

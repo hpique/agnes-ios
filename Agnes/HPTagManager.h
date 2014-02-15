@@ -9,17 +9,34 @@
 #import <Foundation/Foundation.h>
 #import "HPEntityManager.h"
 @class HPTag;
+@class HPNote;
 
 @interface HPTagManager : HPEntityManager
+
++ (HPTagManager*)sharedManager;
+
+#pragma mark Special tags
+
+- (HPTag*)archiveTag;
+
+- (HPTag*)inboxTag;
+
+#pragma mark Fetching objects
+
+- (NSArray*)indexTags;
 
 - (NSArray*)tagNamesWithPrefix:(NSString*)prefix;
 
 - (HPTag*)tagWithName:(NSString*)name;
 
-+ (HPTagManager*)sharedManager;
+#pragma mark Operations
+
+- (void)archiveNote:(HPNote*)note;
 
 - (void)reorderTagsWithNames:(NSArray*)names;
 
 - (void)removeDuplicates;
+
+- (void)unarchiveNote:(HPNote*)note;
 
 @end

@@ -31,14 +31,7 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSManagedObjectContextObjectsDidChangeNotification object:_context];
 }
 
-- (NSArray*)objects
-{
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
-    NSError *error;
-    NSArray *objects = [_context executeFetchRequest:fetchRequest error:&error];
-    NSAssert(objects, @"Fetch %@ failed with error %@", fetchRequest, error.localizedDescription);
-    return objects;
-}
+#pragma mark Fetching objects
 
 - (NSUInteger)countWithPredicate:(NSPredicate*)predicate
 {
@@ -48,6 +41,21 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     NSUInteger count = [self.context countForFetchRequest:fetchRequest error:&error];
     NSAssert(count != NSNotFound, @"Fetch %@ failed with error %@", fetchRequest, error);
     return count;
+}
+
+- (NSArray*)objects
+{
+    return [self objectsWithPredicate:nil];
+}
+
+- (NSArray*)objectsWithPredicate:(NSPredicate *)predicate
+{
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
+    fetchRequest.predicate = predicate;
+    NSError *error = nil;
+    NSArray *objects = [_context executeFetchRequest:fetchRequest error:&error];
+    NSAssert(objects, @"Fetch %@ failed with error %@", fetchRequest, error.localizedDescription);
+    return objects;
 }
 
 - (void)save

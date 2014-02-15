@@ -26,21 +26,25 @@
 
 @interface HPNoteManager : HPEntityManager
 
-@property (nonatomic, readonly) NSArray *systemNotes;
-
-- (void)addTutorialNotes;
-
 + (HPNoteManager*)sharedManager;
 
 + (NSArray*)sortedNotes:(NSArray*)notes mode:(HPTagSortMode)mode tag:(HPTag*)tag;
 
+#pragma mark Tutorial notes
+
+- (void)addTutorialNotes;
+
 - (void)removeTutorialNotes;
+
+#pragma mark System notes
+
+@property (nonatomic, readonly) NSArray *systemNotes;
+
+- (BOOL)isSystemNote:(HPNote*)note;
 
 @end
 
 @interface HPNoteManager(Actions)
-
-- (void)archiveNote:(HPNote*)note;
 
 - (NSUInteger)attachToNote:(HPNote*)note data:(NSData*)data type:(NSString*)type index:(NSInteger)index;
 
@@ -55,8 +59,6 @@
 - (void)setDetailMode:(HPNoteDetailMode)detailMode ofNote:(HPNote*)note;
 
 - (void)trashNote:(HPNote*)note;
-
-- (void)unarchiveNote:(HPNote*)note;
 
 - (void)viewNote:(HPNote*)note;
 

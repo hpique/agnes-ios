@@ -67,11 +67,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSMutableArray *items = [NSMutableArray array];
     [items addObject:[HPIndexItem inboxIndexItem]];
     
-    NSArray *tags = [HPTagManager sharedManager].objects;
-    { // Remove tags with only archived notes
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"ANY %K.%K == NO", NSStringFromSelector(@selector(cd_notes)), NSStringFromSelector(@selector(cd_archived))];
-        tags = [tags filteredArrayUsingPredicate:predicate];
-    }
+    NSArray *tags = [[HPTagManager sharedManager] indexTags];
     NSSortDescriptor *orderSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(order)) ascending:NO];
     NSSortDescriptor *nameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(name)) ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
     tags = [tags sortedArrayUsingDescriptors:@[orderSortDescriptor, nameSortDescriptor]];

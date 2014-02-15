@@ -30,7 +30,6 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, retain) NSSet *cd_attachments; // iCloud doesn't support ordered relationships
 @property (nonatomic, retain) NSNumber * cd_detailMode;
 @property (nonatomic, retain) NSNumber * cd_views;
-@property (nonatomic, retain) NSNumber * cd_inboxOrder;
 @property (nonatomic, retain) NSSet *cd_tags;
 @property (nonatomic, retain) NSDate * createdAt;
 @property (nonatomic, retain) NSDate * modifiedAt;
@@ -40,7 +39,7 @@ extern const NSInteger HPNoteDetailModeCount;
 
 @property (nonatomic, readonly) BOOL empty;
 @property (nonatomic, readonly) NSString *firstTagName;
-@property (nonatomic, readonly) NSArray *tags;
+@property (nonatomic, readonly) NSArray *tagNames;
 @property (nonatomic, readonly) BOOL isNew;
 
 - (void)setOrder:(CGFloat)order inTag:(NSString*)tag;
@@ -101,6 +100,5 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, assign) BOOL archived;
 @property (nonatomic, assign) NSInteger detailMode;
 @property (nonatomic, assign) NSInteger views;
-@property (nonatomic, assign) CGFloat inboxOrder;
 
 @end

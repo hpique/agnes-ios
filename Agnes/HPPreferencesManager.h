@@ -15,10 +15,6 @@ extern NSString* const HPPreferencesManagerDidChangePreferencesNotification;
 
 + (HPPreferencesManager*)sharedManager;
 
-- (HPTagSortMode)sortModeForListTitle:(NSString*)title default:(HPTagSortMode)defaultSortMode;
-
-- (void)setSortMode:(HPTagSortMode)mode forListTitle:(NSString*)title;
-
 - (NSInteger)increaseSessionCount;
 
 - (void)applyPreferences:(NSString*)preferences;

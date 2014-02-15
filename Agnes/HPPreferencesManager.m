@@ -19,7 +19,6 @@ NSString *const HPAgnesDefaultsKeyDynamicType = @"HPAgnesDynamicType";
 NSString *const HPAgnesDefaultsKeyFontName = @"HPAgnesFontName";
 NSString *const HPAgnesDefaultsKeyFontSize = @"HPAgnesFontSize";
 NSString *const HPAgnesDefaultsKeySessionCount = @"HPAgnesSessionCount";
-NSString *const HPAgnesDefaultsKeySortMode = @"HPAgnesSortMode";
 NSString *const HPAgnesDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 NSString *const HPAgnesDefaultsKeyTintColor = @"HPAgnesTintColor";
 NSString *const HPAgnesDefaultsKeyTutorialUUIDs = @"HPAgnesTutorialUUIDs";
@@ -126,15 +125,6 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
-- (void)setSortMode:(HPTagSortMode)mode forListTitle:(NSString*)title
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    NSDictionary *dictionary = [userDefaults objectForKey:HPAgnesDefaultsKeySortMode];
-    NSMutableDictionary *updatedDictionary = dictionary ? [NSMutableDictionary dictionaryWithDictionary:dictionary] : [NSMutableDictionary dictionary];
-    [updatedDictionary setObject:@(mode) forKey:title];
-    [userDefaults setObject:updatedDictionary forKey:HPAgnesDefaultsKeySortMode];
-}
-
 - (NSInteger)increaseSessionCount
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -197,13 +187,6 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     [userDefaults setObject:@(typingSpeed) forKey:HPAgnesDefaultsKeyTypingSpeed];
 }
 
-- (HPTagSortMode)sortModeForListTitle:(NSString*)title default:(HPTagSortMode)defaultSortMode
-{
-    NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeySortMode];
-    id value = [dictionary objectForKey:title];
-    return value ? [value integerValue] : defaultSortMode;
-}
-
 - (BOOL)statusBarHidden
 {
     return [self boolValueForKey:HPAgnesDefaultsKeyStatusBarHidden default:HPAgnesDefaultStatusBarHidden];
@@ -221,8 +204,8 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
 
 - (NSArray*)tutorialUUIDs
 {
-    NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeySortMode];
-    return [dictionary objectForKey:HPAgnesDefaultsKeyTutorialUUIDs];
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    return [userDefaults objectForKey:HPAgnesDefaultsKeyTutorialUUIDs];
 }
 
 - (NSTimeInterval)typingSpeed

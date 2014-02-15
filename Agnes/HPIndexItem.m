@@ -15,13 +15,13 @@
 
 NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotification";
 
-@interface HPIndexItemInbox : HPIndexItem
-@end
-
 @interface HPIndexItemTag : HPIndexItem
 @end
 
-@interface HPIndexItemArchive : HPIndexItem
+@interface HPIndexItemInbox : HPIndexItemTag
+@end
+
+@interface HPIndexItemArchive : HPIndexItemTag
 @end
 
 @interface HPIndexItemSystem : HPIndexItem
@@ -69,14 +69,14 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     if (self)
     {
         _noteCount = NSNotFound;
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(objectsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
 }
 
 + (HPIndexItem*)inboxIndexItem
@@ -232,44 +232,13 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return @[];
 }
 
-- (void)setSortMode:(HPTagSortMode)sortMode
-{
-    [[HPPreferencesManager sharedManager] setSortMode:sortMode forListTitle:self.title];
-}
-
-- (HPTagSortMode)sortMode
-{
-    return [[HPPreferencesManager sharedManager] sortModeForListTitle:self.title default:self.defaultSortMode];
-}
-
 #pragma mark - Notifications
 
-- (void)objectsDidChangeNotification:(NSNotification*)notification
+- (void)tagsDidChangeNotification:(NSNotification*)notification
 {
-    NSDictionary *userInfo = notification.userInfo;
-    NSSet *insertedObjects = userInfo[NSInsertedObjectsKey];
-    NSSet *updatedObjects = userInfo[NSUpdatedObjectsKey];
-    NSSet *deletedObjects = userInfo[NSDeletedObjectsKey];
-    
-    for (HPNote *note in insertedObjects)
+    for (HPTag *tag in notification.hp_changedObjects)
     {
-        if ([self matchesNote:note])
-        {
-            [self invalidateNotesAndNotifyChange];
-            return;
-        }
-    }
-    for (HPNote *note in deletedObjects)
-    {
-        if ([self matchesNote:note])
-        {
-            [self invalidateNotesAndNotifyChange];
-            return;
-        }
-    }
-    for (HPNote *note in updatedObjects)
-    {
-        if ([self.notes containsObject:note])
+        if (self.tag == tag)
         {
             [self invalidateNotesAndNotifyChange];
             return;
@@ -290,6 +259,11 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     UIImage *_iconFull;
 }
 
+- (HPTag*)tag
+{
+    return [HPTagManager sharedManager].inboxTag;
+}
+
 - (UIImage*)icon
 {
     if (self.noteCount > 0)
@@ -308,38 +282,21 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 - (NSArray*)notes:(BOOL)archived
 {
-    NSArray *notes = [HPNoteManager sharedManager].objects;
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == %d", NSStringFromSelector(@selector(cd_archived)), archived];
-    return [notes filteredArrayUsingPredicate:predicate];
-}
-
-- (BOOL)matchesNote:(HPNote*)note
-{
-    return !(note.archived);
-}
-
-- (NSUInteger)fasterNoteCount
-{
-    static NSPredicate *predicate = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(cd_archived))];
-    });
-    return [[HPNoteManager sharedManager] countWithPredicate:predicate];
+    if (archived)
+    {
+        HPTag *archiveTag = [HPTagManager sharedManager].archiveTag;
+        return archiveTag.cd_notes.allObjects;
+    }
+    return self.tag.cd_notes.allObjects;
 }
 
 @end
 
 @implementation HPIndexItemArchive
 
-- (NSUInteger)fasterNoteCount
+- (HPTag*)tag
 {
-    static NSPredicate *predicate = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        predicate = [NSPredicate predicateWithFormat:@"%K == YES", NSStringFromSelector(@selector(cd_archived))];
-    });
-    return [[HPNoteManager sharedManager] countWithPredicate:predicate];
+    return [HPTagManager sharedManager].archiveTag;
 }
 
 - (NSArray*)notes
@@ -349,14 +306,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 - (NSArray*)notes:(BOOL)archived
 {
-    NSArray *notes = [HPNoteManager sharedManager].objects;
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == YES", NSStringFromSelector(@selector(cd_archived))];
-    return [notes filteredArrayUsingPredicate:predicate];
-}
-
-- (BOOL)matchesNote:(HPNote*)note
-{
-    return note.archived;
+    return self.tag.cd_notes.allObjects;
 }
 
 @end
@@ -400,11 +350,6 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     NSNumber *value = self.tag.cd_sortMode;
     if (!value) return self.defaultSortMode;
     return [value integerValue];
-}
-
-- (BOOL)matchesNote:(HPNote*)note
-{
-    return [note.cd_tags containsObject:self.tag];
 }
 
 @end

@@ -41,6 +41,4 @@ extern NSString* const HPIndexItemDidChangeNotification;
 
 - (NSArray*)notes:(BOOL)archived;
 
-- (BOOL)matchesNote:(HPNote*)note;
-
 @end

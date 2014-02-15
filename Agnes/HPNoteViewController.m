@@ -10,6 +10,7 @@
 #import "HPNote.h"
 #import "HPNote+AttributedText.h"
 #import "HPNoteManager.h"
+#import "HPTagManager.h"
 #import "HPBaseTextStorage.h"
 #import "HPTagSuggestionsView.h"
 #import "HPNoteAction.h"
@@ -595,7 +596,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)archiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    [[HPNoteManager sharedManager] archiveNote:self.note];
+    [[HPTagManager sharedManager] archiveNote:self.note];
     [self finishEditing];
 }
 
@@ -740,7 +741,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)unarchiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    [[HPNoteManager sharedManager] unarchiveNote:self.note];
+    [[HPTagManager sharedManager] unarchiveNote:self.note];
     [self finishEditing];
 }
 

@@ -13,6 +13,9 @@
 #import "HPNote.h"
 #import <CoreData/CoreData.h>
 
+static NSString *const HPTagInboxName = @"Inbox";
+static NSString *const HPTagArchiveName = @"Archive";
+
 @implementation HPTagManager
 {
     NDMutableTrie *_tagTrie;
@@ -22,7 +25,10 @@
 
 - (void)didInsertObject:(HPTag*)object
 {
-    [_tagTrie addString:object.name];
+    if (object != self.inboxTag && object != self.archiveTag)
+    {
+        [_tagTrie addString:object.name];
+    }
     [self removeDuplicatesOfTagNamed:object.name];
 }
 
@@ -49,7 +55,36 @@
     return instance;
 }
 
-#pragma mark - Public
+#pragma mark Special tags
+
+- (HPTag*)archiveTag
+{
+    return [self tagWithName:HPTagArchiveName];
+}
+
+- (HPTag*)inboxTag
+{
+    return [self tagWithName:HPTagInboxName];
+}
+
+#pragma mark Fetching tags
+
+- (NSArray*)indexTags
+{
+    static NSPredicate *predicate = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        predicate = [NSPredicate predicateWithFormat:@"%K != %@ && %K != %@ && ANY %K.%K == NO",
+                     NSStringFromSelector(@selector(name)),
+                     HPTagInboxName,
+                     NSStringFromSelector(@selector(name)),
+                     HPTagArchiveName,
+                     NSStringFromSelector(@selector(cd_notes)),
+                     NSStringFromSelector(@selector(cd_archived))];
+    });
+    NSArray *indexTags = [self objectsWithPredicate:predicate];
+    return indexTags;
+}
 
 - (HPTag*)tagWithName:(NSString*)name
 {
@@ -78,6 +113,23 @@
     return [_tagTrie everyObjectForKeyWithPrefix:prefix];
 }
 
+#pragma mark Operations
+
+- (void)archiveNote:(HPNote*)note
+{
+    [self performModelUpdateWithName:NSLocalizedString(@"Archive", @"") save:YES block:^{
+        note.archived = YES;
+        
+        HPTag *inboxTag = self.inboxTag;
+        [inboxTag removeCd_notesObject:note];
+        [note removeCd_tagsObject:inboxTag];
+
+        HPTag *archiveTag = self.archiveTag;
+        [archiveTag addCd_notesObject:note];
+        [note addCd_tagsObject:self.archiveTag];
+    }];
+}
+
 - (void)removeDuplicates
 {
     [self removeDuplicatesWithUniquePropertyNamed:NSStringFromSelector(@selector(name)) removeBlock:^(id uniqueValue) {
@@ -93,6 +145,21 @@
             HPTag *tag = [self tagWithName:name];
             tag.order = count - idx;
         }];
+    }];
+}
+
+- (void)unarchiveNote:(HPNote*)note
+{
+    [self performModelUpdateWithName:NSLocalizedString(@"Unarchive", @"") save:YES block:^{
+        note.archived = NO;
+        
+        HPTag *inboxTag = self.inboxTag;
+        [inboxTag addCd_notesObject:note];
+        [note addCd_tagsObject:inboxTag];
+        
+        HPTag *archiveTag = self.archiveTag;
+        [archiveTag removeCd_notesObject:note];
+        [note removeCd_tagsObject:self.archiveTag];
     }];
 }
 

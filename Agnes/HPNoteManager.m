@@ -73,6 +73,13 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }
 }
 
+#pragma mark System notes
+
+- (BOOL)isSystemNote:(HPNote*)note
+{
+    return note.managedObjectContext == _systemContext;
+}
+
 - (NSArray*)systemNotes
 {
     if (!_systemNotes)
@@ -232,13 +239,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 @implementation HPNoteManager(Actions)
 
-- (void)archiveNote:(HPNote*)note
-{
-    [self performModelUpdateWithName:NSLocalizedString(@"Archive", @"") save:YES block:^{
-        note.archived = YES;
-    }];
-}
-
 - (NSUInteger)attachToNote:(HPNote*)note data:(NSData*)data type:(NSString*)type index:(NSInteger)index
 {
     BOOL isNew = note.managedObjectContext == nil;
@@ -319,13 +319,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }];
 }
 
-- (void)unarchiveNote:(HPNote*)note
-{
-    [self performModelUpdateWithName:NSLocalizedString(@"Unarchive", @"") save:YES block:^{
-        note.archived = NO;
-    }];
-}
-
 - (void)trashNote:(HPNote*)note
 {
     if (note.managedObjectContext == nil) return;
@@ -353,7 +346,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     HPNote *note = [HPNote insertNewObjectIntoContext:context];
     note.uuid = [[NSUUID UUID] UUIDString];
     note.createdAt = self.createdAt;
-    note.inboxOrder = NSIntegerMax;
     note.modifiedAt = self.modifiedAt;
     note.text = self.text;
     for (HPAttachment *attachment in self.attachments)

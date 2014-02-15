@@ -8,10 +8,14 @@
 
 #import "HPNote.h"
 #import "HPTag.h"
-#import "HPTagManager.h"
-#import "HPAttachment.h" 
+#import "HPAttachment.h"
 #import "HPData.h"
 #import "NSString+hp_utils.h"
+
+// TODO: Needed because of updateTags. See if this dependency can be removed.
+#import "HPNoteManager.h"
+#import "HPTagManager.h"
+
 
 NSString* const HPNoteAttachmentAttributeName = @"HPNoteAttachment";
 const NSInteger HPNoteDetailModeCount = 5;
@@ -25,7 +29,6 @@ const NSInteger HPNoteDetailModeCount = 5;
 @dynamic cd_attachments;
 @dynamic cd_archived;
 @dynamic cd_detailMode;
-@dynamic cd_inboxOrder;
 @dynamic cd_views;
 @dynamic cd_tags;
 @dynamic createdAt;
@@ -34,7 +37,7 @@ const NSInteger HPNoteDetailModeCount = 5;
 @dynamic text;
 @dynamic uuid;
 
-@synthesize tags = _tags;
+@synthesize tagNames = _tagNames;
 
 #pragma mark - NSManagedObject
 
@@ -49,7 +52,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     _title = nil;
     _body = nil;
     _summary = nil;
-    _tags = nil;
+    _tagNames = nil;
     [self updateTags];
     [self didChangeValueForKey:key];
 }
@@ -70,7 +73,7 @@ const NSInteger HPNoteDetailModeCount = 5;
         _title = nil;
         _body = nil;
         _summary = nil;
-        _tags = nil;
+        _tagNames = nil;
     }
 }
 
@@ -116,12 +119,12 @@ const NSInteger HPNoteDetailModeCount = 5;
 
 - (NSString*)firstTagName
 {
-    return [self.tags firstObject];
+    return [self.tagNames firstObject];
 }
 
-- (NSArray*)tags
+- (NSArray*)tagNames
 {
-    if (!_tags)
+    if (!_tagNames)
     {
         NSMutableArray *tags = [NSMutableArray array];
         if (self.text)
@@ -135,36 +138,21 @@ const NSInteger HPNoteDetailModeCount = 5;
                  [tags addObject:tag];
              }];
         }
-        _tags = tags;
+        _tagNames = tags;
     }
-    return _tags;
+    return _tagNames;
 }
 
 - (void)setOrder:(CGFloat)order inTag:(NSString*)tag;
 {
-    if (!tag)
-    {
-        self.inboxOrder = order;
-    }
-    else
-    {
-        NSMutableDictionary *dictionary = self.tagOrder ? [NSMutableDictionary dictionaryWithDictionary:self.tagOrder] : [NSMutableDictionary dictionary];
-        [dictionary setObject:@(order) forKey:tag];
-        self.tagOrder = dictionary;
-    }
+    NSMutableDictionary *dictionary = self.tagOrder ? [NSMutableDictionary dictionaryWithDictionary:self.tagOrder] : [NSMutableDictionary dictionary];
+    dictionary[tag] = @(order);
+    self.tagOrder = dictionary;
 }
 
 - (CGFloat)orderInTag:(NSString*)tag
 {
-    NSNumber *object;
-    if (!tag)
-    {
-        object = self.cd_inboxOrder;
-    }
-    else
-    {
-        object = [self.tagOrder objectForKey:tag];
-    }
+    NSNumber *object = self.tagOrder[tag];
     return object ? [object doubleValue] : CGFLOAT_MAX;
 }
 
@@ -174,7 +162,7 @@ const NSInteger HPNoteDetailModeCount = 5;
 { // TODO: Find a better place for this logic
     if (self.managedObjectContext == nil) return; // Do nothing for blank notes
     
-    NSArray *currentTagNames = self.tags;
+    NSArray *currentTagNames = self.tagNames;
     NSMutableSet *currentTags = [NSMutableSet set];
     HPTagManager *manager = [HPTagManager sharedManager];
     for (NSString *name in currentTagNames)
@@ -182,6 +170,15 @@ const NSInteger HPNoteDetailModeCount = 5;
         HPTag *tag = [manager tagWithName:name];
         [currentTags addObject:tag];
     }
+    
+    HPTag *archiveTag = manager.archiveTag;
+    HPTag *inboxTag = manager.inboxTag;
+    if (![[HPNoteManager sharedManager] isSystemNote:self])
+    {
+        HPTag *specialTag = self.archived ? archiveTag : inboxTag;
+        [currentTags addObject:specialTag];
+    }
+    
     NSMutableSet *previousTags = [NSMutableSet setWithSet:self.cd_tags];
     [previousTags minusSet:currentTags]; // Removed
     [currentTags minusSet:self.cd_tags]; // Added
@@ -200,7 +197,7 @@ const NSInteger HPNoteDetailModeCount = 5;
 
     for (HPTag *tag in previousTags)
     {
-        if (tag.cd_notes.count == 0)
+        if (tag.cd_notes.count == 0 && tag != inboxTag && tag != archiveTag)
         {
             [manager.context deleteObject:tag];
         }
@@ -442,28 +439,6 @@ const NSInteger HPNoteDetailModeCount = 5;
     NSNumber *value = @(views);
     [self willChangeValueForKey:key];
     self.cd_views = value;
-    [self willChangeValueForKey:key];
-}
-
-- (CGFloat)inboxOrder
-{
-    static NSString *key = nil;
-    if (!key) key = NSStringFromSelector(@selector(inboxOrder));
-    
-    [self willAccessValueForKey:key];
-    NSNumber *value = self.cd_inboxOrder;
-    [self didAccessValueForKey:key];
-    return [value doubleValue];
-}
-
-- (void)setInboxOrder:(CGFloat)inboxOrder
-{
-    static NSString *key = nil;
-    if (!key) key = NSStringFromSelector(@selector(inboxOrder));
-
-    NSNumber *value = @(inboxOrder);
-    [self willChangeValueForKey:key];
-    self.cd_inboxOrder = value;
     [self willChangeValueForKey:key];
 }
 
