@@ -140,7 +140,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     return _tags;
 }
 
-- (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
+- (void)setOrder:(CGFloat)order inTag:(NSString*)tag;
 {
     if (!tag)
     {
@@ -154,7 +154,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     }
 }
 
-- (NSInteger)orderInTag:(NSString*)tag
+- (CGFloat)orderInTag:(NSString*)tag
 {
     NSNumber *object;
     if (!tag)
@@ -165,7 +165,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     {
         object = [self.tagOrder objectForKey:tag];
     }
-    return object ? [object integerValue] : NSIntegerMax;
+    return object ? [object doubleValue] : CGFLOAT_MAX;
 }
 
 #pragma mark - Private
@@ -445,7 +445,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     [self willChangeValueForKey:key];
 }
 
-- (NSInteger)inboxOrder
+- (CGFloat)inboxOrder
 {
     static NSString *key = nil;
     if (!key) key = NSStringFromSelector(@selector(inboxOrder));
@@ -453,10 +453,10 @@ const NSInteger HPNoteDetailModeCount = 5;
     [self willAccessValueForKey:key];
     NSNumber *value = self.cd_inboxOrder;
     [self didAccessValueForKey:key];
-    return [value integerValue];
+    return [value doubleValue];
 }
 
-- (void)setInboxOrder:(NSInteger)inboxOrder
+- (void)setInboxOrder:(CGFloat)inboxOrder
 {
     static NSString *key = nil;
     if (!key) key = NSStringFromSelector(@selector(inboxOrder));

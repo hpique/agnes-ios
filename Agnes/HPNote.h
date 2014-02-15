@@ -43,9 +43,9 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, readonly) NSArray *tags;
 @property (nonatomic, readonly) BOOL isNew;
 
-- (void)setOrder:(NSInteger)order inTag:(NSString*)tag;
+- (void)setOrder:(CGFloat)order inTag:(NSString*)tag;
 
-- (NSInteger)orderInTag:(NSString*)tag;
+- (CGFloat)orderInTag:(NSString*)tag;
 
 + (NSString *)entityName;
 
@@ -101,6 +101,6 @@ extern const NSInteger HPNoteDetailModeCount;
 @property (nonatomic, assign) BOOL archived;
 @property (nonatomic, assign) NSInteger detailMode;
 @property (nonatomic, assign) NSInteger views;
-@property (nonatomic, assign) NSInteger inboxOrder;
+@property (nonatomic, assign) CGFloat inboxOrder;
 
 @end

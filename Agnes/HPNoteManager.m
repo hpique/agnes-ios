@@ -102,8 +102,8 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         case HPTagSortModeOrder:
         {
             return [notes sortedArrayWithOptions:0 usingComparator:^NSComparisonResult(HPNote *note1, HPNote *note2) {
-                NSInteger order1 = [note1 orderInTag:tag.name];
-                NSInteger order2 = [note2 orderInTag:tag.name];
+                CGFloat order1 = [note1 orderInTag:tag.name];
+                CGFloat order2 = [note2 orderInTag:tag.name];
                 if (order2 < order1) return NSOrderedAscending;
                 if (order2 > order1) return NSOrderedDescending;
                 return [note2.modifiedAt compare:note1.modifiedAt];
