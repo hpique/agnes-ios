@@ -318,7 +318,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     
     const BOOL hasThumbnail = note.hasThumbnail;
     height = hasThumbnail ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
-   // [[HPNoteHeightCache sharedCache] setHeight:height forNote:note kind:tagName ? : HPNoteHeightCacheDefault];
+    [[HPNoteHeightCache sharedCache] setHeight:height forNote:note kind:tagName ? : HPNoteHeightCacheDefault];
     return height;
 }
 
