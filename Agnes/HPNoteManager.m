@@ -108,20 +108,48 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
                 if (order2 > order1) return NSOrderedDescending;
                 return [note2.modifiedAt compare:note1.modifiedAt];
             }];
+            break;
         }
-            break;
         case HPTagSortModeAlphabetical:
-            return [HPNoteManager sortedNotes:notes selector:@selector(title) ascending:YES];
+        {
+            static NSSortDescriptor *sortDescriptor = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(title)) ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
+            });
+            return [HPNoteManager sortedNotes:notes withDescriptor:sortDescriptor];
             break;
+        }
         case HPTagSortModeModifiedAt:
-            return [HPNoteManager sortedNotes:notes selector:@selector(modifiedAt) ascending:NO];
+        {
+            static NSSortDescriptor *sortDescriptor = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
+            });
+            return [HPNoteManager sortedNotes:notes withDescriptor:sortDescriptor];
             break;
+        }
         case HPTagSortModeViews:
-            return [HPNoteManager sortedNotes:notes selector:@selector(views) ascending:NO];
+        {
+            static NSSortDescriptor *sortDescriptor = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(views)) ascending:NO];
+            });
+            return [HPNoteManager sortedNotes:notes withDescriptor:sortDescriptor];
             break;
+        }
         case HPTagSortModeTag:
-            return [HPNoteManager sortedNotes:notes selector:@selector(firstTagName) ascending:YES];
+        {
+            static NSSortDescriptor *sortDescriptor = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(firstTagName)) ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
+            });
+            return [HPNoteManager sortedNotes:notes withDescriptor:sortDescriptor];
             break;
+        }
     }
 }
 
@@ -190,9 +218,8 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     return [value isEqualToString:key] ? nil : value;
 }
 
-+ (NSArray*)sortedNotes:(NSArray*)notes selector:(SEL)selector ascending:(BOOL)ascending
++ (NSArray*)sortedNotes:(NSArray*)notes withDescriptor:(NSSortDescriptor*)sortDescriptor
 {
-    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(selector) ascending:ascending];
     static NSSortDescriptor *modifiedAtSortDescriptor = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
