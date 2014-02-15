@@ -231,7 +231,7 @@
     UITextView *noteTextView = fromViewController.noteTextView;
     UILabel *titleLabel = cell.titleLabel;
     UILabel *bodyLabel = cell.bodyLabel;
-    const BOOL handleBody = bodyLabel.text.length > 0;
+    const BOOL handleBody = bodyLabel.hidden == NO && bodyLabel.text.length > 0;
     const CGRect titleRect = [self rectForLabel:titleLabel inTextView:noteTextView];
     UIView *titleCover = [self coverView:noteTextView rect:titleRect color:[UIColor whiteColor] context:transitionContext];
 
