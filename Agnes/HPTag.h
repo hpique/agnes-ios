@@ -24,6 +24,7 @@ typedef NS_ENUM(NSInteger, HPTagSortMode) {
 @property (nonatomic, retain) NSSet *cd_notes;
 @property (nonatomic, retain) NSNumber *cd_order;
 @property (nonatomic, strong) NSNumber *cd_sortMode;
+@property (nonatomic, assign) BOOL isSystem;
 @property (nonatomic, strong) NSString *uuid;
 
 @end

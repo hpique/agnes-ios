@@ -15,7 +15,7 @@
 
 + (HPTagManager*)sharedManager;
 
-#pragma mark Special tags
+#pragma mark System tags
 
 - (HPTag*)archiveTag;
 

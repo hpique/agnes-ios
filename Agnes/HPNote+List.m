@@ -8,7 +8,6 @@
 
 #import "HPNote+List.h"
 #import "HPAttachment.h"
-#import "HPTagManager.h"
 #import "HPTag.h"
 
 @implementation HPNote (List)
@@ -25,8 +24,7 @@
 
     if (summary.length == 0) return summary;
     
-    HPTagManager *manager = [HPTagManager sharedManager];
-    if (tag == manager.inboxTag || tag == manager.archiveTag) return summary;
+    if (tag.isSystem) return summary;
     
     NSRange lastLineRange = [summary lineRangeForRange:NSMakeRange(summary.length - 1, 1)];
     NSString *lastLine = [summary substringWithRange:lastLineRange];

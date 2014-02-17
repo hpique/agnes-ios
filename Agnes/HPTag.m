@@ -11,10 +11,11 @@
 
 @implementation HPTag
 
-@dynamic uuid;
 @dynamic cd_notes;
 @dynamic cd_order;
 @dynamic cd_sortMode;
+@dynamic isSystem;
+@dynamic uuid;
 @dynamic name;
 @end
 

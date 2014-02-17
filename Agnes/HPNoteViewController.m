@@ -286,28 +286,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     return NO;
 }
 
-- (HPIndexItem*)indexItemToReturn
-{
-    NSMutableSet *tags = [NSMutableSet set];
-    BOOL inbox = NO;
-    for (HPNote *note in self.notes)
-    {
-        NSSet *noteTags = note.cd_tags;
-        if (noteTags.count == 0)
-        {
-            inbox = YES;
-            break;
-        }
-        [tags addObjectsFromArray:noteTags.allObjects];
-    }
-    if (!inbox && tags.count == 1)
-    {
-        HPTag *tag = [tags anyObject];
-        return [HPIndexItem indexItemWithTag:tag];
-    }
-    return [HPIndexItem inboxIndexItem];
-}
-
 + (CGFloat)minimumNoteWidth
 {
     const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait]; // Portrait has the smallest margins
@@ -396,6 +374,30 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)finishEditing
 {
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (HPIndexItem*)indexItemToReturn
+{
+    NSMutableSet *tags = [NSMutableSet set];
+    BOOL inbox = NO;
+    for (HPNote *note in self.notes)
+    {
+        NSSet *noteTags = note.cd_tags;
+        if (noteTags.count == 0)
+        {
+            inbox = YES;
+            break;
+        }
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(isSystem))];
+        noteTags = [noteTags filteredSetUsingPredicate:predicate];
+        [tags addObjectsFromArray:noteTags.allObjects];
+    }
+    if (!inbox && tags.count == 1)
+    {
+        HPTag *tag = [tags anyObject];
+        return [HPIndexItem indexItemWithTag:tag];
+    }
+    return [HPIndexItem inboxIndexItem];
 }
 
 - (void)trashNote

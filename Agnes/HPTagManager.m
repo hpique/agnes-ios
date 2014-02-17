@@ -25,7 +25,7 @@ static NSString *const HPTagArchiveName = @"Archive";
 
 - (void)didInsertObject:(HPTag*)object
 {
-    if (object != self.inboxTag && object != self.archiveTag)
+    if (!(object.isSystem))
     {
         [_tagTrie addString:object.name];
     }
@@ -55,16 +55,16 @@ static NSString *const HPTagArchiveName = @"Archive";
     return instance;
 }
 
-#pragma mark Special tags
+#pragma mark System tags
 
 - (HPTag*)archiveTag
 {
-    return [self tagWithName:HPTagArchiveName];
+    return [self systemTagWithName:HPTagArchiveName];
 }
 
 - (HPTag*)inboxTag
 {
-    return [self tagWithName:HPTagInboxName];
+    return [self systemTagWithName:HPTagInboxName];
 }
 
 #pragma mark Fetching tags
@@ -92,10 +92,7 @@ static NSString *const HPTagArchiveName = @"Archive";
     HPTag *tag = [result firstObject];
     if (!tag)
     {
-        tag = [HPTag insertNewObjectIntoContext:self.context];
-        tag.uuid = [[NSUUID UUID] UUIDString];
-        tag.name = name;
-        tag.order = NSIntegerMax;
+        tag = [self insertTagWithName:name isSystem:NO];
     }
     return tag;
 }
@@ -165,6 +162,16 @@ static NSString *const HPTagArchiveName = @"Archive";
 
 #pragma mark - Private
 
+- (HPTag*)insertTagWithName:(NSString*)name isSystem:(BOOL)isSystem
+{
+    HPTag *tag = [HPTag insertNewObjectIntoContext:self.context];
+    tag.uuid = [[NSUUID UUID] UUIDString];
+    tag.name = name;
+    tag.order = NSIntegerMax;
+    tag.isSystem = isSystem;
+    return tag;
+}
+
 - (void)removeDuplicatesOfTagNamed:(NSString*)tagName
 {
     NSArray *tags = [self tagsWithName:tagName];
@@ -197,6 +204,17 @@ static NSString *const HPTagArchiveName = @"Archive";
     NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
     NSAssert(result, @"Fetch %@ failed with error %@", fetchRequest, error);
     return result;
+}
+
+- (HPTag*)systemTagWithName:(NSString*)name
+{
+    NSArray *result = [self tagsWithName:name];
+    HPTag *tag = [result firstObject];
+    if (!tag)
+    {
+        tag = [self insertTagWithName:name isSystem:YES];
+    }
+    return tag;
 }
 
 @end

@@ -166,11 +166,9 @@ const NSInteger HPNoteDetailModeCount = 5;
         [currentTags addObject:tag];
     }
     
-    HPTag *archiveTag = manager.archiveTag;
-    HPTag *inboxTag = manager.inboxTag;
     if (![[HPNoteManager sharedManager] isSystemNote:self])
     {
-        HPTag *specialTag = self.archived ? archiveTag : inboxTag;
+        HPTag *specialTag = self.archived ? manager.archiveTag : manager.inboxTag;
         [currentTags addObject:specialTag];
     }
     
@@ -192,7 +190,7 @@ const NSInteger HPNoteDetailModeCount = 5;
 
     for (HPTag *tag in previousTags)
     {
-        if (tag.cd_notes.count == 0 && tag != inboxTag && tag != archiveTag)
+        if (tag.cd_notes.count == 0 && !tag.isSystem)
         {
             [manager.context deleteObject:tag];
         }

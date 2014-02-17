@@ -179,7 +179,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 + (NSString*)textOfBlankNoteWithTag:(HPTag*)tag
 {
-    if (tag == nil || tag == [HPTagManager sharedManager].inboxTag)
+    if (tag == nil || tag.isSystem)
     {
         return @"";
     }
