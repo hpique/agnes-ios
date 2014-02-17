@@ -21,10 +21,10 @@ typedef NS_ENUM(NSInteger, HPTagSortMode) {
 @interface HPTag : NSManagedObject
 
 @property (nonatomic, retain) NSString * name;
+@property (nonatomic, retain) NSNumber *cd_isSystem;
 @property (nonatomic, retain) NSSet *cd_notes;
 @property (nonatomic, retain) NSNumber *cd_order;
 @property (nonatomic, strong) NSNumber *cd_sortMode;
-@property (nonatomic, assign) BOOL isSystem;
 @property (nonatomic, strong) NSString *uuid;
 
 @end
@@ -48,6 +48,7 @@ typedef NS_ENUM(NSInteger, HPTagSortMode) {
 
 @interface HPTag(Transient)
 
+@property (nonatomic, assign) BOOL isSystem;
 @property (nonatomic, assign) NSInteger order;
 @property (nonatomic, assign) NSInteger sortMode;
 

@@ -49,6 +49,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     HPTag *_tag;
 
     // Cache
+    NSPredicate *_fastNoteCountPredicate;
     UIImage *_icon;
     NSUInteger _noteCount;
     NSArray *_notes;
@@ -164,7 +165,16 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 - (NSUInteger)fasterNoteCount
 {
-    return self.tag.cd_notes.count;
+    if (!_fastNoteCountPredicate)
+    {
+        _fastNoteCountPredicate = [NSPredicate predicateWithFormat:@"%K = 0 AND ANY %K.%K = %@",
+                                   NSStringFromSelector(@selector(cd_archived)),
+                                   NSStringFromSelector(@selector(cd_tags)),
+                                   NSStringFromSelector(@selector(name)),
+                                   self.tag.name];
+    }
+    NSUInteger count = [[HPNoteManager sharedManager] countWithPredicate:_fastNoteCountPredicate];
+    return count;
 }
 
 - (UIImage*)icon
@@ -242,9 +252,10 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {
+    HPTagManager *manager = [HPTagManager sharedManager];
     for (HPTag *tag in notification.hp_changedObjects)
     {
-        if (self.tag == tag)
+        if (self.tag == tag || tag == manager.archiveTag)
         {
             [self invalidateNotesAndNotifyChange];
             return;
@@ -263,6 +274,11 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 @implementation HPIndexItemInbox {
     UIImage *_iconFull;
+}
+
+- (NSUInteger)fasterNoteCount
+{
+    return self.tag.cd_notes.count;
 }
 
 - (HPTag*)tag
@@ -304,6 +320,11 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 @end
 
 @implementation HPIndexItemArchive
+
+- (NSUInteger)fasterNoteCount
+{
+    return self.tag.cd_notes.count;
+}
 
 - (HPTag*)tag
 {

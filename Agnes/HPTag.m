@@ -11,10 +11,10 @@
 
 @implementation HPTag
 
+@dynamic cd_isSystem;
 @dynamic cd_notes;
 @dynamic cd_order;
 @dynamic cd_sortMode;
-@dynamic isSystem;
 @dynamic uuid;
 @dynamic name;
 @end
@@ -56,6 +56,28 @@
     NSNumber *value = @(order);
     [self willChangeValueForKey:key];
     self.cd_order = value;
+    [self willChangeValueForKey:key];
+}
+
+- (BOOL)isSystem
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(isSystem));
+    
+    [self willAccessValueForKey:key];
+    NSNumber *value = self.cd_isSystem;
+    [self didAccessValueForKey:key];
+    return [value boolValue];
+}
+
+- (void)setIsSystem:(BOOL)isSystem
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(isSystem));
+    
+    NSNumber *value = @(isSystem);
+    [self willChangeValueForKey:key];
+    self.cd_isSystem = value;
     [self willChangeValueForKey:key];
 }
 

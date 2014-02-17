@@ -31,9 +31,10 @@
         <relationship name="cd_tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="cd_notes" inverseEntity="Tag" syncable="YES"/>
     </entity>
     <entity name="Tag" representedClassName="HPTag" syncable="YES">
+        <attribute name="cd_isSystem" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="cd_order" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="cd_sortMode" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
-        <attribute name="isSystem" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="isSystem" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="name" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="order" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="sortMode" optional="YES" transient="YES" syncable="YES"/>
