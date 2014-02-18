@@ -856,6 +856,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (void)noteViewController:(HPNoteViewController*)viewController shouldReturnToIndexItem:(HPIndexItem*)indexItem
 {
     self.indexItem = indexItem;
+    [self.delegate noteListViewController:self didChangeIndexItem:indexItem];
 }
 
 #pragma mark - Notifications

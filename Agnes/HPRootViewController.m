@@ -15,7 +15,7 @@
 #import "HPIndexItem.h"
 #import <CoreData/CoreData.h>
 
-@interface HPRootViewController()
+@interface HPRootViewController()<HPNoteListViewControllerDelegate>
 
 @end
 
@@ -33,6 +33,7 @@
     
     HPIndexItem *indexItem = [HPIndexItem inboxIndexItem];
     _listViewController = [[HPNoteListViewController alloc] initWithIndexItem:indexItem];
+    _listViewController.delegate = self;
     HPNoteNavigationController *centerController = [[HPNoteNavigationController alloc] initWithRootViewController:_listViewController];
     centerController.delegate = self;
     _indexViewController = [[HPIndexViewController alloc] init];
@@ -85,6 +86,13 @@
         return animator;
     }
     return nil;
+}
+
+#pragma mark - HPNoteListViewControllerDelegate
+
+- (void)noteListViewController:(HPNoteListViewController*)viewController didChangeIndexItem:(HPIndexItem*)indexItem
+{
+    [_indexViewController selectIndexItem:indexItem];
 }
 
 @end

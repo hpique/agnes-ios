@@ -55,9 +55,30 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     self.navigationItem.rightBarButtonItems = @[fixedSpace, addBarButtonItem];
     
     [self reloadData];
+    [self selectIndexItem:[HPIndexItem inboxIndexItem]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+}
+
+#pragma mark Public
+
+- (void)selectIndexItem:(HPIndexItem*)indexItem
+{
+    __block NSUInteger index = [_items indexOfObject:indexItem];
+    if (index == NSNotFound)
+    {
+        [_items enumerateObjectsUsingBlock:^(HPIndexItem *currentItem, NSUInteger idx, BOOL *stop) {
+            if (currentItem.tag == indexItem.tag)
+            {
+                index = idx;
+                *stop = YES;
+            }
+        }];
+    }
+    if (index == NSNotFound) return;
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
+    [self.tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
 }
 
 #pragma mark - Private

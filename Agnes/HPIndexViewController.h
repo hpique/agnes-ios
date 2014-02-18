@@ -8,7 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "HPAgnesViewController.h"
+@class HPIndexItem;
 
 @interface HPIndexViewController : HPAgnesViewController
+
+- (void)selectIndexItem:(HPIndexItem*)indexItem;
 
 @end

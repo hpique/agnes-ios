@@ -12,10 +12,13 @@
 @class HPIndexItem;
 @class HPNote;
 
+@protocol HPNoteListViewControllerDelegate;
+
 @interface HPNoteListViewController : HPAgnesViewController<HPNoteTransitionViewController>
 
 @property (nonatomic, strong) HPIndexItem *indexItem;
 @property (nonatomic, readonly) UITableView *tableView;
+@property (nonatomic, weak) id<HPNoteListViewControllerDelegate> delegate;
 
 @property (nonatomic, readonly) NSIndexPath *indexPathOfSelectedNote;
 
@@ -24,5 +27,11 @@
 - (BOOL)selectNote:(HPNote*)note;
 
 - (void)showBlankNote;
+
+@end
+
+@protocol HPNoteListViewControllerDelegate <NSObject>
+
+- (void)noteListViewController:(HPNoteListViewController*)viewController didChangeIndexItem:(HPIndexItem*)indexItem;
 
 @end
