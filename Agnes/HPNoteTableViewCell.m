@@ -297,7 +297,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     if (estimatedHeight > 0) return estimatedHeight;
     
     estimatedHeight = HPNoteTableViewCellMargin * 2;
-    if (note.hasThumbnail)
+    if (note.mightHaveThumbnail)
     {
         estimatedHeight += [self thumbnailViewWidth];
     }

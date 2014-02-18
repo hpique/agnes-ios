@@ -17,6 +17,12 @@
     return self.thumbnailAttachment != nil;
 }
 
+- (BOOL)mightHaveThumbnail
+{
+    const NSRange range = [self.text rangeOfString:[HPNote attachmentString]];
+    return range.location != NSNotFound;
+}
+
 - (NSString*)summaryForTag:(HPTag*)tag
 {
     NSString *summary = self.summary;

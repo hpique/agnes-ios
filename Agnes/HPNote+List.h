@@ -12,6 +12,10 @@
 
 @interface HPNote (List)
 
+/**
+ Guess if the note has a thumbnail by searching for the attachment string. This is much faster than hasThumbnail as it doesn't require loading the attachments.
+ */
+@property (nonatomic, readonly) BOOL mightHaveThumbnail;
 @property (nonatomic, readonly) BOOL hasThumbnail;
 @property (nonatomic, readonly) HPAttachment *thumbnailAttachment;
 
