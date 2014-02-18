@@ -56,10 +56,12 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     UIBarButtonItem *_addNoteBarButtonItem;
     
     HPNoteExporter *_noteExporter;
+    UIDocumentInteractionController *_exportDocumentController;
     
     NSInteger _optionsActionSheetUndoIndex;
     NSInteger _optionsActionSheetRedoIndex;
     NSInteger _optionsActionSheetExportIndex;
+    
     
     __weak IBOutlet UIView *_emptyListView;
     __weak IBOutlet UILabel *_emptyTitleLabel;
@@ -314,31 +316,52 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     if ([MFMailComposeViewController canSendMail])
     {
-        NSData *data = [NSData dataWithContentsOfURL:fileURL];
-        if (data)
+        NSString *path = fileURL.path;
+        NSError *error = nil;
+        NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
+        NSAssert(attributes, @"Failed to get file attributes with error %@", error.localizedDescription);
+        unsigned long long fileSize = attributes.fileSize;
+        static unsigned long long MaxFileSize = 5 * 1024 * 1024; // 5MB
+        if (fileSize < MaxFileSize)
         {
-            MFMailComposeViewController *vc = [[MFMailComposeViewController alloc] init];
-            vc.mailComposeDelegate = self;
-            NSString *subject = [NSString stringWithFormat:NSLocalizedString(@"Agnes %@ export", @""), self.indexItem.title];
-            [vc setSubject:subject];
-            [vc addAttachmentData:data mimeType:@"application/zip" fileName:@"notes.zip"];
-            [self presentViewController:vc animated:YES completion:nil];
+            NSData *data = [NSData dataWithContentsOfURL:fileURL];
+            if (data)
+            {
+                MFMailComposeViewController *vc = [[MFMailComposeViewController alloc] init];
+                vc.mailComposeDelegate = self;
+                NSString *subject = [NSString stringWithFormat:NSLocalizedString(@"Agnes %@ export", @""), self.indexItem.title];
+                [vc setSubject:subject];
+                [vc addAttachmentData:data mimeType:@"application/zip" fileName:@"notes.zip"];
+                [self presentViewController:vc animated:YES completion:nil];
+            }
+            else
+            {
+                [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:NSLocalizedString(@"Unable to read zip file", @"")];
+            }
         }
         else
         {
-            [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:NSLocalizedString(@"Unable to read zip file", @"")];
+            [self exportNotesWithDocumentControllerFromFileURL:fileURL
+                                                  errorMessage:NSLocalizedString(@"A documents app like Google Drive or Dropbox is required for large exports", @"")];
         }
-    }
-    else if ([[UIApplication sharedApplication] canOpenURL:fileURL])
-    {
-        UIDocumentInteractionController *documentController = [UIDocumentInteractionController interactionControllerWithURL:fileURL];
-        [documentController presentOpenInMenuFromRect:CGRectZero inView:self.view animated:YES];
     }
     else
     {
-        [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:NSLocalizedString(@"A functioning email client is required", @"")];
+        [self exportNotesWithDocumentControllerFromFileURL:fileURL errorMessage:NSLocalizedString(@"A configured email client is required", @"")];
     }
     _noteExporter = nil;
+}
+
+- (void)exportNotesWithDocumentControllerFromFileURL:(NSURL*)fileURL errorMessage:(NSString*)errorMessage
+{
+    _exportDocumentController = [UIDocumentInteractionController interactionControllerWithURL:fileURL];
+    _exportDocumentController.name = [NSString stringWithFormat:NSLocalizedString(@"%@ notes.zip", @""), self.indexItem.exportPrefix];
+    BOOL success = [_exportDocumentController presentOpenInMenuFromRect:CGRectZero inView:self.view animated:YES];
+    if (!success)
+    {
+        _exportDocumentController = nil;
+        [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:errorMessage];
+    }
 }
 
 - (NSIndexPath*)indexPathOfNote:(HPNote*)note
