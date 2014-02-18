@@ -34,8 +34,6 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 @property (nonatomic, copy) NSString *imageName;
 @property (nonatomic, strong) HPTag *tag;
 
-@property (nonatomic, readonly) NSUInteger fasterNoteCount;
-
 @end
 
 @implementation HPIndexItem {
@@ -163,20 +161,6 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return [[HPFontManager sharedManager] fontForNoteBody];
 }
 
-- (NSUInteger)fasterNoteCount
-{
-    if (!_fastNoteCountPredicate)
-    {
-        _fastNoteCountPredicate = [NSPredicate predicateWithFormat:@"%K = 0 AND ANY %K.%K = %@",
-                                   NSStringFromSelector(@selector(cd_archived)),
-                                   NSStringFromSelector(@selector(cd_tags)),
-                                   NSStringFromSelector(@selector(name)),
-                                   self.tag.name];
-    }
-    NSUInteger count = [[HPNoteManager sharedManager] countWithPredicate:_fastNoteCountPredicate];
-    return count;
-}
-
 - (UIImage*)icon
 {
     if (!_icon)
@@ -207,15 +191,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     }
     else
     {
-        const NSUInteger fasterCount = self.fasterNoteCount;
-        if (fasterCount != NSNotFound)
-        {
-            _noteCount = fasterCount;
-        }
-        else
-        {
-            _noteCount = self.notes.count;
-        }
+        _noteCount = self.notes.count;
     }
     return _noteCount;
 }
@@ -276,11 +252,6 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     UIImage *_iconFull;
 }
 
-- (NSUInteger)fasterNoteCount
-{
-    return self.tag.cd_notes.count;
-}
-
 - (HPTag*)tag
 {
     return [HPTagManager sharedManager].inboxTag;
@@ -321,11 +292,6 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 @implementation HPIndexItemArchive
 
-- (NSUInteger)fasterNoteCount
-{
-    return self.tag.cd_notes.count;
-}
-
 - (HPTag*)tag
 {
     return [HPTagManager sharedManager].archiveTag;
@@ -349,11 +315,6 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 @end
 
 @implementation HPIndexItemSystem
-
-- (NSUInteger)fasterNoteCount
-{
-    return [HPNoteManager sharedManager].systemNotes.count;
-}
 
 - (HPTag*)tag
 { // For cell height calculations
