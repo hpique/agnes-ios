@@ -19,6 +19,8 @@
 
 @property (nonatomic, readonly) NSIndexPath *indexPathOfSelectedNote;
 
+- (id)initWithIndexItem:(HPIndexItem*)indexItem;
+
 - (BOOL)selectNote:(HPNote*)note;
 
 - (void)showBlankNote;

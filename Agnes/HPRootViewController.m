@@ -31,8 +31,8 @@
     self.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningNavigationBar | MMOpenDrawerGestureModeBezelPanningCenterView;
     self.view.backgroundColor = [UIColor whiteColor];
     
-    _listViewController = [[HPNoteListViewController alloc] init];
-    _listViewController.indexItem = [HPIndexItem inboxIndexItem];
+    HPIndexItem *indexItem = [HPIndexItem inboxIndexItem];
+    _listViewController = [[HPNoteListViewController alloc] initWithIndexItem:indexItem];
     HPNoteNavigationController *centerController = [[HPNoteNavigationController alloc] initWithRootViewController:_listViewController];
     centerController.delegate = self;
     _indexViewController = [[HPIndexViewController alloc] init];

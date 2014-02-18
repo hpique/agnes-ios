@@ -78,6 +78,16 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 @synthesize transitioning = _transitioning;
 @synthesize wantsDefaultTransition = _wantsDefaultTransition;
 
+- (id)initWithIndexItem:(HPIndexItem*)indexItem
+{
+    self = [super initWithNibName:nil bundle:nil];
+    if (self)
+    {
+        _indexItem = indexItem;
+    }
+    return self;
+}
+
 - (void)dealloc
 {
     [_restoreTitleTimer invalidate];
