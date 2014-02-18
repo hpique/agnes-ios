@@ -110,6 +110,7 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
     id invalidatedAll = [userInfo objectForKey:NSInvalidatedAllObjectsKey];
     if (invalidatedAll)
     {
+        [self didInvalidateAllObjects];
         [[NSNotificationCenter defaultCenter] postNotificationName:HPEntityManagerObjectsDidChangeNotification object:self userInfo:userInfo];
         return;
     }
@@ -182,6 +183,8 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
 - (void)didDeleteObject:(id)object {}
 
 - (void)didRefreshObject:(id)object {}
+
+- (void)didInvalidateAllObjects {};
 
 - (void)didInvalidateObject:(id)object {}
 

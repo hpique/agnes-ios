@@ -19,6 +19,10 @@ static NSString *const HPTagArchiveName = @"Archive";
 @implementation HPTagManager
 {
     NDMutableTrie *_tagTrie;
+    
+    // Cache
+    HPTag *_inboxTag;
+    HPTag *_archiveTag;
 }
 
 #pragma mark - HPEntityManager
@@ -59,12 +63,20 @@ static NSString *const HPTagArchiveName = @"Archive";
 
 - (HPTag*)archiveTag
 {
-    return [self systemTagWithName:HPTagArchiveName];
+    if (!_archiveTag)
+    {
+        _archiveTag = [self systemTagWithName:HPTagArchiveName];
+    }
+    return _archiveTag;
 }
 
 - (HPTag*)inboxTag
 {
-    return [self systemTagWithName:HPTagInboxName];
+    if (!_inboxTag)
+    {
+        _inboxTag = [self systemTagWithName:HPTagInboxName];
+    }
+    return _inboxTag;
 }
 
 #pragma mark Fetching tags
@@ -158,6 +170,14 @@ static NSString *const HPTagArchiveName = @"Archive";
         [archiveTag removeCd_notesObject:note];
         [note removeCd_tagsObject:self.archiveTag];
     }];
+}
+
+#pragma mark HPEntityManager
+
+- (void)didInvalidateAllObjects
+{
+    _inboxTag = nil;
+    _archiveTag = nil;
 }
 
 #pragma mark - Private

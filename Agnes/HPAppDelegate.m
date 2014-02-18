@@ -96,7 +96,7 @@
 {
     if (self.window.rootViewController)
     {
-        [self loadRootViewController];
+       // [self loadRootViewController];
     }
 }
 

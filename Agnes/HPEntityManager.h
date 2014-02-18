@@ -45,6 +45,8 @@
 
 - (void)didRefreshObject:(id)object;
 
+- (void)didInvalidateAllObjects;
+
 - (void)didInvalidateObject:(id)object;
 
 @end
