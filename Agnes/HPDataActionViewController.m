@@ -136,7 +136,7 @@
     _phoneNumberActionSheetCallIndex = -1;
     if (canMakeCalls)
     {
-        NSString *title = [NSString stringWithFormat:NSLocalizedString(@"Call %@", phoneNumber)];
+        NSString *title = [NSString stringWithFormat:NSLocalizedString(@"Call %@", @""), phoneNumber];
         _phoneNumberActionSheetCallIndex = [_phoneNumberActionSheet addButtonWithTitle:title];
     }
     _phoneNumberActionSheetMessageIndex = -1;

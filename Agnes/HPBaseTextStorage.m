@@ -105,10 +105,7 @@
 {
     [_backingStore removeAttribute:NSLinkAttributeName range:range];
     
-    if ([MFMailComposeViewController canSendMail])
-    {
-        [self addLinksInRange:range matchingDataDetectorType:NSTextCheckingTypeLink scheme:@"mailto" urlFormat:@"%@:%@" containing:@"@"];
-    }
+    [self addLinksInRange:range matchingDataDetectorType:NSTextCheckingTypeLink scheme:@"mailto" urlFormat:@"%@:%@" containing:@"@"];
     [self addLinksInRange:range matchingDataDetectorType:NSTextCheckingTypeLink scheme:@"http" urlFormat:@"%@://%@" containing:nil];
     [self addLinksInRange:range matchingDataDetectorType:NSTextCheckingTypePhoneNumber scheme:@"tel" urlFormat:@"%@://%@" containing:nil];
 }
