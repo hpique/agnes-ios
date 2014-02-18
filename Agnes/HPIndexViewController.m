@@ -89,7 +89,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [items addObject:[HPIndexItem inboxIndexItem]];
     
     NSArray *tags = [[HPTagManager sharedManager] indexTags];
-    NSSortDescriptor *orderSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(order)) ascending:NO];
+    NSSortDescriptor *orderSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(order)) ascending:YES];
     NSSortDescriptor *nameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(name)) ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
     tags = [tags sortedArrayUsingDescriptors:@[orderSortDescriptor, nameSortDescriptor]];
     for (HPTag *tag in tags)
@@ -138,17 +138,28 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
-    [_items exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
-    NSMutableArray *tagNames = [NSMutableArray array];
-    for (HPIndexItem *item in _items)
-    {
-        HPTag *tag = item.tag;
-        if (tag)
+    NSMutableArray *tags = [NSMutableArray array];
+    HPIndexItem *fromIndexItem = _items[sourceIndexPath.row];
+    HPIndexItem *toIndexItem = _items[destinationIndexPath.row];
+    __block NSUInteger fromIndex = NSNotFound;
+    __block NSUInteger toIndex = NSNotFound;
+    [_items enumerateObjectsUsingBlock:^(HPIndexItem *item, NSUInteger idx, BOOL *stop) {
+        if (item == fromIndexItem)
         {
-            [tagNames addObject:tag.name];
+            fromIndex = tags.count;
         }
-    }
-    [[HPTagManager sharedManager] reorderTagsWithNames:tagNames];
+        else if (item == toIndexItem)
+        {
+            toIndex = tags.count;
+        }
+        HPTag *tag = item.tag;
+        if (tag && !tag.isSystem)
+        {
+            [tags addObject:tag];
+        }
+    }];
+    [[HPTagManager sharedManager] reorderTags:tags exchangeObjectAtIndex:fromIndex withObjectAtIndex:toIndex];
+    [_items exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
 }
 
 #pragma mark - UITableViewDelegate
@@ -158,7 +169,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSInteger sourceRow = sourceIndexPath.row;
     NSInteger proposedRow = proposedDestinationIndexPath.row;
     HPIndexItem *proposedIndexItem = _items[proposedRow];
-    if (proposedIndexItem.tag)
+    HPTag *proposedTag = proposedIndexItem.tag;
+    if (!proposedTag.isSystem)
     {
         return proposedDestinationIndexPath;
     }
@@ -196,7 +208,20 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {
-    [self reloadData];
+    NSDictionary *userInfo = notification.userInfo;
+    NSSet *inserted = [userInfo objectForKey:NSInsertedObjectsKey];
+    NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
+    NSSet *invalidated = [userInfo objectForKey:NSInvalidatedObjectsKey];
+    NSSet *refreshed = [userInfo objectForKey:NSRefreshedObjectsKey];
+    NSMutableSet *changes = [NSMutableSet set];
+    [changes unionSet:inserted];
+    [changes unionSet:deleted];
+    [changes unionSet:invalidated];
+    [changes unionSet:refreshed];
+    if (changes.count > 0)
+    {
+        [self reloadData];
+    }
 }
 
 @end

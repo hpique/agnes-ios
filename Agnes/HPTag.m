@@ -37,7 +37,7 @@
 
 @implementation HPTag(Transient)
 
-- (NSInteger)order
+- (CGFloat)order
 {
     static NSString *key = nil;
     if (!key) key = NSStringFromSelector(@selector(order));
@@ -45,10 +45,10 @@
     [self willAccessValueForKey:key];
     NSNumber *value = self.cd_order;
     [self didAccessValueForKey:key];
-    return [value integerValue];
+    return [value floatValue];
 }
 
-- (void)setOrder:(NSInteger)order
+- (void)setOrder:(CGFloat)order
 {
     static NSString *key = nil;
     if (!key) key = NSStringFromSelector(@selector(order));

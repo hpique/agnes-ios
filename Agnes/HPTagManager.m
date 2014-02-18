@@ -157,6 +157,59 @@ static NSString *const HPTagArchiveName = @"Archive";
     }];
 }
 
+- (void)reorderTags:(NSArray*)tags exchangeObjectAtIndex:(NSUInteger)fromIndex withObjectAtIndex:(NSUInteger)toIndex
+{
+    if (fromIndex > toIndex)
+    {
+        NSUInteger aux = fromIndex;
+        fromIndex = toIndex;
+        toIndex = aux;
+    }
+    [self performModelUpdateWithName:NSLocalizedString(@"Reorder", @"") save:NO block:^{
+        HPTag *fromTag = tags[fromIndex];
+        HPTag *toTag = tags[toIndex];
+        CGFloat fromOrder = fromTag.order;
+        CGFloat toOrder = toTag.order;
+        if (fromOrder != toOrder)
+        {
+            fromTag.order = toOrder;
+            toTag.order = fromOrder;
+        }
+        else
+        {
+            NSInteger minIndex = fromIndex;
+            CGFloat minOrder = fromOrder;
+            if (minIndex > 0)
+            {
+                do
+                {
+                    minIndex--;
+                    HPTag *tag = tags[minIndex];
+                    minOrder = tag.order;
+                } while (minIndex > 0 && minOrder == toOrder);
+            }
+            if (minIndex == 0)
+            {
+                minOrder = CGFLOAT_MIN;
+            }
+            const CGFloat delta = toOrder - minOrder;
+            const CGFloat count = toIndex - minIndex;
+            const CGFloat increment = delta / count;
+            
+            for (NSUInteger i = minIndex; i < toIndex; i++)
+            {
+                HPTag *tag = tags[i];
+                const CGFloat currentOrder = minOrder + increment * (i - minIndex);
+                tag.order = currentOrder;
+            }
+            
+            fromOrder = fromTag.order;
+            fromTag.order = toOrder;
+            toTag.order = fromOrder;
+        }
+    }];
+}
+
 - (void)unarchiveNote:(HPNote*)note
 {
     [self performModelUpdateWithName:NSLocalizedString(@"Unarchive", @"") save:YES block:^{
@@ -187,7 +240,7 @@ static NSString *const HPTagArchiveName = @"Archive";
     HPTag *tag = [HPTag insertNewObjectIntoContext:self.context];
     tag.uuid = [[NSUUID UUID] UUIDString];
     tag.name = name;
-    tag.order = NSIntegerMax;
+    tag.order = CGFLOAT_MAX;
     tag.isSystem = isSystem;
     return tag;
 }

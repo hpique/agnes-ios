@@ -33,7 +33,7 @@
 
 - (void)archiveNote:(HPNote*)note;
 
-- (void)reorderTagsWithNames:(NSArray*)names;
+- (void)reorderTags:(NSArray*)tags exchangeObjectAtIndex:(NSUInteger)fromIndex withObjectAtIndex:(NSUInteger)toIndex;
 
 - (void)removeDuplicates;
 

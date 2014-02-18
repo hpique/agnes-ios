@@ -49,7 +49,7 @@ typedef NS_ENUM(NSInteger, HPTagSortMode) {
 @interface HPTag(Transient)
 
 @property (nonatomic, assign) BOOL isSystem;
-@property (nonatomic, assign) NSInteger order;
+@property (nonatomic, assign) CGFloat order;
 @property (nonatomic, assign) NSInteger sortMode;
 
 @end
