@@ -87,10 +87,33 @@ NSUInteger const HPNoteTableViewCellLineCount = 3;
         [_cache removeAllObjects];
         return;
     }
-    NSSet *evicted = notification.hp_changedObjects;
-    for (HPNote *note in evicted)
+    NSDictionary *userInfo = notification.userInfo;
     {
-        [_cache removeObjectForKey:note.uuid];
+        NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
+        NSString *textKey = NSStringFromSelector(@selector(text));
+        for (HPNote *note in updated)
+        { // Only invalidate notes whose text changed
+            id value = [note.changedValuesForCurrentEvent objectForKey:textKey];
+            if (value)
+            {
+                [_cache removeObjectForKey:note.uuid];
+            }
+        }
+    }
+    {
+        NSSet *inserted = [userInfo objectForKey:NSInsertedObjectsKey];
+        NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
+        NSSet *invalidated = [userInfo objectForKey:NSInvalidatedObjectsKey];
+        NSSet *refreshed = [userInfo objectForKey:NSRefreshedObjectsKey];
+        NSMutableSet *otherChanges = [NSMutableSet set];
+        [otherChanges unionSet:inserted];
+        [otherChanges unionSet:deleted];
+        [otherChanges unionSet:invalidated];
+        [otherChanges unionSet:refreshed];
+        for (HPNote *note in otherChanges)
+        {
+            [_cache removeObjectForKey:note.uuid];
+        }
     }
 }
 

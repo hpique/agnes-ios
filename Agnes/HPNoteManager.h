@@ -60,7 +60,7 @@
 
 - (void)importNotes:(NSArray*)notes;
 
-- (void)reorderNotes:(NSArray*)notes tagName:(NSString*)tagName;
+- (void)reorderNotes:(NSArray*)notes exchangeObjectAtIndex:(NSUInteger)fromIndex withObjectAtIndex:(NSUInteger)toIndex inTag:(HPTag*)tag;
 
 - (void)setDetailMode:(HPNoteDetailMode)detailMode ofNote:(HPNote*)note;
 

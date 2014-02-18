@@ -227,21 +227,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }];
 }
 
-- (void)notesDidChangeNotification:(NSNotification*)notification
-{
-    if (_ignoreNotesDidChangeNotification) return; // Controller will reflect or already reflected the change
-    NSDictionary *userInfo = notification.userInfo;
-    NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
-    
-    if (self.transitioning || !_visible)
-    {
-        [_pendingUpdatedNotes addObjectsFromArray:updated.allObjects];
-        return;
-    }
-    
-    [self updateNotes:YES /* animated */ reloadNotes:updated];
-}
-
 - (void)drawerBarButtonAction:(MMDrawerBarButtonItem*)barButtonItem
 {
     [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
@@ -715,13 +700,10 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
-    NSInteger index = sourceIndexPath.row;
-    id object = _notes[index];
-    [_notes removeObjectAtIndex:sourceIndexPath.row];
-    [_notes insertObject:object atIndex:destinationIndexPath.row];
     _ignoreNotesDidChangeNotification = YES;
     HPTag *tag = self.indexItem.tag;
-    [[HPNoteManager sharedManager] reorderNotes:_notes tagName:tag.name];
+    [[HPNoteManager sharedManager] reorderNotes:_notes exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row inTag:tag];
+    [_notes exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
     _ignoreNotesDidChangeNotification = NO;
 }
 
@@ -844,6 +826,21 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 }
 
 #pragma mark - Notifications
+
+- (void)notesDidChangeNotification:(NSNotification*)notification
+{
+    if (_ignoreNotesDidChangeNotification) return; // Controller will reflect or already reflected the change
+    NSDictionary *userInfo = notification.userInfo;
+    NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
+    
+    if (self.transitioning || !_visible)
+    {
+        [_pendingUpdatedNotes addObjectsFromArray:updated.allObjects];
+        return;
+    }
+    
+    [self updateNotes:YES /* animated */ reloadNotes:updated];
+}
 
 - (void)didChangeFontsNotification:(NSNotification*)notification
 {

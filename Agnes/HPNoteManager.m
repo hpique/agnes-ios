@@ -114,8 +114,8 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
             return [notes sortedArrayWithOptions:0 usingComparator:^NSComparisonResult(HPNote *note1, HPNote *note2) {
                 CGFloat order1 = [note1 orderInTag:tag.name];
                 CGFloat order2 = [note2 orderInTag:tag.name];
-                if (order2 < order1) return NSOrderedAscending;
-                if (order2 > order1) return NSOrderedDescending;
+                if (order1 < order2) return NSOrderedAscending;
+                if (order1 > order2) return NSOrderedDescending;
                 return [note2.modifiedAt compare:note1.modifiedAt];
             }];
             break;
@@ -307,16 +307,58 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }];
 }
 
-- (void)reorderNotes:(NSArray*)notes tagName:(NSString*)tagName
+- (void)reorderNotes:(NSArray*)notes exchangeObjectAtIndex:(NSUInteger)fromIndex withObjectAtIndex:(NSUInteger)toIndex inTag:(HPTag*)tag
 {
+    if (fromIndex > toIndex)
+    {
+        NSUInteger aux = fromIndex;
+        fromIndex = toIndex;
+        toIndex = aux;
+    }
     [self performModelUpdateWithName:NSLocalizedString(@"Reorder", @"") save:NO block:^{
-        NSInteger notesCount = notes.count;
-        for (NSInteger i = 0; i < notesCount; i++)
+        HPNote *fromNote = notes[fromIndex];
+        HPNote *toNote = notes[toIndex];
+        NSString *tagName = tag.name;
+        CGFloat fromOrder = [fromNote orderInTag:tagName];
+        CGFloat toOrder = [toNote orderInTag:tagName];
+        if (fromOrder != toOrder)
         {
-            HPNote *note = notes[i];
-            [note setOrder:notesCount - i inTag:tagName];
+            [fromNote setOrder:toOrder inTag:tagName];
+            [toNote setOrder:fromOrder inTag:tagName];
         }
-    } ];
+        else
+        {
+            NSInteger minIndex = fromIndex;
+            CGFloat minOrder = fromOrder;
+            if (minIndex > 0)
+            {
+                do
+                {
+                    minIndex--;
+                    HPNote *note = notes[minIndex];
+                    minOrder = [note orderInTag:tagName];
+                } while (minIndex > 0 && minOrder == toOrder);
+            }
+            if (minIndex == 0)
+            {
+                minOrder = CGFLOAT_MIN;
+            }
+            const CGFloat delta = toOrder - minOrder;
+            const CGFloat count = toIndex - minIndex;
+            const CGFloat increment = delta / count;
+            
+            for (NSUInteger i = minIndex; i < toIndex; i++)
+            {
+                HPNote *note = notes[i];
+                const CGFloat currentOrder = minOrder + increment * (i - minIndex);
+                [note setOrder:currentOrder inTag:tagName];
+            }
+            
+            CGFloat fromOrder = [fromNote orderInTag:tagName];
+            [fromNote setOrder:toOrder inTag:tagName];
+            [toNote setOrder:fromOrder inTag:tagName];
+        }
+    }];
 }
 
 - (void)setDetailMode:(HPNoteDetailMode)detailMode ofNote:(HPNote*)note

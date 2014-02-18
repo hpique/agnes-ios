@@ -129,7 +129,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     {
         _bodyTextStorage = [HPBaseTextStorage new];
         NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
-        CGSize containerSize = CGSizeMake(self.view.bounds.size.width,  CGFLOAT_MAX);
+        CGSize containerSize = CGSizeMake(self.view.bounds.size.width, CGFLOAT_MAX);
         NSTextContainer *container = [[NSTextContainer alloc] initWithSize:containerSize];
         container.widthTracksTextView = YES;
         [layoutManager addTextContainer:container];
