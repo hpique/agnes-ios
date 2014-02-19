@@ -14,11 +14,12 @@
     <string>#people</string>
     <string>#places</string>
     <string>#reading</string>
+    <string>#recipes</string>
     <string>#reminders</string>
     <string>#shopping</string>
     <string>#things</string>
     <string>#todo</string>
 	<string>#urgent</string>
-    <string>#whislist</string>
+    <string>#wishlist</string>
 </array>
 </plist>
