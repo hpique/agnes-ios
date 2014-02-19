@@ -22,6 +22,7 @@
 #import "HPNoteNavigationController.h"
 #import "HPNoteListSearchBar.h"
 #import "HPFontManager.h"
+#import "HPNavigationBarToggleTitleView.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
@@ -46,10 +47,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     NSArray *_archivedSearchResults;
     __weak IBOutlet HPNoteListSearchBar *_searchBar;
     
-    IBOutlet UIView *_titleView;
-    __weak IBOutlet UILabel *_sortModeLabel;
-    __weak IBOutlet UILabel *_titleLabel;
-    UIFont *_titleLabelFont;
+    IBOutlet HPNavigationBarToggleTitleView *_titleView;
     
     HPTagSortMode _sortMode;
     BOOL _userChangedSortMode;
@@ -62,8 +60,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     NSInteger _optionsActionSheetUndoIndex;
     NSInteger _optionsActionSheetRedoIndex;
     NSInteger _optionsActionSheetExportIndex;
-    
-    
+
     __weak IBOutlet UIView *_emptyListView;
     __weak IBOutlet UILabel *_emptyTitleLabel;
     __weak IBOutlet UILabel *_emptySubtitleLabel;
@@ -73,8 +70,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     BOOL _ignoreNotesDidChangeNotification;
     BOOL _visible;
     NSMutableSet *_pendingUpdatedNotes;
-    
-    NSTimer *_restoreTitleTimer;
 }
 
 @synthesize indexPathOfSelectedNote = _indexPathOfSelectedNote;
@@ -93,7 +88,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)dealloc
 {
-    [_restoreTitleTimer invalidate];
     [self stopObserving];
 }
 
@@ -132,7 +126,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         searchBar.autocorrectionType = UITextAutocorrectionTypeNo; // HACK: See: http://stackoverflow.com/questions/8608529/autocorrect-in-uisearchbar-interferes-when-i-hit-didselectrowatindexpath
     }
     
-    [self applyNavigationBarColors];
     [self applyFonts];
     
     [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
@@ -140,7 +133,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferencesNotification:) name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -167,6 +159,12 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _visible = NO;
 }
 
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    [_titleView setTitle:self.title];
+}
+
 #pragma mark - Public
 
 - (BOOL)selectNote:(HPNote*)note
@@ -183,7 +181,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _indexItem = indexItem;
     [self updateIndexItem];
     [self updateNotes:NO reloadNotes:[NSSet set]];
-    _sortModeLabel.text = @"";
     [_notesTableView setContentOffset:CGPointMake(0, 0) animated:NO];
 }
 
@@ -290,20 +287,9 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 #pragma mark - Private
 
-- (void)applyNavigationBarColors
-{
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
-    UIColor *barForegroundColor = preferences.barForegroundColor;
-    _titleLabel.textColor = barForegroundColor;
-    _sortModeLabel.textColor = barForegroundColor;
-}
-
 - (void)applyFonts
 {
     HPFontManager *fonts = [HPFontManager sharedManager];
-    _titleLabel.font = fonts.fontForNavigationBarTitle;
-    _sortModeLabel.font = fonts.fontForNavigationBarDetail;
-    _titleLabelFont = _titleLabel.font;
     [[UITextField appearanceWhenContainedIn:[HPNoteListSearchBar class], nil] setFont:fonts.fontForSearchBar];
 }
 
@@ -400,24 +386,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }];
 }
 
-- (void)restoreNavigationBarTitleFromTimer:(NSTimer*)timer
-{
-    [self restoreNavigationBarTitleAnimated:YES];
-}
-
-- (void)restoreNavigationBarTitleAnimated:(BOOL)animated
-{
-    const NSTimeInterval duration = animated ? 0.2 : 0;
-    [UIView transitionWithView:_titleView duration:duration options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-        _titleLabel.font = _titleLabelFont;
-        _titleLabel.text = self.title;
-        _sortModeLabel.text = nil;
-    } completion:^(BOOL finished) {}];
-}
-
 - (void)stopObserving
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 }
@@ -503,10 +473,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)updateIndexItem
 {
-    [self restoreNavigationBarTitleAnimated:NO];
-
     self.title = self.indexItem.title;
-    _titleLabel.text = self.title;
+    [_titleView setTitle:self.title];
     _emptyTitleLabel.text = self.indexItem.emptyTitle;
     _emptySubtitleLabel.text = self.indexItem.emptySubtitle;
     _emptyTitleLabel.font = self.indexItem.emptyTitleFont;
@@ -520,34 +488,13 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)updateSortMode:(BOOL)animated
 {
-    [_restoreTitleTimer invalidate];
     NSString *criteriaDescription = [self descriptionForSortMode:_sortMode];
-    NSTimeInterval duration = animated ? 0.2 : 0;
-    
-    [UIView transitionWithView:_titleView duration:duration options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-        BOOL landscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
-        if (landscape)
-        {
-            _titleLabel.font = [_titleLabelFont fontWithSize:_titleLabelFont.pointSize * 0.75];
-            _titleLabel.text = criteriaDescription;
-            _sortModeLabel.text = @"";
-        }
-        else
-        {
-            _titleLabel.font = _titleLabelFont;
-            _titleLabel.text = self.title;
-            _sortModeLabel.text = criteriaDescription;
-        }
-    } completion:^(BOOL finished) {}];
-    
+    [_titleView setMode:criteriaDescription animated:animated];
     const HPTagSortMode sortMode = _sortMode;
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
         [cell setDetailMode:sortMode animated:animated];
     }];
-    
     [_notesTableView setContentOffset:CGPointMake(0, 0) animated:animated];
-
-    _restoreTitleTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(restoreNavigationBarTitleFromTimer:) userInfo:nil repeats:NO];
 }
 
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
@@ -893,11 +840,6 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     [_notesTableView reloadData];
     UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
     [searchTableView reloadData];
-}
-
-- (void)didChangePreferencesNotification:(NSNotification*)notification
-{
-    [self applyNavigationBarColors];
 }
 
 @end

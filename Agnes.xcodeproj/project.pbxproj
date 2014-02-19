@@ -67,6 +67,7 @@
 		87A6907018B4CA8600F97E13 /* HPTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 87A6906F18B4CA8600F97E13 /* HPTracker.m */; };
 		87A6907218B4CCAE00F97E13 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A6907118B4CCAE00F97E13 /* SystemConfiguration.framework */; };
 		87A6907418B4CCF600F97E13 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A6907318B4CCF600F97E13 /* AdSupport.framework */; };
+		87A6907718B4EAF900F97E13 /* HPNavigationBarToggleTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87A6907618B4EAF900F97E13 /* HPNavigationBarToggleTitleView.m */; };
 		87AA3CF6189C13E100FBEAAF /* HPImageZoomAnimationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3CEF189C13E100FBEAAF /* HPImageZoomAnimationController.m */; };
 		87AA3CF7189C13E100FBEAAF /* HPImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3CF2189C13E100FBEAAF /* HPImageViewController.m */; };
 		87AA3CF8189C13E100FBEAAF /* HPImageViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AA3CF3189C13E100FBEAAF /* HPImageViewController.xib */; };
@@ -213,6 +214,8 @@
 		87A6906F18B4CA8600F97E13 /* HPTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPTracker.m; sourceTree = "<group>"; };
 		87A6907118B4CCAE00F97E13 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		87A6907318B4CCF600F97E13 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
+		87A6907518B4EAF900F97E13 /* HPNavigationBarToggleTitleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNavigationBarToggleTitleView.h; sourceTree = "<group>"; };
+		87A6907618B4EAF900F97E13 /* HPNavigationBarToggleTitleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNavigationBarToggleTitleView.m; sourceTree = "<group>"; };
 		87AA3CEF189C13E100FBEAAF /* HPImageZoomAnimationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPImageZoomAnimationController.m; sourceTree = "<group>"; };
 		87AA3CF0189C13E100FBEAAF /* HPImageZoomAnimationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPImageZoomAnimationController.h; sourceTree = "<group>"; };
 		87AA3CF1189C13E100FBEAAF /* HPImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPImageViewController.h; sourceTree = "<group>"; };
@@ -350,6 +353,8 @@
 		8740FAE1188A8B87004CF099 /* List */ = {
 			isa = PBXGroup;
 			children = (
+				87AA3D06189F342800FBEAAF /* HPNote+List.h */,
+				87AA3D07189F342800FBEAAF /* HPNote+List.m */,
 				872C19B7189896B90013C9A5 /* HPNoteListSearchBar.h */,
 				872C19B8189896B90013C9A5 /* HPNoteListSearchBar.m */,
 				8763DA6C18897982000D9569 /* HPNoteListTableViewCell.h */,
@@ -365,8 +370,6 @@
 				871CD009189B098200E39CFA /* HPNoteSearchTableViewCell.xib */,
 				8740FAE6188AA7DB004CF099 /* HPNoteTableViewCell.h */,
 				8740FAE7188AA7DB004CF099 /* HPNoteTableViewCell.m */,
-				87AA3D06189F342800FBEAAF /* HPNote+List.h */,
-				87AA3D07189F342800FBEAAF /* HPNote+List.m */,
 			);
 			name = List;
 			sourceTree = "<group>";
@@ -525,6 +528,17 @@
 			path = Library;
 			sourceTree = "<group>";
 		};
+		87A6907818B4F8A200F97E13 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				87142A041897CDA300DA588F /* HPAgnesNavigationController.h */,
+				87142A051897CDA300DA588F /* HPAgnesNavigationController.m */,
+				87A6907518B4EAF900F97E13 /* HPNavigationBarToggleTitleView.h */,
+				87A6907618B4EAF900F97E13 /* HPNavigationBarToggleTitleView.m */,
+			);
+			name = Navigation;
+			sourceTree = "<group>";
+		};
 		87D02E16188ECB8600273DEC /* Logic */ = {
 			isa = PBXGroup;
 			children = (
@@ -547,8 +561,6 @@
 			children = (
 				873E228018A9AFB500E7919C /* HPAgnesImageCache.h */,
 				873E228118A9AFB500E7919C /* HPAgnesImageCache.m */,
-				87142A041897CDA300DA588F /* HPAgnesNavigationController.h */,
-				87142A051897CDA300DA588F /* HPAgnesNavigationController.m */,
 				8704D60518A109EB00C8977E /* HPAgnesUIMetrics.h */,
 				8704D60618A109EB00C8977E /* HPAgnesUIMetrics.m */,
 				8704D60818A19B0400C8977E /* HPAgnesViewController.h */,
@@ -559,6 +571,7 @@
 				87E37EF3188CB169000333EA /* HPRootViewController.m */,
 				8740FAE0188A8B79004CF099 /* Index */,
 				8740FAE1188A8B87004CF099 /* List */,
+				87A6907818B4F8A200F97E13 /* Navigation */,
 				8740FAE2188A8BA2004CF099 /* Note Detail */,
 			);
 			name = UI;
@@ -826,6 +839,7 @@
 				8763DA3718883ACF000D9569 /* main.m in Sources */,
 				870B5AEE18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m in Sources */,
 				87E37EE7188C413C000333EA /* HPNote.m in Sources */,
+				87A6907718B4EAF900F97E13 /* HPNavigationBarToggleTitleView.m in Sources */,
 				87E37EF1188CA5F5000333EA /* HPTagManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
