@@ -13,6 +13,7 @@
 #import "HPIndexViewController.h"
 #import "HPNoteViewController.h"
 #import "HPIndexItem.h"
+#import "HPTracker.h"
 #import <CoreData/CoreData.h>
 
 @interface HPRootViewController()<HPNoteListViewControllerDelegate>
@@ -56,6 +57,7 @@
 
 - (void)setListIndexItem:(HPIndexItem*)indexItem animated:(BOOL)animated
 {
+    [[HPTracker defaultTracker] trackScreenWithName:indexItem.title];
     _listViewController.indexItem = indexItem;
     if (self.openSide != MMDrawerSideNone)
     {
