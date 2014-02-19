@@ -62,6 +62,7 @@
 		8763DA6818884650000D9569 /* HPNoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA6618884650000D9569 /* HPNoteViewController.xib */; };
 		8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */; };
 		8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */; };
+		87A6905B18B4C59400F97E13 /* hashtags.plist in Resources */ = {isa = PBXBuildFile; fileRef = 87A6905918B4C59400F97E13 /* hashtags.plist */; };
 		87AA3CF6189C13E100FBEAAF /* HPImageZoomAnimationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3CEF189C13E100FBEAAF /* HPImageZoomAnimationController.m */; };
 		87AA3CF7189C13E100FBEAAF /* HPImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3CF2189C13E100FBEAAF /* HPImageViewController.m */; };
 		87AA3CF8189C13E100FBEAAF /* HPImageViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AA3CF3189C13E100FBEAAF /* HPImageViewController.xib */; };
@@ -196,6 +197,7 @@
 		8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPBaseTextStorage.m; sourceTree = "<group>"; };
 		8763DA6C18897982000D9569 /* HPNoteListTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteListTableViewCell.h; sourceTree = "<group>"; };
 		8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListTableViewCell.m; sourceTree = "<group>"; };
+		87A6905A18B4C59400F97E13 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = en; path = en.lproj/hashtags.plist; sourceTree = "<group>"; };
 		87AA3CEF189C13E100FBEAAF /* HPImageZoomAnimationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPImageZoomAnimationController.m; sourceTree = "<group>"; };
 		87AA3CF0189C13E100FBEAAF /* HPImageZoomAnimationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPImageZoomAnimationController.h; sourceTree = "<group>"; };
 		87AA3CF1189C13E100FBEAAF /* HPImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPImageViewController.h; sourceTree = "<group>"; };
@@ -449,6 +451,7 @@
 				8763DA3818883ACF000D9569 /* Agnes-Prefix.pch */,
 				8740FAE9188ACEF9004CF099 /* Localizable.strings */,
 				872C19A318986F6C0013C9A5 /* Localizable.stringsdict */,
+				87A6905918B4C59400F97E13 /* hashtags.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -652,6 +655,7 @@
 			files = (
 				8740FAEB188ACEF9004CF099 /* Localizable.strings in Resources */,
 				87AD2F83188E900B0065EEBA /* HPNoteListTableViewCell.xib in Resources */,
+				87A6905B18B4C59400F97E13 /* hashtags.plist in Resources */,
 				87E37EFB188D97F3000333EA /* HPBrowserViewController.xib in Resources */,
 				871CD014189B4EE200E39CFA /* sample@2x.jpg in Resources */,
 				8763DA3518883ACF000D9569 /* InfoPlist.strings in Resources */,
@@ -821,6 +825,14 @@
 				8763DA4D18883ACF000D9569 /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		87A6905918B4C59400F97E13 /* hashtags.plist */ = {
+			isa = PBXVariantGroup;
+			children = (
+				87A6905A18B4C59400F97E13 /* en */,
+			);
+			name = hashtags.plist;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

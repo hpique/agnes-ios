@@ -118,6 +118,9 @@ static NSString *const HPTagArchiveName = @"Archive";
         {
             [_tagTrie addString:tag.name];
         }
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"hashtags" ofType:@"plist"];
+        NSArray *hashtahgs = [NSArray arrayWithContentsOfFile:path];
+        [_tagTrie addArray:hashtahgs];
     }
     return [_tagTrie everyObjectForKeyWithPrefix:prefix];
 }
