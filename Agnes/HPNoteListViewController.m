@@ -23,6 +23,7 @@
 #import "HPNoteListSearchBar.h"
 #import "HPFontManager.h"
 #import "HPNavigationBarToggleTitleView.h"
+#import "HPModelManager.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
@@ -131,8 +132,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
     [self updateIndexItem];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+    [self startObserving];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -386,10 +386,18 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }];
 }
 
+- (void)startObserving
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
+}
+
 - (void)stopObserving
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
 }
 
 - (void)updateEmptyView:(BOOL)animated
@@ -840,6 +848,21 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     [_notesTableView reloadData];
     UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
     [searchTableView reloadData];
+}
+
+- (void)willReplaceModelNotification:(NSNotification*)notification
+{
+    [self stopObserving];
+    self.navigationItem.leftBarButtonItem.enabled = NO;
+    self.navigationItem.rightBarButtonItem.enabled = NO;
+    _titleView.userInteractionEnabled = NO;
+    self.searchDisplayController.active = NO;
+    _emptyTitleLabel.text = NSLocalizedString(@"iCloud sync", @"");
+    _emptySubtitleLabel.text = NSLocalizedString(@"Receiving notes from iCloud…", @"");
+    _notes = [NSMutableArray array];
+    _indexItem = nil;
+    [_notesTableView reloadData];
+    [self updateEmptyView:YES];
 }
 
 @end

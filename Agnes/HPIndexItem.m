@@ -10,6 +10,7 @@
 #import "HPNote.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
+#import "HPModelManager.h"
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
 
@@ -57,7 +58,6 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     HPTag *_tag;
 
     // Cache
-    NSPredicate *_fastNoteCountPredicate;
     UIImage *_icon;
     NSUInteger _noteCount;
     NSArray *_notes;
@@ -75,14 +75,15 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     if (self)
     {
         _noteCount = NSNotFound;
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+        [self startObserving];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+    [self stopObserving];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerDidReplaceModelNotification object:nil];
 }
 
 + (HPIndexItem*)inboxIndexItem
@@ -234,6 +235,20 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return [value integerValue];
 }
 
+#pragma mark Private
+
+- (void)startObserving
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
+}
+
+- (void)stopObserving
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
+}
+
 #pragma mark Notifications
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
@@ -247,6 +262,20 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
             return;
         }
     }
+}
+
+- (void)didReplaceModelNotification:(NSNotification*)notification
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerDidReplaceModelNotification object:nil];
+    [self startObserving];
+}
+
+- (void)willReplaceModelNotification:(NSNotification*)notification
+{
+    [self stopObserving];
+    _noteCount = NSNotFound;
+    _notes = nil;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReplaceModelNotification:) name:HPModelManagerDidReplaceModelNotification object:nil];
 }
 
 - (void)invalidateNotesAndNotifyChange

@@ -25,7 +25,7 @@ static NSString *const HPTagArchiveName = @"Archive";
     HPTag *_archiveTag;
 }
 
-#pragma mark - HPEntityManager
+#pragma mark HPEntityManager
 
 - (void)didInsertObject:(HPTag*)object
 {
@@ -39,6 +39,20 @@ static NSString *const HPTagArchiveName = @"Archive";
 - (void)didDeleteObject:(HPTag*)object
 {
     [_tagTrie removeObjectForKey:object.name];
+    if (object == _inboxTag)
+    {
+        _inboxTag = nil;
+    }
+    if (object == _archiveTag)
+    {
+        _archiveTag = nil;
+    }
+}
+
+- (void)didInvalidateAllObjects
+{
+    _inboxTag = nil;
+    _archiveTag = nil;
 }
 
 - (NSString*)entityName
@@ -228,14 +242,6 @@ static NSString *const HPTagArchiveName = @"Archive";
     }];
 }
 
-#pragma mark HPEntityManager
-
-- (void)didInvalidateAllObjects
-{
-    _inboxTag = nil;
-    _archiveTag = nil;
-}
-
 #pragma mark - Private
 
 - (HPTag*)insertTagWithName:(NSString*)name isSystem:(BOOL)isSystem
@@ -253,10 +259,8 @@ static NSString *const HPTagArchiveName = @"Archive";
     NSArray *tags = [self tagsWithName:tagName];
     if (tags.count < 2) return;
     
-    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(uuid)) ascending:YES];
-    NSArray *sortedTags = [tags sortedArrayUsingDescriptors:@[sortDescriptor]];
-    HPTag *mainTag = [sortedTags firstObject];
-    NSArray *duplicateTags = [sortedTags subarrayWithRange:NSMakeRange(1, sortedTags.count - 1)];
+    HPTag *mainTag = [tags firstObject];
+    NSArray *duplicateTags = [tags subarrayWithRange:NSMakeRange(1, tags.count - 1)];
     for (HPTag *duplicate in duplicateTags)
     {
         NSSet *notes = [NSSet setWithSet:duplicate.cd_notes];
@@ -276,6 +280,9 @@ static NSString *const HPTagArchiveName = @"Archive";
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", NSStringFromSelector(@selector(name)), name];
     fetchRequest.predicate = predicate;
+    // In case of duplicate tags always return the same one. This is needed by removeDuplicatesOfTagNamed: and helps reduce conflicts in other cases.
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(uuid)) ascending:YES];
+    fetchRequest.sortDescriptors = @[sortDescriptor];
     NSError *error;
     NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
     NSAssert(result, @"Fetch %@ failed with error %@", fetchRequest, error);

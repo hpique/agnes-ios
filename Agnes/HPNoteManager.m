@@ -58,7 +58,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }];
 }
 
-- (void)removeTutorialNotes
+- (void)removeLocalTutorialNotes
 {
     NSArray *tutorialUUIDs = [HPPreferencesManager sharedManager].tutorialUUIDs;
     for (NSString *uuid in tutorialUUIDs)
@@ -70,7 +70,10 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
         NSAssert(result, @"Fetch %@ failed with error %@", fetchRequest, error);
         HPNote *note = [result firstObject];
-        [self.context deleteObject:note];
+        if (note)
+        {
+            [self.context deleteObject:note];
+        }
     }
 }
 

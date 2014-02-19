@@ -1,5 +1,5 @@
 //
-//  HPAgnesCoreDataStack.h
+//  HPModelManager.h
 //  Agnes
 //
 //  Created by Hermes on 05/02/14.
@@ -9,9 +9,10 @@
 #import <Foundation/Foundation.h>
 @import CoreData;
 
-extern NSString *const HPAgnesCoreDataStackStoresDidChangeNotification;
+extern NSString *const HPModelManagerWillReplaceModelNotification;
+extern NSString *const HPModelManagerDidReplaceModelNotification;
 
-@interface HPAgnesCoreDataStack : NSObject
+@interface HPModelManager : NSObject
 
 - (id)init;
 

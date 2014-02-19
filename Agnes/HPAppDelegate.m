@@ -12,21 +12,21 @@
 #import "HPRootViewController.h"
 #import "HPNoteImporter.h"
 #import "HPAgnesNavigationController.h"
-#import "HPAgnesCoreDataStack.h"
+#import "HPModelManager.h"
+#import <iRate/iRate.h>
 #import <CoreData/CoreData.h>
 #import "TestFlight.h"
 #import "HPTracker.h"
 
 @implementation HPAppDelegate {
-    HPAgnesCoreDataStack *_coreDataStack;
+    HPModelManager *_coreDataStack;
 }
 
 @synthesize managedObjectContext = _managedObjectContext;
 
-
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPAgnesCoreDataStackStoresDidChangeNotification object:_coreDataStack];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerDidReplaceModelNotification object:_coreDataStack];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -34,9 +34,10 @@
     [TestFlight takeOff:@"21242682-ac9b-48b1-a8d6-a3ba293c3135"];
     [[HPTracker defaultTracker] setTrackingId:@"UA-48194515-1"];
     
+    [iRate sharedInstance].verboseLogging = NO;
     {
-        _coreDataStack = [[HPAgnesCoreDataStack alloc] init];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(storesDidChangeNotification:) name:HPAgnesCoreDataStackStoresDidChangeNotification object:_coreDataStack];
+        _coreDataStack = [[HPModelManager alloc] init];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(storesDidChangeNotification:) name:HPModelManagerDidReplaceModelNotification object:_coreDataStack];
     }
     
     HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
@@ -98,7 +99,7 @@
 {
     if (self.window.rootViewController)
     {
-       // [self loadRootViewController];
+       [self loadRootViewController];
     }
 }
 

@@ -78,7 +78,7 @@
 		87AA3D1718A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3D1618A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m */; };
 		87AD2F83188E900B0065EEBA /* HPNoteListTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */; };
 		87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 87D02E18188ECBA600273DEC /* HPNoteExporter.m */; };
-		87DA062918A27ADC00762E12 /* HPAgnesCoreDataStack.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DA062818A27ADC00762E12 /* HPAgnesCoreDataStack.m */; };
+		87DA062918A27ADC00762E12 /* HPModelManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DA062818A27ADC00762E12 /* HPModelManager.m */; };
 		87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E3D188B57C0000333EA /* HPPreferencesManager.m */; };
 		87E37E41188B6158000333EA /* HPNoteAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E40188B6158000333EA /* HPNoteAction.m */; };
 		87E37E88188BDFA6000333EA /* Agnes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */; };
@@ -235,8 +235,8 @@
 		87D02E17188ECBA600273DEC /* HPNoteExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteExporter.h; sourceTree = "<group>"; };
 		87D02E18188ECBA600273DEC /* HPNoteExporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteExporter.m; sourceTree = "<group>"; };
 		87DA062618A27A6E00762E12 /* Agnes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Agnes.entitlements; sourceTree = "<group>"; };
-		87DA062718A27ADC00762E12 /* HPAgnesCoreDataStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAgnesCoreDataStack.h; sourceTree = "<group>"; };
-		87DA062818A27ADC00762E12 /* HPAgnesCoreDataStack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAgnesCoreDataStack.m; sourceTree = "<group>"; };
+		87DA062718A27ADC00762E12 /* HPModelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPModelManager.h; sourceTree = "<group>"; };
+		87DA062818A27ADC00762E12 /* HPModelManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPModelManager.m; sourceTree = "<group>"; };
 		87E37E3C188B57C0000333EA /* HPPreferencesManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPPreferencesManager.h; sourceTree = "<group>"; };
 		87E37E3D188B57C0000333EA /* HPPreferencesManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPPreferencesManager.m; sourceTree = "<group>"; };
 		87E37E3F188B6158000333EA /* HPNoteAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteAction.h; sourceTree = "<group>"; };
@@ -580,14 +580,14 @@
 		87E37E89188BE369000333EA /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				87DA062718A27ADC00762E12 /* HPAgnesCoreDataStack.h */,
-				87DA062818A27ADC00762E12 /* HPAgnesCoreDataStack.m */,
 				871CCFFE189AB77800E39CFA /* HPAttachment.h */,
 				871CCFFF189AB77800E39CFA /* HPAttachment.m */,
 				87AA3D1218A0026400FBEAAF /* HPAttachmentManager.h */,
 				87AA3D1318A0026400FBEAAF /* HPAttachmentManager.m */,
 				871CD000189AB77800E39CFA /* HPData.h */,
 				871CD001189AB77800E39CFA /* HPData.m */,
+				87DA062718A27ADC00762E12 /* HPModelManager.h */,
+				87DA062818A27ADC00762E12 /* HPModelManager.m */,
 				87E37EE5188C413C000333EA /* HPNote.h */,
 				87E37EE6188C413C000333EA /* HPNote.m */,
 				8763DA611888420A000D9569 /* HPNoteManager.h */,
@@ -788,7 +788,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				87AA3D08189F342800FBEAAF /* HPNote+List.m in Sources */,
-				87DA062918A27ADC00762E12 /* HPAgnesCoreDataStack.m in Sources */,
+				87DA062918A27ADC00762E12 /* HPModelManager.m in Sources */,
 				8763DA5B18883B2B000D9569 /* HPNoteListViewController.m in Sources */,
 				8740FAF1188B2AC5004CF099 /* HPTagSuggestionsView.m in Sources */,
 				8740FAE8188AA7DB004CF099 /* HPNoteTableViewCell.m in Sources */,

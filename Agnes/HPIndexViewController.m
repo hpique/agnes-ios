@@ -17,6 +17,7 @@
 #import "HPRootViewController.h"
 #import "HPNavigationBarToggleTitleView.h"
 #import "HPPreferencesManager.h"
+#import "HPModelManager.h"
 #import "MMDrawerController.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "UIViewController+MMDrawerController.h"
@@ -40,8 +41,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+    [self stopObserving];
 }
 
 - (void)viewDidLoad
@@ -65,9 +65,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     
     [self reloadData];
     [self selectIndexItem:[HPIndexItem inboxIndexItem]];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+    [self startObserving];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -155,6 +153,20 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     return indexItems;
 }
 
+- (void)startObserving
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
+}
+
+- (void)stopObserving
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
+}
+
 #pragma mark UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -237,21 +249,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [self.hp_rootViewController setListIndexItem:item animated:YES];
 }
 
-#pragma mark - Actions
+#pragma mark Actions
 
 - (void)addBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_note"];
     [self.hp_rootViewController showBlankNote];
-}
-
-- (void)notesDidChangeNotification:(NSNotification*)notification
-{
-    NSSet *updated = [notification.userInfo objectForKey:NSUpdatedObjectsKey];
-    if (updated.count > 0)
-    { // Catch archived / unarchived changes
-        [self reloadData];
-    }
 }
 
 - (IBAction)tapTitleView:(id)sender
@@ -265,6 +268,17 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSString *modeString = NSStringFromIndexSortMode(_sortMode);
     [_titleView setMode:modeString animated:YES];
     [self reloadData];
+}
+
+#pragma mark Notifications
+
+- (void)notesDidChangeNotification:(NSNotification*)notification
+{
+    NSSet *updated = [notification.userInfo objectForKey:NSUpdatedObjectsKey];
+    if (updated.count > 0)
+    { // Catch archived / unarchived changes
+        [self reloadData];
+    }
 }
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
@@ -283,6 +297,13 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     {
         [self reloadData];
     }
+}
+
+- (void)willReplaceModelNotification:(NSNotification*)notification
+{
+    [self stopObserving];
+    _items = [NSMutableArray array];
+    [self.tableView reloadData];
 }
 
 @end

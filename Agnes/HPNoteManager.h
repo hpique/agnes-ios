@@ -42,7 +42,7 @@
 
 - (void)addTutorialNotes;
 
-- (void)removeTutorialNotes;
+- (void)removeLocalTutorialNotes;
 
 #pragma mark System notes
 

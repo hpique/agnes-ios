@@ -14,6 +14,7 @@
 #import "HPNoteViewController.h"
 #import "HPIndexItem.h"
 #import "HPTracker.h"
+#import "HPModelManager.h"
 #import <CoreData/CoreData.h>
 
 @interface HPRootViewController()<HPNoteListViewControllerDelegate>
@@ -23,6 +24,11 @@
 @implementation HPRootViewController {
     HPNoteListViewController *_listViewController;
     HPIndexViewController *_indexViewController;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
 }
 
 - (void)viewDidLoad
@@ -41,6 +47,8 @@
     HPAgnesNavigationController *leftController = [[HPAgnesNavigationController alloc] initWithRootViewController:_indexViewController];
     self.centerViewController = centerController;
     self.leftDrawerViewController = leftController;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
 }
 
 - (BOOL)canBecomeFirstResponder
@@ -75,7 +83,7 @@
     }
 }
 
-#pragma mark - UINavigationControllerDelegate
+#pragma mark UINavigationControllerDelegate
 
 - (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
                                    animationControllerForOperation:(UINavigationControllerOperation)operation
@@ -90,11 +98,26 @@
     return nil;
 }
 
-#pragma mark - HPNoteListViewControllerDelegate
+#pragma mark HPNoteListViewControllerDelegate
 
 - (void)noteListViewController:(HPNoteListViewController*)viewController didChangeIndexItem:(HPIndexItem*)indexItem
 {
     [_indexViewController selectIndexItem:indexItem];
+}
+
+#pragma mark Notifications
+
+- (void)willReplaceModelNotification:(NSNotification*)notification
+{
+    if (self.openSide != MMDrawerSideNone)
+    {
+        [self closeDrawerAnimated:YES completion:nil];
+    }
+    UINavigationController *navigationController = (UINavigationController*)self.centerViewController;
+    if (navigationController.topViewController != _listViewController)
+    {
+        [navigationController popToRootViewControllerAnimated:YES];
+    }
 }
 
 @end

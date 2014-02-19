@@ -1,19 +1,20 @@
 //
-//  HPAgnesCoreDataStack.m
+//  HPModelManager.m
 //  Agnes
 //
 //  Created by Hermes on 05/02/14.
 //  Copyright (c) 2014 Hermes Pique. All rights reserved.
 //
 
-#import "HPAgnesCoreDataStack.h"
+#import "HPModelManager.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPPreferencesManager.h"
 
-NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreDataStackStoresDidChangeNotification";
+NSString *const HPModelManagerWillReplaceModelNotification = @"HPModelManagerWillReplaceModelNotification";
+NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidReplaceModelNotification";
 
-@interface HPAgnesCoreDataStack()
+@interface HPModelManager()
 
 @property (nonatomic, strong, readwrite) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSURL *modelURL;
@@ -21,7 +22,7 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
 
 @end
 
-@implementation HPAgnesCoreDataStack {
+@implementation HPModelManager {
     NSManagedObjectModel *_managedObjectModel;
     NSInteger _noteCountBeforeStoreChange;
 }
@@ -56,8 +57,7 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
                                           addPersistentStoreWithType:NSSQLiteStoreType
                                           configuration:nil
                                           URL:self.storeURL
-                                          // options:@{ NSPersistentStoreUbiquitousContentNameKey : @"notes" }
-                                          options:nil
+                                          options:@{ NSPersistentStoreUbiquitousContentNameKey : @"notes" }
                                           error:&error];
     if (!persistentStore)
     {
@@ -137,73 +137,45 @@ NSString *const HPAgnesCoreDataStackStoresDidChangeNotification = @"HPAgnesCoreD
 
 - (void)persistentStoreDidImportUbiquitousContentChanges:(NSNotification*)notification
 {
+    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
     NSManagedObjectContext *moc = self.managedObjectContext;
-    [moc performBlock:^{
+    [moc performBlockAndWait:^{
         [moc mergeChangesFromContextDidSaveNotification:notification];
-        
-        // you may want to post a notification here so that which ever part of your app
-        // needs to can react appropriately to what was merged.
-        // An exmaple of how to iterate over what was merged follows, although I wouldn't
-        // recommend doing it here. Better handle it in a delegate or use notifications.
-        // Note that the notification contains NSManagedObjectIDs
-        // and not NSManagedObjects.
-        NSDictionary *changes = notification.userInfo;
-        NSMutableSet *allChanges = [NSMutableSet new];
-        [allChanges unionSet:changes[NSInsertedObjectsKey]];
-        [allChanges unionSet:changes[NSUpdatedObjectsKey]];
-        [allChanges unionSet:changes[NSDeletedObjectsKey]];
-        
-        for (NSManagedObjectID *objID in allChanges) {
-            // do whatever you need to with the NSManagedObjectID
-            // you can retrieve the object from with [moc objectWithID:objID]
-        }
-        
     }];
 }
 
-// Subscribe to NSPersistentStoreCoordinatorStoresWillChangeNotification
-// most likely to be called if the user enables / disables iCloud
-// (either globally, or just for your app) or if the user changes
-// iCloud accounts.
 - (void)storesWillChange:(NSNotification *)notification
 {
+    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:HPModelManagerWillReplaceModelNotification object:self];
+    });
     NSManagedObjectContext *moc = self.managedObjectContext;
     [moc performBlockAndWait:^{
-        _noteCountBeforeStoreChange = [HPNoteManager sharedManager].objects.count;
         NSError *error = nil;
+        [[HPNoteManager sharedManager] removeLocalTutorialNotes];
         if ([moc hasChanges])
         {
             [moc save:&error];
         }
         [moc reset];
     }];
-    
-    // now reset your UI to be prepared for a totally different
-    // set of data (eg, popToRootViewControllerAnimated:)
-    // but don't load any new data yet.
 }
 
-// Subscribe to NSPersistentStoreCoordinatorStoresDidChangeNotification
 - (void)storesDidChange:(NSNotification *)notification
 {
+    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
     NSDictionary *userInfo = notification.userInfo;
     NSPersistentStoreUbiquitousTransitionType transitionType = [[userInfo objectForKey:NSPersistentStoreUbiquitousTransitionTypeKey] integerValue];
     if (transitionType == NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted)
     {
         [self.managedObjectContext performBlockAndWait:^{
-            HPNoteManager *noteManager = [HPNoteManager sharedManager];
-            NSInteger noteCountAfterStoreChange = noteManager.objects.count;
-            if (noteCountAfterStoreChange != _noteCountBeforeStoreChange)
-            {
-                [noteManager removeTutorialNotes];
-            }
             [[HPTagManager sharedManager] removeDuplicates];
         }];
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:HPAgnesCoreDataStackStoresDidChangeNotification object:self];
+        [[NSNotificationCenter defaultCenter] postNotificationName:HPModelManagerDidReplaceModelNotification object:self];
     });
 }
-
 
 @end
