@@ -15,6 +15,7 @@
 #import "HPAgnesCoreDataStack.h"
 #import <CoreData/CoreData.h>
 #import "TestFlight.h"
+#import "HPTracker.h"
 
 @implementation HPAppDelegate {
     HPAgnesCoreDataStack *_coreDataStack;
@@ -31,6 +32,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {   
     [TestFlight takeOff:@"21242682-ac9b-48b1-a8d6-a3ba293c3135"];
+    [[HPTracker defaultTracker] setTrackingId:@"UA-48194515-1"];
     
     {
         _coreDataStack = [[HPAgnesCoreDataStack alloc] init];

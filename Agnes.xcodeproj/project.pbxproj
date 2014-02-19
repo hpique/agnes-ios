@@ -63,6 +63,10 @@
 		8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */; };
 		8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */; };
 		87A6905B18B4C59400F97E13 /* hashtags.plist in Resources */ = {isa = PBXBuildFile; fileRef = 87A6905918B4C59400F97E13 /* hashtags.plist */; };
+		87A6906D18B4CA2700F97E13 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A6906C18B4CA2700F97E13 /* libGoogleAnalyticsServices.a */; };
+		87A6907018B4CA8600F97E13 /* HPTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 87A6906F18B4CA8600F97E13 /* HPTracker.m */; };
+		87A6907218B4CCAE00F97E13 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A6907118B4CCAE00F97E13 /* SystemConfiguration.framework */; };
+		87A6907418B4CCF600F97E13 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A6907318B4CCF600F97E13 /* AdSupport.framework */; };
 		87AA3CF6189C13E100FBEAAF /* HPImageZoomAnimationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3CEF189C13E100FBEAAF /* HPImageZoomAnimationController.m */; };
 		87AA3CF7189C13E100FBEAAF /* HPImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3CF2189C13E100FBEAAF /* HPImageViewController.m */; };
 		87AA3CF8189C13E100FBEAAF /* HPImageViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AA3CF3189C13E100FBEAAF /* HPImageViewController.xib */; };
@@ -198,6 +202,17 @@
 		8763DA6C18897982000D9569 /* HPNoteListTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteListTableViewCell.h; sourceTree = "<group>"; };
 		8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListTableViewCell.m; sourceTree = "<group>"; };
 		87A6905A18B4C59400F97E13 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = en; path = en.lproj/hashtags.plist; sourceTree = "<group>"; };
+		87A6905F18B4CA2700F97E13 /* GAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAI.h; sourceTree = "<group>"; };
+		87A6906018B4CA2700F97E13 /* GAIDictionaryBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAIDictionaryBuilder.h; sourceTree = "<group>"; };
+		87A6906118B4CA2700F97E13 /* GAIFields.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAIFields.h; sourceTree = "<group>"; };
+		87A6906218B4CA2700F97E13 /* GAILogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAILogger.h; sourceTree = "<group>"; };
+		87A6906318B4CA2700F97E13 /* GAITrackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITrackedViewController.h; sourceTree = "<group>"; };
+		87A6906418B4CA2700F97E13 /* GAITracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITracker.h; sourceTree = "<group>"; };
+		87A6906C18B4CA2700F97E13 /* libGoogleAnalyticsServices.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalyticsServices.a; sourceTree = "<group>"; };
+		87A6906E18B4CA8600F97E13 /* HPTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPTracker.h; sourceTree = "<group>"; };
+		87A6906F18B4CA8600F97E13 /* HPTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPTracker.m; sourceTree = "<group>"; };
+		87A6907118B4CCAE00F97E13 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		87A6907318B4CCF600F97E13 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		87AA3CEF189C13E100FBEAAF /* HPImageZoomAnimationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPImageZoomAnimationController.m; sourceTree = "<group>"; };
 		87AA3CF0189C13E100FBEAAF /* HPImageZoomAnimationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPImageZoomAnimationController.h; sourceTree = "<group>"; };
 		87AA3CF1189C13E100FBEAAF /* HPImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPImageViewController.h; sourceTree = "<group>"; };
@@ -255,6 +270,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87A6907418B4CCF600F97E13 /* AdSupport.framework in Frameworks */,
+				87A6907218B4CCAE00F97E13 /* SystemConfiguration.framework in Frameworks */,
 				871CD005189AB9EA00E39CFA /* MobileCoreServices.framework in Frameworks */,
 				872C19B118987BC80013C9A5 /* libz.dylib in Frameworks */,
 				872C19AD18987B970013C9A5 /* libTestFlight.a in Frameworks */,
@@ -266,6 +283,7 @@
 				8763DA2F18883ACF000D9569 /* UIKit.framework in Frameworks */,
 				8763DA2B18883ACF000D9569 /* Foundation.framework in Frameworks */,
 				3980E9A5F51A4472B7514BF4 /* libPods.a in Frameworks */,
+				87A6906D18B4CA2700F97E13 /* libGoogleAnalyticsServices.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,6 +396,7 @@
 		8740FAF2188B39FC004CF099 /* External */ = {
 			isa = PBXGroup;
 			children = (
+				87A6905C18B4CA2700F97E13 /* GoogleAnalyticsServicesiOS_3.03a */,
 				872C19A618987B970013C9A5 /* TestFlightSDK2.1.4 */,
 				8740FAF3188B3A5A004CF099 /* NDTrie.h */,
 				8740FAF4188B3A5A004CF099 /* NDTrie.m */,
@@ -408,6 +427,8 @@
 		8763DA2918883ACF000D9569 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				87A6907318B4CCF600F97E13 /* AdSupport.framework */,
+				87A6907118B4CCAE00F97E13 /* SystemConfiguration.framework */,
 				871CD004189AB9EA00E39CFA /* MobileCoreServices.framework */,
 				872C19B018987BC80013C9A5 /* libz.dylib */,
 				87E37EFE188DA9B5000333EA /* AddressBookUI.framework */,
@@ -472,6 +493,36 @@
 				8763DA4C18883ACF000D9569 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		87A6905C18B4CA2700F97E13 /* GoogleAnalyticsServicesiOS_3.03a */ = {
+			isa = PBXGroup;
+			children = (
+				87A6905D18B4CA2700F97E13 /* GoogleAnalytics */,
+				87A6906C18B4CA2700F97E13 /* libGoogleAnalyticsServices.a */,
+			);
+			path = GoogleAnalyticsServicesiOS_3.03a;
+			sourceTree = "<group>";
+		};
+		87A6905D18B4CA2700F97E13 /* GoogleAnalytics */ = {
+			isa = PBXGroup;
+			children = (
+				87A6905E18B4CA2700F97E13 /* Library */,
+			);
+			path = GoogleAnalytics;
+			sourceTree = "<group>";
+		};
+		87A6905E18B4CA2700F97E13 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				87A6905F18B4CA2700F97E13 /* GAI.h */,
+				87A6906018B4CA2700F97E13 /* GAIDictionaryBuilder.h */,
+				87A6906118B4CA2700F97E13 /* GAIFields.h */,
+				87A6906218B4CA2700F97E13 /* GAILogger.h */,
+				87A6906318B4CA2700F97E13 /* GAITrackedViewController.h */,
+				87A6906418B4CA2700F97E13 /* GAITracker.h */,
+			);
+			path = Library;
 			sourceTree = "<group>";
 		};
 		87D02E16188ECB8600273DEC /* Logic */ = {
@@ -552,6 +603,8 @@
 				87AA3CEF189C13E100FBEAAF /* HPImageZoomAnimationController.m */,
 				871429F718965BD600DA588F /* NSString+hp_utils.h */,
 				871429F818965BD600DA588F /* NSString+hp_utils.m */,
+				87A6906E18B4CA8600F97E13 /* HPTracker.h */,
+				87A6906F18B4CA8600F97E13 /* HPTracker.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -752,6 +805,7 @@
 				87E37EF4188CB169000333EA /* HPRootViewController.m in Sources */,
 				87AA3D1718A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m in Sources */,
 				8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */,
+				87A6907018B4CA8600F97E13 /* HPTracker.m in Sources */,
 				87AA3CF7189C13E100FBEAAF /* HPImageViewController.m in Sources */,
 				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
 				87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */,
@@ -931,6 +985,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Users/hpique/workspace/agnes-ios/Agnes/TestFlightSDK2.1.4",
+					"/Users/hpique/workspace/agnes-ios/Agnes/GoogleAnalyticsServicesiOS_3.03a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "5B371FD9-CD6E-4168-BD46-F2E14C0B2460";
@@ -958,6 +1013,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Users/hpique/workspace/agnes-ios/Agnes/TestFlightSDK2.1.4",
+					"/Users/hpique/workspace/agnes-ios/Agnes/GoogleAnalyticsServicesiOS_3.03a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "B5C0A36F-91D9-45EA-9CEE-C460A290D000";

@@ -18,6 +18,7 @@
 #import "MMDrawerController.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "UIViewController+MMDrawerController.h"
+#import "HPTracker.h"
 
 @interface HPIndexViewController ()
 
@@ -59,6 +60,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [[HPTracker defaultTracker] trackScreenWithName:@"Index"];
 }
 
 #pragma mark Public
@@ -138,6 +145,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"reorder_tag"];
     NSMutableArray *tags = [NSMutableArray array];
     HPIndexItem *fromIndexItem = _items[sourceIndexPath.row];
     HPIndexItem *toIndexItem = _items[destinationIndexPath.row];
@@ -194,6 +202,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)addBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_note"];
     [self.hp_rootViewController showBlankNote];
 }
 

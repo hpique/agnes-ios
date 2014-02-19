@@ -26,6 +26,7 @@
 #import "NSString+hp_utils.h"
 #import "HPNoFirstResponderActionSheet.h"
 #import "HPAgnesUIMetrics.h"
+#import "HPTracker.h"
 #import "UIImage+hp_utils.h"
 #import "UITextView+hp_utils.h"
 #import "UIView+hp_utils.h"
@@ -171,6 +172,12 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [[HPTracker defaultTracker] trackScreenWithName:@"Note"];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -584,6 +591,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)actionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"share_note"];
     [self autosave];
     HPNoteActivityItemSource *activityItem = [[HPNoteActivityItemSource alloc] initWithNote:self.note];
     activityItem.selectedRange = _bodyTextView.selectedRange;
@@ -597,17 +605,20 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)archiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"archive_note"];
     [[HPTagManager sharedManager] archiveNote:self.note];
     [self finishEditing];
 }
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_note"];
     [self changeToEmptyNote];
 }
 
 - (void)attachmentBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_attachment"];
     _attachmentActionSheet = [[HPNoFirstResponderActionSheet alloc] init];
     _attachmentActionSheet.delegate = self;
     _attachmentActionSheetCameraIndex = -1;
@@ -627,6 +638,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)attachmentTrashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_attachment"];
     NSMutableAttributedString *attributedString = self.noteTextView.attributedText.mutableCopy;
     [attributedString replaceCharactersInRange:NSMakeRange(_presentedImageCharacterIndex, 1) withString:@""];
     self.noteTextView.attributedText = attributedString;
@@ -640,6 +652,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)attachmentActionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"share_attachment"];
     UIImage *image = _presentedImageViewController.image;
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[image] applicationActivities:nil];
     [_presentedImageViewController presentViewController:activityViewController animated:YES completion:nil];
@@ -647,17 +660,20 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (IBAction)detailLabelTapGestureRecognizer:(id)sender
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"toggle_note_detail"];
     self.detailMode = (self.detailMode + 1) % HPNoteDetailModeCount;
     [self displayDetail];
 }
 
 - (void)doneBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"dismiss_keyboard"];
     [self.view endEditing:YES];
 }
 
 - (IBAction)swipeRightAction:(id)sender
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"swipe_right"];
     if (_noteIndex > 0)
     {
         [self.view endEditing:YES];
@@ -675,6 +691,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (IBAction)swipeLeftAction:(id)sender
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"swipe_left"];
     NSInteger nextIndex = _noteIndex + 1;
     if (nextIndex < self.notes.count)
     {
@@ -703,6 +720,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     
     if (characterIndex >= textView.textStorage.length)
     {
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"edit_note"];
         [textView becomeFirstResponder];
         return;
     }
@@ -711,6 +729,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     NSTextAttachment *textAttachment = [textView.attributedText attribute:NSAttachmentAttributeName atIndex:characterIndex effectiveRange:&range];
     if (textAttachment && fraction < 1)
     {
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"show_attachment"];
         [self presentTextAttachment:textAttachment atIndex:characterIndex];
         return;
     }
@@ -718,10 +737,12 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     NSURL *url = [textView.attributedText attribute:NSLinkAttributeName atIndex:characterIndex effectiveRange:&range];
     if (url && fraction < 1)
     {
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"click_link"];
         [self handleURL:url];
         return;
     }
 
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"edit_note"];
     characterIndex = MIN(characterIndex + round(fraction), textView.text.length); // In case fraction > 1, although it doesn't appear it can be
     [textView setSelectedRange:NSMakeRange(characterIndex, 0)];
     [textView becomeFirstResponder];
@@ -729,6 +750,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_note"];
     if ([self.note isEmptyInTag:self.indexItem.tag])
     {
         [self trashNote];
@@ -742,6 +764,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)unarchiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"unarchive_note"];
     [[HPTagManager sharedManager] unarchiveNote:self.note];
     [self finishEditing];
 }

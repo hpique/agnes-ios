@@ -11,6 +11,7 @@
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPNote.h"
+#import "HPTracker.h"
 #import "HPNoteListTableViewCell.h"
 #import "HPNoteSearchTableViewCell.h"
 #import "HPIndexItem.h"
@@ -146,6 +147,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     [super viewWillAppear:animated];
     _visible = YES;
+    [[HPTracker defaultTracker] trackScreenWithName:self.title];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -201,6 +203,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_note"];
     HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:_notes indexItem:self.indexItem];
     noteViewController.delegate = self;
     [self.navigationController pushViewController:noteViewController animated:YES];
@@ -208,6 +211,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)archiveNoteInCell:(HPNoteListTableViewCell*)cell
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"archive_note"];
     [self removeNoteInCell:cell modelBlock:^{
         [[HPTagManager sharedManager] archiveNote:cell.note];
     }];
@@ -215,6 +219,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)exportNotes
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"export_list"];
     _noteExporter = [[HPNoteExporter alloc] init];
     [_noteExporter exportNotes:_notes name:self.indexItem.exportPrefix success:^(NSURL *fileURL) {
         [self exportFileURL:fileURL];
@@ -227,6 +232,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)trashNoteInCell:(HPNoteListTableViewCell*)cell
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_note"];
     [self removeNoteInCell:cell modelBlock:^{
         [[HPNoteManager sharedManager] trashNote:cell.note];
     }];
@@ -234,6 +240,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)unarchiveNoteInCell:(HPNoteListTableViewCell*)cell
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"unarchive_note"];
     [self removeNoteInCell:cell modelBlock:^{
         [[HPTagManager sharedManager] unarchiveNote:cell.note];
     }];
@@ -246,6 +253,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)optionsButtonItemAction:(id)sender
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"options"];
     UIActionSheet *actionSheet = [[UIActionSheet alloc] init];
     actionSheet.delegate = self;
     NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
@@ -269,6 +277,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (IBAction)tapTitleView:(id)sender
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"toggle_sort"];
     _userChangedSortMode = YES;
     NSArray *values = self.indexItem.allowedSortModes;
     NSInteger index = [values indexOfObject:@(_sortMode)];
@@ -824,11 +833,13 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     else if (buttonIndex == _optionsActionSheetRedoIndex)
     {
         NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"redo" label:undoManager.redoActionName];
         [undoManager redo];
     }
     else if (buttonIndex == _optionsActionSheetUndoIndex)
     {
         NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"undo" label:undoManager.undoActionName];
         [undoManager undo];
     }
 }
