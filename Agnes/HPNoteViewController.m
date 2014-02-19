@@ -126,7 +126,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShowNotification:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
- 
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActiveNotification:) name:UIApplicationWillResignActiveNotification object:nil];
+    
     {
         _bodyTextStorage = [HPBaseTextStorage new];
         NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
@@ -172,6 +173,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -863,6 +865,11 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 }
 
 #pragma mark - Notifications
+
+- (void)applicationWillResignActiveNotification:(NSNotification*)notification
+{
+    [self autosave];
+}
 
 - (void)didChangeFontsNotification:(NSNotification*)notification
 {
