@@ -103,7 +103,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _pendingUpdatedNotes = [NSMutableSet set];
     
     {
-        _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNoteBarButtonItemAction:)];
+        _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-plus"] style:UIBarButtonItemStylePlain target:self action:@selector(addNoteBarButtonItemAction:)];
         MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
         self.navigationItem.leftBarButtonItem = drawerBarButton;
         self.navigationItem.titleView = _titleView;
