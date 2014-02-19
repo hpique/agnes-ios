@@ -9,4 +9,4 @@ pod 'TTTAttributedLabel', :git => 'https://github.com/hpique/TTTAttributedLabel.
 pod 'MHWDirectoryWatcher', '~> 0.0'
 pod 'ColorUtils', :git => 'https://github.com/hpique/ColorUtils.git', :branch=>'agnes'
 pod 'Haneke', :git => 'https://github.com/hpique/Haneke.git'
-
+pod 'iRate', '~> 1.9'

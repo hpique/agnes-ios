@@ -3,6 +3,7 @@ PODS:
   - Haneke (0.0.1)
   - HPReorderTableView (0.0.1)
   - iOS7Colors (2.0.0)
+  - iRate (1.9.3)
   - MCSwipeTableViewCell (2.0.0)
   - MHWDirectoryWatcher (0.0.4)
   - MMDrawerController (0.5.2):
@@ -26,6 +27,7 @@ DEPENDENCIES:
   - Haneke (from `https://github.com/hpique/Haneke.git`)
   - HPReorderTableView (from `https://github.com/hpique/HPReorderTableView.git`)
   - iOS7Colors (~> 2.0.0)
+  - iRate (~> 1.9)
   - MCSwipeTableViewCell (from `https://github.com/hpique/MCSwipeTableViewCell.git`)
   - MHWDirectoryWatcher (~> 0.0)
   - MMDrawerController (~> 0.5)
@@ -54,6 +56,7 @@ SPEC CHECKSUMS:
   Haneke: 9f24e2ea2beb854b84fa253a9bc8d695a5786b4e
   HPReorderTableView: ed45d7dcd241f0a989ea259ffe8a1523e2a82650
   iOS7Colors: 80d700ca0fe4415eeea1cfb74d4d790ffa0375ab
+  iRate: 99aef520b335a1eb4a14a8d9ba5e8db4e1d95bbe
   MCSwipeTableViewCell: 40d2d91d618ed5248d20b7d75018a4a33b0477dc
   MHWDirectoryWatcher: c8d2677e94ab6e078d321f87c58be5fa101ae457
   MMDrawerController: 60bce0387ff42670d9a5a392e2f531be2fd39ce9
