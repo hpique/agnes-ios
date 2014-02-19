@@ -6,6 +6,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HPIndexViewController">
             <connections>
+                <outlet property="_titleView" destination="th6-9P-wFp" id="xRS-g6-Lwd"/>
                 <outlet property="tableView" destination="4" id="Ebl-BL-La5"/>
                 <outlet property="view" destination="4" id="5"/>
             </connections>
@@ -22,5 +23,20 @@
                 <outlet property="delegate" destination="-1" id="7"/>
             </connections>
         </tableView>
+        <view contentMode="scaleToFill" id="th6-9P-wFp" customClass="HPNavigationBarToggleTitleView">
+            <rect key="frame" x="0.0" y="0.0" width="160" height="44"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+            <gestureRecognizers/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outletCollection property="gestureRecognizers" destination="XI6-tr-bwD" appends="YES" id="62r-4A-5p1"/>
+            </connections>
+        </view>
+        <tapGestureRecognizer id="XI6-tr-bwD">
+            <connections>
+                <action selector="tapTitleView:" destination="-1" id="QgD-ND-FZr"/>
+            </connections>
+        </tapGestureRecognizer>
     </objects>
 </document>

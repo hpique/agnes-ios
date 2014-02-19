@@ -15,6 +15,8 @@
 #import "HPNote.h"
 #import "HPTag.h"
 #import "HPRootViewController.h"
+#import "HPNavigationBarToggleTitleView.h"
+#import "HPPreferencesManager.h"
 #import "MMDrawerController.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "UIViewController+MMDrawerController.h"
@@ -30,6 +32,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 @implementation HPIndexViewController {
     NSMutableArray *_items;
+    IBOutlet HPNavigationBarToggleTitleView *_titleView;
+    HPIndexSortMode _sortMode;
 }
 
 @synthesize tableView = _tableView;
@@ -44,6 +48,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 {
     [super viewDidLoad];
     self.title = NSLocalizedString(@"Agnes", "Index title");
+    self.navigationItem.titleView = _titleView;
+    [_titleView setTitle:self.title];
     
     UINib *nib = [UINib nibWithNibName:@"HPIndexItemTableViewCell" bundle:nil];
     [self.tableView registerNib:nib forCellReuseIdentifier:HPIndexCellIdentifier];
@@ -54,6 +60,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     fixedSpace.width = 15;
     UIBarButtonItem *addBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addBarButtonItemAction:)];
     self.navigationItem.rightBarButtonItems = @[fixedSpace, addBarButtonItem];
+    
+    _sortMode = [HPPreferencesManager sharedManager].indexSortMode;
     
     [self reloadData];
     [self selectIndexItem:[HPIndexItem inboxIndexItem]];
@@ -66,6 +74,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 {
     [super viewWillAppear:animated];
     [[HPTracker defaultTracker] trackScreenWithName:@"Index"];
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    [_titleView setTitle:self.title];
 }
 
 #pragma mark Public
@@ -88,23 +102,14 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [self.tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
 }
 
-#pragma mark - Private
+#pragma mark Private
 
 - (void)reloadData
 {
     NSMutableArray *items = [NSMutableArray array];
     [items addObject:[HPIndexItem inboxIndexItem]];
-    
-    NSArray *tags = [[HPTagManager sharedManager] indexTags];
-    NSSortDescriptor *orderSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(order)) ascending:YES];
-    NSSortDescriptor *nameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(name)) ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
-    tags = [tags sortedArrayUsingDescriptors:@[orderSortDescriptor, nameSortDescriptor]];
-    for (HPTag *tag in tags)
-    {
-        HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag];
-        [items addObject:indexItem];
-    }
-    
+    NSArray *tagIndexItems = [self sortedTagIndexItems];
+    [items addObjectsFromArray:tagIndexItems];
     [items addObject:[HPIndexItem archiveIndexItem]];
     [items addObject:[HPIndexItem systemIndexItem]];
     
@@ -117,7 +122,40 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     } reloadBlock:nil];
 }
 
-#pragma mark - UITableViewDataSource
+- (NSArray*)sortedTagIndexItems
+{
+    NSArray *tags = [[HPTagManager sharedManager] indexTags];
+    NSSortDescriptor *nameSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(name)) ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
+    switch (_sortMode)
+    {
+        case HPIndexSortModeOrder:
+        case HPIndexSortModeCount:
+        {
+            NSSortDescriptor *orderSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(order)) ascending:YES];
+            tags = [tags sortedArrayUsingDescriptors:@[orderSortDescriptor, nameSortDescriptor]];
+            break;
+        }
+        case HPIndexSortModeAlphabetical:
+        {
+            tags = [tags sortedArrayUsingDescriptors:@[nameSortDescriptor]];
+            break;
+        }
+    }
+    NSMutableArray *indexItems = [NSMutableArray array];
+    for (HPTag *tag in tags)
+    {
+        HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag];
+        [indexItems addObject:indexItem];
+    }
+    if (_sortMode == HPIndexSortModeCount)
+    {
+        NSSortDescriptor *countSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(noteCount)) ascending:NO];
+        [indexItems sortUsingDescriptors:@[countSortDescriptor]];
+    }
+    return indexItems;
+}
+
+#pragma mark UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -139,6 +177,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (_sortMode != HPIndexSortModeOrder) return NO;
     HPIndexItem *item = [_items objectAtIndex:indexPath.row];
     return item.tag != nil;
 }
@@ -213,6 +252,19 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     { // Catch archived / unarchived changes
         [self reloadData];
     }
+}
+
+- (IBAction)tapTitleView:(id)sender
+{
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"toggle_tag_sort"];
+    NSArray *values = @[@(HPIndexSortModeOrder), @(HPIndexSortModeAlphabetical), @(HPIndexSortModeCount)];
+    NSInteger index = [values indexOfObject:@(_sortMode)];
+    index = (index + 1) % values.count;
+    _sortMode = [values[index] intValue];
+    [HPPreferencesManager sharedManager].indexSortMode = _sortMode;
+    NSString *modeString = NSStringFromIndexSortMode(_sortMode);
+    [_titleView setMode:modeString animated:YES];
+    [self reloadData];
 }
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification

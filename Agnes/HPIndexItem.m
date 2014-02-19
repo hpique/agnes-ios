@@ -13,6 +13,16 @@
 #import "HPFontManager.h"
 #import "HPPreferencesManager.h"
 
+NSString* NSStringFromIndexSortMode(HPIndexSortMode sortMode)
+{
+    switch (sortMode)
+    {
+        case HPIndexSortModeOrder: return NSLocalizedString(@"manual order", @"");
+        case HPIndexSortModeAlphabetical: return NSLocalizedString(@"a-z", @"");
+        case HPIndexSortModeCount: return NSLocalizedString(@"by notes", @"");
+    }
+}
+
 NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotification";
 
 @interface HPIndexItemInbox : HPIndexItem

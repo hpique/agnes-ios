@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "HPNoteManager.h"
+#import "HPIndexItem.h"
 
 extern NSString* const HPPreferencesManagerDidChangePreferencesNotification;
 
@@ -28,6 +29,7 @@ extern NSString* const HPPreferencesManagerDidChangePreferencesNotification;
 @property (nonatomic, readonly) UIColor *barForegroundColor;
 @property (nonatomic, strong) NSString *fontName;
 @property (nonatomic, assign) NSInteger fontSize;
+@property (nonatomic, assign) HPIndexSortMode indexSortMode;
 @property (nonatomic, assign) BOOL statusBarHidden;
 @property (nonatomic, strong) UIColor *tintColor;
 @property (nonatomic, readonly) NSString *tintColorName;

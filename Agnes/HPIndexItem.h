@@ -9,6 +9,15 @@
 #import <UIKit/UIKit.h>
 #import "HPTag.h"
 
+typedef NS_ENUM(NSInteger, HPIndexSortMode)
+{
+    HPIndexSortModeOrder,
+    HPIndexSortModeAlphabetical,
+    HPIndexSortModeCount,
+};
+
+extern NSString* NSStringFromIndexSortMode(HPIndexSortMode sortMode);
+
 extern NSString* const HPIndexItemDidChangeNotification;
 
 @interface HPIndexItem : NSObject

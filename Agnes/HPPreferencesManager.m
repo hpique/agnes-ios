@@ -18,6 +18,7 @@ NSString *const HPAgnesDefaultsKeyBarTintColor = @"HPAgnesBarTintColor";
 NSString *const HPAgnesDefaultsKeyDynamicType = @"HPAgnesDynamicType";
 NSString *const HPAgnesDefaultsKeyFontName = @"HPAgnesFontName";
 NSString *const HPAgnesDefaultsKeyFontSize = @"HPAgnesFontSize";
+NSString *const HPAgnesDefaultsKeyIndexSortMode = @"HPIndexSortMode";
 NSString *const HPAgnesDefaultsKeySessionCount = @"HPAgnesSessionCount";
 NSString *const HPAgnesDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 NSString *const HPAgnesDefaultsKeyTintColor = @"HPAgnesTintColor";
@@ -36,6 +37,7 @@ static UIColor* HPAgnesDefaultBarTintColor = nil;
 static BOOL HPAgnesDefaultDynamicType = NO;
 static NSString* HPAgnesDefaultFontName = @"AvenirNext-Regular";
 static NSInteger HPAgnesDefaultFontSize = 16;
+static NSInteger HPAgnesDefaultIndexSortMode = HPIndexSortModeOrder;
 static UIColor* HPAgnesDefaultTintColor = nil;
 static BOOL HPAgnesDefaultStatusBarHidden = NO;
 static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
@@ -125,6 +127,13 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
+- (HPIndexSortMode)indexSortMode
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *value = [userDefaults valueForKey:HPAgnesDefaultsKeyIndexSortMode];
+    return value ? [value integerValue] : HPAgnesDefaultIndexSortMode;
+}
+
 - (NSInteger)increaseSessionCount
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -156,6 +165,12 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     [userDefaults setObject:@(dynamicType) forKey:HPAgnesDefaultsKeyDynamicType];
     [HPFontManager sharedManager].dinamicType = dynamicType;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
+}
+
+- (void)setIndexSortMode:(HPIndexSortMode)indexSortMode
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:@(indexSortMode) forKey:HPAgnesDefaultsKeyIndexSortMode];
 }
 
 - (void)setStatusBarHidden:(BOOL)statusBarHidden
