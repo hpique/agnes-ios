@@ -31,14 +31,16 @@ static NSString *const HPTagArchiveName = @"Archive";
 {
     if (!(object.isSystem))
     {
-        [_tagTrie addString:object.name];
+        NSString *normalizedName = object.name.lowercaseString;
+        [_tagTrie addString:normalizedName];
     }
     [self removeDuplicatesOfTagNamed:object.name];
 }
 
 - (void)didDeleteObject:(HPTag*)object
 {
-    [_tagTrie removeObjectForKey:object.name];
+    NSString *normalizedName = object.name.lowercaseString;
+    [_tagTrie removeObjectForKey:normalizedName];
     if (object == _inboxTag)
     {
         _inboxTag = nil;
@@ -130,13 +132,15 @@ static NSString *const HPTagArchiveName = @"Archive";
         _tagTrie = [[NDMutableTrie alloc] initWithCaseInsensitive:YES];
         for (HPTag *tag in self.objects)
         {
-            [_tagTrie addString:tag.name];
+            NSString *normalizedName = tag.name.lowercaseString;
+            [_tagTrie addString:normalizedName];
         }
         NSString *path = [[NSBundle mainBundle] pathForResource:@"hashtags" ofType:@"plist"];
         NSArray *hashtahgs = [NSArray arrayWithContentsOfFile:path];
         [_tagTrie addArray:hashtahgs];
     }
-    return [_tagTrie everyObjectForKeyWithPrefix:prefix];
+    NSString *normalizedPrefix = prefix.lowercaseString;
+    return [_tagTrie everyObjectForKeyWithPrefix:normalizedPrefix];
 }
 
 #pragma mark Operations
