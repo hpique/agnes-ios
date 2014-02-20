@@ -17,6 +17,8 @@
 
 #pragma mark Fetching objects
 
+- (NSArray*)allObjectsAndAttributes;
+
 - (NSUInteger)countWithPredicate:(NSPredicate*)predicate;
 
 @property (nonatomic, readonly) NSArray *objects;

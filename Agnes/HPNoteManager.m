@@ -77,6 +77,15 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     }
 }
 
+#pragma mark Fetching notes
+
+- (HPNote*)noteForUUID:(NSString*)uuid
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", NSStringFromSelector(@selector(uuid)), uuid];
+    NSArray *notes = [self objectsWithPredicate:predicate];
+    return notes.firstObject;
+}
+
 #pragma mark System notes
 
 - (BOOL)isSystemNote:(HPNote*)note

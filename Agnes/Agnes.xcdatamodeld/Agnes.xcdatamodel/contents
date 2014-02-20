@@ -29,7 +29,7 @@
         <attribute name="normalizedText" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="tagOrder" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="uuid" attributeType="String" syncable="YES"/>
+        <attribute name="uuid" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="views" optional="YES" transient="YES" syncable="YES"/>
         <relationship name="cd_attachments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Attachment" inverseName="note" inverseEntity="Attachment" syncable="YES"/>
         <relationship name="cd_tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="cd_notes" inverseEntity="Tag" syncable="YES"/>

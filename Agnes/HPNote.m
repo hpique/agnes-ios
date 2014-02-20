@@ -159,18 +159,15 @@ const NSInteger HPNoteDetailModeCount = 5;
     
     NSArray *currentTagNames = self.tagNames;
     NSMutableSet *currentTags = [NSMutableSet set];
-    HPTagManager *manager = [HPTagManager sharedManager];
+    HPTagManager *manager = [[HPTagManager alloc] initWithManagedObjectContext:self.managedObjectContext]; // Don't use sharedManager
     for (NSString *name in currentTagNames)
     {
         HPTag *tag = [manager tagWithName:name];
         [currentTags addObject:tag];
     }
     
-    if (![[HPNoteManager sharedManager] isSystemNote:self])
-    {
-        HPTag *specialTag = self.archived ? manager.archiveTag : manager.inboxTag;
-        [currentTags addObject:specialTag];
-    }
+    HPTag *specialTag = self.archived ? manager.archiveTag : manager.inboxTag;
+    [currentTags addObject:specialTag];
     
     NSMutableSet *previousTags = [NSMutableSet setWithSet:self.cd_tags];
     [previousTags minusSet:currentTags]; // Removed

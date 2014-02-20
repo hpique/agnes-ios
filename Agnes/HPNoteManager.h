@@ -28,6 +28,10 @@
 
 + (HPNoteManager*)sharedManager;
 
+#pragma mark Fetching notes
+
+- (HPNote*)noteForUUID:(NSString*)uuid;
+
 #pragma mark Sorting notes
 
 + (NSArray*)sortedNotes:(NSArray*)notes mode:(HPTagSortMode)mode tag:(HPTag*)tag;

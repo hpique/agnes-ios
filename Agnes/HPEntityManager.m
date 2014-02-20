@@ -33,6 +33,16 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
 
 #pragma mark Fetching objects
 
+- (NSArray*)allObjectsAndAttributes
+{
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
+    fetchRequest.returnsObjectsAsFaults = NO;
+    NSError *error = nil;
+    NSArray *objects = [_context executeFetchRequest:fetchRequest error:&error];
+    NSAssert(objects, @"Fetch %@ failed with error %@", fetchRequest, error.localizedDescription);
+    return objects;
+}
+
 - (NSUInteger)countWithPredicate:(NSPredicate*)predicate
 {
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];

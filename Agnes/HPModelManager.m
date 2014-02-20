@@ -10,7 +10,12 @@
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPPreferencesManager.h"
+#import "HPAttachment.h"
+#import "HPData.h"
+#import "HPNote.h"
 
+NSString *const HPModelManagerUbiquityIdentityTokenKey = @"HPModelManagerUbiquityIdentityToken";
+NSString *const HPModelManagerPersistentStoreURLKey = @"HPModelManagerPersistentStoreURL";
 NSString *const HPPersitentStoreMetadataHasTutorialKey = @"HPHasTutorial";
 
 NSString *const HPModelManagerWillReplaceModelNotification = @"HPModelManagerWillReplaceModelNotification";
@@ -135,6 +140,36 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     return pathURL;
 }
 
+- (NSURL*)copyPersistentStoreAtURL:(NSURL*)storeURL
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *originPath = storeURL.path;
+    if (![fileManager fileExistsAtPath:originPath]) return nil;
+    
+    NSString *cachesDirectory = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+    NSString *destinationPath = [cachesDirectory stringByAppendingPathComponent:bundleIdentifier];
+    destinationPath = [destinationPath stringByAppendingPathComponent:@"CoreDataImport"];
+    NSError *error = nil;
+    BOOL result = [fileManager createDirectoryAtPath:destinationPath withIntermediateDirectories:YES attributes:nil error:&error];
+    if (!result)
+    {
+        NSLog(@"Failed to create directory with error %@", error);
+        return nil;
+    }
+    NSString *filename = originPath.lastPathComponent;
+    destinationPath = [destinationPath stringByAppendingPathComponent:filename];
+    [fileManager removeItemAtPath:destinationPath error:nil];
+    result = [fileManager copyItemAtPath:originPath toPath:destinationPath error:&error];
+    if (!result)
+    {
+        NSLog(@"Failed to create directory with error %@", error);
+        return nil;
+    }
+    NSURL *destinationURL = [NSURL fileURLWithPath:destinationPath];
+    return destinationURL;
+}
+
 - (void)removeStore
 {
     NSError* error;
@@ -148,11 +183,120 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     }
 }
 
+- (void)importPersistentStoreAtURL:(NSURL*)importPersistentStoreURL isLocal:(BOOL)isLocal intoPersistentStore:(NSPersistentStore*)persistentStore
+{
+    if (!isLocal)
+    { // Create a copy because we can't add an ubiquity store as a local store without removing the ubiquitous metadata first,
+        // and we don't want to modify the original ubiquity store.
+        importPersistentStoreURL = [self copyPersistentStoreAtURL:importPersistentStoreURL];
+    }
+    if (!importPersistentStoreURL) return;
+    
+    NSManagedObjectContext *importContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSConfinementConcurrencyType];
+    importContext.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
+    NSError* error;
+    NSPersistentStore *importStore = [importContext.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
+                                                                                            configuration:nil
+                                                                                                      URL:importPersistentStoreURL
+                                                                                                  options:@{NSPersistentStoreRemoveUbiquitousMetadataOption : @(YES)}
+                                                                                                    error:&error];
+    if (!importStore)
+    {
+        NSLog(@"Failed to load store with error %@, %@", error, [error userInfo]);
+        return;
+    }
+    [self importNotesAtContext:importContext intoContext:_managedObjectContext];
+    if (!isLocal)
+    {
+        BOOL result = [[NSFileManager defaultManager] removeItemAtURL:importPersistentStoreURL error:&error];
+        if (!result)
+        {
+            NSLog(@"Failed to remove temp persistent store with error %@", error);
+        }
+    }
+}
+
+- (void)importNotesAtContext:(NSManagedObjectContext*)fromContext intoContext:(NSManagedObjectContext*)toContext
+{
+    HPNoteManager *fromManager = [[HPNoteManager alloc] initWithManagedObjectContext:fromContext];
+    NSArray *notes = fromManager.allObjectsAndAttributes;
+    
+    NSEntityDescription *noteDescription = [NSEntityDescription entityForName:[HPNote entityName] inManagedObjectContext:fromContext];
+    NSArray *noteAttributes = [noteDescription attributesByName].allKeys;
+    
+    NSEntityDescription *attachmentDescription = [NSEntityDescription entityForName:[HPAttachment entityName] inManagedObjectContext:fromContext];
+    NSArray *attachmentAttributes = [attachmentDescription attributesByName].allKeys;
+    
+    NSEntityDescription *dataDescription = [NSEntityDescription entityForName:[HPData entityName] inManagedObjectContext:fromContext];
+    NSArray *dataAttributes = [dataDescription attributesByName].allKeys;
+    
+    HPNoteManager *toManager = [[HPNoteManager alloc] initWithManagedObjectContext:toContext];
+    
+    for (HPNote *note in notes)
+    {
+        @autoreleasepool
+        {
+            __block HPNote *existingNote = nil;
+            __block NSDate *existingModifiedAt = nil;
+            NSString *noteUUID = note.uuid;
+            [toContext performBlockAndWait:^{
+                existingNote = [toManager noteForUUID:noteUUID];
+                if (existingNote)
+                {
+                    existingModifiedAt = existingNote.modifiedAt;
+                }
+            }];
+            
+            if (existingModifiedAt)
+            {
+                if ([existingModifiedAt laterDate:note.modifiedAt] == existingModifiedAt)
+                { // Existing note is fresher
+                    continue;
+                }
+                else
+                {
+                    [toContext performBlockAndWait:^{
+                        [toContext deleteObject:existingNote];
+                    }];
+                }
+            }
+            
+            NSMutableSet *attachments = [NSMutableSet set];
+            for (HPAttachment *attachment in note.attachments)
+            {
+                NSDictionary *attachmentValues = [attachment dictionaryWithValuesForKeys:attachmentAttributes];
+                __block HPAttachment *attachmentCopy;
+                [toContext performBlockAndWait:^{
+                    HPAttachment *attachmentCopy = [HPAttachment insertNewObjectIntoContext:toContext];
+                    [attachmentCopy setValuesForKeysWithDictionary:attachmentValues];
+                }];
+                [attachments addObject:attachmentCopy];
+                
+                if (attachment.data)
+                {
+                    NSDictionary *dataValues = [attachment.data dictionaryWithValuesForKeys:dataAttributes];
+                    [toContext performBlockAndWait:^{
+                        HPData *dataCopy = [HPData insertNewObjectIntoContext:toContext];
+                        [dataCopy setValuesForKeysWithDictionary:dataValues];
+                        attachmentCopy.data = dataCopy;
+                    }];
+                }
+            }
+            NSDictionary *noteValues = [note dictionaryWithValuesForKeys:noteAttributes];
+            [toContext performBlockAndWait:^{
+                HPNote *noteCopy = [HPNote insertNewObjectIntoContext:toContext];
+                [noteCopy setValuesForKeysWithDictionary:noteValues];
+                [noteCopy setCd_attachments:attachments];
+            }];
+        }
+    }
+}
+
 #pragma mark - Notifications
 
 - (void)persistentStoreDidImportUbiquitousContentChanges:(NSNotification*)notification
-{
-    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
+{ // Careful: This is not always called from the main queue
+//    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
     NSManagedObjectContext *moc = self.managedObjectContext;
     [moc performBlockAndWait:^{
         [moc mergeChangesFromContextDidSaveNotification:notification];
@@ -160,8 +304,8 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
 }
 
 - (void)storesWillChange:(NSNotification *)notification
-{
-    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
+{ // Careful: This is not always called from the main queue
+//    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
     dispatch_sync(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:HPModelManagerWillReplaceModelNotification object:self];
     });
@@ -185,16 +329,56 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
 }
 
 - (void)storesDidChange:(NSNotification *)notification
-{
-    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
+{ // Careful: This is not always called from the main queue
+//    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
     NSDictionary *userInfo = notification.userInfo;
     NSPersistentStoreUbiquitousTransitionType transitionType = [[userInfo objectForKey:NSPersistentStoreUbiquitousTransitionTypeKey] integerValue];
+    NSPersistentStore *persistentStore = [userInfo[NSAddedPersistentStoresKey] firstObject];
+    id<NSCoding> ubiquityIdentityToken = [NSFileManager defaultManager].ubiquityIdentityToken;
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     if (transitionType == NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted)
     {
         [self.managedObjectContext performBlockAndWait:^{
             [[HPTagManager sharedManager] removeDuplicates];
         }];
     }
+    else
+    {
+        NSData *previousArchivedUbiquityIdentityToken = [defaults objectForKey:HPModelManagerUbiquityIdentityTokenKey];
+        if (previousArchivedUbiquityIdentityToken)
+        { // Was using ubiquity store
+            if (!ubiquityIdentityToken)
+            { // Changed to local account
+                NSString *urlString = [defaults objectForKey:HPModelManagerPersistentStoreURLKey];
+                NSURL *previousPersistentStoreURL = [NSURL URLWithString:urlString];
+                [self importPersistentStoreAtURL:previousPersistentStoreURL isLocal:NO intoPersistentStore:persistentStore];
+            }
+        }
+        else
+        { // Was using local account
+            if (ubiquityIdentityToken)
+            { // Changed to ubiquity store
+                NSString *urlString = [defaults objectForKey:HPModelManagerPersistentStoreURLKey];
+                if (urlString)
+                {
+                    NSURL *previousPersistentStoreURL = [NSURL URLWithString:urlString];
+                    [self importPersistentStoreAtURL:previousPersistentStoreURL isLocal:YES intoPersistentStore:persistentStore];
+                }
+            }
+        }
+    }
+    if (ubiquityIdentityToken)
+    {
+        NSData *archivedUbiquityIdentityToken = [NSKeyedArchiver archivedDataWithRootObject:ubiquityIdentityToken];
+        [defaults setObject:archivedUbiquityIdentityToken forKey:HPModelManagerUbiquityIdentityTokenKey];
+    }
+    else
+    {
+        [defaults removeObjectForKey:HPModelManagerUbiquityIdentityTokenKey];
+    }
+    NSString *urlString = persistentStore.URL.absoluteString;
+    [defaults setObject:urlString forKey:HPModelManagerPersistentStoreURLKey];
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:HPModelManagerDidReplaceModelNotification object:self];
     });
