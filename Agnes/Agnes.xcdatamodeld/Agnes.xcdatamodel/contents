@@ -4,8 +4,10 @@
         <attribute name="cd_mode" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="cd_order" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="extras" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="mode" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="order" optional="YES" transient="YES" syncable="YES"/>
+        <attribute name="preferredSize" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="type" attributeType="String" syncable="YES"/>
         <attribute name="uuid" attributeType="String" syncable="YES"/>
         <relationship name="data" maxCount="1" deletionRule="Cascade" destinationEntity="Data" inverseName="attachment" inverseEntity="Data" syncable="YES"/>
@@ -22,7 +24,9 @@
         <attribute name="cd_views" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="detailMode" optional="YES" transient="YES" syncable="YES"/>
+        <attribute name="extras" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="modifiedAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="normalizedText" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="tagOrder" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="uuid" attributeType="String" syncable="YES"/>
@@ -34,7 +38,9 @@
         <attribute name="cd_isSystem" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="cd_order" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES"/>
         <attribute name="cd_sortMode" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="extras" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="isSystem" optional="YES" transient="YES" syncable="YES"/>
+        <attribute name="modifiedAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="name" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="order" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="sortMode" optional="YES" transient="YES" syncable="YES"/>
