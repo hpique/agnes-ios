@@ -11,6 +11,8 @@
 #import "HPTagManager.h"
 #import "HPPreferencesManager.h"
 
+NSString *const HPPersitentStoreMetadataHasTutorialKey = @"HPHasTutorial";
+
 NSString *const HPModelManagerWillReplaceModelNotification = @"HPModelManagerWillReplaceModelNotification";
 NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidReplaceModelNotification";
 
@@ -64,6 +66,20 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
         NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
         abort();
     }
+}
+
+- (void)importTutorialIfNeeded
+{
+    NSPersistentStoreCoordinator *coordinator = _managedObjectContext.persistentStoreCoordinator;
+    NSPersistentStore *store = [coordinator.persistentStores firstObject]; // TODO: Maybe keep a reference to the store instead?
+    NSDictionary *metadata = store.metadata;
+    const BOOL hasTutorial = [metadata[HPPersitentStoreMetadataHasTutorialKey] boolValue];
+    if (hasTutorial) return;
+    
+    [[HPNoteManager sharedManager] addTutorialNotes];
+    NSMutableDictionary *modifiedMetadata = metadata.mutableCopy;
+    modifiedMetadata[HPPersitentStoreMetadataHasTutorialKey] = @(YES);
+    store.metadata = modifiedMetadata;
 }
 
 - (NSManagedObjectModel*)managedObjectModel
@@ -132,7 +148,6 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     }
 }
 
-
 #pragma mark - Notifications
 
 - (void)persistentStoreDidImportUbiquitousContentChanges:(NSNotification*)notification
@@ -150,10 +165,17 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     dispatch_sync(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:HPModelManagerWillReplaceModelNotification object:self];
     });
+    NSDictionary *userInfo = notification.userInfo;
     NSManagedObjectContext *moc = self.managedObjectContext;
+    NSPersistentStoreUbiquitousTransitionType transitionType = [userInfo[NSPersistentStoreUbiquitousTransitionTypeKey] integerValue];
+    if (transitionType == NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted)
+    {
+        [moc performBlockAndWait:^{
+            [[HPNoteManager sharedManager] removeLocalTutorialNotes];
+        }];
+    }
     [moc performBlockAndWait:^{
         NSError *error = nil;
-        [[HPNoteManager sharedManager] removeLocalTutorialNotes];
         if ([moc hasChanges])
         {
             [moc save:&error];

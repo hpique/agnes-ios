@@ -18,6 +18,8 @@ extern NSString *const HPModelManagerDidReplaceModelNotification;
 
 @property (nonatomic,strong,readonly) NSManagedObjectContext *managedObjectContext;
 
+- (void)importTutorialIfNeeded;
+
 - (void)saveContext;
 
 @end

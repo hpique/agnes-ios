@@ -16,14 +16,11 @@ extern NSString* const HPPreferencesManagerDidChangePreferencesNotification;
 
 + (HPPreferencesManager*)sharedManager;
 
-- (NSInteger)increaseSessionCount;
-
 - (void)applyPreferences:(NSString*)preferences;
 
 - (void)styleNavigationBar:(UINavigationBar*)navigationBar;
 
 @property (nonatomic, assign) BOOL dynamicType;
-@property (nonatomic, readonly) NSInteger sessionCount;
 @property (nonatomic, strong) UIColor *barTintColor;
 @property (nonatomic, readonly) NSString *barTintColorName;
 @property (nonatomic, readonly) UIColor *barForegroundColor;

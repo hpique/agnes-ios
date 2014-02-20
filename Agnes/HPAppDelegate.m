@@ -37,17 +37,11 @@
     [iRate sharedInstance].verboseLogging = NO;
     {
         _coreDataStack = [[HPModelManager alloc] init];
+        [_coreDataStack importTutorialIfNeeded];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(storesDidChangeNotification:) name:HPModelManagerDidReplaceModelNotification object:_coreDataStack];
     }
     
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
-    
-    NSInteger sessionCount = [preferences increaseSessionCount];
-    if (sessionCount == 1)
-    {
-        [[HPNoteManager sharedManager] addTutorialNotes];
-    }
-        
+    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];    
     [UIApplication sharedApplication].statusBarHidden = preferences.statusBarHidden;
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
     [UIApplication sharedApplication].keyWindow.tintColor = preferences.tintColor;

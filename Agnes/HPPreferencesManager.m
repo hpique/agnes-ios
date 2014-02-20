@@ -19,7 +19,6 @@ NSString *const HPAgnesDefaultsKeyDynamicType = @"HPAgnesDynamicType";
 NSString *const HPAgnesDefaultsKeyFontName = @"HPAgnesFontName";
 NSString *const HPAgnesDefaultsKeyFontSize = @"HPAgnesFontSize";
 NSString *const HPAgnesDefaultsKeyIndexSortMode = @"HPIndexSortMode";
-NSString *const HPAgnesDefaultsKeySessionCount = @"HPAgnesSessionCount";
 NSString *const HPAgnesDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 NSString *const HPAgnesDefaultsKeyTintColor = @"HPAgnesTintColor";
 NSString *const HPAgnesDefaultsKeyTutorialUUIDs = @"HPAgnesTutorialUUIDs";
@@ -132,22 +131,6 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSNumber *value = [userDefaults valueForKey:HPAgnesDefaultsKeyIndexSortMode];
     return value ? [value integerValue] : HPAgnesDefaultIndexSortMode;
-}
-
-- (NSInteger)increaseSessionCount
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    NSNumber *value = [userDefaults objectForKey:HPAgnesDefaultsKeySessionCount];
-    NSNumber *updatedValue = @([value integerValue] + 1);
-    [userDefaults setObject:updatedValue forKey:HPAgnesDefaultsKeySessionCount];
-    [userDefaults synchronize];
-    return [updatedValue integerValue];
-}
-
-- (NSInteger)sessionCount
-{
-    NSNumber *value = [[NSUserDefaults standardUserDefaults] objectForKey:HPAgnesDefaultsKeySessionCount];
-    return [value integerValue];
 }
 
 - (void)setBarTintColor:(UIColor *)barTintColor
