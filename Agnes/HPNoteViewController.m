@@ -153,13 +153,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         
         _textTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(textTapGestureRecognizer:)];
         [_bodyTextView addGestureRecognizer:_textTapGestureRecognizer];
-        
-        _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44) inputViewStyle:UIInputViewStyleKeyboard];
-        _suggestionsView.delegate = self;
-        if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
-        {
-            _bodyTextView.inputAccessoryView = _suggestionsView;
-        }
     }
     
     [self layoutToolbar];
@@ -188,7 +181,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     if ([self.note isNew] && !_viewDidAppear)
     {
         _bodyTextView.selectedRange = NSMakeRange(0, 0);
-        [self.noteTextView becomeFirstResponder];
+        [self showKeyboard];
     }
     _viewDidAppear = YES;
     self.transitioning = NO;
@@ -219,7 +212,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    self.noteTextView.inputAccessoryView = UIInterfaceOrientationIsLandscape(toInterfaceOrientation) ? nil : _suggestionsView;
     [self.noteTextView resignFirstResponder];
 }
 
@@ -343,7 +335,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     _bodyTextView.selectedRange = NSMakeRange(0, 0);
     if ([self.note isNew] && _viewDidAppear)
     {
-        [_bodyTextView becomeFirstResponder];
+        [self showKeyboard];
     }
     [[HPNoteManager sharedManager] viewNote:self.note];
     [self displayDetail]; // Do after viewing note as the number of views will increment
@@ -577,6 +569,16 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     }
 }
 
+- (void)showKeyboard
+{
+    BOOL landscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
+    _bodyTextView.inputAccessoryView = nil;
+    _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, landscape ? 36 : 44) inputViewStyle:UIInputViewStyleKeyboard];
+    _suggestionsView.delegate = self;
+    _bodyTextView.inputAccessoryView = _suggestionsView;
+    [_bodyTextView becomeFirstResponder];
+}
+
 - (void)didFinishTyping
 {
     [self setTyping:NO animated:YES];
@@ -723,7 +725,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     if (characterIndex >= textView.textStorage.length)
     {
         [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"edit_note"];
-        [textView becomeFirstResponder];
+        [self showKeyboard];
         return;
     }
     
@@ -747,7 +749,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"edit_note"];
     characterIndex = MIN(characterIndex + round(fraction), textView.text.length); // In case fraction > 1, although it doesn't appear it can be
     [textView setSelectedRange:NSMakeRange(characterIndex, 0)];
-    [textView becomeFirstResponder];
+    [self showKeyboard];
 }
 
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
@@ -800,7 +802,20 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)textViewDidChangeSelection:(UITextView *)textView
 {
     NSRange foundRange;
-    NSString *prefix = [_bodyTextView.text hp_tagInRange:_bodyTextView.selectedRange enclosing:NO tagRange:&foundRange];
+    NSString *text = _bodyTextView.text;
+    NSRange selectedRange = _bodyTextView.selectedRange;
+    NSString *prefix = [text hp_tagInRange:selectedRange enclosing:NO tagRange:&foundRange];
+    if (!prefix)
+    {
+        if (selectedRange.location > 0)
+        { // Check if previous character is the tag escape string
+            NSString *substring = [text substringWithRange:NSMakeRange(selectedRange.location - 1, 1)];
+            if ([substring isEqualToString:HPNoteTagEscapeString])
+            {
+                prefix = HPNoteTagEscapeString;
+            }
+        }
+    }
     _suggestionsView.prefix = prefix;
 }
 
@@ -990,7 +1005,9 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     if (progress < 1)
     {
         [_bodyTextStorage setAnimationProgress:progress ofAttachmentAtIndex:_attachmentAnimationIndex];
-    } else {
+    }
+    else
+    {
         [_bodyTextStorage endAnimatingAttachmentAtIndex:_attachmentAnimationIndex];
         [displayLink invalidate];
         [_attachmentAnimationView removeFromSuperview];

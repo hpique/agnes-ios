@@ -42,6 +42,8 @@
         _suggestionsView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _suggestionsView.dataSource = self;
         _suggestionsView.delegate = self;
+        _suggestionsView.showsHorizontalScrollIndicator = NO;
+        _suggestionsView.showsVerticalScrollIndicator = NO;
         _suggestionsView.contentInset = UIEdgeInsetsMake(0, 3, 0, 3);
         _suggestionsView.backgroundColor = [UIColor clearColor];
         [_suggestionsView registerClass:[HPTagSuggestionCell class] forCellWithReuseIdentifier:@"Cell"];
@@ -49,6 +51,26 @@
         [self addSubview:_suggestionsView];
     }
     return self;
+}
+
+- (void)layoutSubviews
+{
+    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout*)_suggestionsView.collectionViewLayout;
+    const CGFloat height = self.bounds.size.height;
+    layout.itemSize = CGSizeMake(100, height);
+    UIInterfaceOrientation interfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    CGSize buttonSize = [HPKeyboardButton sizeForOrientation:interfaceOrientation];
+    layout.headerReferenceSize = CGSizeMake(buttonSize.width + 6, height);
+    BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
+    CGFloat sideInset = landscape ? 23 : 3;
+    _suggestionsView.contentInset = UIEdgeInsetsMake(0, sideInset, 0, sideInset);
+    [_suggestionsView.collectionViewLayout invalidateLayout];
+    [super layoutSubviews];
+}
+
+- (void)setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
 }
 
 #pragma mark - UIInputViewAudioFeedback
@@ -79,7 +101,7 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return _suggestions.count;
+    return MIN(_suggestions.count, 5);
 }
 
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
@@ -107,18 +129,6 @@
 {
     NSString *suggestion = _suggestions[indexPath.row];
     [self.delegate tagSuggestionsView:self didSelectSuggestion:suggestion];
-}
-
-#pragma mark - UICollectionViewDelegateFlowLayout
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    return CGSizeMake(100, 44);
-}
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section
-{
-    return CGSizeMake(26 + 6, 44);
 }
 
 @end

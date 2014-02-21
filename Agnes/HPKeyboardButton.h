@@ -12,4 +12,6 @@
 
 @property (nonatomic, copy) NSString *key;
 
++ (CGSize)sizeForOrientation:(UIInterfaceOrientation)interfaceOrientation;
+
 @end

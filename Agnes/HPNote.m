@@ -16,8 +16,9 @@
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 
-
 NSString* const HPNoteAttachmentAttributeName = @"HPNoteAttachment";
+NSString *const HPNoteTagEscapeString = @"#";
+
 const NSInteger HPNoteDetailModeCount = 5;
 
 @implementation HPNote {

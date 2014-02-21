@@ -36,14 +36,28 @@
 
 - (CGSize)intrinsicContentSize
 {
+    const CGSize size = [HPKeyboardButton sizeForOrientation:[UIApplication sharedApplication].statusBarOrientation];
     NSString *title = [self titleForState:UIControlStateNormal];
     if (title.length == 1)
     {
-        return CGSizeMake(26, 38);
+        return size;
     } else {
-        CGSize size = [super intrinsicContentSize];
-        return CGSizeMake(size.width, 38);
+        CGSize superIntrinsicSize = [super intrinsicContentSize];
+        return CGSizeMake(superIntrinsicSize.width, size.height);
     }
 }
+
++ (CGSize)sizeForOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    const BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
+    static CGFloat LandscapeHeight = 32;
+    static CGFloat LandscapeWidth = 47;
+    static CGFloat PortraitHeight = 38;
+    static CGFloat PortraitWidth = 26;
+    const CGFloat height = landscape ? LandscapeHeight : PortraitHeight;
+    const CGFloat width = landscape ? LandscapeWidth : PortraitWidth;
+    return CGSizeMake(width, height);
+}
+
 
 @end

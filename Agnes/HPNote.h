@@ -24,6 +24,8 @@ typedef NS_ENUM(NSInteger, HPNoteDetailMode)
 };
 extern const NSInteger HPNoteDetailModeCount;
 
+extern NSString *const HPNoteTagEscapeString;
+
 @interface HPNote : NSManagedObject
 
 @property (nonatomic, retain) NSNumber * cd_archived;
