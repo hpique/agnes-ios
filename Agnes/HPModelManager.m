@@ -13,6 +13,8 @@
 #import "HPAttachment.h"
 #import "HPData.h"
 #import "HPNote.h"
+#import "HPModelContextImporter.h"
+#import "NSNotification+hp_status.h"
 
 NSString *const HPModelManagerUbiquityIdentityTokenKey = @"HPModelManagerUbiquityIdentityToken";
 NSString *const HPModelManagerPersistentStoreURLKey = @"HPModelManagerPersistentStoreURL";
@@ -40,7 +42,6 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     {
         _storeURL = [[self applicationHiddenDocumentsDirectory] URLByAppendingPathComponent:@"Agnes.sqlite"];
         _modelURL = [[NSBundle mainBundle] URLForResource:@"Agnes" withExtension:@"momd"];
-        [self setupManagedObjectContext];
     }
     return self;
 }
@@ -170,6 +171,13 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     return destinationURL;
 }
 
+- (void)postStatus:(NSString*)message transient:(BOOL)transient
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] hp_postStatus:message transient:transient object:self];
+    });
+}
+
 - (void)removeStore
 {
     NSError* error;
@@ -192,7 +200,7 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     }
     if (!importPersistentStoreURL) return;
     
-    NSManagedObjectContext *importContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSConfinementConcurrencyType];
+    NSManagedObjectContext *importContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     importContext.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
     NSError* error;
     NSPersistentStore *importStore = [importContext.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
@@ -205,90 +213,40 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
         NSLog(@"Failed to load store with error %@, %@", error, [error userInfo]);
         return;
     }
-    [self importNotesAtContext:importContext intoContext:_managedObjectContext];
-    if (!isLocal)
+    if (isLocal)
     {
-        BOOL result = [[NSFileManager defaultManager] removeItemAtURL:importPersistentStoreURL error:&error];
-        if (!result)
-        {
-            NSLog(@"Failed to remove temp persistent store with error %@", error);
-        }
+        [self postStatus:NSLocalizedString(@"Connected to iCloud", @"") transient:YES];
+        [self importNotesFromContext:importContext completion:^{}];
+    }
+    else
+    {
+        [self.delegate modelManager:self confirmCloudStoreImportWithBlock:^(BOOL confirmed) {
+            if (confirmed)
+            {
+                [self postStatus:NSLocalizedString(@"Importing iCloud notes", @"") transient:NO];
+                [self importNotesFromContext:importContext completion:^{
+                    [self postStatus:NSLocalizedString(@"Notes imported", @"") transient:YES];
+                }];
+            }
+            [self removeTempStoreAtURL:importPersistentStoreURL];
+        }];
+        
     }
 }
 
-- (void)importNotesAtContext:(NSManagedObjectContext*)fromContext intoContext:(NSManagedObjectContext*)toContext
+- (void)importNotesFromContext:(NSManagedObjectContext*)fromContext completion:(void(^)())completionBlock
 {
-    HPNoteManager *fromManager = [[HPNoteManager alloc] initWithManagedObjectContext:fromContext];
-    NSArray *notes = fromManager.allObjectsAndAttributes;
-    
-    NSEntityDescription *noteDescription = [NSEntityDescription entityForName:[HPNote entityName] inManagedObjectContext:fromContext];
-    NSArray *noteAttributes = [noteDescription attributesByName].allKeys;
-    
-    NSEntityDescription *attachmentDescription = [NSEntityDescription entityForName:[HPAttachment entityName] inManagedObjectContext:fromContext];
-    NSArray *attachmentAttributes = [attachmentDescription attributesByName].allKeys;
-    
-    NSEntityDescription *dataDescription = [NSEntityDescription entityForName:[HPData entityName] inManagedObjectContext:fromContext];
-    NSArray *dataAttributes = [dataDescription attributesByName].allKeys;
-    
-    HPNoteManager *toManager = [[HPNoteManager alloc] initWithManagedObjectContext:toContext];
-    
-    for (HPNote *note in notes)
+    HPModelContextImporter *importer = [[HPModelContextImporter alloc] init];
+    [importer importNotesAtContext:fromContext intoContext:_managedObjectContext completion:completionBlock];
+}
+
+- (void)removeTempStoreAtURL:(NSURL*)fileURL
+{
+    NSError* error;
+    BOOL result = [[NSFileManager defaultManager] removeItemAtURL:fileURL error:&error];
+    if (!result)
     {
-        @autoreleasepool
-        {
-            __block HPNote *existingNote = nil;
-            __block NSDate *existingModifiedAt = nil;
-            NSString *noteUUID = note.uuid;
-            [toContext performBlockAndWait:^{
-                existingNote = [toManager noteForUUID:noteUUID];
-                if (existingNote)
-                {
-                    existingModifiedAt = existingNote.modifiedAt;
-                }
-            }];
-            
-            if (existingModifiedAt)
-            {
-                if ([existingModifiedAt laterDate:note.modifiedAt] == existingModifiedAt)
-                { // Existing note is fresher
-                    continue;
-                }
-                else
-                {
-                    [toContext performBlockAndWait:^{
-                        [toContext deleteObject:existingNote];
-                    }];
-                }
-            }
-            
-            NSMutableSet *attachments = [NSMutableSet set];
-            for (HPAttachment *attachment in note.attachments)
-            {
-                NSDictionary *attachmentValues = [attachment dictionaryWithValuesForKeys:attachmentAttributes];
-                __block HPAttachment *attachmentCopy;
-                [toContext performBlockAndWait:^{
-                    HPAttachment *attachmentCopy = [HPAttachment insertNewObjectIntoContext:toContext];
-                    [attachmentCopy setValuesForKeysWithDictionary:attachmentValues];
-                }];
-                [attachments addObject:attachmentCopy];
-                
-                if (attachment.data)
-                {
-                    NSDictionary *dataValues = [attachment.data dictionaryWithValuesForKeys:dataAttributes];
-                    [toContext performBlockAndWait:^{
-                        HPData *dataCopy = [HPData insertNewObjectIntoContext:toContext];
-                        [dataCopy setValuesForKeysWithDictionary:dataValues];
-                        attachmentCopy.data = dataCopy;
-                    }];
-                }
-            }
-            NSDictionary *noteValues = [note dictionaryWithValuesForKeys:noteAttributes];
-            [toContext performBlockAndWait:^{
-                HPNote *noteCopy = [HPNote insertNewObjectIntoContext:toContext];
-                [noteCopy setValuesForKeysWithDictionary:noteValues];
-                [noteCopy setCd_attachments:attachments];
-            }];
-        }
+        NSLog(@"Failed to remove temp persistent store with error %@", error);
     }
 }
 

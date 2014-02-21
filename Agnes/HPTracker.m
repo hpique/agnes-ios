@@ -19,7 +19,9 @@
 
 + (void)initialize
 {
+#if !(DEBUG)
     [GAI sharedInstance].trackUncaughtExceptions = YES;
+#endif
 }
 
 - (id)init

@@ -9,17 +9,31 @@
 #import <Foundation/Foundation.h>
 @import CoreData;
 
+@protocol HPModelManagerDelegate;
+
 extern NSString *const HPModelManagerWillReplaceModelNotification;
 extern NSString *const HPModelManagerDidReplaceModelNotification;
 
 @interface HPModelManager : NSObject
 
-- (id)init;
+@property (nonatomic, weak) id<HPModelManagerDelegate> delegate;
 
 @property (nonatomic,strong,readonly) NSManagedObjectContext *managedObjectContext;
 
+- (id)init;
+
+- (void)setupManagedObjectContext;
+
 - (void)importTutorialIfNeeded;
 
+- (void)importNotesFromContext:(NSManagedObjectContext*)fromContext completion:(void(^)())completionBlock;
+
 - (void)saveContext;
+
+@end
+
+@protocol HPModelManagerDelegate <NSObject>
+
+- (void)modelManager:(HPModelManager*)modelManager confirmCloudStoreImportWithBlock:(void(^)(BOOL confirmed))confirmBlock;
 
 @end
