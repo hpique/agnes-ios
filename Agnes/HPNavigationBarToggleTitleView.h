@@ -12,6 +12,6 @@
 
 - (void)setTitle:(NSString*)title;
 
-- (void)setMode:(NSString*)mode animated:(BOOL)animated;
+- (void)setSubtitle:(NSString*)mode animated:(BOOL)animated transient:(BOOL)transient;
 
 @end

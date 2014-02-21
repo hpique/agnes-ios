@@ -12,7 +12,7 @@
 
 @implementation HPNavigationBarToggleTitleView {
     UILabel *_titleLabel;
-    UILabel *_modeLabel;
+    UILabel *_subtitleLabel;
     
     NSString *_title;
     UIFont *_titleFont;
@@ -45,22 +45,22 @@
     _titleLabel = [[UILabel alloc] init];
     _titleLabel.textAlignment = NSTextAlignmentCenter;
     _titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    _modeLabel = [[UILabel alloc] init];
-    _modeLabel.textAlignment = NSTextAlignmentCenter;
-    _modeLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    _subtitleLabel = [[UILabel alloc] init];
+    _subtitleLabel.textAlignment = NSTextAlignmentCenter;
+    _subtitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
     [self applyFonts];
     [self applyPreferences];
     
     [self addSubview:_titleLabel];
-    [self addSubview:_modeLabel];
-    NSDictionary *views = NSDictionaryOfVariableBindings(_titleLabel, _modeLabel);
+    [self addSubview:_subtitleLabel];
+    NSDictionary *views = NSDictionaryOfVariableBindings(_titleLabel, _subtitleLabel);
     {
         NSArray *constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"|[_titleLabel]|" options:kNilOptions metrics:nil views:views];
         [self addConstraints:constraints];
     }
     {
-        NSArray *constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"|[_modeLabel]|" options:kNilOptions metrics:nil views:views];
+        NSArray *constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"|[_subtitleLabel]|" options:kNilOptions metrics:nil views:views];
         [self addConstraints:constraints];
     }
     {
@@ -68,7 +68,7 @@
         [self addConstraint:contraint];
     }
     {
-        NSLayoutConstraint *contraint = [NSLayoutConstraint constraintWithItem:_modeLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_titleLabel attribute:NSLayoutAttributeBottom multiplier:1 constant:-4];
+        NSLayoutConstraint *contraint = [NSLayoutConstraint constraintWithItem:_subtitleLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_titleLabel attribute:NSLayoutAttributeBottom multiplier:1 constant:-4];
         [self addConstraint:contraint];
     }
     
@@ -90,10 +90,10 @@
     _title = title;
     _titleLabel.font = _titleFont;
     _titleLabel.text = title;
-    _modeLabel.text = nil;
+    _subtitleLabel.text = nil;
 }
 
-- (void)setMode:(NSString*)mode animated:(BOOL)animated
+- (void)setSubtitle:(NSString*)mode animated:(BOOL)animated transient:(BOOL)transient
 {
     [_restoreTitleTimer invalidate];
     const NSTimeInterval duration = animated ? 0.2 : 0;
@@ -105,16 +105,19 @@
         {
             _titleLabel.font = [_titleFont fontWithSize:_titleFont.pointSize * 0.75];
             _titleLabel.text = mode;
-            _modeLabel.text = nil;
+            _subtitleLabel.text = nil;
         }
         else
         {
             _titleLabel.font = _titleFont;
             _titleLabel.text = _title;
-            _modeLabel.text = mode;
+            _subtitleLabel.text = mode;
         }
     } completion:^(BOOL finished) {}];
-    _restoreTitleTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(restoreTitleFromTimer:) userInfo:nil repeats:NO];
+    if (transient)
+    {
+        _restoreTitleTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(restoreTitleFromTimer:) userInfo:nil repeats:NO];
+    }
 }
 
 #pragma mark Private
@@ -124,7 +127,7 @@
     HPFontManager *fonts = [HPFontManager sharedManager];
     _titleFont = fonts.fontForNavigationBarTitle;
     _titleLabel.font = _titleFont;
-    _modeLabel.font = fonts.fontForNavigationBarDetail;
+    _subtitleLabel.font = fonts.fontForNavigationBarDetail;
 }
 
 - (void)applyPreferences
@@ -132,7 +135,7 @@
     HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
     UIColor *barForegroundColor = preferences.barForegroundColor;
     _titleLabel.textColor = barForegroundColor;
-    _modeLabel.textColor = barForegroundColor;
+    _subtitleLabel.textColor = barForegroundColor;
 }
 
 - (void)restoreTitleFromTimer:(NSTimer*)timer

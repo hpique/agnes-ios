@@ -266,7 +266,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     _sortMode = [values[index] intValue];
     [HPPreferencesManager sharedManager].indexSortMode = _sortMode;
     NSString *modeString = NSStringFromIndexSortMode(_sortMode);
-    [_titleView setMode:modeString animated:YES];
+    [_titleView setSubtitle:modeString animated:YES transient:YES];
     [self reloadData];
 }
 

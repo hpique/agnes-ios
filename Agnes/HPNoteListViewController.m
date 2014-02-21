@@ -504,7 +504,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)updateSortMode:(BOOL)animated
 {
     NSString *criteriaDescription = [self descriptionForSortMode:_sortMode];
-    [_titleView setMode:criteriaDescription animated:animated];
+    [_titleView setSubtitle:criteriaDescription animated:animated transient:YES];
     const HPTagSortMode sortMode = _sortMode;
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
         [cell setDetailMode:sortMode animated:animated];
