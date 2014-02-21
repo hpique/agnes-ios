@@ -27,39 +27,37 @@
 {
     _fromContext = fromContext;
     _toContext = toContext;
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        __block NSArray *notes;
-        [fromContext performBlockAndWait:^{
-            HPNoteManager *fromManager = [[HPNoteManager alloc] initWithManagedObjectContext:fromContext];
-            notes = fromManager.allObjectsAndAttributes;
-            
-            NSEntityDescription *noteDescription = [NSEntityDescription entityForName:[HPNote entityName] inManagedObjectContext:fromContext];
-            _noteAttributes = [noteDescription attributesByName].allKeys;
-            
-            NSEntityDescription *attachmentDescription = [NSEntityDescription entityForName:[HPAttachment entityName] inManagedObjectContext:fromContext];
-            _attachmentAttributes = [attachmentDescription attributesByName].allKeys;
-            
-            NSEntityDescription *dataDescription = [NSEntityDescription entityForName:[HPData entityName] inManagedObjectContext:fromContext];
-            _dataAttributes = [dataDescription attributesByName].allKeys;
-        }];
-        [toContext performBlockAndWait:^{
-            _toManager = [[HPNoteManager alloc] initWithManagedObjectContext:toContext];
-            for (HPNote *note in notes)
-            {
-                @autoreleasepool
-                {
-                    if ([self findOrDeleteDuplicateOfNote:note]) continue;
-                    [self importNote:note];
-                }
-            }
-        }];
-        if (completionBlock)
+    __block NSArray *notes;
+    [fromContext performBlockAndWait:^{
+        HPNoteManager *fromManager = [[HPNoteManager alloc] initWithManagedObjectContext:fromContext];
+        notes = fromManager.allObjectsAndAttributes;
+        
+        NSEntityDescription *noteDescription = [NSEntityDescription entityForName:[HPNote entityName] inManagedObjectContext:fromContext];
+        _noteAttributes = [noteDescription attributesByName].allKeys;
+        
+        NSEntityDescription *attachmentDescription = [NSEntityDescription entityForName:[HPAttachment entityName] inManagedObjectContext:fromContext];
+        _attachmentAttributes = [attachmentDescription attributesByName].allKeys;
+        
+        NSEntityDescription *dataDescription = [NSEntityDescription entityForName:[HPData entityName] inManagedObjectContext:fromContext];
+        _dataAttributes = [dataDescription attributesByName].allKeys;
+    }];
+    [toContext performBlockAndWait:^{
+        _toManager = [[HPNoteManager alloc] initWithManagedObjectContext:toContext];
+        for (HPNote *note in notes)
         {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock();
-            });
+            @autoreleasepool
+            {
+                if ([self findOrDeleteDuplicateOfNote:note]) continue;
+                [self importNote:note];
+            }
         }
-    });
+    }];
+    if (completionBlock)
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock();
+        });
+    }
 }
 
 #pragma mark Private
