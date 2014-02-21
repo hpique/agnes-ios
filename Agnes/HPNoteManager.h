@@ -32,10 +32,6 @@
 
 - (HPNote*)noteForUUID:(NSString*)uuid;
 
-#pragma mark Sorting notes
-
-+ (NSArray*)sortedNotes:(NSArray*)notes mode:(HPTagSortMode)mode tag:(HPTag*)tag;
-
 #pragma mark Blank notes
 
 - (HPNote*)blankNoteWithTag:(HPTag*)tag;

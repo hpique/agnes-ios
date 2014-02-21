@@ -219,8 +219,9 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 - (NSArray*)notes:(BOOL)archived
 {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == %d", NSStringFromSelector(@selector(cd_archived)), archived];
-    NSSet *notes = [self.tag.cd_notes filteredSetUsingPredicate:predicate];
-    return [notes allObjects];
+    NSSet *noteSet = [self.tag.cd_notes filteredSetUsingPredicate:predicate];
+    NSArray *sortedNotes = [self sortedNotesFromSet:noteSet];
+    return sortedNotes;
 }
 
 - (void)setSortMode:(HPTagSortMode)sortMode
@@ -247,6 +248,77 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
+}
+
+- (NSArray*)sortedNotesFromSet:(NSSet*)set
+{
+    NSArray *notes = set.allObjects;
+    HPTag *tag = self.tag;
+    switch (tag.sortMode)
+    {
+        case HPTagSortModeOrder:
+        {
+            return [notes sortedArrayWithOptions:0 usingComparator:^NSComparisonResult(HPNote *note1, HPNote *note2) {
+                CGFloat order1 = [note1 orderInTag:tag.name];
+                CGFloat order2 = [note2 orderInTag:tag.name];
+                if (order1 < order2) return NSOrderedAscending;
+                if (order1 > order2) return NSOrderedDescending;
+                return [note2.modifiedAt compare:note1.modifiedAt];
+            }];
+            break;
+        }
+        case HPTagSortModeAlphabetical:
+        {
+            static NSSortDescriptor *sortDescriptor = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(title)) ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
+            });
+            return [self sortedNotesFromArray:notes descriptor:sortDescriptor];
+            break;
+        }
+        case HPTagSortModeModifiedAt:
+        {
+            static NSSortDescriptor *sortDescriptor = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
+            });
+            return [self sortedNotesFromArray:notes descriptor:sortDescriptor];
+            break;
+        }
+        case HPTagSortModeViews:
+        {
+            static NSSortDescriptor *sortDescriptor = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(views)) ascending:NO];
+            });
+            return [self sortedNotesFromArray:notes descriptor:sortDescriptor];
+            break;
+        }
+        case HPTagSortModeTag:
+        {
+            static NSSortDescriptor *sortDescriptor = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(firstTagName)) ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
+            });
+            return [self sortedNotesFromArray:notes descriptor:sortDescriptor];
+            break;
+        }
+    }
+    return notes;
+}
+
+- (NSArray*)sortedNotesFromArray:(NSArray*)notes descriptor:(NSSortDescriptor*)sortDescriptor
+{
+    static NSSortDescriptor *modifiedAtSortDescriptor = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        modifiedAtSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
+    });
+    return [notes sortedArrayUsingDescriptors:@[sortDescriptor, modifiedAtSortDescriptor]];
 }
 
 #pragma mark Notifications
@@ -317,9 +389,10 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     if (archived)
     {
         HPTag *archiveTag = [HPTagManager sharedManager].archiveTag;
-        return archiveTag.cd_notes.allObjects;
+        NSArray *sortedNotes = [self sortedNotesFromSet:archiveTag.cd_notes];
+        return sortedNotes;
     }
-    return self.tag.cd_notes.allObjects;
+    return [super notes:archived];
 }
 
 - (NSString*)indexTitle
@@ -343,7 +416,8 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 - (NSArray*)notes:(BOOL)archived
 {
-    return self.tag.cd_notes.allObjects;
+    NSArray *sortedNotes = [self sortedNotesFromSet:self.tag.cd_notes];
+    return sortedNotes;
 }
 
 - (NSString*)indexTitle

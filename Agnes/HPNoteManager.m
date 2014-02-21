@@ -117,64 +117,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 #pragma mark Sorting notes
 
-+ (NSArray*)sortedNotes:(NSArray*)notes mode:(HPTagSortMode)mode tag:(HPTag*)tag
-{
-    switch (mode)
-    {
-        case HPTagSortModeOrder:
-        {
-            return [notes sortedArrayWithOptions:0 usingComparator:^NSComparisonResult(HPNote *note1, HPNote *note2) {
-                CGFloat order1 = [note1 orderInTag:tag.name];
-                CGFloat order2 = [note2 orderInTag:tag.name];
-                if (order1 < order2) return NSOrderedAscending;
-                if (order1 > order2) return NSOrderedDescending;
-                return [note2.modifiedAt compare:note1.modifiedAt];
-            }];
-            break;
-        }
-        case HPTagSortModeAlphabetical:
-        {
-            static NSSortDescriptor *sortDescriptor = nil;
-            static dispatch_once_t onceToken;
-            dispatch_once(&onceToken, ^{
-                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(title)) ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
-            });
-            return [HPNoteManager sortedNotes:notes withDescriptor:sortDescriptor];
-            break;
-        }
-        case HPTagSortModeModifiedAt:
-        {
-            static NSSortDescriptor *sortDescriptor = nil;
-            static dispatch_once_t onceToken;
-            dispatch_once(&onceToken, ^{
-                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
-            });
-            return [HPNoteManager sortedNotes:notes withDescriptor:sortDescriptor];
-            break;
-        }
-        case HPTagSortModeViews:
-        {
-            static NSSortDescriptor *sortDescriptor = nil;
-            static dispatch_once_t onceToken;
-            dispatch_once(&onceToken, ^{
-                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(views)) ascending:NO];
-            });
-            return [HPNoteManager sortedNotes:notes withDescriptor:sortDescriptor];
-            break;
-        }
-        case HPTagSortModeTag:
-        {
-            static NSSortDescriptor *sortDescriptor = nil;
-            static dispatch_once_t onceToken;
-            dispatch_once(&onceToken, ^{
-                sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(firstTagName)) ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)];
-            });
-            return [HPNoteManager sortedNotes:notes withDescriptor:sortDescriptor];
-            break;
-        }
-    }
-}
-
 #pragma mark Blank notes
 
 - (HPNote*)blankNoteWithTag:(HPTag*)tag
@@ -261,16 +203,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     NSString *key = [NSString stringWithFormat:format, i];
     NSString *value = NSLocalizedString(key, @"");
     return [value isEqualToString:key] ? nil : value;
-}
-
-+ (NSArray*)sortedNotes:(NSArray*)notes withDescriptor:(NSSortDescriptor*)sortDescriptor
-{
-    static NSSortDescriptor *modifiedAtSortDescriptor = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        modifiedAtSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(modifiedAt)) ascending:NO];
-    });
-    return [notes sortedArrayUsingDescriptors:@[sortDescriptor, modifiedAtSortDescriptor]];
 }
 
 @end

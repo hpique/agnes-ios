@@ -83,6 +83,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     if (self)
     {
         _indexItem = indexItem;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(indexItemDidChangeNotification:) name:HPIndexItemDidChangeNotification object:_indexItem];
     }
     return self;
 }
@@ -90,6 +91,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)dealloc
 {
     [self stopObserving];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPIndexItemDidChangeNotification object:_indexItem];
 }
 
 - (void)viewDidLoad
@@ -178,10 +180,12 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)setIndexItem:(HPIndexItem *)indexItem
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPIndexItemDidChangeNotification object:_indexItem];
     _indexItem = indexItem;
     [self updateIndexItem];
     [self reloadNotesAnimated:NO];
     [_notesTableView setContentOffset:CGPointMake(0, 0) animated:NO];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(indexItemDidChangeNotification:) name:HPIndexItemDidChangeNotification object:_indexItem];
 }
 
 - (void)showBlankNote
@@ -280,8 +284,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     NSInteger index = [values indexOfObject:@(_sortMode)];
     index = (index + 1) % values.count;
     _sortMode = [values[index] intValue];
-    self.indexItem.sortMode = _sortMode;
-    [self reloadNotesAnimated:YES];
+    self.indexItem.sortMode = _sortMode; // Triggers a HPIndexItemDidChangeNotification that causes a reload
     [self updateSortMode:YES /* animated */];
 }
 
@@ -388,7 +391,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     NSArray *previousNotes = _notes;
     NSArray *notes = self.indexItem.notes;
-    notes = [HPNoteManager sortedNotes:notes mode:_sortMode tag:self.indexItem.tag];
     _notes = [NSMutableArray arrayWithArray:notes];
     
     if (animated)
@@ -832,11 +834,22 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 #pragma mark - Notifications
 
+- (void)indexItemDidChangeNotification:(NSNotification*)notification
+{
+    if (_ignoreNotesDidChangeNotification) return; // Controller will reflect or already reflected the change
+    if (self.transitioning || !_visible) return; // Changes will be reflected in viewDidAppear
+    
+    [self reloadNotesAnimated:YES];
+}
+
 - (void)notesDidChangeNotification:(NSNotification*)notification
 {
     if (_ignoreNotesDidChangeNotification) return; // Controller will reflect or already reflected the change
     NSDictionary *userInfo = notification.userInfo;
+
+    // Only consider updated notes. Insertions and deletions are handled in indexItemDidChangeNotification:
     NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
+    if (updated.count == 0) return;
     
     if (self.transitioning || !_visible)
     {
@@ -858,6 +871,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (void)willReplaceModelNotification:(NSNotification*)notification
 {
     [self stopObserving];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPIndexItemDidChangeNotification object:_indexItem];
     self.navigationItem.leftBarButtonItem.enabled = NO;
     self.navigationItem.rightBarButtonItem.enabled = NO;
     _titleView.userInteractionEnabled = NO;

@@ -233,7 +233,12 @@
     UILabel *bodyLabel = cell.bodyLabel;
     const BOOL handleBody = bodyLabel.hidden == NO && bodyLabel.text.length > 0;
     const CGRect titleRect = [self rectForLabel:titleLabel inTextView:noteTextView];
-    UIView *titleCover = [self coverView:noteTextView rect:titleRect color:[UIColor whiteColor] context:transitionContext];
+    const BOOL handleTitle = !CGRectIsEmpty(titleRect);
+    UIView *titleCover = nil;
+    if (handleTitle)
+    {
+        titleCover = [self coverView:noteTextView rect:titleRect color:[UIColor whiteColor] context:transitionContext];
+    }
 
     CGRect bodyRect;
     UIView *bodyCover;
@@ -254,8 +259,11 @@
         thumbnailViewPlaceholder = [self addImageViewWithImage:textAttachment.image rect:thumbnailRect fromView:noteTextView context:transitionContext];
     }
     
-    UIView *titlePlaceholder = [self fakeView:noteTextView rect:titleRect failsafeView:titleLabel context:transitionContext];
-    
+    UIView *titlePlaceholder = nil;
+    if (handleTitle)
+    {
+        titlePlaceholder = [self fakeView:noteTextView rect:titleRect failsafeView:titleLabel context:transitionContext];
+    }
     UIView *bodyPlaceholder;
     if (handleBody)
     {
@@ -268,8 +276,14 @@
     NSTimeInterval secondDuration = duration - firstDuration;
     
     [UIView animateWithDuration:firstDuration animations:^{
-        [self translateView:titlePlaceholder toView:titleLabel containerView:containerView];
-        [self translateView:bodyPlaceholder toView:bodyLabel containerView:containerView];
+        if (handleTitle)
+        {
+            [self translateView:titlePlaceholder toView:titleLabel containerView:containerView];
+        }
+        if (handleBody)
+        {
+            [self translateView:bodyPlaceholder toView:bodyLabel containerView:containerView];
+        }
         if (thumbnailViewPlaceholder)
         {
             UIImageView *thumbnailView = cell.thumbnailView;
@@ -412,6 +426,7 @@
         visibleRange = [textView.text lineRangeForRange:NSMakeRange(0, 0)];
     }
     NSString *substring = label.text.length >= NSMaxRange(visibleRange) ? [label.text substringWithRange:visibleRange] : @"";
+    if (!substring) return CGRectZero;
     return [textView hp_rectForSubstring:substring];
 }
 
