@@ -129,7 +129,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     [self applyFonts];
     
-    [self updateNotes:NO /* animated */ reloadNotes:[NSSet set]];
+    [self reloadNotesAnimated:NO];
     [self updateIndexItem];
 
     [self startObserving];
@@ -147,7 +147,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [super viewDidAppear:animated];
     if (self.transitioning)
     {
-        [self updateNotes:animated reloadNotes:[NSSet set]];
+        [self reloadNotesAnimated:animated];
     }
     self.transitioning = NO;
 }
@@ -180,7 +180,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     _indexItem = indexItem;
     [self updateIndexItem];
-    [self updateNotes:NO reloadNotes:[NSSet set]];
+    [self reloadNotesAnimated:NO];
     [_notesTableView setContentOffset:CGPointMake(0, 0) animated:NO];
 }
 
@@ -281,7 +281,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     index = (index + 1) % values.count;
     _sortMode = [values[index] intValue];
     self.indexItem.sortMode = _sortMode;
-    [self updateNotes:YES /* animated */ reloadNotes:[NSSet set]];
+    [self reloadNotesAnimated:YES];
     [self updateSortMode:YES /* animated */];
 }
 
@@ -376,6 +376,69 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     return nil;
 }
 
+- (void)reloadNotesAnimated:(BOOL)animated
+{
+    [self reloadNotesWithUpdates:[NSSet set] animated:animated];
+}
+
+- (void)reloadNotesWithUpdates:(NSSet*)updatedNotes animated:(BOOL)animated
+{
+    updatedNotes = [updatedNotes setByAddingObjectsFromSet:_pendingUpdatedNotes];
+    [_pendingUpdatedNotes removeAllObjects];
+    
+    NSArray *previousNotes = _notes;
+    NSArray *notes = self.indexItem.notes;
+    notes = [HPNoteManager sortedNotes:notes mode:_sortMode tag:self.indexItem.tag];
+    _notes = [NSMutableArray arrayWithArray:notes];
+    
+    if (animated)
+    {
+        NSArray *previousData = previousNotes ? @[previousNotes] : nil;
+        [_notesTableView hp_reloadChangesWithPreviousData:previousData currentData:@[_notes] keyBlock:^id<NSCopying>(HPNote *note) {
+            return note.objectID;
+        } reloadBlock:^BOOL(HPNote *note) {
+            // Only reload remaining notes if the cell height changed
+            if (![updatedNotes containsObject:note]) return NO;
+            NSInteger index = [previousNotes indexOfObject:note];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
+            if (![[_notesTableView indexPathsForVisibleRows] containsObject:indexPath]) return NO;
+            UITableViewCell *cell = [_notesTableView cellForRowAtIndexPath:indexPath];
+            return cell.frame.size.height != [HPNoteTableViewCell heightForNote:note width:cell.frame.size.width tag:self.indexItem.tag];
+        }];
+    }
+    else
+    {
+        [_notesTableView reloadData];
+    }
+    
+    [self updateEmptyView:animated];
+    
+    if (!_searching || _searchString == nil) return;
+    
+    UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
+    if (animated)
+    {
+        NSArray *previousSearchResults = _searchResults;
+        NSArray *previousArchivedSearchResults = _archivedSearchResults;
+        NSArray *previousData = _searchResults == nil || _archivedSearchResults == nil ? nil : @[previousSearchResults, previousArchivedSearchResults];
+        
+        _searchResults = [self notesWithSearchString:_searchString archived:NO];
+        _archivedSearchResults = [self notesWithSearchString:_searchString archived:YES];
+        
+        [searchTableView hp_reloadChangesWithPreviousData:previousData
+                                              currentData:@[_searchResults, _archivedSearchResults]
+                                                 keyBlock:^id<NSCopying>(HPNote *note) {
+                                                     return note.objectID;
+                                                 } reloadBlock:^BOOL(HPNote *note) {
+                                                     return [updatedNotes containsObject:note];
+                                                 }];
+    }
+    else
+    {
+        [searchTableView reloadData];
+    }
+}
+
 - (void)removeNoteInCell:(HPNoteListTableViewCell*)cell modelBlock:(void (^)())block
 {
     NSIndexPath *indexPath = [_notesTableView indexPathForCell:cell];
@@ -418,64 +481,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     else
     {
         _emptyListView.hidden = !empty;
-    }
-}
-
-- (void)updateNotes:(BOOL)animated reloadNotes:(NSSet*)reloadNotes
-{
-    reloadNotes = [reloadNotes setByAddingObjectsFromSet:_pendingUpdatedNotes];
-    [_pendingUpdatedNotes removeAllObjects];
-    
-    NSArray *previousNotes = _notes;
-    NSArray *notes = self.indexItem.notes;
-    notes = [HPNoteManager sortedNotes:notes mode:_sortMode tag:self.indexItem.tag];
-    _notes = [NSMutableArray arrayWithArray:notes];
-    
-    if (animated)
-    {
-        NSArray *previousData = previousNotes ? @[previousNotes] : nil;
-        [_notesTableView hp_reloadChangesWithPreviousData:previousData currentData:@[_notes] keyBlock:^id<NSCopying>(HPNote *note) {
-            return note.objectID;
-        } reloadBlock:^BOOL(HPNote *note) {
-            // Only reload remaining notes if the cell height changed
-            if (![reloadNotes containsObject:note]) return NO;
-            NSInteger index = [previousNotes indexOfObject:note];
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
-            if (![[_notesTableView indexPathsForVisibleRows] containsObject:indexPath]) return NO;
-            UITableViewCell *cell = [_notesTableView cellForRowAtIndexPath:indexPath];
-            return cell.frame.size.height != [HPNoteTableViewCell heightForNote:note width:cell.frame.size.width tag:self.indexItem.tag];
-        }];
-    }
-    else
-    {
-        [_notesTableView reloadData];
-    }
-    
-    [self updateEmptyView:animated];
-    
-    if (!_searching || _searchString == nil) return;
-    
-    UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
-    if (animated)
-    {
-        NSArray *previousSearchResults = _searchResults;
-        NSArray *previousArchivedSearchResults = _archivedSearchResults;
-        NSArray *previousData = _searchResults == nil || _archivedSearchResults == nil ? nil : @[previousSearchResults, previousArchivedSearchResults];
-
-        _searchResults = [self notesWithSearchString:_searchString archived:NO];
-        _archivedSearchResults = [self notesWithSearchString:_searchString archived:YES];
-        
-        [searchTableView hp_reloadChangesWithPreviousData:previousData
-                                              currentData:@[_searchResults, _archivedSearchResults]
-                                                 keyBlock:^id<NSCopying>(HPNote *note) {
-                                                     return note.objectID;
-                                              } reloadBlock:^BOOL(HPNote *note) {
-                                                  return [reloadNotes containsObject:note];
-                                              }];
-    }
-    else
-    {
-        [searchTableView reloadData];
     }
 }
 
@@ -839,7 +844,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
         return;
     }
     
-    [self updateNotes:YES /* animated */ reloadNotes:updated];
+    [self reloadNotesWithUpdates:updated animated:YES];
 }
 
 - (void)didChangeFontsNotification:(NSNotification*)notification
