@@ -316,7 +316,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
         NSAssert(attributes, @"Failed to get file attributes with error %@", error.localizedDescription);
         unsigned long long fileSize = attributes.fileSize;
-        static unsigned long long MaxFileSize = 5 * 1024 * 1024; // 5MB
+        static unsigned long long MaxFileSize = 8 * 1024 * 1024; // 8MB
         if (fileSize < MaxFileSize)
         {
             NSData *data = [NSData dataWithContentsOfURL:fileURL];
@@ -324,7 +324,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
             {
                 MFMailComposeViewController *vc = [[MFMailComposeViewController alloc] init];
                 vc.mailComposeDelegate = self;
-                NSString *subject = [NSString stringWithFormat:NSLocalizedString(@"Agnes %@ export", @""), self.indexItem.title];
+                NSString *subject = [NSString stringWithFormat:NSLocalizedString(@"%@ notes", @""), self.indexItem.title];
                 [vc setSubject:subject];
                 [vc addAttachmentData:data mimeType:@"application/zip" fileName:@"notes.zip"];
                 [self presentViewController:vc animated:YES completion:nil];
