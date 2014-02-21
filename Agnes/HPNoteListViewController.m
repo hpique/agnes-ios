@@ -17,6 +17,7 @@
 #import "HPIndexItem.h"
 #import "HPPreferencesManager.h"
 #import "HPNoteExporter.h"
+#import "HPNoteImporter.h"
 #import "HPReorderTableView.h"
 #import "HPNoteListDetailTransitionAnimator.h"
 #import "HPNoteNavigationController.h"
@@ -30,6 +31,7 @@
 #import "UIViewController+MMDrawerController.h"
 #import "UIColor+iOS7Colors.h"
 #import "UIImage+hp_utils.h"
+#import "NSNotification+hp_status.h"
 #import <MessageUI/MessageUI.h>
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
@@ -461,6 +463,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(statusNotification:) name:HPStatusNotification object:nil];
 }
 
 - (void)stopObserving
@@ -468,6 +471,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPStatusNotification object:nil];
 }
 
 - (void)updateEmptyView:(BOOL)animated
@@ -871,6 +875,13 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     [_notesTableView reloadData];
     UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
     [searchTableView reloadData];
+}
+
+- (void)statusNotification:(NSNotification*)notification
+{
+    NSString *subtitle = notification.hp_statuslocalizedMessage;
+    const BOOL transient = notification.hp_statusTransient;
+    [_titleView setSubtitle:subtitle animated:YES transient:transient];
 }
 
 - (void)willReplaceModelNotification:(NSNotification*)notification

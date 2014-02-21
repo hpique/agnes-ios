@@ -77,6 +77,7 @@
 		87AA3D1418A0026400FBEAAF /* HPAttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3D1318A0026400FBEAAF /* HPAttachmentManager.m */; };
 		87AA3D1718A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 87AA3D1618A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m */; };
 		87AD2F83188E900B0065EEBA /* HPNoteListTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */; };
+		87CAF3AC18B7673E004380BB /* NSNotification+hp_status.m in Sources */ = {isa = PBXBuildFile; fileRef = 87CAF3AB18B7673E004380BB /* NSNotification+hp_status.m */; };
 		87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 87D02E18188ECBA600273DEC /* HPNoteExporter.m */; };
 		87DA062918A27ADC00762E12 /* HPModelManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DA062818A27ADC00762E12 /* HPModelManager.m */; };
 		87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37E3D188B57C0000333EA /* HPPreferencesManager.m */; };
@@ -232,6 +233,8 @@
 		87AA3D1518A0E22800FBEAAF /* HPNoFirstResponderActionSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoFirstResponderActionSheet.h; sourceTree = "<group>"; };
 		87AA3D1618A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoFirstResponderActionSheet.m; sourceTree = "<group>"; };
 		87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteListTableViewCell.xib; sourceTree = "<group>"; };
+		87CAF3AA18B7673E004380BB /* NSNotification+hp_status.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotification+hp_status.h"; sourceTree = "<group>"; };
+		87CAF3AB18B7673E004380BB /* NSNotification+hp_status.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNotification+hp_status.m"; sourceTree = "<group>"; };
 		87D02E17188ECBA600273DEC /* HPNoteExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteExporter.h; sourceTree = "<group>"; };
 		87D02E18188ECBA600273DEC /* HPNoteExporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteExporter.m; sourceTree = "<group>"; };
 		87DA062618A27A6E00762E12 /* Agnes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Agnes.entitlements; sourceTree = "<group>"; };
@@ -618,6 +621,8 @@
 				871429F818965BD600DA588F /* NSString+hp_utils.m */,
 				87A6906E18B4CA8600F97E13 /* HPTracker.h */,
 				87A6906F18B4CA8600F97E13 /* HPTracker.m */,
+				87CAF3AA18B7673E004380BB /* NSNotification+hp_status.h */,
+				87CAF3AB18B7673E004380BB /* NSNotification+hp_status.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -806,6 +811,7 @@
 				8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */,
 				87393C5318A55F0D006AB087 /* UITextView+hp_utils.m in Sources */,
 				87AA3CF6189C13E100FBEAAF /* HPImageZoomAnimationController.m in Sources */,
+				87CAF3AC18B7673E004380BB /* NSNotification+hp_status.m in Sources */,
 				87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */,
 				873E228518AA447700E7919C /* UIView+hp_utils.m in Sources */,
 				8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */,

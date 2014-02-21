@@ -13,6 +13,7 @@
 #import "HPData.h"
 #import "MHWDirectoryWatcher.h"
 #import "SSZipArchive.h"
+#import "NSNotification+hp_status.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 
 @implementation HPNoteImporter {
@@ -114,11 +115,27 @@
     {
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'txt'"];
         NSArray *txtContents = [allContents filteredArrayUsingPredicate:predicate];
-        for (NSString *fileName in txtContents)
+        if (txtContents.count > 0)
         {
-            NSString *filePath = [path stringByAppendingPathComponent:fileName];
-            BOOL success = [self importNoteAtPath:filePath error:error];
-            if (!success) return NO;
+            [self postStatus:NSLocalizedString(@"Importing notes", @"") transient:YES];
+            __block BOOL success = YES;
+            [txtContents enumerateObjectsUsingBlock:^(NSString *fileName, NSUInteger idx, BOOL *stop) {
+                NSString *format = NSLocalizedString(@"Importing note %ld of %ld", @"");
+                NSString *message = [NSString stringWithFormat:format, (long)idx + 1, txtContents.count];
+                [self postStatus:message transient:YES];
+                
+                NSString *filePath = [path stringByAppendingPathComponent:fileName];
+                success = [self importNoteAtPath:filePath error:error];
+                if (!success) *stop = YES;
+            }];
+            if (success)
+            {
+                [self postStatus:NSLocalizedString(@"Import finished", @"") transient:YES];
+            }
+            else
+            {
+                [self postStatus:NSLocalizedString(@"Import finished with errors", @"") transient:YES];
+            }
         }
     }
     {
@@ -126,9 +143,17 @@
         NSArray *zipContents = [allContents filteredArrayUsingPredicate:predicate];
         for (NSString *fileName in zipContents)
         {
+            [self postStatus:NSLocalizedString(@"Importing from archive", @"") transient:YES];
             NSString *filePath = [path stringByAppendingPathComponent:fileName];
             BOOL success = [self importNotesFromArchiveAtPath:filePath error:error];
-            if (!success) return NO;
+            if (success)
+            {
+                [self postStatus:NSLocalizedString(@"Import finished", @"") transient:YES];
+            }
+            else
+            {
+                [self postStatus:NSLocalizedString(@"Import finished with errors", @"") transient:YES];
+            }
         }
     }
     return YES;
@@ -142,8 +167,11 @@
 
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'txt'"];
     NSArray *txtContents = [allContents filteredArrayUsingPredicate:predicate];
-    for (NSString *fileName in txtContents)
-    {
+    [txtContents enumerateObjectsUsingBlock:^(NSString *fileName, NSUInteger idx, BOOL *stop) {
+        NSString *format = NSLocalizedString(@"Preparing note %ld of %ld", @"");
+        NSString *message = [NSString stringWithFormat:format, (long)idx + 1, txtContents.count];
+        [self postStatus:message transient:YES];
+        
         NSString *filePath = [path stringByAppendingPathComponent:fileName];
         HPNoteImport *noteImport = [self noteImportFromPath:filePath error:error];
         BOOL removed = [fileManager removeItemAtPath:filePath error:error];
@@ -151,10 +179,15 @@
         {
             NSLog(@"Remove file failed with error %@", [*error localizedDescription]);
         }
-        if (!noteImport) return NO;
+        if (!noteImport)
+        {
+            *stop = YES;
+            return;
+        }
         [noteImports addObject:noteImport];
-    }
-
+    }];
+    [self postStatus:NSLocalizedString(@"Importing notes", @"") transient:YES];
+    
     HPNoteManager *noteManager = [HPNoteManager sharedManager];
     dispatch_sync(dispatch_get_main_queue(), ^{
         [noteManager importNotes:noteImports];
@@ -247,6 +280,13 @@
 
     HPNoteImport *noteImport = [HPNoteImport noteImportWithText:mutableText createdAt:createdAt modifiedAt:modifiedAt attachments:attachments];
     return noteImport;
+}
+
+- (void)postStatus:(NSString*)message transient:(BOOL)transient
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] hp_postStatus:message transient:transient object:self];
+    });
 }
 
 @end
