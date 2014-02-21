@@ -42,4 +42,6 @@
 
 - (NSString*)hp_tagInRange:(NSRange)selectedRange enclosing:(BOOL)enclosing tagRange:(NSRange*)foundRange;
 
+- (NSString*)hp_tagPrefixInRange:(NSRange)selectedRange;
+
 @end

@@ -575,6 +575,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     _bodyTextView.inputAccessoryView = nil;
     _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, landscape ? 36 : 44) inputViewStyle:UIInputViewStyleKeyboard];
     _suggestionsView.delegate = self;
+    _suggestionsView.prefix = [_bodyTextView.text hp_tagPrefixInRange:_bodyTextView.selectedRange];
     _bodyTextView.inputAccessoryView = _suggestionsView;
     [_bodyTextView becomeFirstResponder];
 }
@@ -801,22 +802,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)textViewDidChangeSelection:(UITextView *)textView
 {
-    NSRange foundRange;
-    NSString *text = _bodyTextView.text;
-    NSRange selectedRange = _bodyTextView.selectedRange;
-    NSString *prefix = [text hp_tagInRange:selectedRange enclosing:NO tagRange:&foundRange];
-    if (!prefix)
-    {
-        if (selectedRange.location > 0)
-        { // Check if previous character is the tag escape string
-            NSString *substring = [text substringWithRange:NSMakeRange(selectedRange.location - 1, 1)];
-            if ([substring isEqualToString:HPNoteTagEscapeString])
-            {
-                prefix = HPNoteTagEscapeString;
-            }
-        }
-    }
-    _suggestionsView.prefix = prefix;
+    _suggestionsView.prefix = [textView.text hp_tagPrefixInRange:textView.selectedRange];
 }
 
 #pragma mark - HPTagSuggestionsViewDelegate

@@ -27,6 +27,8 @@
 
 - (NSArray*)tagNamesWithPrefix:(NSString*)prefix;
 
+- (HPTag*)tagForName:(NSString*)name;
+
 - (HPTag*)tagWithName:(NSString*)name;
 
 #pragma mark Operations

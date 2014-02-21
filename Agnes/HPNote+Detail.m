@@ -205,6 +205,24 @@
     return nil;
 }
 
+- (NSString*)hp_tagPrefixInRange:(NSRange)selectedRange;
+{
+    NSRange foundRange;
+    NSString *prefix = [self hp_tagInRange:selectedRange enclosing:NO tagRange:&foundRange];
+    if (!prefix)
+    {
+        if (selectedRange.location > 0)
+        { // Check if previous character is the tag escape string
+            NSString *substring = [self substringWithRange:NSMakeRange(selectedRange.location - 1, 1)];
+            if ([substring isEqualToString:HPNoteTagEscapeString])
+            {
+                prefix = HPNoteTagEscapeString;
+            }
+        }
+    }
+    return prefix;
+}
+
 - (BOOL)hp_isEmptyInTag:(HPTag*)tag
 {
     NSString *editText = [self stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];

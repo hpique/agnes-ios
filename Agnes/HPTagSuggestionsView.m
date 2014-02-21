@@ -8,6 +8,7 @@
 
 #import "HPTagSuggestionsView.h"
 #import "HPTagManager.h"
+#import "HPTag.h"
 #import "HPKeyboardButton.h"
 
 @interface HPHashSupplementaryView : UICollectionReusableView
@@ -60,8 +61,9 @@
     layout.itemSize = CGSizeMake(100, height);
     UIInterfaceOrientation interfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
     CGSize buttonSize = [HPKeyboardButton sizeForOrientation:interfaceOrientation];
-    layout.headerReferenceSize = CGSizeMake(buttonSize.width + 6, height);
     BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
+    const CGFloat keySeparator = landscape ? 5 : 6;
+    layout.headerReferenceSize = CGSizeMake(buttonSize.width + keySeparator, height);
     CGFloat sideInset = landscape ? 23 : 3;
     _suggestionsView.contentInset = UIEdgeInsetsMake(0, sideInset, 0, sideInset);
     [_suggestionsView.collectionViewLayout invalidateLayout];
@@ -85,7 +87,22 @@
 - (void)setPrefix:(NSString *)prefix
 {
     _prefix = prefix;
-    _suggestions = self.prefix ? [[HPTagManager sharedManager] tagNamesWithPrefix:prefix] : @[];
+    HPTagManager *manager = [HPTagManager sharedManager];
+    NSArray *tagNames = self.prefix ? [manager tagNamesWithPrefix:prefix] : @[];
+    tagNames = [tagNames sortedArrayWithOptions:kNilOptions usingComparator:^NSComparisonResult(NSString *name1, NSString *name2) {
+        HPTag *tag1 = [manager tagForName:name1];
+        HPTag *tag2 = [manager tagForName:name2];
+        const NSUInteger count1 = tag1 ? tag1.cd_notes.count : 0;
+        const NSUInteger count2 = tag2 ? tag2.cd_notes.count : 0;
+        if (count1 < count2) return NSOrderedDescending;
+        if (count1 > count2) return NSOrderedAscending;
+        const NSUInteger length1 = name1.length;
+        const NSUInteger length2 = name2.length;
+        if (length1 < length2) return NSOrderedAscending;
+        if (length1 > length2) return NSOrderedDescending;
+        return [name1 compare:name2 options:NSCaseInsensitiveSearch | NSDiacriticInsensitiveSearch];
+    }];
+    _suggestions = tagNames;
     [_suggestionsView reloadData];
 }
 
@@ -101,7 +118,7 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return MIN(_suggestions.count, 5);
+    return MIN(_suggestions.count, 6);
 }
 
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath

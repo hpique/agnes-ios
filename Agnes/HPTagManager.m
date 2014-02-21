@@ -116,12 +116,18 @@ static NSString *const HPTagArchiveName = @"Archive";
 
 - (HPTag*)tagWithName:(NSString*)name
 {
-    NSArray *result = [self tagsWithName:name];
-    HPTag *tag = [result firstObject];
+    HPTag *tag = [self tagForName:name];
     if (!tag)
     {
         tag = [self insertTagWithName:name isSystem:NO];
     }
+    return tag;
+}
+
+- (HPTag*)tagForName:(NSString*)name
+{
+    NSArray *result = [self tagsForName:name];
+    HPTag *tag = [result firstObject];
     return tag;
 }
 
@@ -260,7 +266,7 @@ static NSString *const HPTagArchiveName = @"Archive";
 
 - (void)removeDuplicatesOfTagNamed:(NSString*)tagName
 {
-    NSArray *tags = [self tagsWithName:tagName];
+    NSArray *tags = [self tagsForName:tagName];
     if (tags.count < 2) return;
     
     HPTag *mainTag = [tags firstObject];
@@ -279,7 +285,7 @@ static NSString *const HPTagArchiveName = @"Archive";
     }
 }
 
-- (NSArray*)tagsWithName:(NSString*)name
+- (NSArray*)tagsForName:(NSString*)name
 {
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", NSStringFromSelector(@selector(name)), name];
@@ -295,8 +301,7 @@ static NSString *const HPTagArchiveName = @"Archive";
 
 - (HPTag*)systemTagWithName:(NSString*)name
 {
-    NSArray *result = [self tagsWithName:name];
-    HPTag *tag = [result firstObject];
+    HPTag *tag = [self tagForName:name];
     if (!tag)
     {
         tag = [self insertTagWithName:name isSystem:YES];
