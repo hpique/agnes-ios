@@ -93,7 +93,7 @@
     _subtitleLabel.text = nil;
 }
 
-- (void)setSubtitle:(NSString*)mode animated:(BOOL)animated transient:(BOOL)transient
+- (void)setSubtitle:(NSString*)subtitle animated:(BOOL)animated transient:(BOOL)transient
 {
     [_restoreTitleTimer invalidate];
     const NSTimeInterval duration = animated ? 0.2 : 0;
@@ -103,15 +103,22 @@
         const BOOL landscape = UIInterfaceOrientationIsLandscape(orientation);
         if (landscape)
         {
-            _titleLabel.font = [_titleFont fontWithSize:_titleFont.pointSize * 0.75];
-            _titleLabel.text = mode;
-            _subtitleLabel.text = nil;
+            if (subtitle && subtitle.length > 0)
+            {
+                _titleLabel.font = [_titleFont fontWithSize:_titleFont.pointSize * 0.75];
+                _titleLabel.text = subtitle;
+                _subtitleLabel.text = nil;
+            }
+            else
+            {
+                [self setTitle:_title];
+            }
         }
         else
         {
             _titleLabel.font = _titleFont;
             _titleLabel.text = _title;
-            _subtitleLabel.text = mode;
+            _subtitleLabel.text = subtitle;
         }
     } completion:^(BOOL finished) {}];
     if (transient)

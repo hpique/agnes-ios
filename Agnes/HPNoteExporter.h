@@ -12,6 +12,7 @@
 
 - (void)exportNotes:(NSArray*)notes
                name:(NSString*)name
+           progress:(void (^)(NSString *message))progressBlock
             success:(void (^)(NSURL *fileURL))successBlock
             failure:(void (^)(NSError *error))failureBlock;
 

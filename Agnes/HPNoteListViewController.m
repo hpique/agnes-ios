@@ -222,9 +222,14 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"export_list"];
     _noteExporter = [[HPNoteExporter alloc] init];
-    [_noteExporter exportNotes:_notes name:self.indexItem.exportPrefix success:^(NSURL *fileURL) {
+    [_titleView setSubtitle:NSLocalizedString(@"Preparing notes for export", @"") animated:YES transient:NO];
+    [_noteExporter exportNotes:_notes name:self.indexItem.exportPrefix progress:^(NSString *message) {
+        [_titleView setSubtitle:message animated:NO transient:NO];
+    } success:^(NSURL *fileURL) {
+        [_titleView setSubtitle:@"" animated:YES transient:NO];
         [self exportFileURL:fileURL];
     } failure:^(NSError *error) {
+        [_titleView setSubtitle:@"" animated:YES transient:NO];
         NSString *message = error ? [error localizedDescription] : NSLocalizedString(@"Unknown error", @"");
         [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:message];
         _noteExporter = nil;

@@ -18,6 +18,7 @@
 
 - (void)exportNotes:(NSArray*)notes
                name:(NSString*)name
+           progress:(void (^)(NSString *message))progressBlock
             success:(void (^)(NSURL *fileURL))successBlock
             failure:(void (^)(NSError *error))failureBlock
 {
@@ -55,12 +56,22 @@
              NSString *filename = [NSString stringWithFormat:@"%@% ld", name, (long)idx + 1];
              success = [self exportNote:note withName:filename toDirectory:notesDirectory error:&error];
              if (!success) *stop = YES;
+             
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 NSString *format = NSLocalizedString(@"Preparing note %ld of %ld", @"");
+                 NSString *message = [NSString stringWithFormat:format, (long)idx + 1, (long)notes.count];
+                 progressBlock(message);
+             });
          }];
         if (!success)
         {
             [self handleError:error failure:failureBlock];
             return;
         }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            progressBlock(NSLocalizedString(@"Packaging notes", @""));
+        });
         
         NSString *zipDirectory = [exportPath stringByAppendingPathComponent:@"zip"];
         success = [[NSFileManager defaultManager] createDirectoryAtPath:zipDirectory withIntermediateDirectories:YES attributes:nil error:&error];
