@@ -23,7 +23,7 @@
     HPNoteManager *_toManager;
 }
 
-- (void)importNotesAtContext:(NSManagedObjectContext*)fromContext intoContext:(NSManagedObjectContext*)toContext completion:(void(^)())completionBlock
+- (void)importNotesAtContext:(NSManagedObjectContext*)fromContext intoContext:(NSManagedObjectContext*)toContext
 {
     _fromContext = fromContext;
     _toContext = toContext;
@@ -52,12 +52,6 @@
             }
         }
     }];
-    if (completionBlock)
-    {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completionBlock();
-        });
-    }
 }
 
 #pragma mark Private

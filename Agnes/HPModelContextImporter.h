@@ -10,6 +10,6 @@
 
 @interface HPModelContextImporter : NSObject
 
-- (void)importNotesAtContext:(NSManagedObjectContext*)fromContext intoContext:(NSManagedObjectContext*)toContext completion:(void(^)())completionBlock;
+- (void)importNotesAtContext:(NSManagedObjectContext*)fromContext intoContext:(NSManagedObjectContext*)toContext;
 
 @end

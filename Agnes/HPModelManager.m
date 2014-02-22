@@ -193,12 +193,9 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
 
 - (void)importPersistentStoreAtURL:(NSURL*)importPersistentStoreURL isLocal:(BOOL)isLocal intoPersistentStore:(NSPersistentStore*)persistentStore
 {
-    if (!isLocal)
-    { // Create a copy because we can't add an ubiquity store as a local store without removing the ubiquitous metadata first,
-        // and we don't want to modify the original ubiquity store.
-        importPersistentStoreURL = [self copyPersistentStoreAtURL:importPersistentStoreURL];
-    }
-    if (!importPersistentStoreURL) return;
+    // Create a copy because we can't add an ubiquity store as a local store without removing the ubiquitous metadata first,
+    // and we don't want to modify the original ubiquity store.
+    importPersistentStoreURL = [self copyPersistentStoreAtURL:importPersistentStoreURL];
     
     NSManagedObjectContext *importContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     importContext.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
@@ -216,7 +213,8 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     if (isLocal)
     {
         [self postStatus:NSLocalizedString(@"Connected to iCloud", @"") transient:YES];
-        [self importNotesFromContext:importContext completion:^{}];
+        [self importNotesFromContext:importContext];
+        [self removeTempStoreAtURL:importPersistentStoreURL];
     }
     else
     {
@@ -224,9 +222,8 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
             if (confirmed)
             {
                 [self postStatus:NSLocalizedString(@"Importing iCloud notes", @"") transient:NO];
-                [self importNotesFromContext:importContext completion:^{
-                    [self postStatus:NSLocalizedString(@"Notes imported", @"") transient:YES];
-                }];
+                [self importNotesFromContext:importContext];
+                [self postStatus:NSLocalizedString(@"Notes imported", @"") transient:YES];
             }
             [self removeTempStoreAtURL:importPersistentStoreURL];
         }];
@@ -234,10 +231,10 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     }
 }
 
-- (void)importNotesFromContext:(NSManagedObjectContext*)fromContext completion:(void(^)())completionBlock
+- (void)importNotesFromContext:(NSManagedObjectContext*)fromContext
 {
     HPModelContextImporter *importer = [[HPModelContextImporter alloc] init];
-    [importer importNotesAtContext:fromContext intoContext:_managedObjectContext completion:completionBlock];
+    [importer importNotesAtContext:fromContext intoContext:_managedObjectContext];
 }
 
 - (void)removeTempStoreAtURL:(NSURL*)fileURL
