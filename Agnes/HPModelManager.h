@@ -26,8 +26,6 @@ extern NSString *const HPModelManagerDidReplaceModelNotification;
 
 - (void)importTutorialIfNeeded;
 
-- (void)importNotesFromContext:(NSManagedObjectContext*)fromContext completion:(void(^)())completionBlock;
-
 - (void)saveContext;
 
 @end
