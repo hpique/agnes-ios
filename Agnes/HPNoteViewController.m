@@ -88,6 +88,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     UIView *_attachmentAnimationView;
     CADisplayLink *_attachmentAnimationDisplayLink;
     NSUInteger _attachmentAnimationIndex;
+    
+    CGPoint _scrollViewPreviousOffset;
 }
 
 @synthesize notes = _notes;
@@ -710,6 +712,10 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         [self changeToEmptyNote];
     }
 }
+- (IBAction)swipeDown:(id)sender
+{ // For when the text view doesn't have enough content to enable scrolling
+    [self setTyping:NO animated:YES];
+}
 
 - (void)textTapGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
 {
@@ -772,6 +778,24 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"unarchive_note"];
     [[HPTagManager sharedManager] unarchiveNote:self.note];
     [self finishEditing];
+}
+
+#pragma mark UIScrollViewDelegate
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    _scrollViewPreviousOffset = scrollView.contentOffset;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    if (!scrollView.isDragging) return;
+    const CGPoint offset = scrollView.contentOffset;
+    if (_scrollViewPreviousOffset.y > offset.y)
+    { // Scrolling down
+        [self setTyping:NO animated:YES];
+    }
+    _scrollViewPreviousOffset = offset;
 }
 
 #pragma mark - UITextViewDelegate

@@ -38,6 +38,7 @@
             <connections>
                 <outletCollection property="gestureRecognizers" destination="2nD-Tn-ecc" appends="YES" id="5oA-KT-WVN"/>
                 <outletCollection property="gestureRecognizers" destination="7EF-cP-pe1" appends="YES" id="EkH-cw-Bov"/>
+                <outletCollection property="gestureRecognizers" destination="MHg-FE-NG3" appends="YES" id="EMJ-2h-zr5"/>
             </connections>
         </view>
         <swipeGestureRecognizer direction="right" id="2nD-Tn-ecc">
@@ -66,5 +67,10 @@
                 <action selector="detailLabelTapGestureRecognizer:" destination="-1" id="Kyt-c6-vRV"/>
             </connections>
         </tapGestureRecognizer>
+        <swipeGestureRecognizer direction="down" id="MHg-FE-NG3">
+            <connections>
+                <action selector="swipeDown:" destination="-1" id="asd-ae-yul"/>
+            </connections>
+        </swipeGestureRecognizer>
     </objects>
 </document>
