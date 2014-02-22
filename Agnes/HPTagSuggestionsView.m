@@ -64,7 +64,12 @@
     BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
     const CGFloat keySeparator = landscape ? 5 : 6;
     layout.headerReferenceSize = CGSizeMake(buttonSize.width + keySeparator, height);
-    CGFloat sideInset = landscape ? 23 : 3;
+    
+    const BOOL widescreen = fabs((double)[UIScreen mainScreen].bounds.size.height - (double)568) < DBL_EPSILON;
+    static CGFloat SideInsetLandscape = 3;
+    static CGFloat SideInsetLandscapeWidescreen = 23;
+    static CGFloat SideInsetPortrait = 3;
+    const CGFloat sideInset = landscape ? (widescreen ? SideInsetLandscapeWidescreen : SideInsetLandscape) : SideInsetPortrait;
     _suggestionsView.contentInset = UIEdgeInsetsMake(0, sideInset, 0, sideInset);
     [_suggestionsView.collectionViewLayout invalidateLayout];
     [super layoutSubviews];

@@ -51,11 +51,13 @@
 {
     const BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
     static CGFloat LandscapeHeight = 32;
-    static CGFloat LandscapeWidth = 47;
+    static CGFloat LandscapeWidth = 43;
+    static CGFloat LandscapeWidescreenWidth = 47;
     static CGFloat PortraitHeight = 38;
     static CGFloat PortraitWidth = 26;
     const CGFloat height = landscape ? LandscapeHeight : PortraitHeight;
-    const CGFloat width = landscape ? LandscapeWidth : PortraitWidth;
+    const BOOL widescreen = fabs((double)[UIScreen mainScreen].bounds.size.height - (double)568) < DBL_EPSILON;
+    const CGFloat width = landscape ? (widescreen ? LandscapeWidescreenWidth : LandscapeWidth) : PortraitWidth;
     return CGSizeMake(width, height);
 }
 
