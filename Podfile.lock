@@ -6,17 +6,17 @@ PODS:
   - iRate (1.9.3)
   - MCSwipeTableViewCell (2.0.0)
   - MHWDirectoryWatcher (0.0.4)
-  - MMDrawerController (0.5.2):
+  - MMDrawerController (0.5.3):
     - MMDrawerController/Core
     - MMDrawerController/MMDrawerBarButtonItem
     - MMDrawerController/MMDrawerVisualStates
     - MMDrawerController/Subclass
-  - MMDrawerController/Core (0.5.2)
-  - MMDrawerController/MMDrawerBarButtonItem (0.5.2):
+  - MMDrawerController/Core (0.5.3)
+  - MMDrawerController/MMDrawerBarButtonItem (0.5.3):
     - MMDrawerController/Core
-  - MMDrawerController/MMDrawerVisualStates (0.5.2):
+  - MMDrawerController/MMDrawerVisualStates (0.5.3):
     - MMDrawerController/Core
-  - MMDrawerController/Subclass (0.5.2):
+  - MMDrawerController/Subclass (0.5.3):
     - MMDrawerController/Core
   - PSPDFTextView (1.1.0)
   - SSZipArchive (0.3.1)
@@ -59,7 +59,7 @@ SPEC CHECKSUMS:
   iRate: 99aef520b335a1eb4a14a8d9ba5e8db4e1d95bbe
   MCSwipeTableViewCell: 40d2d91d618ed5248d20b7d75018a4a33b0477dc
   MHWDirectoryWatcher: c8d2677e94ab6e078d321f87c58be5fa101ae457
-  MMDrawerController: 60bce0387ff42670d9a5a392e2f531be2fd39ce9
+  MMDrawerController: 4445e1927e8947b7e2382136c9b7109840efbfb9
   PSPDFTextView: f078c6015a9568241c9518a7bb284bb4cc2fa9e2
   SSZipArchive: 47d0589a15452311749a4eeecb97e12800d127de
   TTTAttributedLabel: 3a571d73e055f4a79c304240598e4bfd199238e4

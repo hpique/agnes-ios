@@ -71,6 +71,11 @@
     {
         [self closeDrawerAnimated:animated completion:nil];
     }
+    UINavigationController *navigationController = (UINavigationController*)self.centerViewController;
+    if (navigationController.topViewController != _listViewController)
+    {
+        [navigationController popToRootViewControllerAnimated:YES];
+    }
 }
 
 - (void)showBlankNote

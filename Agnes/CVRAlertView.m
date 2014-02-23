@@ -13,7 +13,7 @@
 @end
 
 @implementation CVRAlertView {
-    id _realDelegate;
+    __weak id _realDelegate;
     void(^_clickedButtonAtIndexBlock)(NSInteger buttonIndex);
 }
 
