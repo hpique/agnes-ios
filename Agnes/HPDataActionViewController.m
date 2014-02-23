@@ -74,7 +74,8 @@
     {
         CFErrorRef error = nil;
         NSData *data = UIImageJPEGRepresentation(image, 0.6);
-        NSAssert(ABPersonSetImageData(person, (__bridge CFDataRef)data, &error), @"Failed to set image data");
+        bool result = ABPersonSetImageData(person, (__bridge CFDataRef)data, &error);
+        NSAssert(result, @"Failed to set image data");
     }
     
     ABUnknownPersonViewController *controller = [[ABUnknownPersonViewController alloc] init];
