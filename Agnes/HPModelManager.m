@@ -10,6 +10,7 @@
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPPreferencesManager.h"
+#import "AGNPreferenceManager.h"
 #import "HPAttachment.h"
 #import "HPData.h"
 #import "HPNote.h"
@@ -18,7 +19,6 @@
 
 NSString *const HPModelManagerUbiquityIdentityTokenKey = @"HPModelManagerUbiquityIdentityToken";
 NSString *const HPModelManagerPersistentStoreURLKey = @"HPModelManagerPersistentStoreURL";
-NSString *const HPPersitentStoreMetadataHasTutorialKey = @"HPHasTutorial";
 
 NSString *const HPModelManagerWillReplaceModelNotification = @"HPModelManagerWillReplaceModelNotification";
 NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidReplaceModelNotification";
@@ -74,18 +74,14 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     }
 }
 
-- (void)importTutorialIfNeeded
+- (void)addTutorialIfNeeded
 {
-    NSPersistentStoreCoordinator *coordinator = _managedObjectContext.persistentStoreCoordinator;
-    NSPersistentStore *store = [coordinator.persistentStores firstObject]; // TODO: Maybe keep a reference to the store instead?
-    NSDictionary *metadata = store.metadata;
-    const BOOL hasTutorial = [metadata[HPPersitentStoreMetadataHasTutorialKey] boolValue];
-    if (hasTutorial) return;
+    AGNPreferenceManager *preferences = [AGNPreferenceManager sharedManager];
+    const BOOL tutorialNotesAdded = preferences.tutorialNotesAdded;
+    if (tutorialNotesAdded) return;
     
-    [[HPNoteManager sharedManager] addTutorialNotes];
-    NSMutableDictionary *modifiedMetadata = metadata.mutableCopy;
-    modifiedMetadata[HPPersitentStoreMetadataHasTutorialKey] = @(YES);
-    store.metadata = modifiedMetadata;
+    [[HPNoteManager sharedManager] addTutorialNotesIfNeeded];
+    preferences.tutorialNotesAdded = YES;
 }
 
 - (NSManagedObjectModel*)managedObjectModel
@@ -270,7 +266,7 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     if (transitionType == NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted)
     {
         [moc performBlockAndWait:^{
-            [[HPNoteManager sharedManager] removeLocalTutorialNotes];
+            [[HPNoteManager sharedManager] removeTutorialNotes];
         }];
     }
     [moc performBlockAndWait:^{

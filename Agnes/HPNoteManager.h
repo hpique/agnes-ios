@@ -40,9 +40,9 @@
 
 #pragma mark Tutorial notes
 
-- (void)addTutorialNotes;
+- (void)addTutorialNotesIfNeeded;
 
-- (void)removeLocalTutorialNotes;
+- (void)removeTutorialNotes;
 
 #pragma mark System notes
 

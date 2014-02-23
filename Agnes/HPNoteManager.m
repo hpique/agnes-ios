@@ -22,6 +22,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 static void *HPNoteManagerContext = &HPNoteManagerContext;
+static NSInteger HPNoteManagerTutorialNotesCount = 6;
 
 @implementation HPNoteManager {
     NSArray *_systemNotes;
@@ -45,7 +46,7 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
 
 #pragma mark - Public
 
-- (void)addTutorialNotes
+- (void)addTutorialNotesIfNeeded
 {
     [self performNoUndoModelUpdateAndSave:YES block:^{
         NSArray *notes = [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
@@ -54,22 +55,15 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
         {
             [tutorialUUIDs addObject:note.uuid];
         }
-        [HPPreferencesManager sharedManager].tutorialUUIDs = tutorialUUIDs;
     }];
 }
 
-- (void)removeLocalTutorialNotes
+- (void)removeTutorialNotes
 {
-    NSArray *tutorialUUIDs = [HPPreferencesManager sharedManager].tutorialUUIDs;
-    for (NSString *uuid in tutorialUUIDs)
+    for (int i = 0; i < HPNoteManagerTutorialNotesCount; i++)
     {
-        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", NSStringFromSelector(@selector(uuid)), uuid];
-        fetchRequest.predicate = predicate;
-        NSError *error;
-        NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
-        NSAssert(result, @"Fetch %@ failed with error %@", fetchRequest, error);
-        HPNote *note = [result firstObject];
+        NSString *uuid = [NSString stringWithFormat:@"tutorial%d", i];
+        HPNote *note = [self noteForUUID:uuid];
         if (note)
         {
             [self.context deleteObject:note];
@@ -115,8 +109,6 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     return instance;
 }
 
-#pragma mark Sorting notes
-
 #pragma mark Blank notes
 
 - (HPNote*)blankNoteWithTag:(HPTag*)tag
@@ -156,9 +148,12 @@ static void *HPNoteManagerContext = &HPNoteManagerContext;
     NSMutableArray *notes = [NSMutableArray array];
     for (i = texts.count - 1; i >= 0; i--)
     {
+        NSString *uuid = [NSString stringWithFormat:keyFormat, i];
+        if ([self noteForUUID:uuid]) continue;
+        
         NSMutableString *mutableText = [texts[i] mutableCopy];
         HPNote *note = [HPNote insertNewObjectIntoContext:context];
-        note.uuid = [[NSUUID UUID] UUIDString];
+        note.uuid = uuid;
         note.createdAt = [NSDate date];
         note.modifiedAt = note.createdAt;
         note.detailMode = HPNoteDetailModeNone;

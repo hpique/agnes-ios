@@ -44,7 +44,7 @@
         _modelManager = [[HPModelManager alloc] init];
         _modelManager.delegate = self;
         [_modelManager setupManagedObjectContext];
-        [_modelManager importTutorialIfNeeded];
+        [_modelManager addTutorialIfNeeded];
         [_modelManager saveContext];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReplaceModelNotification:) name:HPModelManagerDidReplaceModelNotification object:_modelManager];
     }

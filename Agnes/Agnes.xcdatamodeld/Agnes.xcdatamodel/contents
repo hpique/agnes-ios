@@ -34,6 +34,10 @@
         <relationship name="cd_attachments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Attachment" inverseName="note" inverseEntity="Attachment" syncable="YES"/>
         <relationship name="cd_tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="cd_notes" inverseEntity="Tag" syncable="YES"/>
     </entity>
+    <entity name="Preference" representedClassName="AGNPreference" syncable="YES">
+        <attribute name="key" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="value" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <entity name="Tag" representedClassName="HPTag" syncable="YES">
         <attribute name="cd_isSystem" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="cd_order" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES"/>
@@ -51,6 +55,7 @@
         <element name="Attachment" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Data" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Note" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Preference" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Tag" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

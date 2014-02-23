@@ -21,7 +21,6 @@ NSString *const HPAgnesDefaultsKeyFontSize = @"HPAgnesFontSize";
 NSString *const HPAgnesDefaultsKeyIndexSortMode = @"HPIndexSortMode";
 NSString *const HPAgnesDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 NSString *const HPAgnesDefaultsKeyTintColor = @"HPAgnesTintColor";
-NSString *const HPAgnesDefaultsKeyTutorialUUIDs = @"HPAgnesTutorialUUIDs";
 NSString *const HPAgnesDefaultsKeyTypingSpeed = @"HPAgnesTypingSpeed";
 
 NSString *const HPAgnesPreferencesKeyStatusBarHidden = @"statusBarHidden";
@@ -173,12 +172,6 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
-- (void)setTutorialUUIDs:(NSArray *)tutorialUUIDs
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults setValue:tutorialUUIDs forKey:HPAgnesDefaultsKeyTutorialUUIDs];
-}
-
 - (void)setTypingSpeed:(NSTimeInterval)typingSpeed
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -198,12 +191,6 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
 - (NSString*)tintColorName
 {
     return [self.tintColor stringValue];
-}
-
-- (NSArray*)tutorialUUIDs
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    return [userDefaults objectForKey:HPAgnesDefaultsKeyTutorialUUIDs];
 }
 
 - (NSTimeInterval)typingSpeed

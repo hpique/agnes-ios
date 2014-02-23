@@ -100,6 +100,8 @@
 		87E37F07188E4CD4000333EA /* HPKeyboardButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37F06188E4CD4000333EA /* HPKeyboardButton.m */; };
 		87F47BB118ACE5E600F1FB48 /* sample-thumbnail@2x.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 87F47BAF18ACE5E600F1FB48 /* sample-thumbnail@2x.jpg */; };
 		87F47BB218ACE5E600F1FB48 /* sample-thumbnail.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 87F47BB018ACE5E600F1FB48 /* sample-thumbnail.jpg */; };
+		87FD524718BA50340069FB16 /* AGNPreference.m in Sources */ = {isa = PBXBuildFile; fileRef = 87FD524618BA50340069FB16 /* AGNPreference.m */; };
+		87FD524A18BA50550069FB16 /* AGNPreferenceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87FD524918BA50550069FB16 /* AGNPreferenceManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -274,6 +276,10 @@
 		87E37F06188E4CD4000333EA /* HPKeyboardButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPKeyboardButton.m; sourceTree = "<group>"; };
 		87F47BAF18ACE5E600F1FB48 /* sample-thumbnail@2x.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sample-thumbnail@2x.jpg"; sourceTree = "<group>"; };
 		87F47BB018ACE5E600F1FB48 /* sample-thumbnail.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sample-thumbnail.jpg"; sourceTree = "<group>"; };
+		87FD524518BA50340069FB16 /* AGNPreference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNPreference.h; sourceTree = "<group>"; };
+		87FD524618BA50340069FB16 /* AGNPreference.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNPreference.m; sourceTree = "<group>"; };
+		87FD524818BA50550069FB16 /* AGNPreferenceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNPreferenceManager.h; sourceTree = "<group>"; };
+		87FD524918BA50550069FB16 /* AGNPreferenceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNPreferenceManager.m; sourceTree = "<group>"; };
 		9553C6822D1E4B5082F74644 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -619,6 +625,8 @@
 		87E37E89188BE369000333EA /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				87FD524518BA50340069FB16 /* AGNPreference.h */,
+				87FD524618BA50340069FB16 /* AGNPreference.m */,
 				871CCFFE189AB77800E39CFA /* HPAttachment.h */,
 				871CCFFF189AB77800E39CFA /* HPAttachment.m */,
 				87AA3D1218A0026400FBEAAF /* HPAttachmentManager.h */,
@@ -637,6 +645,8 @@
 				87E37EF0188CA5F5000333EA /* HPTagManager.m */,
 				87CAF3B218B78141004380BB /* HPModelContextImporter.h */,
 				87CAF3B318B78141004380BB /* HPModelContextImporter.m */,
+				87FD524818BA50550069FB16 /* AGNPreferenceManager.h */,
+				87FD524918BA50550069FB16 /* AGNPreferenceManager.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -710,7 +720,7 @@
 		8763DA1F18883ACF000D9569 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				CLASSPREFIX = HP;
+				CLASSPREFIX = AGN;
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Hermes Pique";
 				TargetAttributes = {
@@ -839,10 +849,12 @@
 				87AA3CF6189C13E100FBEAAF /* HPImageZoomAnimationController.m in Sources */,
 				87CAF3AC18B7673E004380BB /* NSNotification+hp_status.m in Sources */,
 				87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */,
+				87FD524A18BA50550069FB16 /* AGNPreferenceManager.m in Sources */,
 				873E228518AA447700E7919C /* UIView+hp_utils.m in Sources */,
 				8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */,
 				871CD003189AB77800E39CFA /* HPData.m in Sources */,
 				87E37E88188BDFA6000333EA /* Agnes.xcdatamodeld in Sources */,
+				87FD524718BA50340069FB16 /* AGNPreference.m in Sources */,
 				8740FAF5188B3A5A004CF099 /* NDTrie.m in Sources */,
 				871CD010189B4A4C00E39CFA /* UIColor+hp_utils.m in Sources */,
 				87CAF3B418B78141004380BB /* HPModelContextImporter.m in Sources */,

@@ -21,8 +21,7 @@
 
 NSInteger const HPNoteTableViewCellLabelMaxLength = 150;
 CGFloat const HPNoteTableViewCellMargin = 10;
-CGFloat const HPNoteTableViewCellMarginLeft = 15;
-CGFloat const HPNoteTableViewCellThumbnailMarginLeadgin = 8;
+CGFloat const HPNoteTableViewCellThumbnailMarginLeading = 8;
 NSUInteger const HPNoteTableViewCellLineCount = 3;
 
 @interface HPNoteHeightCache : NSObject
@@ -348,7 +347,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     CGFloat width = cellWidth - [HPAgnesUIMetrics sideMarginForInterfaceOrientation:orientation] * 2;
     if (note.hasThumbnail)
     {
-        width -= HPNoteTableViewCellThumbnailMarginLeadgin + [self thumbnailViewWidth];
+        width -= HPNoteTableViewCellThumbnailMarginLeading + [self thumbnailViewWidth];
     }
     return width;
 }
