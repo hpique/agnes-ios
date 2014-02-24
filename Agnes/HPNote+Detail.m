@@ -202,25 +202,16 @@
         *foundRange = NSMakeRange(lineRange.location + (*foundRange).location, (*foundRange).length);
         return tag;
     }
-    return nil;
-}
-
-- (NSString*)hp_tagPrefixInRange:(NSRange)selectedRange;
-{
-    NSRange foundRange;
-    NSString *prefix = [self hp_tagInRange:selectedRange enclosing:NO tagRange:&foundRange];
-    if (!prefix)
-    {
-        if (selectedRange.location > 0)
-        { // Check if previous character is the tag escape string
-            NSString *substring = [self substringWithRange:NSMakeRange(selectedRange.location - 1, 1)];
-            if ([substring isEqualToString:HPNoteTagEscapeString])
-            {
-                prefix = HPNoteTagEscapeString;
-            }
+    else if (selectedRange.location > 0)
+    { // Check if previous character is the tag escape string
+        *foundRange = NSMakeRange(selectedRange.location - 1, 1);
+        NSString *substring = [self substringWithRange:*foundRange];
+        if ([substring isEqualToString:HPNoteTagEscapeString])
+        {
+            return HPNoteTagEscapeString;
         }
     }
-    return prefix;
+    return nil;
 }
 
 - (BOOL)hp_isEmptyInTag:(HPTag*)tag

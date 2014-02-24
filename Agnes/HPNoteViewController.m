@@ -577,7 +577,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     _bodyTextView.inputAccessoryView = nil;
     _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, landscape ? 36 : 44) inputViewStyle:UIInputViewStyleKeyboard];
     _suggestionsView.delegate = self;
-    _suggestionsView.prefix = [_bodyTextView.text hp_tagPrefixInRange:_bodyTextView.selectedRange];
+    NSRange tagRange;
+    _suggestionsView.prefix = [_bodyTextView.text hp_tagInRange:_bodyTextView.selectedRange enclosing:NO tagRange:&tagRange];
     _bodyTextView.inputAccessoryView = _suggestionsView;
     [_bodyTextView becomeFirstResponder];
 }
@@ -826,7 +827,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)textViewDidChangeSelection:(UITextView *)textView
 {
-    _suggestionsView.prefix = [textView.text hp_tagPrefixInRange:textView.selectedRange];
+    NSRange tagRange;
+    _suggestionsView.prefix = [textView.text hp_tagInRange:_bodyTextView.selectedRange enclosing:NO tagRange:&tagRange];
 }
 
 #pragma mark - HPTagSuggestionsViewDelegate
