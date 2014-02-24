@@ -380,6 +380,9 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
         case HPTagSortModeModifiedAt:
             detailText = self.note.modifiedAtDescription;
             break;
+        case HPTagSortModeViews:
+            detailText = [NSString localizedStringWithFormat:NSLocalizedString(@"%ld views", @""), (long)self.note.views];
+            break;
         case HPTagSortModeTag:
             detailText = self.note.firstTagName ? : NSLocalizedString(@"untagged", @"");
             break;
@@ -433,6 +436,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 {
     switch (self.detailMode) {
         case HPTagSortModeModifiedAt:
+        case HPTagSortModeViews:
         case HPTagSortModeTag:
             return YES;
         default:

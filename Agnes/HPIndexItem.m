@@ -238,15 +238,53 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 #pragma mark Private
 
+- (BOOL)hasChangedOrderForChangedAttributes:(NSDictionary*)attributes
+{
+    static NSString *modifiedAtName = nil;
+    static NSString *orderName = nil;
+    static NSString *textName = nil;
+    static NSString *viewsName = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        orderName = NSStringFromSelector(@selector(cd_order));
+        viewsName = NSStringFromSelector(@selector(cd_views));
+        modifiedAtName = NSStringFromSelector(@selector(modifiedAt));
+        textName = NSStringFromSelector(@selector(text));
+    });
+    NSString *attributeName = nil;
+    const HPTagSortMode sortMode = self.tag.sortMode;
+    switch (sortMode) {
+        case HPTagSortModeAlphabetical:
+            attributeName = textName;
+            break;
+        case HPTagSortModeOrder:
+            attributeName = orderName;
+            break;
+        case HPTagSortModeViews:
+            attributeName = viewsName;
+            break;
+        case HPTagSortModeModifiedAt:
+            attributeName = modifiedAtName;
+            break;
+        case HPTagSortModeTag:
+            attributeName = textName;
+            break;
+    }
+    id value = attributes[attributeName];
+    return value != nil;
+}
+
 - (void)startObserving
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
 }
 
 - (void)stopObserving
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
 }
 
@@ -322,6 +360,24 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 }
 
 #pragma mark Notifications
+
+- (void)notesDidChangeNotification:(NSNotification*)notification
+{
+    // TODO: When the user adds/removes a tag notes are invalidated twice: the tag change, and the text change.
+    for (HPNote *note in notification.hp_changedObjects)
+    {
+        if ([note.cd_tags containsObject:self.tag])
+        {
+            NSDictionary *changedValues = note.changedValuesForCurrentEvent;
+            const BOOL hasChangedOrder = [self hasChangedOrderForChangedAttributes:changedValues];
+            if (hasChangedOrder)
+            {
+                [self invalidateNotesAndNotifyChange];
+                return;
+            }
+        }
+    }
+}
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {

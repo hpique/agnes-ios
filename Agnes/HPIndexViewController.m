@@ -155,14 +155,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)startObserving
 {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
 }
 
 - (void)stopObserving
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
 }
@@ -271,15 +269,6 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 }
 
 #pragma mark Notifications
-
-- (void)notesDidChangeNotification:(NSNotification*)notification
-{
-    NSSet *updated = [notification.userInfo objectForKey:NSUpdatedObjectsKey];
-    if (updated.count > 0)
-    { // Catch archived / unarchived changes
-        [self reloadData];
-    }
-}
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {
