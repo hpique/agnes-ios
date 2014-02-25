@@ -43,6 +43,7 @@
 		8740FAEB188ACEF9004CF099 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8740FAE9188ACEF9004CF099 /* Localizable.strings */; };
 		8740FAF1188B2AC5004CF099 /* HPTagSuggestionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAF0188B2AC5004CF099 /* HPTagSuggestionsView.m */; };
 		8740FAF5188B3A5A004CF099 /* NDTrie.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAF4188B3A5A004CF099 /* NDTrie.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		874F1AA318BC32BE006C1323 /* UILabel+hp_utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 874F1AA218BC32BE006C1323 /* UILabel+hp_utils.m */; };
 		8763DA2B18883ACF000D9569 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2A18883ACF000D9569 /* Foundation.framework */; };
 		8763DA2D18883ACF000D9569 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2C18883ACF000D9569 /* CoreGraphics.framework */; };
 		8763DA2F18883ACF000D9569 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2E18883ACF000D9569 /* UIKit.framework */; };
@@ -179,6 +180,8 @@
 		8740FAF0188B2AC5004CF099 /* HPTagSuggestionsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPTagSuggestionsView.m; sourceTree = "<group>"; };
 		8740FAF3188B3A5A004CF099 /* NDTrie.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDTrie.h; sourceTree = "<group>"; };
 		8740FAF4188B3A5A004CF099 /* NDTrie.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDTrie.m; sourceTree = "<group>"; };
+		874F1AA118BC32BE006C1323 /* UILabel+hp_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UILabel+hp_utils.h"; sourceTree = "<group>"; };
+		874F1AA218BC32BE006C1323 /* UILabel+hp_utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILabel+hp_utils.m"; sourceTree = "<group>"; };
 		8763DA2718883ACF000D9569 /* Agnes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agnes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8763DA2A18883ACF000D9569 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8763DA2C18883ACF000D9569 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -332,6 +335,8 @@
 		87393C5418A55F27006AB087 /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				87CAF3B518B79DF0004380BB /* CVRAlertView.h */,
+				87CAF3B618B79DF0004380BB /* CVRAlertView.m */,
 				87E37EF7188D97F3000333EA /* HPBrowserViewController.h */,
 				87E37EF8188D97F3000333EA /* HPBrowserViewController.m */,
 				87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */,
@@ -348,14 +353,14 @@
 				871CD00F189B4A4C00E39CFA /* UIColor+hp_utils.m */,
 				871CD006189ABD5300E39CFA /* UIImage+hp_utils.h */,
 				871CD007189ABD5300E39CFA /* UIImage+hp_utils.m */,
+				874F1AA118BC32BE006C1323 /* UILabel+hp_utils.h */,
+				874F1AA218BC32BE006C1323 /* UILabel+hp_utils.m */,
 				873E9CCD189174F8003364E7 /* UITableView+hp_reloadChanges.h */,
 				873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */,
 				87393C5118A55F0D006AB087 /* UITextView+hp_utils.h */,
 				87393C5218A55F0D006AB087 /* UITextView+hp_utils.m */,
 				873E228318AA447700E7919C /* UIView+hp_utils.h */,
 				873E228418AA447700E7919C /* UIView+hp_utils.m */,
-				87CAF3B518B79DF0004380BB /* CVRAlertView.h */,
-				87CAF3B618B79DF0004380BB /* CVRAlertView.m */,
 			);
 			name = UIKit;
 			sourceTree = "<group>";
@@ -850,6 +855,7 @@
 				87CAF3AC18B7673E004380BB /* NSNotification+hp_status.m in Sources */,
 				87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */,
 				87FD524A18BA50550069FB16 /* AGNPreferenceManager.m in Sources */,
+				874F1AA318BC32BE006C1323 /* UILabel+hp_utils.m in Sources */,
 				873E228518AA447700E7919C /* UIView+hp_utils.m in Sources */,
 				8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */,
 				871CD003189AB77800E39CFA /* HPData.m in Sources */,
@@ -1076,7 +1082,7 @@
 					"/Users/hpique/workspace/agnes-ios/Agnes/GoogleAnalyticsServicesiOS_3.03a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "20BC49B6-AD0C-44C6-8791-CCFD02327ADA";
+				PROVISIONING_PROFILE = "5FD7D95F-37AD-476B-BC90-9F4052C90316";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};

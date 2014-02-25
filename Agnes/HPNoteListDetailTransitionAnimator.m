@@ -18,18 +18,6 @@
 #import "UITextView+hp_utils.h"
 #import "PSPDFTextView.h"
 
-@interface UIView(Utils)
-
-- (UIImage*)hp_imageFromRect:(CGRect)rect;
-
-@end
-
-@interface UILabel(Utils)
-
-- (NSRange)hp_visibleRange;
-
-@end
-
 @implementation HPNoteListDetailTransitionAnimator
 
 - (NSTimeInterval)transitionDuration:(id <UIViewControllerContextTransitioning>)transitionContext
@@ -51,7 +39,7 @@
     }
 }
 
-#pragma mark - Public
+#pragma mark Public
 
 + (BOOL)canTransitionFromViewController:(UIViewController *)fromVC
                        toViewController:(UIViewController *)toVC
@@ -92,7 +80,7 @@
     return NO;
 }
 
-#pragma mark - Private
+#pragma mark Private
 
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext fromList:(HPNoteListViewController*)fromViewController toDetail:(HPNoteViewController*)toViewController
 {
@@ -121,21 +109,31 @@
     UILabel *titleLabel = cell.titleLabel;
     UIView *titleLabelCover = nil;
     UIView *titleLabelPlaceholder = nil;
-    const CGRect titleRect = [self rectForLabel:titleLabel inTextView:noteTextView context:transitionContext];
-    if (!CGRectIsNull(titleRect))
+    NSString *title = cell.titleForTransition;
+    CGRect titleRect;
+    if (title)
     {
-        titleLabelCover = [self coverView:titleLabel rect:titleLabel.bounds color:[UIColor whiteColor] context:transitionContext];
-        titleLabelPlaceholder = [self snapshotView:titleLabel rect:titleLabel.bounds context:transitionContext];
+        titleRect = [self rectForText:title inTextView:noteTextView context:transitionContext];
+        if (!CGRectIsNull(titleRect))
+        {
+            titleLabelCover = [self coverView:titleLabel rect:titleLabel.bounds color:[UIColor whiteColor] context:transitionContext];
+            titleLabelPlaceholder = [self addSnapshotView:titleLabel rect:titleLabel.bounds context:transitionContext];
+        }
     }
     
     UILabel *bodyLabel = cell.bodyLabel;
     UIView *bodyLabelCover = nil;
     UIView *bodyLabelPlaceholder = nil;
-    const CGRect bodyRect = [self rectForLabel:bodyLabel inTextView:noteTextView context:transitionContext];
-    if (!CGRectIsNull(bodyRect))
+    NSString *body = cell.bodyForTransition;
+    CGRect bodyRect;
+    if (body)
     {
-        bodyLabelCover = [self coverView:bodyLabel rect:bodyLabel.bounds color:[UIColor whiteColor] context:transitionContext];
-        bodyLabelPlaceholder = [self snapshotView:bodyLabel rect:bodyLabel.bounds context:transitionContext];
+        bodyRect = [self rectForText:body inTextView:noteTextView context:transitionContext];
+        if (!CGRectIsNull(bodyRect))
+        {
+            bodyLabelCover = [self coverView:bodyLabel rect:bodyLabel.bounds color:[UIColor whiteColor] context:transitionContext];
+            bodyLabelPlaceholder = [self addSnapshotView:bodyLabel rect:bodyLabel.bounds context:transitionContext];
+        }
     }
     
     UIView *thumbnailViewCover = nil;
@@ -230,21 +228,28 @@
     
     UITextView *noteTextView = fromViewController.noteTextView;
     UILabel *titleLabel = cell.titleLabel;
-    UILabel *bodyLabel = cell.bodyLabel;
-    const BOOL handleBody = bodyLabel.hidden == NO && bodyLabel.text.length > 0;
-    const CGRect titleRect = [self rectForLabel:titleLabel inTextView:noteTextView];
-    const BOOL handleTitle = !CGRectIsEmpty(titleRect);
+    NSString *title = cell.titleForTransition;
+    BOOL handleTitle = NO;
     UIView *titleCover = nil;
-    if (handleTitle)
+    CGRect titleRect;
+    if (title)
     {
-        titleCover = [self coverView:noteTextView rect:titleRect color:[UIColor whiteColor] context:transitionContext];
+        titleRect = [noteTextView hp_rectForSubstring:title];
+        if (!CGRectIsEmpty(titleRect))
+        {
+            handleTitle = YES;
+            titleCover = [self coverView:noteTextView rect:titleRect color:[UIColor whiteColor] context:transitionContext];
+        }
     }
 
     CGRect bodyRect;
     UIView *bodyCover;
+    UILabel *bodyLabel = cell.bodyLabel;
+    NSString *body = cell.bodyForTransition;
+    const BOOL handleBody = bodyLabel.hidden == NO && body != nil;
     if (handleBody)
     {
-        bodyRect = [self rectForLabel:bodyLabel inTextView:noteTextView];
+        bodyRect = [noteTextView hp_rectForSubstring:body];
         bodyCover = [self coverView:noteTextView rect:bodyRect color:[UIColor whiteColor] context:transitionContext];
     }
     
@@ -263,13 +268,13 @@
     if (handleTitle)
     {
         // TODO: Use titleLabel as if titleRect is not visible
-        titlePlaceholder = [self snapshotView:noteTextView rect:titleRect context:transitionContext];
+        titlePlaceholder = [self addSnapshotView:noteTextView rect:titleRect context:transitionContext];
     }
     UIView *bodyPlaceholder;
     if (handleBody)
     {
         // TODO: Use bodyLabel if bodyRect is not visible
-        bodyPlaceholder = [self snapshotView:noteTextView rect:bodyRect context:transitionContext];
+        bodyPlaceholder = [self addSnapshotView:noteTextView rect:bodyRect context:transitionContext];
     }
     
     toViewController.view.alpha = 0;
@@ -325,7 +330,7 @@
     return characterIndex;
 }
 
-#pragma mark - Utils
+#pragma mark Utils
 
 - (UIView*)coverView:(UIView*)view rect:(CGRect)rect color:(UIColor*)color context:(id <UIViewControllerContextTransitioning>)transitionContext
 {
@@ -334,7 +339,7 @@
     return imageView;
 }
 
-- (UIView*)snapshotView:(UIView*)view rect:(CGRect)rect context:(id <UIViewControllerContextTransitioning>)transitionContext
+- (UIView*)addSnapshotView:(UIView*)view rect:(CGRect)rect context:(id <UIViewControllerContextTransitioning>)transitionContext
 {
     UIView *snapshotView = [view resizableSnapshotViewFromRect:rect afterScreenUpdates:NO withCapInsets:UIEdgeInsetsZero];
     UIView *containerView = transitionContext.containerView;
@@ -356,35 +361,12 @@
     return imageView;
 }
 
-- (UIImage*)imageFromView:(UIView *)view
+- (CGRect)rectForText:(NSString*)text inTextView:(UITextView*)textView context:(id <UIViewControllerContextTransitioning>)transitionContext
 {
-    return [view hp_imageFromRect:view.bounds];
-}
-
-- (CGRect)rectForLabel:(UILabel*)label inTextView:(UITextView*)textView context:(id <UIViewControllerContextTransitioning>)transitionContext
-{
-    NSRange visibleRange = [label hp_visibleRange];
-    if (visibleRange.location == NSNotFound)
-    {
-        visibleRange = [textView.text lineRangeForRange:NSMakeRange(0, 0)];
-    }
-    NSString *substring = label.text.length >= NSMaxRange(visibleRange) ? [label.text substringWithRange:visibleRange] : @"";
-    CGRect rect = [textView hp_rectForSubstring:substring];
+    CGRect rect = [textView hp_rectForSubstring:text];
     if (CGRectIsNull(rect)) return rect;
     rect = [transitionContext.containerView convertRect:rect fromView:textView];
     return rect;
-}
-
-- (CGRect)rectForLabel:(UILabel*)label inTextView:(UITextView*)textView
-{
-    NSRange visibleRange = [label hp_visibleRange];
-    if (visibleRange.location == NSNotFound)
-    {
-        visibleRange = [textView.text lineRangeForRange:NSMakeRange(0, 0)];
-    }
-    NSString *substring = label.text.length >= NSMaxRange(visibleRange) ? [label.text substringWithRange:visibleRange] : @"";
-    if (!substring) return CGRectZero;
-    return [textView hp_rectForSubstring:substring];
 }
 
 - (void)translateView:(UIView*)fromView toView:(UIView*)toView containerView:(UIView*)containerView
@@ -392,66 +374,6 @@
     CGPoint toOrigin = [containerView convertRect:toView.frame fromView:toView.superview].origin;
     CGSize fromSize = fromView.frame.size;
     fromView.frame = CGRectMake(toOrigin.x, toOrigin.y, fromSize.width, fromSize.height);
-}
-
-@end
-
-@implementation UILabel(Utils)
-
-- (NSRange)hp_visibleRange
-{
-    static CGFloat tolerance = 3.0f;
-    
-    NSString *text = self.text;
-    NSRange visibleRange = NSMakeRange(NSNotFound, 0);
-    const NSInteger max = text.length - 1;
-    if (max >= 0)
-    {
-        NSInteger next = max;
-        const CGSize labelSize = self.bounds.size;
-        const CGSize maxSize = CGSizeMake(labelSize.width, CGFLOAT_MAX);
-        NSMutableParagraphStyle *paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-        paragraphStyle.lineBreakMode = self.lineBreakMode;
-        NSDictionary * attributes = @{NSFontAttributeName:self.font, NSParagraphStyleAttributeName:paragraphStyle};
-        NSInteger right;
-        NSInteger best = 0;
-        do
-        {
-            right = next;
-            NSRange range = NSMakeRange(0, right + 1);
-            NSString *substring = [text substringWithRange:range];
-            CGRect boundingRect = [substring boundingRectWithSize:maxSize
-                                                      options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
-                                                   attributes:attributes
-                                                      context:nil];
-            const CGSize boundingSize = CGSizeMake(ceil(boundingRect.size.width), ceil(boundingRect.size.height));
-            if ((boundingSize.width - labelSize.width <= tolerance) && (boundingSize.height - labelSize.height <= tolerance))
-            {
-                visibleRange = range;
-                best = right;
-                next = right + (max - right) / 2;
-            } else if (right > 0)
-            {
-                next = right - (right - best) / 2;
-            }
-        } while (next != right);
-    }
-    return visibleRange;
-}
-
-@end
-
-@implementation UIView(Utils)
-
-- (UIImage*)hp_imageFromRect:(CGRect)rect
-{
-    UIGraphicsBeginImageContextWithOptions(rect.size, self.opaque, 0);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextTranslateCTM(context, -rect.origin.x, -rect.origin.y);
-    [self.layer.presentationLayer renderInContext:context];
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return image;
 }
 
 @end

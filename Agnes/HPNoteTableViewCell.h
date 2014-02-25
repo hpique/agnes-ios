@@ -30,9 +30,13 @@ extern NSUInteger const HPNoteTableViewCellLineCount;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *titleLabelLeadingSpaceConstraint;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *thumbnailViewTrailingSpaceConstraint;
 
-@property (nonatomic, readonly) HPNote *note;
-@property (nonatomic, readonly) HPTagSortMode detailMode;
 @property (nonatomic, readonly) HPTag *agnesTag;
+@property (nonatomic, readonly) HPTagSortMode detailMode;
+@property (nonatomic, readonly) BOOL isTruncatedSummary;
+@property (nonatomic, readonly) HPNote *note;
+
+@property (nonatomic, readonly) NSString *bodyForTransition;
+@property (nonatomic, readonly) NSString *titleForTransition;
 
 - (void)setNote:(HPNote *)note ofTag:(HPTag*)agnesTag detailMode:(HPTagSortMode)detailMode;
 

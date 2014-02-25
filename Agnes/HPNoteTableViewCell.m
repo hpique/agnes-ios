@@ -18,17 +18,24 @@
 #import "UIColor+hp_utils.h"
 #import "UIImageView+Haneke.h"
 #import "HPAgnesImageCache.h"
+#import "UILabel+hp_utils.h"
 
 NSInteger const HPNoteTableViewCellLabelMaxLength = 150;
 CGFloat const HPNoteTableViewCellMargin = 10;
 CGFloat const HPNoteTableViewCellThumbnailMarginLeading = 8;
 NSUInteger const HPNoteTableViewCellLineCount = 3;
 
+static NSString *const HPNoteHeightCacheIsTruncatedSummaryPrefix = @"s";
+
 @interface HPNoteHeightCache : NSObject
 
 - (CGFloat)heightForNote:(HPNote*)note kind:(NSString*)kind;
 
 - (void)setHeight:(CGFloat)height forNote:(HPNote*)note kind:(NSString*)kind;
+
+- (NSNumber*)isTruncatedSummaryForNote:(HPNote*)note tagName:(NSString*)tagName;
+
+- (void)setIsTruncatedSummary:(BOOL)isTruncatedSummary forNote:(HPNote*)note tagName:(NSString*)tagName;
 
 @end
 
@@ -60,6 +67,24 @@ NSUInteger const HPNoteTableViewCellLineCount = 3;
     if (!dictionary) dictionary = [NSDictionary dictionary];
     NSMutableDictionary *updatedDictionary = dictionary.mutableCopy;
     [updatedDictionary setObject:@(height) forKey:kind];
+    [_cache setObject:updatedDictionary forKey:note.uuid];
+}
+
+- (NSNumber*)isTruncatedSummaryForNote:(HPNote*)note tagName:(NSString*)tagName
+{
+    NSDictionary *dictionary = [_cache objectForKey:note.uuid];
+    NSString *key = [HPNoteHeightCacheIsTruncatedSummaryPrefix stringByAppendingString:tagName];
+    NSNumber *value = [dictionary objectForKey:key];
+    return value;
+}
+
+- (void)setIsTruncatedSummary:(BOOL)isTruncatedSummary forNote:(HPNote*)note tagName:(NSString*)tagName
+{
+    NSDictionary *dictionary = [_cache objectForKey:note.uuid];
+    if (!dictionary) dictionary = [NSDictionary dictionary];
+    NSMutableDictionary *updatedDictionary = dictionary.mutableCopy;
+    NSString *key = [HPNoteHeightCacheIsTruncatedSummaryPrefix stringByAppendingString:tagName];
+    [updatedDictionary setObject:@(isTruncatedSummary) forKey:key];
     [_cache setObject:updatedDictionary forKey:note.uuid];
 }
 
@@ -255,7 +280,23 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     self.thumbnailView.hidden = YES;
 }
 
-#pragma mark - Public
+#pragma mark Public
+
+- (BOOL)isTruncatedSummary
+{
+    HPNoteHeightCache *cache = [HPNoteHeightCache sharedCache];
+    HPNote *note = self.note;
+    HPTag *tag = self.agnesTag;
+    NSNumber *value = [cache isTruncatedSummaryForNote:note tagName:tag.name];
+    if (value) return [value boolValue];
+    
+    // If the cache was invalidated, recalculate
+    const CGFloat titleWidth = [HPNoteTableViewCell widthForTitleOfNote:note cellWidth:self.contentView.bounds.size.width];
+    [HPNoteTableViewCell heightForSummaryOfNote:note summaryWidth:titleWidth titleLines:self.titleLabel.numberOfLines tag:tag];
+    value = [cache isTruncatedSummaryForNote:note tagName:tag.name];
+
+    return [value boolValue];
+}
 
 - (void)setNote:(HPNote *)note ofTag:(HPTag*)agnesTag detailMode:(HPTagSortMode)detailMode
 {
@@ -290,6 +331,18 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     }
 }
 
+- (NSString*)bodyForTransition
+{
+    NSString *visibleBody = [self.bodyLabel hp_visibleText];
+    return visibleBody;
+}
+
+- (NSString*)titleForTransition
+{
+    NSString *visibleTitle = [self.titleLabel hp_visibleText];
+    return visibleTitle;
+}
+
 + (CGFloat)estimatedHeightForNote:(HPNote*)note inTag:(HPTag*)tag
 {
     CGFloat estimatedHeight = [[HPNoteHeightCache sharedCache] heightForNote:note kind:tag.name];
@@ -321,19 +374,31 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     NSUInteger titleLines = [note.title hp_linesWithFont:titleFont width:titleWidth lineHeight:titleLineHeight];
     titleLines = MIN(HPNoteTableViewCellLineCount, titleLines);
 
-    UIFont *bodyFont = [fonts fontForBodyOfNote:note];
-    const CGFloat bodyLineHeight = fonts.noteBodyLineHeight;
-    NSString *summary = [note summaryForTag:tag];
-    NSUInteger bodyLines = summary.length > 0 ? [summary hp_linesWithFont:bodyFont width:titleWidth lineHeight:bodyLineHeight] : 0;
-    const NSUInteger maximumBodyLines = HPNoteTableViewCellLineCount - titleLines;
-    bodyLines = MAX(0, MIN(maximumBodyLines, bodyLines));
-    
-    CGFloat height = titleLines * titleLineHeight + bodyLines * bodyLineHeight + HPNoteTableViewCellMargin * 2;
+    const CGFloat summaryHeight = [self heightForSummaryOfNote:note summaryWidth:titleWidth titleLines:titleLines tag:tag];
+    CGFloat height = titleLines * titleLineHeight + summaryHeight + HPNoteTableViewCellMargin * 2;
     
     const BOOL hasThumbnail = note.hasThumbnail;
     height = hasThumbnail ? MAX([self thumbnailViewWidth] + HPNoteTableViewCellMargin * 2, height) : height;
     [[HPNoteHeightCache sharedCache] setHeight:height forNote:note kind:tag.name];
     return height;
+}
+
++ (CGFloat)heightForSummaryOfNote:(HPNote*)note summaryWidth:(CGFloat)summaryWidth titleLines:(NSUInteger)titleLines tag:(HPTag*)tag
+{
+    HPFontManager *fonts = [HPFontManager sharedManager];
+    UIFont *bodyFont = [fonts fontForBodyOfNote:note];
+    const CGFloat bodyLineHeight = fonts.noteBodyLineHeight;
+    NSString *summary = [note summaryForTag:tag];
+    NSUInteger summaryLines = summary.length > 0 ? [summary hp_linesWithFont:bodyFont width:summaryWidth lineHeight:bodyLineHeight] : 0;
+    const NSUInteger maximumSummaryLines = HPNoteTableViewCellLineCount - titleLines;
+    summaryLines = MAX(0, MIN(maximumSummaryLines, summaryLines));
+    
+    HPNoteHeightCache *cache = [HPNoteHeightCache sharedCache];
+    const BOOL isTruncatedSummary = summaryLines > maximumSummaryLines;
+    [cache setIsTruncatedSummary:isTruncatedSummary forNote:note tagName:tag.name];
+    
+    const CGFloat summaryHeight = summaryLines * bodyLineHeight;
+    return summaryHeight;
 }
 
 + (CGFloat)thumbnailViewWidth

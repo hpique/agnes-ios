@@ -23,7 +23,23 @@
 
 @implementation HPNoteListTableViewCell
 
-#pragma mark - HPNoteTableViewCell
+#pragma mark HPNoteTableViewCell
+
+- (NSString*)bodyForTransition
+{
+    NSString *body = [super bodyForTransition];
+    if (body.length > 0)
+    {
+        NSRange ellipsisRange = [body rangeOfString:@"…" options:kNilOptions range:NSMakeRange(body.length - 1, 1)];
+        if (ellipsisRange.location != NSNotFound)
+        {
+            body = [body stringByReplacingCharactersInRange:ellipsisRange withString:@""];
+        }
+    }
+    return body;
+}
+
+#pragma mark HPNoteTableViewCell(Subclassing)
 
 - (void)applyPreferences
 {
@@ -37,19 +53,36 @@
 - (void)displayNote
 {
     [super displayNote];
-    NSString *title = self.note.title;
+    HPNote *note = self.note;
+    NSString *title = note.title;
     if (title)
     {
-        [self setHighlightedText:self.note.title inLabel:self.titleLabel];
+        [self setHighlightedText:note.title inLabel:self.titleLabel];
     }
     else
     { // KVO notifies nil property changes after note is deleted
         self.titleLabel.text = nil;
     }
-    NSString *summaryForTag = [self.note summaryForTag:self.agnesTag];
+    NSString *summaryForTag = [note summaryForTag:self.agnesTag];
     if (summaryForTag)
     {
-        // TODO: Show the ellipsis when the summary is two lines that fit in bodyLabel (e.g., 'Line 1\nLine 2') and there's more text in the body
+        if (!self.isTruncatedSummary && summaryForTag.length > 0)
+        {
+            NSString *body = note.body;
+            NSRange range = [body rangeOfString:summaryForTag];
+            if (NSMaxRange(range) < body.length)
+            {
+                NSCharacterSet *terminatorSet = [NSCharacterSet characterSetWithCharactersInString:@".…"];
+                NSRange range = [summaryForTag rangeOfCharacterFromSet:terminatorSet options:kNilOptions range:NSMakeRange(summaryForTag.length - 1, 1)];
+                NSMutableString *mutableSummary = summaryForTag.mutableCopy;
+                if (range.location != NSNotFound)
+                {
+                    [mutableSummary deleteCharactersInRange:range];
+                }
+                [mutableSummary appendString:@"…"];
+                summaryForTag = mutableSummary;
+            }
+        }
         [self setHighlightedText:summaryForTag inLabel:self.bodyLabel];
     }
     else
@@ -76,6 +109,14 @@
              NSRange matchRange = [match rangeAtIndex:0];
              [mutableAttributedString addAttributes:attributes range:matchRange];
          }];
+        if (text.length > 0)
+        {
+            NSRange ellipsisRange = [text rangeOfString:@"…" options:kNilOptions range:NSMakeRange(text.length - 1, 1)];
+            if (ellipsisRange.location != NSNotFound)
+            {
+                [mutableAttributedString addAttributes:attributes range:ellipsisRange];
+            }
+        }
         return mutableAttributedString;
     }];
 }
