@@ -44,6 +44,7 @@
 		8740FAF1188B2AC5004CF099 /* HPTagSuggestionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAF0188B2AC5004CF099 /* HPTagSuggestionsView.m */; };
 		8740FAF5188B3A5A004CF099 /* NDTrie.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAF4188B3A5A004CF099 /* NDTrie.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		874F1AA318BC32BE006C1323 /* UILabel+hp_utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 874F1AA218BC32BE006C1323 /* UILabel+hp_utils.m */; };
+		874F1AA618BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 874F1AA518BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.m */; };
 		8763DA2B18883ACF000D9569 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2A18883ACF000D9569 /* Foundation.framework */; };
 		8763DA2D18883ACF000D9569 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2C18883ACF000D9569 /* CoreGraphics.framework */; };
 		8763DA2F18883ACF000D9569 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2E18883ACF000D9569 /* UIKit.framework */; };
@@ -182,6 +183,8 @@
 		8740FAF4188B3A5A004CF099 /* NDTrie.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDTrie.m; sourceTree = "<group>"; };
 		874F1AA118BC32BE006C1323 /* UILabel+hp_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UILabel+hp_utils.h"; sourceTree = "<group>"; };
 		874F1AA218BC32BE006C1323 /* UILabel+hp_utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILabel+hp_utils.m"; sourceTree = "<group>"; };
+		874F1AA418BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPTextInteractionTapGestureRecognizer.h; sourceTree = "<group>"; };
+		874F1AA518BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPTextInteractionTapGestureRecognizer.m; sourceTree = "<group>"; };
 		8763DA2718883ACF000D9569 /* Agnes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agnes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8763DA2A18883ACF000D9569 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8763DA2C18883ACF000D9569 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -349,6 +352,8 @@
 				87E37F06188E4CD4000333EA /* HPKeyboardButton.m */,
 				87AA3D1518A0E22800FBEAAF /* HPNoFirstResponderActionSheet.h */,
 				87AA3D1618A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m */,
+				874F1AA418BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.h */,
+				874F1AA518BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.m */,
 				871CD00E189B4A4C00E39CFA /* UIColor+hp_utils.h */,
 				871CD00F189B4A4C00E39CFA /* UIColor+hp_utils.m */,
 				871CD006189ABD5300E39CFA /* UIImage+hp_utils.h */,
@@ -840,6 +845,7 @@
 				8740FAE8188AA7DB004CF099 /* HPNoteTableViewCell.m in Sources */,
 				871CD008189ABD5300E39CFA /* UIImage+hp_utils.m in Sources */,
 				8740FAE5188A8C3F004CF099 /* HPIndexItem.m in Sources */,
+				874F1AA618BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.m in Sources */,
 				8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */,
 				87E37E41188B6158000333EA /* HPNoteAction.m in Sources */,
 				870B5AF118903BE4009A11AB /* HPFontManager.m in Sources */,

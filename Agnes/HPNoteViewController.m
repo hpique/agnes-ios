@@ -27,6 +27,7 @@
 #import "HPNoFirstResponderActionSheet.h"
 #import "HPAgnesUIMetrics.h"
 #import "HPTracker.h"
+#import "HPTextInteractionTapGestureRecognizer.h"
 #import "UIImage+hp_utils.h"
 #import "UITextView+hp_utils.h"
 #import "UIView+hp_utils.h"
@@ -35,7 +36,7 @@
 const NSTimeInterval HPNoteEditorAttachmentAnimationDuration = 0.3;
 const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
-@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate>
+@interface HPNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate>
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
 @property (nonatomic, assign) BOOL textChanged;
@@ -153,7 +154,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         [self.view addSubview:_bodyTextView];
         [self.view bringSubviewToFront:self.toolbar];
         
-        _textTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(textTapGestureRecognizer:)];
+        _textTapGestureRecognizer = [HPTextInteractionTapGestureRecognizer new];
+        _textTapGestureRecognizer.delegate = self;
         [_bodyTextView addGestureRecognizer:_textTapGestureRecognizer];
     }
     
@@ -183,7 +185,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     if ([self.note isNew] && !_viewDidAppear)
     {
         _bodyTextView.selectedRange = NSMakeRange(0, 0);
-        [self showKeyboard];
+        [_bodyTextView becomeFirstResponder];
     }
     _viewDidAppear = YES;
     self.transitioning = NO;
@@ -337,7 +339,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     _bodyTextView.selectedRange = NSMakeRange(0, 0);
     if ([self.note isNew] && _viewDidAppear)
     {
-        [self showKeyboard];
+        [_bodyTextView becomeFirstResponder];
     }
     [[HPNoteManager sharedManager] viewNote:self.note];
     [self displayDetail]; // Do after viewing note as the number of views will increment
@@ -535,6 +537,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     _typing = typing;
     [_typingTimer invalidate];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(didFinishTyping) object:nil];
     if (typing)
     {
         HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
@@ -569,18 +572,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         [self.navigationController setNavigationBarHidden:NO animated:animated];
         [_bodyTextView scrollToVisibleCaretAnimated:NO];
     }
-}
-
-- (void)showKeyboard
-{
-    BOOL landscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
-    _bodyTextView.inputAccessoryView = nil;
-    _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, landscape ? 36 : 44) inputViewStyle:UIInputViewStyleKeyboard];
-    _suggestionsView.delegate = self;
-    NSRange tagRange;
-    _suggestionsView.prefix = [_bodyTextView.text hp_tagInRange:_bodyTextView.selectedRange enclosing:NO tagRange:&tagRange];
-    _bodyTextView.inputAccessoryView = _suggestionsView;
-    [_bodyTextView becomeFirstResponder];
 }
 
 - (void)didFinishTyping
@@ -718,48 +709,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [self setTyping:NO animated:YES];
 }
 
-- (void)textTapGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
-{
-    UITextView *textView = (UITextView*) gestureRecognizer.view;
-    NSLayoutManager *layoutManager = _bodyTextView.layoutManager;
-    CGPoint location = [gestureRecognizer locationInView:textView];
-    location.x -= textView.textContainerInset.left;
-    location.y -= textView.textContainerInset.top;
-    
-    NSUInteger characterIndex;
-    CGFloat fraction = 0; // When an attachment or url are the last elements, the fraction tells us if the location is outside the image
-    characterIndex = [layoutManager characterIndexForPoint:location inTextContainer:textView.textContainer fractionOfDistanceBetweenInsertionPoints:&fraction];
-    
-    if (characterIndex >= textView.textStorage.length)
-    {
-        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"edit_note"];
-        [self showKeyboard];
-        return;
-    }
-    
-    NSRange range;
-    NSTextAttachment *textAttachment = [textView.attributedText attribute:NSAttachmentAttributeName atIndex:characterIndex effectiveRange:&range];
-    if (textAttachment && fraction < 1)
-    {
-        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"show_attachment"];
-        [self presentTextAttachment:textAttachment atIndex:characterIndex];
-        return;
-    }
-    
-    NSURL *url = [textView.attributedText attribute:NSLinkAttributeName atIndex:characterIndex effectiveRange:&range];
-    if (url && fraction < 1)
-    {
-        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"click_link"];
-        [self handleURL:url];
-        return;
-    }
-
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"edit_note"];
-    characterIndex = MIN(characterIndex + round(fraction), textView.text.length); // In case fraction > 1, although it doesn't appear it can be
-    [textView setSelectedRange:NSMakeRange(characterIndex, 0)];
-    [self showKeyboard];
-}
-
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_note"];
@@ -801,6 +750,18 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 #pragma mark - UITextViewDelegate
 
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
+{
+    const BOOL landscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
+    textView.inputAccessoryView = nil;
+    _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, landscape ? 36 : 44) inputViewStyle:UIInputViewStyleKeyboard];
+    _suggestionsView.delegate = self;
+    NSRange tagRange;
+    _suggestionsView.prefix = [_bodyTextView.text hp_tagInRange:textView.selectedRange enclosing:NO tagRange:&tagRange];
+    textView.inputAccessoryView = _suggestionsView;
+    return YES;
+}
+
 - (void)textViewDidChange:(UITextView *)textView
 {
     self.textChanged = YES;
@@ -811,13 +772,11 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     _hasEnteredEditingModeOnce = YES;
     _bodyTextStorage.search = nil;
-    _textTapGestureRecognizer.enabled = NO;
     [self.navigationItem setRightBarButtonItems:@[_doneBarButtonItem, _actionBarButtonItem, _attachmentBarButtonItem] animated:YES];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-    _textTapGestureRecognizer.enabled = YES;
     if (self.textChanged)
     {
         [self saveNote:YES];
@@ -829,6 +788,26 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     NSRange tagRange;
     _suggestionsView.prefix = [textView.text hp_tagInRange:_bodyTextView.selectedRange enclosing:NO tagRange:&tagRange];
+}
+
+#pragma mark HPTextInteractionTapGestureRecognizerDelegate
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    [self performSelector:@selector(didFinishTyping) withObject:nil afterDelay:0.5]; // Give time to UITextView to update the selection
+    return !_bodyTextView.isFirstResponder;
+}
+
+-(void)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer handleTapOnURL:(NSURL*)url inRange:(NSRange)characterRange
+{
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"click_link"];
+    [self handleURL:url];
+}
+
+-(void)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer handleTapOnTextAttachment:(NSTextAttachment*)textAttachment inRange:(NSRange)characterRange
+{
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"show_attachment"];
+    [self presentTextAttachment:textAttachment atIndex:characterRange.location];
 }
 
 #pragma mark - HPTagSuggestionsViewDelegate
