@@ -8,8 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void (^HPKeyboardAnimationCompletionBlock)(BOOL);
+
 @interface UIView (hp_utils)
 
-+ (void)hp_animateWithKeyboardNotification:(NSNotification*)notification animations:(void(^)())animations;
+- (void)hp_animateWithKeyboardNotification:(NSNotification*)notification animations:(void(^)())animations completion:(HPKeyboardAnimationCompletionBlock)completion;
 
 @end

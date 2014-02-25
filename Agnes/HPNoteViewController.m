@@ -30,7 +30,6 @@
 #import "HPTextInteractionTapGestureRecognizer.h"
 #import "UIImage+hp_utils.h"
 #import "UITextView+hp_utils.h"
-#import "UIView+hp_utils.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 
 const NSTimeInterval HPNoteEditorAttachmentAnimationDuration = 0.3;
@@ -127,6 +126,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     self.toolbar.clipsToBounds = YES;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShowNotification:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShowNotification:) name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActiveNotification:) name:UIApplicationWillResignActiveNotification object:nil];
@@ -168,6 +168,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [_autosaveTimer invalidate];
     [_attachmentAnimationDisplayLink invalidate];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
@@ -894,13 +895,17 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     UIEdgeInsets contentInset = UIEdgeInsetsMake(_originalBodyTextViewInset.top, _originalBodyTextViewInset.left, keyboardSize.height, _originalBodyTextViewInset.right);
     _originalTextContainerInset = _bodyTextView.textContainerInset;
     UIEdgeInsets textContainerInset = UIEdgeInsetsMake(_originalTextContainerInset.top, _originalTextContainerInset.left, 0, _originalTextContainerInset.right);
-    
-    [UIView hp_animateWithKeyboardNotification:notification animations:^{
-        _bodyTextView.contentInset = contentInset;
-        _bodyTextView.scrollIndicatorInsets = contentInset;
-        _bodyTextView.textContainerInset = textContainerInset;
-        [_bodyTextView scrollToVisibleCaretAnimated:NO];
-    }];
+
+    // Neither of these properties can be animated
+    _bodyTextView.contentInset = contentInset;
+    _bodyTextView.scrollIndicatorInsets = contentInset;
+    _bodyTextView.textContainerInset = textContainerInset;
+}
+
+- (void)keyboardDidShowNotification:(NSNotification *)notification
+{
+    // TODO: Do this earlier
+    [_bodyTextView scrollToVisibleCaretAnimated:YES];
 }
 
 - (void)keyboardWillHideNotification:(NSNotification *)notification
@@ -910,12 +915,11 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [self setTyping:NO animated:YES];
     
     UIEdgeInsets contentInset = UIEdgeInsetsMake(_bodyTextView.contentInset.top, _originalBodyTextViewInset.left, _originalBodyTextViewInset.bottom, _originalBodyTextViewInset.right);
-    
-    [UIView hp_animateWithKeyboardNotification:notification animations:^{
-        _bodyTextView.contentInset = contentInset;
-        _bodyTextView.scrollIndicatorInsets = contentInset;
-        _bodyTextView.textContainerInset = _originalTextContainerInset;
-    }];
+
+    // Neither of these properties can be animated
+    _bodyTextView.contentInset = contentInset;
+    _bodyTextView.scrollIndicatorInsets = contentInset;
+    _bodyTextView.textContainerInset = _originalTextContainerInset;
 }
 
 #pragma mark - HPDataActionViewController
