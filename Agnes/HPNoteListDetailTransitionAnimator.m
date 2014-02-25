@@ -125,7 +125,7 @@
     if (!CGRectIsNull(titleRect))
     {
         titleLabelCover = [self coverView:titleLabel rect:titleLabel.bounds color:[UIColor whiteColor] context:transitionContext];
-        titleLabelPlaceholder = [self fakeView:titleLabel rect:titleLabel.bounds context:transitionContext];
+        titleLabelPlaceholder = [self snapshotView:titleLabel rect:titleLabel.bounds context:transitionContext];
     }
     
     UILabel *bodyLabel = cell.bodyLabel;
@@ -135,7 +135,7 @@
     if (!CGRectIsNull(bodyRect))
     {
         bodyLabelCover = [self coverView:bodyLabel rect:bodyLabel.bounds color:[UIColor whiteColor] context:transitionContext];
-        bodyLabelPlaceholder = [self fakeView:bodyLabel rect:bodyLabel.bounds context:transitionContext];
+        bodyLabelPlaceholder = [self snapshotView:bodyLabel rect:bodyLabel.bounds context:transitionContext];
     }
     
     UIView *thumbnailViewCover = nil;
@@ -262,12 +262,14 @@
     UIView *titlePlaceholder = nil;
     if (handleTitle)
     {
-        titlePlaceholder = [self fakeView:noteTextView rect:titleRect failsafeView:titleLabel context:transitionContext];
+        // TODO: Use titleLabel as if titleRect is not visible
+        titlePlaceholder = [self snapshotView:noteTextView rect:titleRect context:transitionContext];
     }
     UIView *bodyPlaceholder;
     if (handleBody)
     {
-        bodyPlaceholder = [self fakeView:noteTextView rect:bodyRect failsafeView:bodyLabel context:transitionContext];
+        // TODO: Use bodyLabel if bodyRect is not visible
+        bodyPlaceholder = [self snapshotView:noteTextView rect:bodyRect context:transitionContext];
     }
     
     toViewController.view.alpha = 0;
@@ -332,23 +334,14 @@
     return imageView;
 }
 
-- (UIView*)fakeView:(UIView*)view rect:(CGRect)rect context:(id <UIViewControllerContextTransitioning>)transitionContext
+- (UIView*)snapshotView:(UIView*)view rect:(CGRect)rect context:(id <UIViewControllerContextTransitioning>)transitionContext
 {
-    UIImage *image = [view hp_imageFromRect:rect];
-    UIImageView *imageView = [self addImageViewWithImage:image rect:rect fromView:view context:transitionContext];
-    return imageView;
-}
-
-- (UIView*)fakeView:(UIView*)view rect:(CGRect)rect failsafeView:(UIView*)failsafeView context:(id <UIViewControllerContextTransitioning>)transitionContext
-{
-    UIImage *image = [view hp_imageFromRect:rect];
-    if (![self isValidImage:image])
-    {
-        image = [failsafeView hp_imageFromRect:failsafeView.bounds];
-        rect = CGRectMake(rect.origin.x, rect.origin.y, image.size.width, image.size.height);
-    }
-    UIImageView *imageView = [self addImageViewWithImage:image rect:rect fromView:view context:transitionContext];
-    return imageView;
+    UIView *snapshotView = [view resizableSnapshotViewFromRect:rect afterScreenUpdates:NO withCapInsets:UIEdgeInsetsZero];
+    UIView *containerView = transitionContext.containerView;
+    rect = [containerView convertRect:rect fromView:view];
+    snapshotView.frame = rect;
+    [containerView addSubview:snapshotView];
+    return snapshotView;
 }
 
 - (UIImageView*)addImageViewWithImage:(UIImage*)image rect:(CGRect)rect fromView:(UIView*)view context:(id <UIViewControllerContextTransitioning>)transitionContext
@@ -366,42 +359,6 @@
 - (UIImage*)imageFromView:(UIView *)view
 {
     return [view hp_imageFromRect:view.bounds];
-}
-
-- (BOOL)isValidImage:(UIImage*)image
-{ // Checks if the first line isn't black, which is what happens when the text is not rendering due to scrolling.
-    CGImageRef imageRef = image.CGImage;
-    NSUInteger width = CGImageGetWidth(imageRef);
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    unsigned char *rawData = (unsigned char*) calloc(width * 4, sizeof(unsigned char));
-    NSUInteger bytesPerPixel = 4;
-    NSUInteger bytesPerRow = bytesPerPixel * width;
-    NSUInteger bitsPerComponent = 8;
-    CGContextRef context = CGBitmapContextCreate(rawData, width, 1,
-                                                 bitsPerComponent, bytesPerRow, colorSpace,
-                                                 kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-    CGColorSpaceRelease(colorSpace);
-    
-    CGContextDrawImage(context, CGRectMake(0, 0, width, 1), imageRef);
-    CGContextRelease(context);
-    
-    int byteIndex = 0;
-    BOOL found = NO;
-    for (int i = 0 ; i < width ; ++i)
-    {
-        CGFloat red   = (rawData[byteIndex]     * 1.0) / 255.0;
-        CGFloat green = (rawData[byteIndex + 1] * 1.0) / 255.0;
-        CGFloat blue  = (rawData[byteIndex + 2] * 1.0) / 255.0;
-        CGFloat alpha = (rawData[byteIndex + 3] * 1.0) / 255.0;
-        byteIndex += 4;
-        if (red > 0 || green > 0 || blue > 0 || alpha < 1)
-        {
-            found = YES;
-            break;
-        }
-    }
-    free(rawData);
-    return found;
 }
 
 - (CGRect)rectForLabel:(UILabel*)label inTextView:(UITextView*)textView context:(id <UIViewControllerContextTransitioning>)transitionContext
