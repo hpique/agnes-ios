@@ -840,15 +840,9 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     NSString *tag = [_bodyTextView.text hp_tagInRange:_bodyTextView.selectedRange enclosing:YES tagRange:&foundRange];
     if (!tag) return;
     
-    UITextRange *textRange = [_bodyTextView hp_textRangeFromRange:foundRange];
-    
-    // Add space if there is none
     NSString *text = _bodyTextView.text;
-    NSInteger nextCharacterLocation = foundRange.location + foundRange.length;
-    NSString *nextCharacter = nextCharacterLocation < text.length ? [text substringWithRange:NSMakeRange(nextCharacterLocation, 1)] : @"";
-    BOOL followedBySpace = [nextCharacter isEqualToString:@" "];
-    NSString *replacement = followedBySpace ? suggestion : [NSString stringWithFormat:@"%@ ", suggestion];
-    
+    NSString *replacement = [text hp_stringByAddingSorroundingSpacesToString:suggestion inRange:foundRange];
+    UITextRange *textRange = [_bodyTextView hp_textRangeFromRange:foundRange];
     [_bodyTextView replaceRange:textRange withText:replacement];
 }
 

@@ -18,6 +18,8 @@
 
 - (NSUInteger)hp_numberOfOccurencesOfString:(NSString*)target range:(NSRange)range;
 
+- (NSString*)hp_stringByAddingSorroundingSpacesToString:(NSString*)string inRange:(NSRange)range;
+
 @property (nonatomic, readonly) NSInteger hp_wordCount;
 
 @end

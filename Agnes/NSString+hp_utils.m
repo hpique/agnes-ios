@@ -53,6 +53,38 @@
     return [regex numberOfMatchesInString:self options:kNilOptions range:range];
 }
 
+- (NSString*)hp_stringByAddingSorroundingSpacesToString:(NSString*)string inRange:(NSRange)range
+{
+    NSCharacterSet *whitespaceCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+    
+    { // Add space after if needed
+        NSInteger nextCharacterLocation = NSMaxRange(range);
+        if (nextCharacterLocation < self.length)
+        {
+            unichar character = [self characterAtIndex:nextCharacterLocation];
+            BOOL isWhitespace = [whitespaceCharacterSet characterIsMember:character];
+            if (!isWhitespace)
+            {
+                string = [string stringByAppendingString:@" "];
+            }
+        }
+    }
+
+    { // Add space before if needed
+        NSInteger previousCharacterLocation = range.location - 1;
+        if (previousCharacterLocation > 0)
+        {
+            unichar character = [self characterAtIndex:previousCharacterLocation];
+            BOOL isWhitespace = [whitespaceCharacterSet characterIsMember:character];
+            if (!isWhitespace)
+            {
+                string = [@" " stringByAppendingString:string];
+            }
+        }
+    }
+    return string;
+}
+
 - (NSInteger)hp_wordCount
 {
     __block int wordCount =0;
