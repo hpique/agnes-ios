@@ -11,6 +11,7 @@
 #import "HPAppDelegate.h"
 #import "NDTrie.h"
 #import "HPNote.h"
+#import "HPTracker.h"
 #import <CoreData/CoreData.h>
 
 static NSString *const HPTagInboxName = @"Inbox";
@@ -120,6 +121,7 @@ static NSString *const HPTagArchiveName = @"Archive";
     if (!tag)
     {
         tag = [self insertTagWithName:name isSystem:NO];
+        [[HPTracker defaultTracker] trackEventWithCategory:@"system" action:@"add_tag" label:name];
     }
     return tag;
 }

@@ -143,7 +143,9 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     [super viewWillAppear:animated];
     _visible = YES;
-    [[HPTracker defaultTracker] trackScreenWithName:self.title];
+    HPTag *tag = self.indexItem.tag;
+    NSString *screenName = tag.isSystem ? tag.name : @"Hashtag";
+    [[HPTracker defaultTracker] trackScreenWithName:screenName];
 }
 
 - (void)viewDidAppear:(BOOL)animated
