@@ -241,12 +241,12 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 - (BOOL)hasChangedOrderForChangedAttributes:(NSDictionary*)attributes
 {
     static NSString *modifiedAtName = nil;
-    static NSString *orderName = nil;
+    static NSString *tagOrderName = nil;
     static NSString *textName = nil;
     static NSString *viewsName = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        orderName = NSStringFromSelector(@selector(cd_order));
+        tagOrderName = NSStringFromSelector(@selector(tagOrder));
         viewsName = NSStringFromSelector(@selector(cd_views));
         modifiedAtName = NSStringFromSelector(@selector(modifiedAt));
         textName = NSStringFromSelector(@selector(text));
@@ -258,7 +258,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
             attributeName = textName;
             break;
         case HPTagSortModeOrder:
-            attributeName = orderName;
+            attributeName = tagOrderName;
             break;
         case HPTagSortModeViews:
             attributeName = viewsName;
