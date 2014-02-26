@@ -550,7 +550,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
             preferences.typingSpeed = preferences.typingSpeed * (1 - currentSpeedWeight) + currentSpeed * currentSpeedWeight;
         }
         _typingPreviousDate = now;
-        if (!self.navigationController.navigationBarHidden)
+        if (!self.navigationController.navigationBarHidden && UIInterfaceOrientationIsLandscape(self.interfaceOrientation))
         {
             [self.navigationController setNavigationBarHidden:YES animated:animated];
             if (![UIApplication sharedApplication].statusBarHidden)
