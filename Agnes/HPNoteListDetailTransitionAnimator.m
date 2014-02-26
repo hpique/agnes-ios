@@ -56,9 +56,8 @@
     }
     if ([fromVC isKindOfClass:[HPNoteListViewController class]] && [toVC isKindOfClass:[HPNoteViewController class]])
     {
-        HPNoteViewController *noteViewController = (HPNoteViewController*) toVC;
-        HPNote *note = noteViewController.note;
-        if (!note.isNew)
+        HPNoteListViewController *listViewController = (HPNoteListViewController*) fromVC;
+        if (listViewController.indexPathOfSelectedNote)
         {
             return YES;
         }
