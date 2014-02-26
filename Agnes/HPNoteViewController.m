@@ -428,7 +428,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     if (self.indexItem.disableAdd) return;
     
-    [self.view endEditing:YES];
+    [self saveNote:YES];
     HPTag *tag = self.indexItem.tag;
     HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:tag];
     [_notes insertObject:note atIndex:_noteIndex + 1];
@@ -778,10 +778,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-    if (self.textChanged)
-    {
-        [self saveNote:YES];
-    }
+    [self saveNote:YES];
     [self.navigationItem setRightBarButtonItems:@[_addNoteBarButtonItem, _actionBarButtonItem, _attachmentBarButtonItem] animated:YES];
 }
 
