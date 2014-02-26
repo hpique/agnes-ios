@@ -186,7 +186,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _indexItem = indexItem;
     [self updateIndexItem];
     [self reloadNotesAnimated:NO];
-    [_notesTableView setContentOffset:CGPointMake(0, 0) animated:NO];
+    if (_notes.count > 0)
+    {
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+        [_notesTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    }
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(indexItemDidChangeNotification:) name:HPIndexItemDidChangeNotification object:_indexItem];
 }
 
