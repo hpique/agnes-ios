@@ -187,9 +187,18 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (_sortMode != HPIndexSortModeOrder) return NO;
-    HPIndexItem *item = [_items objectAtIndex:indexPath.row];
-    return item.tag != nil;
+    if (_sortMode == HPIndexSortModeOrder)
+    {
+        HPIndexItem *item = [_items objectAtIndex:indexPath.row];
+        HPTag *tag = item.tag;
+        return !tag.isSystem;
+    }
+    else
+    {
+        NSString *modeString = NSStringFromIndexSortMode(_sortMode);
+        [_titleView setSubtitle:modeString animated:YES transient:YES];
+        return NO;
+    }
 }
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath

@@ -708,7 +708,10 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (self.searchDisplayController.searchResultsTableView == tableView) return NO;
-    return _sortMode == HPTagSortModeOrder;
+    if (_sortMode == HPTagSortModeOrder) return YES;
+    NSString *criteriaDescription = [self descriptionForSortMode:_sortMode];
+    [_titleView setSubtitle:criteriaDescription animated:YES transient:YES];
+    return NO;
 }
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
