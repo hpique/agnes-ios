@@ -67,6 +67,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     UIActionSheet *_deleteNoteActionSheet;
     
     NSMutableArray *_notes;
+    NSMutableSet *_newNotes;
     NSInteger _noteIndex;
 
     HPTagSuggestionsView *_suggestionsView;
@@ -103,6 +104,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     [super viewDidLoad];
 
+    _newNotes = [NSMutableSet set];
+    
     _actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionBarButtonItemAction:)];
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-plus"] style:UIBarButtonItemStylePlain target:self action:@selector(addNoteBarButtonItemAction:)];
     _archiveBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-archive"] style:UIBarButtonItemStylePlain target:self action:@selector(archiveBarButtonItemAction:)];
@@ -160,6 +163,11 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     }
     
     [self layoutToolbar];
+    
+    if (!_note)
+    {
+        self.note = [self insertBlankNote];
+    }
     [self displayNote];
 }
 
@@ -230,13 +238,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 #pragma mark - Class
 
-+ (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem *)indexItem
-{
-    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:indexItem.tag];
-    notes = [[NSArray arrayWithObject:note] arrayByAddingObjectsFromArray:notes];
-    return [HPNoteViewController noteViewControllerWithNote:note notes:notes indexItem:indexItem];
-}
-
 + (HPNoteViewController*)noteViewControllerWithNote:(HPNote*)note notes:(NSArray*)notes indexItem:(HPIndexItem *)indexItem
 {
     HPNoteViewController *noteViewController = [[HPNoteViewController alloc] init];
@@ -282,10 +283,15 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         [self displayDetail];
         self.textChanged = NO;
         
-        if (!self.indexItem)
+        HPTag *tag = _indexItem.tag;
+        if (tag.isSystem)
         { // Find the best index item to return to
             HPIndexItem *indexItem = [self indexItemToReturn];
-            [self.delegate noteViewController:self shouldReturnToIndexItem:indexItem];
+            if (indexItem != _indexItem)
+            {
+                self.indexItem = indexItem;
+                [self.delegate noteViewController:self shouldReturnToIndexItem:indexItem];
+            }
         }
         return YES;
     }
@@ -305,14 +311,14 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     _note = note;
     _detailMode = note.detailMode;
-    _noteIndex = [self.notes indexOfObject:self.note];
+    _noteIndex = _note ? [_notes indexOfObject:_note] : NSNotFound;
 }
 
 - (void)setNotes:(NSArray*)notes
 {
     NSArray *reversed = [notes reverseObjectEnumerator].allObjects;
     _notes = reversed.mutableCopy;
-    _noteIndex = [self.notes indexOfObject:self.note];
+    _noteIndex = _note ? [_notes indexOfObject:_note] : NSNotFound;
 }
 
 - (void)setIndexItem:(HPIndexItem *)indexItem
@@ -327,6 +333,25 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     if (!(self.note.canAutosave)) return;
     [self saveNote:NO];
+}
+
+- (void)changeNoteWithTransitionOptions:(UIViewAnimationOptions)options
+{
+    [_bodyTextView scrollToVisibleCaretAnimated:NO];
+    [UIView transitionWithView:self.view duration:1.0 options:options animations:^{
+        [self displayNote];
+    } completion:^(BOOL finished) {
+        //        [_bodyTextView scrollToVisibleCaretAnimated:NO];
+    }];
+}
+
+- (void)changeToEmptyNote
+{
+    if (self.indexItem.disableAdd) return;
+    
+    [self saveNote:YES];
+    self.note = [self insertBlankNote];
+    [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
 }
 
 - (void)displayNote
@@ -377,70 +402,21 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     _detailLabel.text = text;
 }
 
-- (void)finishEditing
-{
-    [self.navigationController popViewControllerAnimated:YES];
-}
-
-- (HPIndexItem*)indexItemToReturn
-{
-    NSMutableSet *tags = [NSMutableSet set];
-    BOOL inbox = NO;
-    for (HPNote *note in self.notes)
-    {
-        NSSet *noteTags = note.cd_tags;
-        if (noteTags.count == 0)
-        {
-            inbox = YES;
-            break;
-        }
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(isSystem))];
-        noteTags = [noteTags filteredSetUsingPredicate:predicate];
-        [tags addObjectsFromArray:noteTags.allObjects];
-    }
-    if (!inbox && tags.count == 1)
-    {
-        HPTag *tag = [tags anyObject];
-        return [HPIndexItem indexItemWithTag:tag];
-    }
-    return [HPIndexItem inboxIndexItem];
-}
-
-- (void)trashNote
-{
-    [[HPNoteManager sharedManager] trashNote:self.note];
-    [_notes removeObject:self.note];
-    self.note = nil;
-    [self finishEditing];
-}
-
-- (void)changeNoteWithTransitionOptions:(UIViewAnimationOptions)options
-{
-    [_bodyTextView scrollToVisibleCaretAnimated:NO];
-    [UIView transitionWithView:self.view duration:1.0 options:options animations:^{
-        [self displayNote];
-    } completion:^(BOOL finished) {
-//        [_bodyTextView scrollToVisibleCaretAnimated:NO];
-    }];
-}
-
-- (void)changeToEmptyNote
-{
-    if (self.indexItem.disableAdd) return;
-    
-    [self saveNote:YES];
-    HPTag *tag = self.indexItem.tag;
-    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:tag];
-    [_notes insertObject:note atIndex:_noteIndex + 1];
-    self.note = note;
-    [self changeNoteWithTransitionOptions:UIViewAnimationOptionTransitionCurlUp];
-}
-
 - (void)didDismissImageViewController
 {
     _presentedImageMedium = nil;
     _presentedImageRect = CGRectNull;
     _presentedImageViewController = nil;
+}
+
+- (void)didFinishTyping
+{
+    [self setTyping:NO animated:YES];
+}
+
+- (void)finishEditing
+{
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)handleURL:(NSURL*)url
@@ -454,6 +430,50 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     {
         [self showActionSheetForURL:url];
     }
+}
+
+- (HPIndexItem*)indexItemToReturn
+{
+    NSMutableSet *tags = [NSMutableSet set];
+    BOOL useCurrent = NO;
+    NSSet *newNotes = _newNotes.copy;
+    for (HPNote *note in newNotes)
+    {
+        NSSet *noteTags = note.cd_tags;
+        if (noteTags.count == 0)
+        {
+            useCurrent = YES;
+            break;
+        }
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(isSystem))];
+        noteTags = [noteTags filteredSetUsingPredicate:predicate];
+        [tags addObjectsFromArray:noteTags.allObjects];
+    }
+    if (!useCurrent && tags.count == 1)
+    {
+        HPTag *tag = [tags anyObject];
+        return [HPIndexItem indexItemWithTag:tag];
+    }
+    else
+    {
+        return self.indexItem;
+    }
+}
+
+- (HPNote*)insertBlankNote
+{
+    HPTag *tag = self.indexItem.tag;
+    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:tag];
+    if (_newNotes.count == 0)
+    {
+        _notes = [NSMutableArray arrayWithObject:note];
+    }
+    else
+    {
+        [_notes insertObject:note atIndex:_noteIndex + 1];
+    }
+    [_newNotes addObject:note];
+    return note;
 }
 
 - (void)layoutToolbar
@@ -575,9 +595,12 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     }
 }
 
-- (void)didFinishTyping
+- (void)trashNote
 {
-    [self setTyping:NO animated:YES];
+    [[HPNoteManager sharedManager] trashNote:self.note];
+    [_notes removeObject:self.note];
+    self.note = nil;
+    [self finishEditing];
 }
 
 - (void)updateToolbar:(BOOL)animated

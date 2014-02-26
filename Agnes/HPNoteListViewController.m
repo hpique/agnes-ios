@@ -194,11 +194,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(indexItemDidChangeNotification:) name:HPIndexItemDidChangeNotification object:_indexItem];
 }
 
-- (void)showBlankNote
+- (void)showBlankNoteAnimated:(BOOL)animated
 {
-    HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:@[] indexItem:nil]; // Set indexItem to nil to return to the best indexItem
+    HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:nil notes:@[] indexItem:self.indexItem];
     noteViewController.delegate = self;
-    [self.navigationController pushViewController:noteViewController animated:NO];
+    [self.navigationController pushViewController:noteViewController animated:animated];
 }
 
 - (UITableView*)tableView
@@ -211,9 +211,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_note"];
-    HPNoteViewController *noteViewController = [HPNoteViewController blankNoteViewControllerWithNotes:_notes indexItem:self.indexItem];
-    noteViewController.delegate = self;
-    [self.navigationController pushViewController:noteViewController animated:YES];
+    [self showBlankNoteAnimated:YES];
 }
 
 - (void)archiveNoteInCell:(HPNoteListTableViewCell*)cell
@@ -857,8 +855,11 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void)noteViewController:(HPNoteViewController*)viewController shouldReturnToIndexItem:(HPIndexItem*)indexItem
 {
-    self.indexItem = indexItem;
-    [self.delegate noteListViewController:self didChangeIndexItem:indexItem];
+    if (indexItem.tag != self.indexItem.tag)
+    {
+        self.indexItem = indexItem;
+        [self.delegate noteListViewController:self didChangeIndexItem:indexItem];
+    }
 }
 
 #pragma mark - Notifications

@@ -25,8 +25,6 @@
 @property (nonatomic, copy) NSString *search;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 
-+ (HPNoteViewController*)blankNoteViewControllerWithNotes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;
-
 + (HPNoteViewController*)noteViewControllerWithNote:(HPNote*)note notes:(NSArray*)notes indexItem:(HPIndexItem*)indexItem;
 
 + (CGFloat)minimumNoteWidth;

@@ -81,7 +81,7 @@
 - (void)showBlankNote
 {
     _listViewController.indexItem = [HPIndexItem inboxIndexItem];
-    [_listViewController showBlankNote];
+    [_listViewController showBlankNoteAnimated:NO];
     if (self.openSide != MMDrawerSideNone)
     {
         [self closeDrawerAnimated:YES completion:nil];

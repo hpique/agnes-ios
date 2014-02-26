@@ -26,7 +26,7 @@
 
 - (BOOL)selectNote:(HPNote*)note;
 
-- (void)showBlankNote;
+- (void)showBlankNoteAnimated:(BOOL)animated;
 
 @end
 
