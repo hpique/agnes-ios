@@ -232,7 +232,14 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 {
     if (context == HPNoteTableViewCellContext)
     {
-        [self displayNote];
+        if (self.note.managedObjectContext && self.agnesTag.managedObjectContext)
+        {
+            [self displayNote];
+        }
+        else
+        {
+            [self prepareForReuse];
+        }
     }
     else
     {
@@ -282,6 +289,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 {
     [super prepareForReuse];
     [self removeNoteObserver];
+    _note = nil;
     self.thumbnailView.image = nil;
     _agnesTag = nil;
     self.thumbnailView.hidden = YES;
