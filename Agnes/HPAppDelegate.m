@@ -19,7 +19,7 @@
 #import <CoreData/CoreData.h>
 #import "TestFlight.h"
 
-@interface HPAppDelegate()<HPModelManagerDelegate>
+@interface HPAppDelegate()<HPModelManagerDelegate, iRateDelegate>
 
 @end
 
@@ -38,8 +38,14 @@
 {   
     [TestFlight takeOff:@"21242682-ac9b-48b1-a8d6-a3ba293c3135"];
     [[HPTracker defaultTracker] setTrackingId:@"UA-48194515-1"];
-    [iRate sharedInstance].verboseLogging = NO;
-
+    {
+        [iRate sharedInstance].verboseLogging = NO;
+        [iRate sharedInstance].promptAtLaunch = NO;
+        [iRate sharedInstance].daysUntilPrompt = 3;
+        [iRate sharedInstance].eventsUntilPrompt = 5;
+        [iRate sharedInstance].delegate = self;
+        [iRate sharedInstance].cancelButtonLabel = NSLocalizedString(@"Never Show Again", @"");
+    }
     {
         _modelManager = [[HPModelManager alloc] init];
         _modelManager.delegate = self;
@@ -119,6 +125,31 @@
         BOOL confirmed = buttonIndex == alertView.cancelButtonIndex;
         confirmBlock(confirmed);
     }];
+}
+
+#pragma mark iRateDelegate
+
+- (void)iRateDidPromptForRating
+{
+    [[HPTracker defaultTracker] trackEventWithCategory:@"system" action:@"alert_rate"];
+}
+
+- (void)iRateUserDidAttemptToRateApp
+{
+    NSString *label = [iRate sharedInstance].rateButtonLabel;
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"alert_rate_yes" label:label];
+}
+
+- (void)iRateUserDidDeclineToRateApp
+{
+    NSString *label = [iRate sharedInstance].cancelButtonLabel;
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"alert_rate_no" label:label];
+}
+
+- (void)iRateUserDidRequestReminderToRateApp
+{
+    NSString *label = [iRate sharedInstance].remindButtonLabel;
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"alert_rate_remind" label:label];
 }
 
 @end

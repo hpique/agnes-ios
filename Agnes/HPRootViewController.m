@@ -15,6 +15,7 @@
 #import "HPIndexItem.h"
 #import "HPTracker.h"
 #import "HPModelManager.h"
+#import <iRate/iRate.h>
 #import <CoreData/CoreData.h>
 
 @interface HPRootViewController()<HPNoteListViewControllerDelegate>
@@ -24,6 +25,7 @@
 @implementation HPRootViewController {
     HPNoteListViewController *_listViewController;
     HPIndexViewController *_indexViewController;
+    BOOL _prompForRating;
 }
 
 - (void)dealloc
@@ -95,12 +97,23 @@
                                                 fromViewController:(UIViewController *)fromVC
                                                   toViewController:(UIViewController *)toVC
 {
+    _prompForRating = [fromVC isKindOfClass:[HPNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]]  && [iRate sharedInstance].shouldPromptForRating;
+    
     if ([HPNoteListDetailTransitionAnimator canTransitionFromViewController:fromVC toViewController:toVC])
     {
         HPNoteListDetailTransitionAnimator *animator = [[HPNoteListDetailTransitionAnimator alloc] init];
         return animator;
     }
     return nil;
+}
+
+- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+    if (_prompForRating)
+    {
+        [[iRate sharedInstance] promptForRating];
+        _prompForRating = NO;
+    }
 }
 
 #pragma mark HPNoteListViewControllerDelegate

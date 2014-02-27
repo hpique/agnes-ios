@@ -18,6 +18,7 @@
 #import "HPData.h"
 #import "HPAgnesImageCache.h"
 #import "UIImage+hp_utils.h"
+#import <iRate/iRate.h>
 #import <CoreData/CoreData.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
@@ -213,6 +214,7 @@ static NSInteger HPNoteManagerTutorialNotesCount = 6;
      ^{
          if (isNew)
          {
+             [[iRate sharedInstance] logEvent:YES];
              [self.context insertObject:note];
          }
          HPAttachment *attachment = [HPAttachment attachmentWithData:data type:type context:note.managedObjectContext];
@@ -228,6 +230,7 @@ static NSInteger HPNoteManagerTutorialNotesCount = 6;
     [self performModelUpdateWithName:actionName save:YES block:^{
         if (isNew)
         {
+            [[iRate sharedInstance] logEvent:YES];
             [self.context insertObject:note];
         }
         note.text = [NSString stringWithString:text];
