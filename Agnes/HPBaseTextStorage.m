@@ -114,7 +114,11 @@
 {
     NSError *error = nil;
     NSDataDetector *detector = [NSDataDetector dataDetectorWithTypes:type error:&error];
-    NSAssert(detector, @"Data detector error %@", error);
+    if (!detector)
+    {
+        NSLog(@"Failed to load data detector %ld with error %@", (long)type, error);
+        return;
+    }
     NSString *text = _backingStore.string;
     [detector enumerateMatchesInString:text options:kNilOptions range:range usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
      {
