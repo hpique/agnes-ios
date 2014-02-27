@@ -133,6 +133,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHideNotification:) name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActiveNotification:) name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+
     
     {
         _bodyTextStorage = [HPBaseTextStorage new];
@@ -180,6 +182,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -920,6 +923,29 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     // TODO: Do this earlier
     [_bodyTextView scrollToVisibleCaretAnimated:YES];
+}
+
+- (void)notesDidChangeNotification:(NSNotification*)notification
+{
+    NSDictionary *userInfo = notification.userInfo;
+    NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
+    if ([deleted containsObject:_note])
+    {
+        [self finishEditing];
+    }
+    else
+    {
+        NSMutableArray *notes = _notes.mutableCopy;
+        [notes removeObjectsInArray:deleted.allObjects];
+        _notes = notes;
+        _noteIndex = [notes indexOfObject:_note];
+    }
+    NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
+    if ([updated containsObject:_note])
+    {
+        [self displayNote];
+    }
+
 }
 
 - (void)keyboardWillHideNotification:(NSNotification *)notification
