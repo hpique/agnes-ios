@@ -185,6 +185,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)setIndexItem:(HPIndexItem *)indexItem
 {
+    _indexPathOfSelectedNote = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPIndexItemDidChangeNotification object:_indexItem];
     _indexItem = indexItem;
     [self updateIndexItem];
