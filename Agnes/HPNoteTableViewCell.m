@@ -31,6 +31,8 @@ static NSString *const HPNoteHeightCacheIsTruncatedSummaryPrefix = @"s";
 
 - (CGFloat)heightForNote:(HPNote*)note kind:(NSString*)kind;
 
+- (void)invalidateCache;
+
 - (void)setHeight:(CGFloat)height forNote:(HPNote*)note kind:(NSString*)kind;
 
 - (NSNumber*)isTruncatedSummaryForNote:(HPNote*)note tagName:(NSString*)tagName;
@@ -59,6 +61,11 @@ static NSString *const HPNoteHeightCacheIsTruncatedSummaryPrefix = @"s";
     NSDictionary *dictionary = [_cache objectForKey:note.uuid];
     NSNumber *value = [dictionary objectForKey:kind];
     return value ? [value floatValue] : 0;
+}
+
+- (void)invalidateCache
+{
+    [_cache removeAllObjects];
 }
 
 - (void)setHeight:(CGFloat)height forNote:(HPNote*)note kind:(NSString*)kind
@@ -399,6 +406,11 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     
     const CGFloat summaryHeight = summaryLines * bodyLineHeight;
     return summaryHeight;
+}
+
++ (void)invalidateHeightCache
+{
+    [[HPNoteHeightCache sharedCache] invalidateCache];
 }
 
 + (CGFloat)thumbnailViewWidth

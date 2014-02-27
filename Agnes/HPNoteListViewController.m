@@ -169,6 +169,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
     [_titleView setTitle:self.title];
+    [HPNoteTableViewCell invalidateHeightCache];
 }
 
 #pragma mark - Public
@@ -188,11 +189,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _indexItem = indexItem;
     [self updateIndexItem];
     [self reloadNotesAnimated:NO];
-    if (_notes.count > 0)
-    {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-        [_notesTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:NO];
-    }
+    _notesTableView.contentOffset = CGPointMake(0, _notesTableView.tableHeaderView.bounds.size.height - _notesTableView.contentInset.top);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(indexItemDidChangeNotification:) name:HPIndexItemDidChangeNotification object:_indexItem];
 }
 
