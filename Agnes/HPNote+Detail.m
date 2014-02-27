@@ -20,7 +20,6 @@
 
 - (void)setAnimating:(BOOL)animating
 {
-    if (_animating != _animating) return;
     _animating = animating;
     if (_animating)
     {
