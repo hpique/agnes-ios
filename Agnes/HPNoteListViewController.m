@@ -523,7 +523,10 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [_notesTableView.visibleCells enumerateObjectsUsingBlock:^(HPNoteListTableViewCell *cell, NSUInteger idx, BOOL *stop) {
         [cell setDetailMode:sortMode animated:animated];
     }];
-    [_notesTableView setContentOffset:CGPointMake(0, 0) animated:animated];
+    {
+        CGPoint contentOffset = CGPointMake(0, _notesTableView.tableHeaderView.bounds.size.height - _notesTableView.contentInset.top);
+        [_notesTableView setContentOffset:contentOffset animated:animated];
+    }
 }
 
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
