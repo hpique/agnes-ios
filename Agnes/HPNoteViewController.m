@@ -91,6 +91,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     NSUInteger _attachmentAnimationIndex;
     
     CGPoint _scrollViewPreviousOffset;
+    
+    BOOL _ignoreNotesDidChangeNotification;
 }
 
 @synthesize notes = _notes;
@@ -214,7 +216,9 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     {
         if (!self.indexItem.disableRemove && [note isEmptyInTag:self.indexItem.tag])
         {
+            _ignoreNotesDidChangeNotification = YES;
             [[HPNoteManager sharedManager] trashNote:note];
+            _ignoreNotesDidChangeNotification = NO;
         }
     }
 }
@@ -275,7 +279,9 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         const BOOL changed = [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
         NSAttributedString *attributedText = self.noteTextView.attributedText;
         NSArray *attachments = [attributedText hp_attachments];
+        _ignoreNotesDidChangeNotification = YES;
         [[HPNoteManager sharedManager] editNote:self.note text:mutableText attachments:attachments];
+        _ignoreNotesDidChangeNotification = NO;
         if (changed)
         {
             NSMutableAttributedString *attributedText = self.note.attributedText.mutableCopy;
@@ -370,7 +376,9 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     {
         [_bodyTextView becomeFirstResponder];
     }
+    _ignoreNotesDidChangeNotification = YES;
     [[HPNoteManager sharedManager] viewNote:self.note];
+    _ignoreNotesDidChangeNotification = NO;
     [self displayDetail]; // Do after viewing note as the number of views will increment
     [self updateToolbar:NO /* animated */];
 }
@@ -535,7 +543,9 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     _detailMode = detailMode;
     if (!self.note) return;
+    _ignoreNotesDidChangeNotification = YES;
     [[HPNoteManager sharedManager] setDetailMode:self.detailMode ofNote:self.note];
+    _ignoreNotesDidChangeNotification = NO;
 }
 
 - (void)setTextChanged:(BOOL)textChanged
@@ -600,7 +610,9 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)trashNote
 {
+    _ignoreNotesDidChangeNotification = YES;
     [[HPNoteManager sharedManager] trashNote:self.note];
+    _ignoreNotesDidChangeNotification = NO;
     [_notes removeObject:self.note];
     self.note = nil;
     [self finishEditing];
@@ -927,6 +939,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)notesDidChangeNotification:(NSNotification*)notification
 {
+    if (_ignoreNotesDidChangeNotification) return;
+    
     NSDictionary *userInfo = notification.userInfo;
     NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
     if ([deleted containsObject:_note])
@@ -990,7 +1004,9 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         NSData *data = UIImageJPEGRepresentation(image, 1);
         dispatch_sync(dispatch_get_main_queue(), ^{
             
+            _ignoreNotesDidChangeNotification = YES;
             NSUInteger actualIndex = [[HPNoteManager sharedManager] attachToNote:self.note data:data type:(NSString*)kUTTypeImage index:index]; // TODO: What happens with settings notes?
+            _ignoreNotesDidChangeNotification = NO;
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 
                 NSAttributedString *attributedText = self.note.attributedText;
