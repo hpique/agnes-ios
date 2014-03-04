@@ -126,8 +126,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     {
         UISearchBar *searchBar = self.searchDisplayController.searchBar;
         searchBar.keyboardType = UIKeyboardTypeTwitter;
-        searchBar.translucent = YES;
-        searchBar.backgroundImage = [UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)];
+        [searchBar setBackgroundImage:[UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault]; // HACK: See: http://stackoverflow.com/questions/19927542/ios7-backgroundimage-for-uisearchbar
         searchBar.autocorrectionType = UITextAutocorrectionTypeNo; // HACK: See: http://stackoverflow.com/questions/8608529/autocorrect-in-uisearchbar-interferes-when-i-hit-didselectrowatindexpath
     }
     
@@ -146,6 +145,10 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     HPTag *tag = self.indexItem.tag;
     NSString *screenName = tag.isSystem ? tag.name : @"Hashtag";
     [[HPTracker defaultTracker] trackScreenWithName:screenName];
+    if (self.searchDisplayController.isActive)
+    {
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];        
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -777,6 +780,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void) searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
 {
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     self.title = NSLocalizedString(@"Search", @"");
     [_searchBar setWillBeginSearch];
     _searching = YES;
@@ -784,6 +788,8 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (void) searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller
 {
+    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    [[UIApplication sharedApplication] setStatusBarStyle:preferences.statusBarStyle animated:YES];
     [_searchBar setWillEndSearch];
 }
 
