@@ -39,6 +39,7 @@ static NSInteger HPAgnesDefaultIndexSortMode = HPIndexSortModeOrder;
 static UIColor* HPAgnesDefaultTintColor = nil;
 static BOOL HPAgnesDefaultStatusBarHidden = NO;
 static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
+static CGFloat AGNLuminanceMiddle = 0.6;
 
 @implementation HPPreferencesManager
 
@@ -75,7 +76,7 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
 {
     UIColor *barTintColor = self.barTintColor;
     const CGFloat luminance = [barTintColor hp_luminance];
-    if (luminance > 0.6) return [UIColor darkGrayColor];
+    if (luminance > AGNLuminanceMiddle) return [UIColor darkGrayColor];
     return [UIColor whiteColor];
 }
 
@@ -187,7 +188,7 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
 - (UIStatusBarStyle)statusBarStyle
 {
     const CGFloat luminance = [self.barTintColor hp_luminance];
-    const UIStatusBarStyle statusBarStyle = luminance > 0.6 ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
+    const UIStatusBarStyle statusBarStyle = luminance > AGNLuminanceMiddle ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
     return statusBarStyle;
 }
 
@@ -233,6 +234,7 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : barForegroundColor, NSFontAttributeName : fontManager.fontForNavigationBarTitle};
     NSDictionary *barButtontitleTextAttributes = @{ NSFontAttributeName : fontManager.fontForBarButtonTitle};
     [[UIBarButtonItem appearance] setTitleTextAttributes:barButtontitleTextAttributes forState:UIControlStateNormal];
+    // TODO: Fix MFMailComposeViewController buttons. See: http://stackoverflow.com/questions/19736481/how-do-i-make-the-color-of-uibarbuttonitems-for-mfmailcomposeviewcontroller-from
     // TODO: Update current back button. Don't know how to access it.
 }
 
