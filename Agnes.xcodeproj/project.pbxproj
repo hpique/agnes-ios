@@ -332,7 +332,8 @@
 				872C19AB18987B970013C9A5 /* TestFlight+ManualSessions.h */,
 				872C19AC18987B970013C9A5 /* TestFlight.h */,
 			);
-			path = TestFlightSDK2.1.4;
+			name = TestFlightSDK2.1.4;
+			path = TestFlightSDK3.0.0;
 			sourceTree = "<group>";
 		};
 		87393C5418A55F27006AB087 /* UIKit */ = {
@@ -1056,7 +1057,7 @@
 				INFOPLIST_FILE = "Agnes/Agnes-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/hpique/workspace/agnes-ios/Agnes/TestFlightSDK2.1.4",
+					"/Users/hpique/workspace/agnes-ios/Agnes/TestFlightSDK3.0.0",
 					"/Users/hpique/workspace/agnes-ios/Agnes/GoogleAnalyticsServicesiOS_3.03a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1084,7 +1085,7 @@
 				INFOPLIST_FILE = "Agnes/Agnes-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/hpique/workspace/agnes-ios/Agnes/TestFlightSDK2.1.4",
+					"/Users/hpique/workspace/agnes-ios/Agnes/TestFlightSDK3.0.0",
 					"/Users/hpique/workspace/agnes-ios/Agnes/GoogleAnalyticsServicesiOS_3.03a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
