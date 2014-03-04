@@ -137,6 +137,7 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSString *colorString = [barTintColor stringValue];
     [userDefaults setValue:colorString forKey:HPAgnesDefaultsKeyBarTintColor];
+    [self styleStatusBar];
     [self styleNavigationBar:[UINavigationBar appearance]];
     [[NSNotificationCenter defaultCenter] postNotificationName:HPPreferencesManagerDidChangePreferencesNotification object:self];
 }
@@ -183,6 +184,13 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     return [self boolValueForKey:HPAgnesDefaultsKeyStatusBarHidden default:HPAgnesDefaultStatusBarHidden];
 }
 
+- (UIStatusBarStyle)statusBarStyle
+{
+    const CGFloat luminance = [self.barTintColor hp_luminance];
+    const UIStatusBarStyle statusBarStyle = luminance > 0.6 ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
+    return statusBarStyle;
+}
+
 - (UIColor*)tintColor
 {
     return [self colorForKey:HPAgnesDefaultsKeyTintColor defaultColor:HPAgnesDefaultTintColor];
@@ -226,6 +234,12 @@ static NSTimeInterval HPAgnesDefaultTypingSpeed = 0.5;
     NSDictionary *barButtontitleTextAttributes = @{ NSFontAttributeName : fontManager.fontForBarButtonTitle};
     [[UIBarButtonItem appearance] setTitleTextAttributes:barButtontitleTextAttributes forState:UIControlStateNormal];
     // TODO: Update current back button. Don't know how to access it.
+}
+
+- (void)styleStatusBar
+{
+    [UIApplication sharedApplication].statusBarHidden = self.statusBarHidden;
+    [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
 }
 
 #pragma mark - Private

@@ -20,6 +20,8 @@ extern NSString* const HPPreferencesManagerDidChangePreferencesNotification;
 
 - (void)styleNavigationBar:(UINavigationBar*)navigationBar;
 
+- (void)styleStatusBar;
+
 @property (nonatomic, assign) BOOL dynamicType;
 @property (nonatomic, strong) UIColor *barTintColor;
 @property (nonatomic, readonly) NSString *barTintColorName;
@@ -28,6 +30,7 @@ extern NSString* const HPPreferencesManagerDidChangePreferencesNotification;
 @property (nonatomic, assign) NSInteger fontSize;
 @property (nonatomic, assign) HPIndexSortMode indexSortMode;
 @property (nonatomic, assign) BOOL statusBarHidden;
+@property (nonatomic, readonly) UIStatusBarStyle statusBarStyle;
 @property (nonatomic, strong) UIColor *tintColor;
 @property (nonatomic, readonly) NSString *tintColorName;
 @property (nonatomic, assign) NSTimeInterval typingSpeed;

@@ -55,9 +55,8 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReplaceModelNotification:) name:HPModelManagerDidReplaceModelNotification object:_modelManager];
     }
     
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];    
-    [UIApplication sharedApplication].statusBarHidden = preferences.statusBarHidden;
-    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    [preferences styleStatusBar];
     [UIApplication sharedApplication].keyWindow.tintColor = preferences.tintColor;
     [preferences styleNavigationBar:[UINavigationBar appearance]];
     

@@ -19,7 +19,8 @@
 {
     [super viewWillAppear:animated];
     // TODO: Use view controller based status bar appearance. First fix bug in MMDrawerController that causes the left view controller to glitch on appearence.
-    const BOOL statusBarHidden = [HPPreferencesManager sharedManager].statusBarHidden;
+    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    const BOOL statusBarHidden = preferences.statusBarHidden;
     UIApplication *app = [UIApplication sharedApplication];
     if (app.statusBarHidden != statusBarHidden)
     {
@@ -27,7 +28,7 @@
         [app setStatusBarHidden:statusBarHidden withAnimation:animation];
     }
     
-    const UIStatusBarStyle statusBarStyle = UIStatusBarStyleLightContent;
+    const UIStatusBarStyle statusBarStyle = preferences.statusBarStyle;
     if (app.statusBarStyle != statusBarStyle)
     {
         [app setStatusBarStyle:statusBarStyle animated:animated];
