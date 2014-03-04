@@ -290,7 +290,7 @@ static NSString *const HPTagArchiveName = @"Archive";
 - (NSArray*)tagsForName:(NSString*)name
 {
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", NSStringFromSelector(@selector(name)), name];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K =[c] %@", NSStringFromSelector(@selector(name)), name];
     fetchRequest.predicate = predicate;
     // In case of duplicate tags always return the same one. This is needed by removeDuplicatesOfTagNamed: and helps reduce conflicts in other cases.
     NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(uuid)) ascending:YES];
