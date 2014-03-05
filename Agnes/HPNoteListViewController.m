@@ -750,15 +750,26 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 {
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     HPNote *note = [objects objectAtIndex:indexPath.row];
-    // Search doesn't care about tags
-    HPTag *tag = _notesTableView == tableView ? self.indexItem.tag : [HPTagManager sharedManager].inboxTag;
-    return [HPNoteTableViewCell estimatedHeightForNote:note inTag:tag];
+    if (objects.count < 6)
+    { // Height will be calculated anyway as all indexPaths will be visible
+        return [self tableView:tableView heightForNote:note];
+    }
+    else
+    {
+        HPTag *tag = _notesTableView == tableView ? self.indexItem.tag : [HPTagManager sharedManager].inboxTag; // Search doesn't care about tags
+        return [HPNoteTableViewCell estimatedHeightForNote:note inTag:tag];
+    }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
     HPNote *note = [objects objectAtIndex:indexPath.row];
+    return [self tableView:tableView heightForNote:note];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForNote:(HPNote *)note
+{
     CGFloat width = tableView.bounds.size.width;
     if (tableView == _notesTableView)
     {
