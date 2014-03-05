@@ -16,6 +16,8 @@ typedef NS_ENUM(NSInteger, HPAttachmentMode) {
 
 @class HPData, HPNote;
 
+extern const CGFloat AGNAttachmentImageQuality;
+
 @interface HPAttachment : NSManagedObject
 
 @property (nonatomic, retain) NSNumber * cd_mode;

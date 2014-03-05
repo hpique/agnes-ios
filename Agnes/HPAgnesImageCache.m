@@ -37,7 +37,7 @@ static NSString *const HPAgnesImageCacheFormatThumbnail = @"thumbnail";
             format.size = CGSizeMake(minimumNoteWidth, minimumNoteWidth);
             format.scaleMode = HNKScaleModeAspectFit;
             format.diskCapacity = 100 * 1024 * 1024;
-            format.compressionQuality = 0.75;
+            format.compressionQuality = AGNAttachmentImageQuality;
             format.preloadPolicy = HNKPreloadPolicyLastSession;
             [cache registerFormat:format];
         }
@@ -56,7 +56,7 @@ static NSString *const HPAgnesImageCacheFormatThumbnail = @"thumbnail";
             _thumbnailFormat.allowUpscaling = YES;
             _thumbnailFormat.scaleMode = HNKScaleModeAspectFill;
             _thumbnailFormat.diskCapacity = 25 * 1024 * 1024;
-            _thumbnailFormat.compressionQuality = 0.75;
+            _thumbnailFormat.compressionQuality = AGNAttachmentImageQuality;
             _thumbnailFormat.preloadPolicy = HNKPreloadPolicyLastSession;
             [cache registerFormat:_thumbnailFormat];
         }

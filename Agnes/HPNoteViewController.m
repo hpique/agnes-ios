@@ -1001,7 +1001,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     if (index == NSNotFound) index = 0;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        NSData *data = UIImageJPEGRepresentation(image, 1);
+        NSData *data = UIImageJPEGRepresentation(image, AGNAttachmentImageQuality);
         dispatch_sync(dispatch_get_main_queue(), ^{
             
             _ignoreNotesDidChangeNotification = YES;

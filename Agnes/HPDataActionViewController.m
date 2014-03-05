@@ -73,7 +73,7 @@
     if (image)
     {
         CFErrorRef error = nil;
-        NSData *data = UIImageJPEGRepresentation(image, 0.6);
+        NSData *data = UIImageJPEGRepresentation(image, 0.75);
         bool result = ABPersonSetImageData(person, (__bridge CFDataRef)data, &error);
         NSAssert(result, @"Failed to set image data");
     }

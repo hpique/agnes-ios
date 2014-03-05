@@ -13,6 +13,8 @@
 #import "UIImage+hp_utils.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 
+const CGFloat AGNAttachmentImageQuality = 0.75;
+
 @implementation HPAttachment
 
 @dynamic cd_mode;
@@ -34,7 +36,7 @@
 
 + (HPAttachment*)attachmentWithImage:(UIImage*)image context:(NSManagedObjectContext*)context
 {
-    NSData *data = UIImageJPEGRepresentation(image, 1);
+    NSData *data = UIImageJPEGRepresentation(image, AGNAttachmentImageQuality);
     HPAttachment *attachment = [HPAttachment attachmentWithData:data type:(NSString*)kUTTypeImage context:context];
     return attachment;
 }
