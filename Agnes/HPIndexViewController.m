@@ -35,6 +35,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSMutableArray *_items;
     IBOutlet HPNavigationBarToggleTitleView *_titleView;
     HPIndexSortMode _sortMode;
+    
+    NSCache *_indexItemCache;
 }
 
 @synthesize tableView = _tableView;
@@ -47,6 +49,9 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    _indexItemCache = [NSCache new];
+    
     self.title = NSLocalizedString(@"Agnes", "Index title");
     self.navigationItem.titleView = _titleView;
     [_titleView setTitle:self.title];
@@ -142,7 +147,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSMutableArray *indexItems = [NSMutableArray array];
     for (HPTag *tag in tags)
     {
-        HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag];
+        HPIndexItem *indexItem = [_indexItemCache objectForKey:tag.name];
+        if (!indexItem)
+        {
+            indexItem = [HPIndexItem indexItemWithTag:tag];
+            [_indexItemCache setObject:indexItem forKey:tag.name];
+        }
         [indexItems addObject:indexItem];
     }
     if (_sortMode == HPIndexSortModeCount)
@@ -282,19 +292,21 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {
     NSDictionary *userInfo = notification.userInfo;
-    NSSet *inserted = [userInfo objectForKey:NSInsertedObjectsKey];
     NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
     NSSet *invalidated = [userInfo objectForKey:NSInvalidatedObjectsKey];
     NSSet *refreshed = [userInfo objectForKey:NSRefreshedObjectsKey];
     NSMutableSet *changes = [NSMutableSet set];
-    [changes unionSet:inserted];
     [changes unionSet:deleted];
     [changes unionSet:invalidated];
     [changes unionSet:refreshed];
-    if (changes.count > 0)
+    for (HPTag *tag in changes)
     {
-        [self reloadData];
+        [_indexItemCache removeObjectForKey:tag.name];
     }
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        // HACK: Give time to Core Data to process pending changes
+        [self reloadData];
+    }];
 }
 
 - (void)willReplaceModelNotification:(NSNotification*)notification
