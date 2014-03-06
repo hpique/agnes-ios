@@ -56,7 +56,7 @@
     NSNumber *value = @(order);
     [self willChangeValueForKey:key];
     self.cd_order = value;
-    [self willChangeValueForKey:key];
+    [self didChangeValueForKey:key];
 }
 
 - (BOOL)isSystem
@@ -78,7 +78,7 @@
     NSNumber *value = @(isSystem);
     [self willChangeValueForKey:key];
     self.cd_isSystem = value;
-    [self willChangeValueForKey:key];
+    [self didChangeValueForKey:key];
 }
 
 - (NSInteger)sortMode
@@ -100,7 +100,7 @@
     NSNumber *value = @(sortMode);
     [self willChangeValueForKey:key];
     self.cd_sortMode = value;
-    [self willChangeValueForKey:key];
+    [self didChangeValueForKey:key];
 }
 
 @end

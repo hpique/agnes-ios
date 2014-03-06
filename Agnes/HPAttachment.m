@@ -96,7 +96,7 @@ const CGFloat AGNAttachmentImageQuality = 0.75;
     NSNumber *value = @(mode);
     [self willChangeValueForKey:key];
     self.cd_mode = value;
-    [self willChangeValueForKey:key];
+    [self didChangeValueForKey:key];
 }
 
 - (NSInteger)order
@@ -118,7 +118,7 @@ const CGFloat AGNAttachmentImageQuality = 0.75;
     NSNumber *value = @(order);
     [self willChangeValueForKey:key];
     self.cd_order = value;
-    [self willChangeValueForKey:key];
+    [self didChangeValueForKey:key];
 }
 
 @end

@@ -373,7 +373,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     NSNumber *value = @(archived);
     [self willChangeValueForKey:key];
     self.cd_archived = value;
-    [self willChangeValueForKey:key];
+    [self didChangeValueForKey:key];
 }
 
 - (NSInteger)detailMode
@@ -395,7 +395,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     NSNumber *value = @(detailMode);
     [self willChangeValueForKey:key];
     self.cd_detailMode = value;
-    [self willChangeValueForKey:key];
+    [self didChangeValueForKey:key];
 }
 
 - (NSInteger)views
@@ -417,7 +417,7 @@ const NSInteger HPNoteDetailModeCount = 5;
     NSNumber *value = @(views);
     [self willChangeValueForKey:key];
     self.cd_views = value;
-    [self willChangeValueForKey:key];
+    [self didChangeValueForKey:key];
 }
 
 @end
