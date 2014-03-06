@@ -5,6 +5,7 @@
 	<string>#books</string>
     <string>#contacts</string>
     <string>#favorites</string>
+    <string>#food</string>
     <string>#ideas</string>
     <string>#important</string>
     <string>#inspiration</string>
@@ -16,6 +17,7 @@
     <string>#reading</string>
     <string>#recipes</string>
     <string>#reminders</string>
+	<string>#restaurants</string>
     <string>#shopping</string>
     <string>#things</string>
     <string>#todo</string>
