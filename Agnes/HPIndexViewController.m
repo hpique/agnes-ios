@@ -304,7 +304,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
         [_indexItemCache removeObjectForKey:tag.name];
     }
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        // HACK: Give time to Core Data to process pending changes
+        // HACK: Give time to Core Data to process pending changes or invalidate caches. See: http://stackoverflow.com/questions/22229617/fetch-request-returns-old-data
         [self reloadData];
     }];
 }
