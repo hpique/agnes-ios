@@ -72,7 +72,7 @@ NSString* const HPEntityManagerObjectsDidChangeNotification = @"HPEntityManagerO
 {
     NSError *error;
     BOOL success = [_context save:&error];
-    NSAssert([_context save:&error], @"Context save failed with error %@", error.localizedDescription);
+    NSAssert(success, @"Context save failed with error %@", error.localizedDescription);
     if (!success)
     {
         NSLog(@"Context save failed with error %@", error);
