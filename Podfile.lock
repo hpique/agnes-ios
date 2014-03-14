@@ -1,6 +1,6 @@
 PODS:
   - ColorUtils (1.1.2)
-  - Haneke (0.0.1)
+  - Haneke (0.0.4)
   - HPReorderTableView (0.0.1)
   - iOS7Colors (2.0.0)
   - iRate (1.9.3)
@@ -53,7 +53,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   ColorUtils: 5740b610eb7b50833f46d6d9863ebaa1da55301d
-  Haneke: 9f24e2ea2beb854b84fa253a9bc8d695a5786b4e
+  Haneke: 6bcc4a20888dbe42717f94f1efb09d906ddc735d
   HPReorderTableView: ed45d7dcd241f0a989ea259ffe8a1523e2a82650
   iOS7Colors: 80d700ca0fe4415eeea1cfb74d4d790ffa0375ab
   iRate: 99aef520b335a1eb4a14a8d9ba5e8db4e1d95bbe

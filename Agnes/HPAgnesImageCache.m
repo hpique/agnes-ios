@@ -94,7 +94,7 @@ static NSString *const HPAgnesImageCacheFormatThumbnail = @"thumbnail";
             formatName = HPAgnesImageCacheFormatDetailCharacter;
             break;
     }
-    return [[HNKCache sharedCache] imageForEntity:attachment formatName:formatName];
+    return [[HNKCache sharedCache] imageForEntity:attachment formatName:formatName error:nil];
 }
 
 - (void)prePopulateCacheWithThumbnailOfImageNamed:(NSString*)name atttachment:(HPAttachment*)attachment
