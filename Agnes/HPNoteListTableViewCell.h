@@ -13,6 +13,4 @@
 
 @interface HPNoteListTableViewCell : HPNoteTableViewCell
 
-@property (nonatomic, strong) HPNote *note;
-
 @end
