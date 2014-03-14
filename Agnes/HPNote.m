@@ -225,22 +225,22 @@ const NSInteger HPNoteDetailModeCount = 5;
 - (NSUInteger)addAttachment:(HPAttachment*)attachment atIndex:(NSUInteger)index
 {
     NSString *text = self.text;
-    
+    NSInteger cursor = index;
     NSMutableString *mutableText = [self.text mutableCopy];
-    if (index > 0 && [mutableText characterAtIndex:index - 1] != '\n')
+    if (cursor > 0 && [mutableText characterAtIndex:cursor - 1] != '\n')
     {
-        [mutableText insertString:@"\n" atIndex:index];
-        index++;
+        [mutableText insertString:@"\n" atIndex:cursor];
+        cursor++;
     }
-    [mutableText insertString:[HPNote attachmentString] atIndex:index];
-    const NSUInteger nextIndex = index + 1;
-    if (nextIndex == mutableText.length || [mutableText characterAtIndex:nextIndex] != '\n')
+    [mutableText insertString:[HPNote attachmentString] atIndex:cursor];
+    cursor++;
+    if (cursor == mutableText.length || [mutableText characterAtIndex:cursor] != '\n')
     {
-        [mutableText insertString:@"\n" atIndex:nextIndex];
+        [mutableText insertString:@"\n" atIndex:cursor];
     }
     
     NSMutableArray *mutableAttachments = self.attachments.mutableCopy;
-    NSRange searchRange = NSMakeRange(0, index);
+    const NSRange searchRange = NSMakeRange(0, index);
     NSUInteger attachmentIndex = [text hp_numberOfOccurencesOfString:[HPNote attachmentString] range:searchRange];
     attachmentIndex = MIN(attachmentIndex, self.attachments.count);
     [mutableAttachments insertObject:attachment atIndex:attachmentIndex];
