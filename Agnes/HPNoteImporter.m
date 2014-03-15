@@ -211,7 +211,7 @@
     return YES;
 }
 
-- (BOOL)importNotesFromArchiveAtPath:(NSString*)path error:(NSError**)error
+- (BOOL)importNotesFromArchiveAtPath:(NSString*)path error:(NSError**)errorRef
 {
     NSString *importPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"import"];
     
@@ -223,34 +223,37 @@
     importPath = [importPath stringByAppendingPathComponent:dateString];
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
     if ([fileManager fileExistsAtPath:importPath])
     {
-        BOOL success = [fileManager removeItemAtPath:importPath error:error];
+        BOOL success = [fileManager removeItemAtPath:importPath error:&error];
         if (!success)
         {
-            NSLog(@"Remove previous import directory failed with error %@", [*error localizedDescription]);
+            NSLog(@"Remove previous import directory failed with error %@", [error localizedDescription]);
+            if (errorRef != NULL) *errorRef = error;
             return NO;
         }
     }
-    BOOL success = [fileManager createDirectoryAtPath:importPath withIntermediateDirectories:YES attributes:nil error:error];
+    BOOL success = [fileManager createDirectoryAtPath:importPath withIntermediateDirectories:YES attributes:nil error:&error];
     if (!success)
     {
-        NSLog(@"Create import directory failed with error %@", [*error localizedDescription]);
+        NSLog(@"Create import directory failed with error %@", [error localizedDescription]);
+        if (errorRef != NULL) *errorRef = error;
         return NO;
     }
     success = [SSZipArchive unzipFileAtPath:path toDestination:importPath];
     if (!success) return NO;
     
-    success = [self importNoteBatchAtPath:importPath error:error];
-    BOOL removed = [fileManager removeItemAtPath:importPath error:error];
+    success = [self importNoteBatchAtPath:importPath error:&error];
+    BOOL removed = [fileManager removeItemAtPath:importPath error:&error];
     if (!removed)
     {
-        NSLog(@"Remove import directory failed with error %@", [*error localizedDescription]);
+        NSLog(@"Remove import directory failed with error %@", [error localizedDescription]);
     }
-    removed = [fileManager removeItemAtPath:path error:error];
+    removed = [fileManager removeItemAtPath:path error:&error];
     if (!removed)
     {
-        NSLog(@"Remove file failed with error %@", [*error localizedDescription]);
+        NSLog(@"Remove file failed with error %@", [error localizedDescription]);
     }
     return success;
 }
