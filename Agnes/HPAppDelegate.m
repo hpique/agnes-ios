@@ -18,6 +18,7 @@
 #import <iRate/iRate.h>
 #import <CoreData/CoreData.h>
 #import "TestFlight.h"
+#import <Crashlytics/Crashlytics.h>
 
 @interface HPAppDelegate()<HPModelManagerDelegate, iRateDelegate>
 
@@ -35,9 +36,8 @@
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{   
+{
     [TestFlight takeOff:@"21242682-ac9b-48b1-a8d6-a3ba293c3135"];
-    [[HPTracker defaultTracker] setTrackingId:@"UA-48194515-1"];
     {
         [iRate sharedInstance].verboseLogging = NO;
         [iRate sharedInstance].promptAtLaunch = NO;
@@ -46,6 +46,10 @@
         [iRate sharedInstance].delegate = self;
         [iRate sharedInstance].cancelButtonLabel = NSLocalizedString(@"Never Show Again", @"");
     }
+#if !DEBUG
+    [[HPTracker defaultTracker] setTrackingId:@"UA-48194515-1"];
+    [Crashlytics startWithAPIKey:@"303898f46fabee8132e6fe426e5cd0045ca8cce2"];
+#endif
     {
         _modelManager = [[HPModelManager alloc] init];
         _modelManager.delegate = self;

@@ -45,6 +45,7 @@
 		8740FAF5188B3A5A004CF099 /* NDTrie.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAF4188B3A5A004CF099 /* NDTrie.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		874F1AA318BC32BE006C1323 /* UILabel+hp_utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 874F1AA218BC32BE006C1323 /* UILabel+hp_utils.m */; };
 		874F1AA618BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 874F1AA518BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.m */; };
+		8758A29718D7805400CA69E9 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8758A29618D7805400CA69E9 /* Crashlytics.framework */; };
 		8763DA2B18883ACF000D9569 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2A18883ACF000D9569 /* Foundation.framework */; };
 		8763DA2D18883ACF000D9569 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2C18883ACF000D9569 /* CoreGraphics.framework */; };
 		8763DA2F18883ACF000D9569 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2E18883ACF000D9569 /* UIKit.framework */; };
@@ -185,6 +186,7 @@
 		874F1AA218BC32BE006C1323 /* UILabel+hp_utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILabel+hp_utils.m"; sourceTree = "<group>"; };
 		874F1AA418BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPTextInteractionTapGestureRecognizer.h; sourceTree = "<group>"; };
 		874F1AA518BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPTextInteractionTapGestureRecognizer.m; sourceTree = "<group>"; };
+		8758A29618D7805400CA69E9 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		8763DA2718883ACF000D9569 /* Agnes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Agnes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8763DA2A18883ACF000D9569 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8763DA2C18883ACF000D9569 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -295,6 +297,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				87A6907418B4CCF600F97E13 /* AdSupport.framework in Frameworks */,
+				8758A29718D7805400CA69E9 /* Crashlytics.framework in Frameworks */,
 				87A6907218B4CCAE00F97E13 /* SystemConfiguration.framework in Frameworks */,
 				871CD005189AB9EA00E39CFA /* MobileCoreServices.framework in Frameworks */,
 				872C19B118987BC80013C9A5 /* libz.dylib in Frameworks */,
@@ -466,6 +469,7 @@
 		8763DA2918883ACF000D9569 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8758A29618D7805400CA69E9 /* Crashlytics.framework */,
 				87A6907318B4CCF600F97E13 /* AdSupport.framework */,
 				87A6907118B4CCAE00F97E13 /* SystemConfiguration.framework */,
 				871CD004189AB9EA00E39CFA /* MobileCoreServices.framework */,
@@ -697,6 +701,7 @@
 				8763DA2418883ACF000D9569 /* Frameworks */,
 				8763DA2518883ACF000D9569 /* Resources */,
 				0A920CE647924000998B3AB0 /* Copy Pods Resources */,
+				8758A29518D7800D00CA69E9 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -831,6 +836,19 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
+		};
+		8758A29518D7800D00CA69E9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Crashlytics.framework/run 303898f46fabee8132e6fe426e5cd0045ca8cce2 a4472dc32cb63b73105293f6ce3d58240e14fe453b095c34bd45305eab8431b3";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1049,6 +1067,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Users/hpique/Downloads/Reveal.app/Contents/SharedSupport/iOS-Libraries",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Agnes/Agnes-Prefix.pch";
@@ -1077,6 +1096,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Users/hpique/Downloads/Reveal.app/Contents/SharedSupport/iOS-Libraries",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Agnes/Agnes-Prefix.pch";
