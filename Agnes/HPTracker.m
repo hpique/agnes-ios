@@ -17,13 +17,6 @@
     NSMutableArray *_screenHistory;
 }
 
-+ (void)initialize
-{
-#if !(DEBUG)
-    [GAI sharedInstance].trackUncaughtExceptions = YES;
-#endif
-}
-
 - (id)init
 {
     if (self = [super init])
