@@ -10,6 +10,8 @@
 
 @interface UITextView (hp_utils)
 
+- (CGPoint)hp_pointFromTouch:(UITouch*)touch;
+
 - (CGRect)hp_rectForSubstring:(NSString*)substring;
 
 - (CGRect)hp_rectForCharacterRange:(NSRange)charRange;

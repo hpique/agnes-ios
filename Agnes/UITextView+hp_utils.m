@@ -10,6 +10,14 @@
 
 @implementation UITextView (hp_utils)
 
+- (CGPoint)hp_pointFromTouch:(UITouch*)touch
+{
+    CGPoint point = [touch locationInView:self];
+    point.x -= self.textContainerInset.left;
+    point.y -= self.textContainerInset.top;
+    return point;
+}
+
 - (CGRect)hp_rectForSubstring:(NSString*)substring
 {
     NSRange charRange = [self.text rangeOfString:substring];

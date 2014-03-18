@@ -7,6 +7,7 @@
 //
 
 #import "HPTextInteractionTapGestureRecognizer.h"
+#import "UITextView+hp_utils.h"
 #import <UIKit/UIGestureRecognizerSubclass.h>
 
 @implementation HPTextInteractionTapGestureRecognizer {
@@ -25,7 +26,7 @@
     NSTextContainer *textContainer = textView.textContainer;
     NSLayoutManager *layoutManager = textView.layoutManager;
     
-    const CGPoint point = [self pointFromTouch:touch];
+    const CGPoint point = [textView hp_pointFromTouch:touch];
     NSUInteger characterIndex = [layoutManager characterIndexForPoint:point inTextContainer:textContainer fractionOfDistanceBetweenInsertionPoints:nil];
     
     if (characterIndex >= textView.text.length)
@@ -89,18 +90,6 @@
         _textAttachment = nil;
         _URL = nil;
     }
-}
-
-
-#pragma mark Utils
-
-- (CGPoint)pointFromTouch:(UITouch*)touch
-{
-    UITextView *textView = (UITextView*) self.view;
-    CGPoint point = [touch locationInView:textView];
-    point.x -= textView.textContainerInset.left;
-    point.y -= textView.textContainerInset.top;
-    return point;
 }
 
 @end

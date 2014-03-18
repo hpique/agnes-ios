@@ -27,6 +27,7 @@
 		871CD010189B4A4C00E39CFA /* UIColor+hp_utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 871CD00F189B4A4C00E39CFA /* UIColor+hp_utils.m */; };
 		871CD013189B4EE200E39CFA /* sample.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 871CD011189B4EE200E39CFA /* sample.jpg */; };
 		871CD014189B4EE200E39CFA /* sample@2x.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 871CD012189B4EE200E39CFA /* sample@2x.jpg */; };
+		871F7C4118D8A55400E6CA07 /* AGNTagTapGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 871F7C4018D8A55400E6CA07 /* AGNTagTapGestureRecognizer.m */; };
 		872C19A518986F6C0013C9A5 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 872C19A318986F6C0013C9A5 /* Localizable.stringsdict */; };
 		872C19AD18987B970013C9A5 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 872C19A718987B970013C9A5 /* libTestFlight.a */; };
 		872C19B118987BC80013C9A5 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 872C19B018987BC80013C9A5 /* libz.dylib */; };
@@ -152,6 +153,8 @@
 		871CD00F189B4A4C00E39CFA /* UIColor+hp_utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+hp_utils.m"; sourceTree = "<group>"; };
 		871CD011189B4EE200E39CFA /* sample.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sample.jpg; sourceTree = "<group>"; };
 		871CD012189B4EE200E39CFA /* sample@2x.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sample@2x.jpg"; sourceTree = "<group>"; };
+		871F7C3F18D8A55400E6CA07 /* AGNTagTapGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNTagTapGestureRecognizer.h; sourceTree = "<group>"; };
+		871F7C4018D8A55400E6CA07 /* AGNTagTapGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNTagTapGestureRecognizer.m; sourceTree = "<group>"; };
 		872C19A418986F6C0013C9A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		872C19A718987B970013C9A5 /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTestFlight.a; sourceTree = "<group>"; };
 		872C19AA18987B970013C9A5 /* TestFlight+AsyncLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TestFlight+AsyncLogging.h"; sourceTree = "<group>"; };
@@ -416,6 +419,8 @@
 		8740FAE2188A8BA2004CF099 /* Note Detail */ = {
 			isa = PBXGroup;
 			children = (
+				871F7C3F18D8A55400E6CA07 /* AGNTagTapGestureRecognizer.h */,
+				871F7C4018D8A55400E6CA07 /* AGNTagTapGestureRecognizer.m */,
 				8763DA69188942F6000D9569 /* HPBaseTextStorage.h */,
 				8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */,
 				87E37F00188DB2E7000333EA /* HPDataActionViewController.h */,
@@ -900,6 +905,7 @@
 				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
 				87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */,
 				8704D60718A109EB00C8977E /* HPAgnesUIMetrics.m in Sources */,
+				871F7C4118D8A55400E6CA07 /* AGNTagTapGestureRecognizer.m in Sources */,
 				873E228218A9AFB500E7919C /* HPAgnesImageCache.m in Sources */,
 				87142A001896CFC900DA588F /* HPNoteImporter.m in Sources */,
 				873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */,

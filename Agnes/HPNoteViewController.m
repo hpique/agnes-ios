@@ -7,6 +7,7 @@
 //
 
 #import "HPNoteViewController.h"
+#import "AGNTagTapGestureRecognizer.h"
 #import "HPNote.h"
 #import "HPNote+Detail.h"
 #import "HPNoteManager.h"
@@ -20,7 +21,6 @@
 #import "HPBrowserViewController.h"
 #import "HPFontManager.h"
 #import "HPAttachment.h"
-#import "PSPDFTextView.h"
 #import "HPImageViewController.h"
 #import "HPImageZoomAnimationController.h"
 #import "NSString+hp_utils.h"
@@ -30,6 +30,7 @@
 #import "HPTextInteractionTapGestureRecognizer.h"
 #import "UIImage+hp_utils.h"
 #import "UITextView+hp_utils.h"
+#import <PSPDFTextView/PSPDFTextView.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
 const NSTimeInterval HPNoteEditorAttachmentAnimationDuration = 0.3;
@@ -48,7 +49,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     UIEdgeInsets _originalBodyTextViewInset;
     UIEdgeInsets _originalTextContainerInset;
     HPBaseTextStorage *_bodyTextStorage;
-    UITapGestureRecognizer *_textTapGestureRecognizer;
 
     UIBarButtonItem *_actionBarButtonItem;
     UIBarButtonItem *_attachmentBarButtonItem;
@@ -161,9 +161,14 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         [self.view addSubview:_bodyTextView];
         [self.view bringSubviewToFront:self.toolbar];
         
-        _textTapGestureRecognizer = [HPTextInteractionTapGestureRecognizer new];
-        _textTapGestureRecognizer.delegate = self;
-        [_bodyTextView addGestureRecognizer:_textTapGestureRecognizer];
+        UIGestureRecognizer *textInteractionGestureRecognizer = [HPTextInteractionTapGestureRecognizer new];
+        textInteractionGestureRecognizer.delegate = self;
+        [_bodyTextView addGestureRecognizer:textInteractionGestureRecognizer];
+        
+        UIGestureRecognizer *tagGestureRecognizer = [AGNTagTapGestureRecognizer new];
+        tagGestureRecognizer.delegate = self;
+        [tagGestureRecognizer addTarget:self action:@selector(tagTapGesture:)];
+        [_bodyTextView addGestureRecognizer:tagGestureRecognizer];
     }
     
     [self layoutToolbar];
@@ -748,6 +753,15 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [self setTyping:NO animated:YES];
 }
 
+- (void)tagTapGesture:(AGNTagTapGestureRecognizer*)gestureRecognizer
+{
+    NSString *tagName = [_bodyTextView.text substringWithRange:gestureRecognizer.tagRange];
+    HPTag *tag = [[HPTagManager sharedManager] tagWithName:tagName];
+    HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag];
+    [self.delegate noteViewController:self shouldReturnToIndexItem:indexItem];
+    [self finishEditing];
+}
+
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_note"];
@@ -826,13 +840,15 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     _suggestionsView.prefix = [textView.text hp_tagInRange:_bodyTextView.selectedRange enclosing:NO tagRange:&tagRange];
 }
 
-#pragma mark HPTextInteractionTapGestureRecognizerDelegate
+#pragma mark UIGestureRecognizerDelegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
     [self performSelector:@selector(didFinishTyping) withObject:nil afterDelay:0.5]; // Give time to UITextView to update the selection
     return !_bodyTextView.isFirstResponder;
 }
+
+#pragma mark HPTextInteractionTapGestureRecognizerDelegate
 
 -(void)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer handleTapOnURL:(NSURL*)url inRange:(NSRange)characterRange
 {
