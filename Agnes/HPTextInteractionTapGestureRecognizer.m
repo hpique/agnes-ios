@@ -21,25 +21,38 @@
     if (self.state == UIGestureRecognizerStateFailed) return;
 
     UITouch *touch = [touches anyObject];
-    CGFloat fraction = 0;
-    NSUInteger characterIndex = [self characterIndexAtTouch:touch fraction:&fraction];
-    
     UITextView *textView = (UITextView*) self.view;
+    NSTextContainer *textContainer = textView.textContainer;
+    NSLayoutManager *layoutManager = textView.layoutManager;
+    
+    const CGPoint point = [self pointFromTouch:touch];
+    NSUInteger characterIndex = [layoutManager characterIndexForPoint:point inTextContainer:textContainer fractionOfDistanceBetweenInsertionPoints:nil];
+    
     if (characterIndex >= textView.text.length)
     {
         self.state = UIGestureRecognizerStateFailed;
         return;
     }
 
+    { // characterIndexForPoint returns the nearest character. For better accuracy, we check if the point is inside the bounding rect of the returned character index
+        const NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:NSMakeRange(characterIndex, 1) actualCharacterRange:nil];
+        CGRect boundingRect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textContainer];
+        if (!CGRectContainsPoint(boundingRect, point))
+        {
+            self.state = UIGestureRecognizerStateFailed;
+            return;
+        }
+    }
+
     _textAttachment = [textView.attributedText attribute:NSAttachmentAttributeName atIndex:characterIndex effectiveRange:&_range];
-    if (_textAttachment && fraction < 1)
+    if (_textAttachment)
     {
         return;
     }
     _textAttachment = nil;
     
     _URL = [textView.attributedText attribute:NSLinkAttributeName atIndex:characterIndex effectiveRange:&_range];
-    if (_URL && fraction < 1)
+    if (_URL)
     {
         return;
     }
@@ -78,19 +91,16 @@
     }
 }
 
-- (NSUInteger)characterIndexAtTouch:(UITouch*)touch fraction:(CGFloat*)fraction
+
+#pragma mark Utils
+
+- (CGPoint)pointFromTouch:(UITouch*)touch
 {
     UITextView *textView = (UITextView*) self.view;
-    NSLayoutManager *layoutManager = textView.layoutManager;
-    CGPoint location = [touch locationInView:textView];
-    location.x -= textView.textContainerInset.left;
-    location.y -= textView.textContainerInset.top;
-    
-    NSUInteger characterIndex;
-    // When an attachment or url are the last elements, the fraction tells us if the location is outside the image
-    characterIndex = [layoutManager characterIndexForPoint:location inTextContainer:textView.textContainer fractionOfDistanceBetweenInsertionPoints:fraction];
-    return characterIndex;
+    CGPoint point = [touch locationInView:textView];
+    point.x -= textView.textContainerInset.left;
+    point.y -= textView.textContainerInset.top;
+    return point;
 }
-
 
 @end
