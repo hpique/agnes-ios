@@ -199,6 +199,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)showBlankNoteAnimated:(BOOL)animated
 {
+    _indexPathOfSelectedNote = nil;
     HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:nil notes:@[] indexItem:self.indexItem];
     noteViewController.delegate = self;
     [self.navigationController pushViewController:noteViewController animated:animated];
