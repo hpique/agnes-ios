@@ -145,8 +145,11 @@
     {
         thumbnailViewCover = [self coverView:thumbnailView rect:thumbnailView.bounds color:[UIColor whiteColor] context:transitionContext];
         thumbnailCharacterIndex = [self characterIndexForAttachment:thumbnailAttachment textView:noteTextView];
-        NSTextAttachment *attachment = [noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:thumbnailCharacterIndex effectiveRange:nil];
-        thumbnailViewPlaceholder = [self addImageViewWithImage:attachment.image rect:thumbnailView.bounds fromView:thumbnailView context:transitionContext];
+        if (thumbnailCharacterIndex != NSNotFound)
+        {
+            NSTextAttachment *attachment = [noteTextView.attributedText attribute:NSAttachmentAttributeName atIndex:thumbnailCharacterIndex effectiveRange:nil];
+            thumbnailViewPlaceholder = [self addImageViewWithImage:attachment.image rect:thumbnailView.bounds fromView:thumbnailView context:transitionContext];
+        }
     }
     
     if (titleLabelPlaceholder) [containerView bringSubviewToFront:titleLabelPlaceholder];
