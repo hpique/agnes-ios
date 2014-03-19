@@ -38,7 +38,17 @@
     
     NSString *summaryForTag = [summary stringByReplacingCharactersInRange:lastLineRange withString:@""];
     summaryForTag = [summaryForTag stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    return summaryForTag;
+    
+    if (summaryForTag.length > 0) return summaryForTag;
+    
+    NSString *body = self.body;
+    const NSRange summaryRange = [body rangeOfString:summary];
+    const NSUInteger index = NSMaxRange(summaryRange);
+    if (index >= body.length) return summaryForTag;
+    
+    NSString *altSummary = [body substringFromIndex:index];
+    altSummary = [altSummary stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return altSummary;
 }
 
 - (HPAttachment*)thumbnailAttachment
