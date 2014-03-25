@@ -35,6 +35,6 @@
 
 @protocol HPNoteViewControllerDelegate<NSObject>
 
-- (void)noteViewController:(HPNoteViewController*)viewController shouldReturnToIndexItem:(HPIndexItem*)indexItem;
+- (void)noteViewController:(HPNoteViewController*)viewController didSelectIndexItem:(HPIndexItem*)indexItem;
 
 @end

@@ -22,6 +22,8 @@
 
 - (BOOL)isEmptyInTag:(HPTag*)tag;
 
+- (NSSet*)userTags;
+
 + (NSParagraphStyle*)paragraphStyleOfAttributedText:(NSAttributedString*)attributedText paragraphRange:(NSRange)paragraphRange;
 
 @end

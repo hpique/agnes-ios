@@ -67,8 +67,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     UIActionSheet *_deleteNoteActionSheet;
     
     NSMutableArray *_notes;
-    NSMutableSet *_newNotes;
     NSInteger _noteIndex;
+    HPTag *_currentTag;
 
     HPTagSuggestionsView *_suggestionsView;
     BOOL _viewDidAppear;
@@ -105,9 +105,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    _newNotes = [NSMutableSet set];
-    
+  
     _actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionBarButtonItemAction:)];
     _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-plus"] style:UIBarButtonItemStylePlain target:self action:@selector(addNoteBarButtonItemAction:)];
     _archiveBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-archive"] style:UIBarButtonItemStylePlain target:self action:@selector(archiveBarButtonItemAction:)];
@@ -146,7 +144,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         container.widthTracksTextView = YES;
         [layoutManager addTextContainer:container];
         [_bodyTextStorage addLayoutManager:layoutManager];
-        _bodyTextStorage.tag = self.indexItem.tag.name;
+        _bodyTextStorage.tag = _currentTag.name;
         
         _bodyTextView = [[PSPDFTextView alloc] initWithFrame:self.view.bounds textContainer:container];
         _bodyTextView.opaque = NO;
@@ -219,7 +217,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     // TODO: Do this only when we're transitiong back to the list or to the menu
     for (HPNote *note in self.notes)
     {
-        if (!self.indexItem.disableRemove && [note isEmptyInTag:self.indexItem.tag])
+        if (!self.indexItem.disableRemove && [note isEmptyInTag:_currentTag])
         {
             _ignoreNotesDidChangeNotification = YES;
             [[HPNoteManager sharedManager] trashNote:note];
@@ -278,7 +276,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     if (!note) return NO;
     if (!self.textChanged) return NO;
     
-    if (![note isNew] || ![_bodyTextView.text hp_isEmptyInTag:self.indexItem.tag])
+    if (![note isNew] || ![_bodyTextView.text hp_isEmptyInTag:_currentTag])
     {
         NSMutableString *mutableText = [NSMutableString stringWithString:self.noteTextView.text];
         const BOOL changed = [HPNoteAction willEditNote:note text:mutableText editor:self.noteTextView];
@@ -296,17 +294,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         [self updateToolbar:animated];
         [self displayDetail];
         self.textChanged = NO;
-        
-        HPTag *tag = _indexItem.tag;
-        if (tag.isSystem)
-        { // Find the best index item to return to
-            HPIndexItem *indexItem = [self indexItemToReturn];
-            if (indexItem != _indexItem)
-            {
-                self.indexItem = indexItem;
-                [self.delegate noteViewController:self shouldReturnToIndexItem:indexItem];
-            }
-        }
+
+        _currentTag = [self bestTagForNewNotes];
         return YES;
     }
     return NO;
@@ -338,7 +327,8 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)setIndexItem:(HPIndexItem *)indexItem
 {
     _indexItem = indexItem;
-    _bodyTextStorage.tag = self.indexItem.tag.name;
+    _currentTag = indexItem.tag;
+    _bodyTextStorage.tag = _currentTag.name;
 }
 
 #pragma mark - Private
@@ -347,6 +337,32 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
 {
     if (!(self.note.canAutosave)) return;
     [self saveNote:NO];
+}
+
+- (HPTag*)bestTagForNewNotes
+{
+    NSSet *currentUserTags = self.note.userTags;
+    if (currentUserTags.count == 0) return _currentTag;
+    if (currentUserTags.count == 1) return [currentUserTags anyObject];
+    
+    NSCountedSet *tags = [NSCountedSet set];
+    NSArray *notes = self.notes.copy;
+    for (HPNote *note in notes)
+    {
+        [tags unionSet:note.userTags];
+    }
+    HPTag *bestTag = nil;
+    NSUInteger maxCount = 0;
+    for (HPTag *tag in tags)
+    {
+        const NSUInteger count = [tags countForObject:tag];
+        if (count > maxCount)
+        {
+            bestTag = tag;
+            maxCount = count;
+        }
+    }
+    return bestTag ? : _currentTag;
 }
 
 - (void)changeNoteWithTransitionOptions:(UIViewAnimationOptions)options
@@ -448,39 +464,10 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     }
 }
 
-- (HPIndexItem*)indexItemToReturn
-{
-    NSMutableSet *tags = [NSMutableSet set];
-    BOOL useCurrent = NO;
-    NSSet *newNotes = _newNotes.copy;
-    for (HPNote *note in newNotes)
-    {
-        NSSet *noteTags = note.cd_tags;
-        if (noteTags.count == 0)
-        {
-            useCurrent = YES;
-            break;
-        }
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(isSystem))];
-        noteTags = [noteTags filteredSetUsingPredicate:predicate];
-        [tags addObjectsFromArray:noteTags.allObjects];
-    }
-    if (!useCurrent && tags.count == 1)
-    {
-        HPTag *tag = [tags anyObject];
-        return [HPIndexItem indexItemWithTag:tag];
-    }
-    else
-    {
-        return self.indexItem;
-    }
-}
-
 - (HPNote*)insertBlankNote
 {
-    HPTag *tag = self.indexItem.tag;
-    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:tag];
-    if (_newNotes.count == 0)
+    HPNote *note = [[HPNoteManager sharedManager] blankNoteWithTag:_currentTag];
+    if (_notes.count == 0)
     {
         _notes = [NSMutableArray arrayWithObject:note];
     }
@@ -488,7 +475,6 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     {
         [_notes insertObject:note atIndex:_noteIndex + 1];
     }
-    [_newNotes addObject:note];
     return note;
 }
 
@@ -758,14 +744,14 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     NSString *tagName = [_bodyTextView.text substringWithRange:gestureRecognizer.tagRange];
     HPTag *tag = [[HPTagManager sharedManager] tagWithName:tagName];
     HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag];
-    [self.delegate noteViewController:self shouldReturnToIndexItem:indexItem];
+    [self.delegate noteViewController:self didSelectIndexItem:indexItem];
     [self finishEditing];
 }
 
 - (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_note"];
-    if ([self.note isEmptyInTag:self.indexItem.tag])
+    if ([self.note isEmptyInTag:_currentTag])
     {
         [self trashNote];
     }

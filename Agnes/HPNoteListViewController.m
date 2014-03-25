@@ -875,7 +875,7 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 #pragma mark - HPNoteViewControllerDelegate
 
-- (void)noteViewController:(HPNoteViewController*)viewController shouldReturnToIndexItem:(HPIndexItem*)indexItem
+- (void)noteViewController:(HPNoteViewController*)viewController didSelectIndexItem:(HPIndexItem*)indexItem
 {
     if (indexItem.tag != self.indexItem.tag)
     {

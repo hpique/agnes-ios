@@ -100,6 +100,13 @@
     return NO;
 }
 
+- (NSSet*)userTags
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == NO", NSStringFromSelector(@selector(isSystem))];
+    NSSet *userTags = [self.cd_tags filteredSetUsingPredicate:predicate];
+    return userTags;
+}
+
 + (NSParagraphStyle*)paragraphStyleOfAttributedText:(NSAttributedString*)attributedText paragraphRange:(NSRange)paragraphRange
 {
     NSMutableParagraphStyle *paragraphStyle = [NSParagraphStyle defaultParagraphStyle].mutableCopy;
