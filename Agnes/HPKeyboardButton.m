@@ -32,6 +32,7 @@
     [super setTitle:title forState:state];
     CGFloat fontSize = title.length == 1 ? 22 : 16;
     self.titleLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:fontSize];
+    [self setNeedsLayout]; // Without this the title doesn't change when cells are reused. WTF?
 }
 
 - (CGSize)intrinsicContentSize
