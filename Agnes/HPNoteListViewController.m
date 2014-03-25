@@ -705,23 +705,27 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
         noteCell.firstTrigger = 1.0f/3.0f;
         noteCell.secondTrigger = 2.0f/3.0f;
         __weak id weakSelf = self;
-        if (note.archived)
+        
+        if (!self.indexItem.disableRemove)
         {
-            [self setSwipeActionTo:noteCell imageNamed:@"icon-inbox" color:[UIColor iOS7greenColor] state:MCSwipeTableViewCellState1 block:^(HPNoteListTableViewCell *cell) {
-                [weakSelf unarchiveNoteInCell:cell];
-            }];
-            [self setSwipeActionTo:noteCell imageNamed:@"icon-trash" color:[UIColor iOS7redColor] state:MCSwipeTableViewCellState3 block:^(HPNoteListTableViewCell *cell) {
-                [weakSelf trashNoteInCell:cell];
-            }];
-        }
-        else
-        {
-            [self setSwipeActionTo:noteCell imageNamed:@"icon-archive" color:[UIColor iOS7orangeColor] state:MCSwipeTableViewCellState3 block:^(HPNoteListTableViewCell *cell) {
-                [weakSelf archiveNoteInCell:cell];
-            }];
-            [self setSwipeActionTo:noteCell imageNamed:@"icon-trash" color:[UIColor iOS7redColor] state:MCSwipeTableViewCellState4 block:^(HPNoteListTableViewCell *cell) {
-                [weakSelf trashNoteInCell:cell];
-            }];
+            if (note.archived)
+            {
+                [self setSwipeActionTo:noteCell imageNamed:@"icon-inbox" color:[UIColor iOS7greenColor] state:MCSwipeTableViewCellState1 block:^(HPNoteListTableViewCell *cell) {
+                    [weakSelf unarchiveNoteInCell:cell];
+                }];
+                [self setSwipeActionTo:noteCell imageNamed:@"icon-trash" color:[UIColor iOS7redColor] state:MCSwipeTableViewCellState3 block:^(HPNoteListTableViewCell *cell) {
+                    [weakSelf trashNoteInCell:cell];
+                }];
+            }
+            else
+            {
+                [self setSwipeActionTo:noteCell imageNamed:@"icon-archive" color:[UIColor iOS7orangeColor] state:MCSwipeTableViewCellState3 block:^(HPNoteListTableViewCell *cell) {
+                    [weakSelf archiveNoteInCell:cell];
+                }];
+                [self setSwipeActionTo:noteCell imageNamed:@"icon-trash" color:[UIColor iOS7redColor] state:MCSwipeTableViewCellState4 block:^(HPNoteListTableViewCell *cell) {
+                    [weakSelf trashNoteInCell:cell];
+                }];
+            }
         }
     }
     [cell setNote:note ofTag:self.indexItem.tag detailMode:_sortMode];
