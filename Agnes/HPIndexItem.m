@@ -129,8 +129,8 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
         instance = [[HPIndexItemSystem alloc] init];
         instance.title = NSLocalizedString(@"Meta", @"");
         instance.imageName = @"icon-gear";
-        instance.defaultSortMode = HPTagSortModeViews;
-        instance.allowedSortModes = @[@(HPTagSortModeAlphabetical), @(HPTagSortModeViews)];
+        instance.defaultSortMode = HPTagSortModeAlphabetical;
+        instance.allowedSortModes = @[@(HPTagSortModeAlphabetical)];
         instance->_disableAdd = YES;
         instance->_disableRemove = YES;
     });
@@ -510,6 +510,11 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 - (NSString*)listScreenName
 {
     return @"Meta";
+}
+
+- (HPTagSortMode)sortMode
+{
+    return self.defaultSortMode;
 }
 
 @end
