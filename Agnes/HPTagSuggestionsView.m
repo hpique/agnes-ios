@@ -10,6 +10,7 @@
 #import "HPTagManager.h"
 #import "HPTag.h"
 #import "HPKeyboardButton.h"
+#import <Lyt/Lyt.h>
 
 @interface HPHashSupplementaryView : UICollectionReusableView
 
@@ -168,13 +169,8 @@
         
         NSDictionary *viewsDictionary = NSDictionaryOfVariableBindings(_button);
         NSArray *constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_button]|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:viewsDictionary];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:_button
-                                                         attribute:NSLayoutAttributeBottom
-                                                         relatedBy:NSLayoutRelationEqual
-                                                            toItem:self
-                                                         attribute:NSLayoutAttributeBottom
-                                                        multiplier:1
-                                                          constant:-1]]; // For the shadow
+        
+        [_button lyt_alignBottomToView:self.contentView margin:-1]; // For the shadow
         [self.contentView addConstraints:constraints];
     }
     return self;
@@ -195,13 +191,7 @@
         
         NSDictionary *viewsDictionary = NSDictionaryOfVariableBindings(_button);
         [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_button]-6-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:viewsDictionary]];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:_button
-                                                         attribute:NSLayoutAttributeBottom
-                                                         relatedBy:NSLayoutRelationEqual
-                                                            toItem:self
-                                                         attribute:NSLayoutAttributeBottom
-                                                        multiplier:1
-                                                          constant:-1]]; // For the shadow
+        [_button lyt_alignBottomToView:self margin:-1]; // For the shadow
     }
     return self;
 }

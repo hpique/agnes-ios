@@ -9,6 +9,7 @@
 #import "HPNavigationBarToggleTitleView.h"
 #import "HPPreferencesManager.h"
 #import "HPFontManager.h"
+#import <Lyt/Lyt.h>
 
 @implementation HPNavigationBarToggleTitleView {
     UILabel *_titleLabel;
@@ -54,23 +55,12 @@
     
     [self addSubview:_titleLabel];
     [self addSubview:_subtitleLabel];
-    NSDictionary *views = NSDictionaryOfVariableBindings(_titleLabel, _subtitleLabel);
-    {
-        NSArray *constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"|[_titleLabel]|" options:kNilOptions metrics:nil views:views];
-        [self addConstraints:constraints];
-    }
-    {
-        NSArray *constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"|[_subtitleLabel]|" options:kNilOptions metrics:nil views:views];
-        [self addConstraints:constraints];
-    }
-    {
-        NSLayoutConstraint *contraint = [NSLayoutConstraint constraintWithItem:_titleLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
-        [self addConstraint:contraint];
-    }
-    {
-        NSLayoutConstraint *contraint = [NSLayoutConstraint constraintWithItem:_subtitleLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_titleLabel attribute:NSLayoutAttributeBottom multiplier:1 constant:-4];
-        [self addConstraint:contraint];
-    }
+
+    [_titleLabel lyt_alignSidesToView:self];
+    [_titleLabel lyt_alignCenterYToView:self];
+
+    [_subtitleLabel lyt_alignSidesToView:self];
+    [_subtitleLabel lyt_placeBelowView:_titleLabel margin:-4];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferencesNotification:) name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];

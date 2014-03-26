@@ -19,6 +19,7 @@
 #import "UIImageView+Haneke.h"
 #import "HPAgnesImageCache.h"
 #import "UILabel+hp_utils.h"
+#import <Lyt/Lyt.h>
 
 NSInteger const HPNoteTableViewCellLabelMaxLength = 150;
 CGFloat const HPNoteTableViewCellMargin = 10;
@@ -173,9 +174,9 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 
 @implementation HPNoteTableViewCell {
     BOOL _removedObserver;
-    NSArray *_titleDetailConstraints;
-    NSArray *_thumbnailDetailConstraints;
-    NSArray *_thumbnailTitleConstraints;
+    NSLayoutConstraint *_titleDetailConstraint;
+    NSLayoutConstraint *_thumbnailDetailConstraint;
+    NSLayoutConstraint *_thumbnailTitleConstraint;
     NSLayoutConstraint *_bodyLabelAlignRightToDetailConstraint;
     NSTimer *_modifiedAtSortModeTimer;
     HPNoteTableViewCellLayoutMode _layoutMode;
@@ -204,11 +205,11 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferences:) name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
     
     {
-        NSDictionary *viewsDictionary = NSDictionaryOfVariableBindings(_thumbnailView, _titleLabel, _detailLabel);
-        _titleDetailConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-8-[_detailLabel]" options:kNilOptions metrics:nil views:viewsDictionary];
-        _thumbnailDetailConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_detailLabel]-8-[_thumbnailView]" options:kNilOptions metrics:nil views:viewsDictionary];
-        _thumbnailTitleConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[_titleLabel]-8-[_thumbnailView]" options:kNilOptions metrics:nil views:viewsDictionary];
-        _bodyLabelAlignRightToDetailConstraint = [NSLayoutConstraint constraintWithItem:_bodyLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:_detailLabel attribute:NSLayoutAttributeRight multiplier:1 constant:0];
+        
+        _titleDetailConstraint = [_detailLabel lyt_constraintByPlacingLeftToView:_titleLabel margin:8];
+        _thumbnailDetailConstraint = [_thumbnailView lyt_constraintByPlacingLeftToView:_detailLabel margin:8];
+        _thumbnailTitleConstraint = [_thumbnailView lyt_constraintByPlacingLeftToView:_titleLabel margin:8];
+        _bodyLabelAlignRightToDetailConstraint = [_bodyLabel lyt_constraintByAligningRightToView:_detailLabel];
         
         self.thumbnailViewWidthConstraint.constant = [HPNoteTableViewCell thumbnailViewWidth];
         self.thumbnailViewHeightConstraint.constant = self.thumbnailViewWidthConstraint.constant;
@@ -266,17 +267,17 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
             break;
         case HPNoteTableViewCellLayoutModeDetail:
             [self.contentView addConstraint:self.detailLabelTrailingSpaceConstraint];
-            [self.contentView addConstraints:_titleDetailConstraints];
+            [self.contentView addConstraint:_titleDetailConstraint];
             [self.contentView addConstraint:_bodyLabelAlignRightToDetailConstraint];
             break;
         case HPNoteTableViewCellLayoutModeThumbnail:
             [self.contentView addConstraint:self.bodyLabelAlignRightToTitleConstraint];
-            [self.contentView addConstraints:_thumbnailTitleConstraints];
+            [self.contentView addConstraint:_thumbnailTitleConstraint];
             break;
         case HPNoteTableViewCellLayoutModeDetailThumbnail:
-            [self.contentView addConstraints:_titleDetailConstraints];
+            [self.contentView addConstraint:_titleDetailConstraint];
             [self.contentView addConstraint:_bodyLabelAlignRightToDetailConstraint];
-            [self.contentView addConstraints:_thumbnailDetailConstraints];
+            [self.contentView addConstraint:_thumbnailDetailConstraint];
         default:
             break;
     }
@@ -533,9 +534,9 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 {
     [self.contentView removeConstraint:self.detailLabelTrailingSpaceConstraint];
     [self.contentView removeConstraint:self.titleLabelTrailingSpaceConstraint];
-    [self.contentView removeConstraints:_titleDetailConstraints];
-    [self.contentView removeConstraints:_thumbnailTitleConstraints];
-    [self.contentView removeConstraints:_thumbnailDetailConstraints];
+    [self.contentView removeConstraint:_titleDetailConstraint];
+    [self.contentView removeConstraint:_thumbnailTitleConstraint];
+    [self.contentView removeConstraint:_thumbnailDetailConstraint];
     [self.contentView removeConstraint:self.bodyLabelAlignRightToTitleConstraint];
     [self.contentView removeConstraint:_bodyLabelAlignRightToDetailConstraint];
 }
