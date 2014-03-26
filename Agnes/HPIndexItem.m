@@ -172,6 +172,11 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return [[HPFontManager sharedManager] fontForNoteBody];
 }
 
+- (BOOL)hideNoteCount
+{
+    return NO;
+}
+
 - (UIImage*)icon
 {
     if (!_icon)
@@ -500,6 +505,11 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 - (NSArray*)notes:(BOOL)archived
 {
     return [HPNoteManager sharedManager].systemNotes;
+}
+
+- (BOOL)hideNoteCount
+{
+    return YES;
 }
 
 - (NSString*)indexTitle

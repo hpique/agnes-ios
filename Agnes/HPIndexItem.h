@@ -30,10 +30,11 @@ extern NSString* const HPIndexItemDidChangeNotification;
 @property (nonatomic, readonly) NSString* emptyTitle;
 @property (nonatomic, readonly) UIFont* emptyTitleFont;
 @property (nonatomic, readonly) NSString *exportPrefix;
+@property (nonatomic, readonly) BOOL hideNoteCount;
 @property (nonatomic, readonly) UIImage *icon;
 @property (nonatomic, readonly) NSString *indexTitle;
-@property (nonatomic, readonly) NSArray *notes;
 @property (nonatomic, readonly) NSString *listScreenName;
+@property (nonatomic, readonly) NSArray *notes;
 /**
  Return the number of notes. Use instead of notes.count to improve performance.
  */

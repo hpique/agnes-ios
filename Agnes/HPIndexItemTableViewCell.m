@@ -65,6 +65,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(indexItemDidChangeNotification:) name:HPIndexItemDidChangeNotification object:self.indexItem];
     _titleView.text = self.indexItem.indexTitle;
     _iconView.image = self.indexItem.icon;
+    _detailView.hidden = self.indexItem.hideNoteCount;
     _detailView.text = [NSString stringWithFormat:@"%ld", (long)self.indexItem.noteCount];
 }
 
