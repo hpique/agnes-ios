@@ -193,6 +193,13 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return self.indexTitle;
 }
 
+- (NSString*)listScreenName
+{
+    static NSString *const UserTagScreenName = @"Hashtag";
+    NSString *screenName = self.tag.isSystem ? self.tag.name : UserTagScreenName;
+    return screenName;
+}
+
 - (NSUInteger)noteCount
 {
     if (_noteCount != NSNotFound) return _noteCount;

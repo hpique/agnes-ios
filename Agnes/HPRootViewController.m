@@ -67,7 +67,7 @@
 
 - (void)setListIndexItem:(HPIndexItem*)indexItem animated:(BOOL)animated
 {
-    [[HPTracker defaultTracker] trackScreenWithName:indexItem.title];
+    [[HPTracker defaultTracker] trackScreenWithName:indexItem.listScreenName];
     _listViewController.indexItem = indexItem;
     if (self.openSide != MMDrawerSideNone)
     {
