@@ -507,4 +507,9 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return self.title;
 }
 
+- (NSString*)listScreenName
+{
+    return @"Meta";
+}
+
 @end

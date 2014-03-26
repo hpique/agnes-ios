@@ -142,9 +142,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     [super viewWillAppear:animated];
     _visible = YES;
-    HPTag *tag = self.indexItem.tag;
-    NSString *screenName = tag.isSystem ? tag.name : @"Hashtag";
-    [[HPTracker defaultTracker] trackScreenWithName:screenName];
+    [[HPTracker defaultTracker] trackScreenWithName:self.indexItem.listScreenName];
     if (self.searchDisplayController.isActive)
     {
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];        
