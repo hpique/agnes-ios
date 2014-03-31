@@ -1,7 +1,7 @@
 PODS:
   - ColorUtils (1.1.2)
   - Haneke (0.0.5)
-  - HPReorderTableView (0.0.1)
+  - HPReorderTableView (0.1)
   - iOS7Colors (2.0.0)
   - iRate (1.9.3)
   - Lyt (0.0.1)
@@ -26,7 +26,7 @@ PODS:
 DEPENDENCIES:
   - ColorUtils (from `https://github.com/hpique/ColorUtils.git`, branch `agnes`)
   - Haneke (from `https://github.com/hpique/Haneke.git`)
-  - HPReorderTableView (from `https://github.com/hpique/HPReorderTableView.git`)
+  - HPReorderTableView (~> 0.1)
   - iOS7Colors (~> 2.0.0)
   - iRate (~> 1.9)
   - Lyt (from `https://github.com/robotmedia/Lyt.git`)
@@ -43,8 +43,6 @@ EXTERNAL SOURCES:
     :git: https://github.com/hpique/ColorUtils.git
   Haneke:
     :git: https://github.com/hpique/Haneke.git
-  HPReorderTableView:
-    :git: https://github.com/hpique/HPReorderTableView.git
   Lyt:
     :git: https://github.com/robotmedia/Lyt.git
   MCSwipeTableViewCell:
@@ -58,7 +56,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   ColorUtils: 5740b610eb7b50833f46d6d9863ebaa1da55301d
   Haneke: 34087f62b25a9b6502fefe934bc258dab94233b4
-  HPReorderTableView: ed45d7dcd241f0a989ea259ffe8a1523e2a82650
+  HPReorderTableView: e614ee4bb07d17548d4c2131b48d59c668f424ca
   iOS7Colors: 80d700ca0fe4415eeea1cfb74d4d790ffa0375ab
   iRate: 99aef520b335a1eb4a14a8d9ba5e8db4e1d95bbe
   Lyt: ac3d01f9839fbec5393d3ca03dfd5361defe34b2

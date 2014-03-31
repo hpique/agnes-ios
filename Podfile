@@ -3,7 +3,7 @@ pod 'PSPDFTextView', :git => 'https://github.com/hpique/PSPDFTextView.git', :bra
 pod 'MMDrawerController', '~> 0.5'
 pod 'MCSwipeTableViewCell', :git => 'https://github.com/hpique/MCSwipeTableViewCell.git'
 pod 'SSZipArchive', '~> 0.3'
-pod 'HPReorderTableView', :git => 'https://github.com/hpique/HPReorderTableView.git'
+pod 'HPReorderTableView', '~> 0.1'
 pod 'iOS7Colors', '~> 2.0.0'
 pod 'TTTAttributedLabel', :git => 'https://github.com/hpique/TTTAttributedLabel.git'
 pod 'MHWDirectoryWatcher', '~> 0.0'
