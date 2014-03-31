@@ -205,6 +205,21 @@ static NSInteger HPNoteManagerTutorialNotesCount = 6;
 
 @implementation HPNoteManager(Actions)
 
+- (void)addNoteWithText:(NSString*)text tag:(HPTag*)tag
+{
+    [self performModelUpdateWithName:NSLocalizedString(@"Add Note", @"") save:YES block:^{
+        [[iRate sharedInstance] logEvent:YES];
+
+        NSEntityDescription *entityDescription = [NSEntityDescription entityForName:[self entityName] inManagedObjectContext:self.context];
+        HPNote *note = [[HPNote alloc] initWithEntity:entityDescription insertIntoManagedObjectContext:self.context];
+        note.uuid = [[NSUUID UUID] UUIDString];
+        note.createdAt = [NSDate date];
+        note.modifiedAt = note.createdAt;
+        note.detailMode = HPNoteDetailModeModifiedAt;
+        note.text = tag.isSystem ? text : [NSString stringWithFormat:@"%@\n\n%@", text, tag.name];
+    }];
+}
+
 - (NSUInteger)attachToNote:(HPNote*)note data:(NSData*)data type:(NSString*)type index:(NSInteger)index
 {
     BOOL isNew = note.managedObjectContext == nil;

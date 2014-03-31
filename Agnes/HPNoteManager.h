@@ -54,6 +54,8 @@
 
 @interface HPNoteManager(Actions)
 
+- (void)addNoteWithText:(NSString*)text tag:(HPTag*)tag;
+
 - (NSUInteger)attachToNote:(HPNote*)note data:(NSData*)data type:(NSString*)type index:(NSInteger)index;
 
 - (void)editNote:(HPNote*)note text:(NSString*)text attachments:(NSArray*)attachments;
