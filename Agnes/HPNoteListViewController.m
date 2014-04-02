@@ -7,6 +7,8 @@
 //
 
 #import "HPNoteListViewController.h"
+#import "AGNListDataSource.h"
+#import "AGNSearchDataSource.h"
 #import "HPNoteViewController.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
@@ -36,18 +38,17 @@
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
-@interface HPNoteListViewController () <UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate, HPNoteViewControllerDelegate, UISearchDisplayDelegate>
+@interface HPNoteListViewController () <UITableViewDelegate, AGNListDataSourceDelegate, HPSectionArrayDataSourceDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate, HPNoteViewControllerDelegate, UISearchDisplayDelegate>
 
 @end
 
 @implementation HPNoteListViewController {
     __weak IBOutlet HPReorderTableView *_notesTableView;
-    NSMutableArray *_notes;
+    AGNListDataSource *_listDataSource;
     
     BOOL _searching;
     NSString *_searchString;
-    NSArray *_searchResults;
-    NSArray *_archivedSearchResults;
+    AGNSearchDataSource *_searchDataSource;
     __weak IBOutlet HPNoteListSearchBar *_searchBar;
     
     IBOutlet HPNavigationBarToggleTitleView *_titleView;
@@ -230,7 +231,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"export_list"];
     _noteExporter = [[HPNoteExporter alloc] init];
     [_titleView setSubtitle:NSLocalizedString(@"Preparing notes for export", @"") animated:YES transient:NO];
-    [_noteExporter exportNotes:_notes name:self.indexItem.exportPrefix progress:^(NSString *message) {
+    NSArray *notes = [NSArray arrayWithArray:_listDataSource.items];
+    [_noteExporter exportNotes:notes name:self.indexItem.exportPrefix progress:^(NSString *message) {
         [_titleView setSubtitle:message animated:NO transient:NO];
     } success:^(NSURL *fileURL) {
         [_titleView setSubtitle:@"" animated:YES transient:NO];
@@ -378,17 +380,13 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     if (self.tableView == _notesTableView)
     {
-        NSUInteger row = [_notes indexOfObject:note];
+        NSUInteger row = [_listDataSource.items indexOfObject:note];
         return row == NSNotFound ? nil : [NSIndexPath indexPathForRow:row inSection:0];
     }
     else
     {
-        NSUInteger row = [_searchResults indexOfObject:note];
-        if (row != NSNotFound) return [NSIndexPath indexPathForRow:row inSection:0];
-        row = [_archivedSearchResults indexOfObject:note];
-        if (row != NSNotFound) return [NSIndexPath indexPathForRow:row inSection:1];
+        return [_searchDataSource indexPathOfItem:note];
     }
-    return nil;
 }
 
 - (void)reloadNotesAnimated:(BOOL)animated
@@ -401,14 +399,16 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     updatedNotes = [updatedNotes setByAddingObjectsFromSet:_pendingUpdatedNotes];
     [_pendingUpdatedNotes removeAllObjects];
     
-    NSArray *previousNotes = _notes;
+    NSArray *previousNotes = [NSArray arrayWithArray:_listDataSource.items];
     NSArray *notes = self.indexItem.notes;
-    _notes = [NSMutableArray arrayWithArray:notes];
+    _listDataSource = [[AGNListDataSource alloc] initWithItems:notes cellIdentifier:HPNoteListTableViewCellReuseIdentifier];
+    _listDataSource.delegate = self;
+    _notesTableView.dataSource = _listDataSource;
     
     if (animated)
     {
         NSArray *previousData = previousNotes ? @[previousNotes] : nil;
-        [_notesTableView hp_reloadChangesWithPreviousData:previousData currentData:@[_notes] keyBlock:^id<NSCopying>(HPNote *note) {
+        [_notesTableView hp_reloadChangesWithPreviousData:previousData currentData:@[notes] keyBlock:^id<NSCopying>(HPNote *note) {
             return note.objectID;
         } reloadBlock:^BOOL(HPNote *note) {
             // Only reload remaining notes if the cell height changed
@@ -432,15 +432,16 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
     if (animated)
     {
-        NSArray *previousSearchResults = _searchResults;
-        NSArray *previousArchivedSearchResults = _archivedSearchResults;
-        NSArray *previousData = _searchResults == nil || _archivedSearchResults == nil ? nil : @[previousSearchResults, previousArchivedSearchResults];
+        NSArray *previousSearchResults = _searchDataSource.inboxResults;
+        NSArray *previousArchivedSearchResults = _searchDataSource.archivedResults;
+        NSArray *previousData = previousSearchResults == nil || previousArchivedSearchResults == nil ? nil : @[previousSearchResults, previousArchivedSearchResults];
         
-        _searchResults = [self notesWithSearchString:_searchString archived:NO];
-        _archivedSearchResults = [self notesWithSearchString:_searchString archived:YES];
+        _searchDataSource = [[AGNSearchDataSource alloc] initWithSearch:_searchString indexItem:self.indexItem cellIdentifier:HPNoteListTableViewCellReuseIdentifier];
+        _searchDataSource.delegate = self;
+        searchTableView.dataSource = _searchDataSource;
         
         [searchTableView hp_reloadChangesWithPreviousData:previousData
-                                              currentData:@[_searchResults, _archivedSearchResults]
+                                              currentData:_searchDataSource.sections
                                                  keyBlock:^id<NSCopying>(HPNote *note) {
                                                      return note.objectID;
                                                  } reloadBlock:^BOOL(HPNote *note) {
@@ -457,7 +458,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     NSIndexPath *indexPath = [_notesTableView indexPathForCell:cell];
     [self changeModel:block changeView:^{
-        [_notes removeObjectAtIndex:indexPath.row];
+        [_listDataSource.items removeObjectAtIndex:indexPath.row];
         [_notesTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self updateEmptyView:YES];
     }];
@@ -481,7 +482,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)updateEmptyView:(BOOL)animated
 {
-    BOOL empty = _notes.count == 0;
+    BOOL empty = _listDataSource.items.count == 0;
     if (empty != _emptyListView.hidden) return;
 
     if (animated)
@@ -531,7 +532,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
 {
-    HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:_notes indexItem:self.indexItem];
+    HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:notes indexItem:self.indexItem];
     noteViewController.delegate = self;
     if (_searchString) noteViewController.search = _searchString;
     [self.navigationController pushViewController:noteViewController animated:YES];
@@ -548,41 +549,6 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         case HPTagSortModeViews: return NSLocalizedString(@"most viewed", @"");
         case HPTagSortModeTag: return NSLocalizedString(@"by tag", @"");
     }
-}
-
-- (NSArray*)notesWithSearchString:(NSString*)searchString archived:(BOOL)archived
-{
-    if (searchString.length == 0) return @[];
-    
-    // TODO: Move to HPNoteManager
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.%@ contains[cd] %@ && SELF.%@ == %d",
-                              NSStringFromSelector(@selector(text)),
-                              searchString,
-                              NSStringFromSelector(@selector(archived)),
-                              archived ? 1 : 0];
-    NSArray *unfilteredNotes = archived ? [self.indexItem notes:YES] : _notes;
-    if (!unfilteredNotes) unfilteredNotes = @[];
-    NSArray *filteredNotes = [unfilteredNotes filteredArrayUsingPredicate:predicate];
-    NSArray *rankedNotes = [filteredNotes sortedArrayUsingComparator:^NSComparisonResult(HPNote *obj1, HPNote *obj2)
-    {
-        NSComparisonResult result = HPCompareSearchResults(obj1.title, obj2.title, searchString);
-        if (result != NSOrderedSame) return result;
-        result = HPCompareSearchResults(obj1.body, obj2.body, searchString);
-        if (result != NSOrderedSame) return result;
-        return [obj1.modifiedAt compare:obj2.modifiedAt];
-    }];
-    return rankedNotes;
-}
-
-NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSString *search)
-{
-    NSRange range1 = [text1 rangeOfString:search options:NSCaseInsensitiveSearch];
-    NSRange range2 = [text2 rangeOfString:search options:NSCaseInsensitiveSearch];
-    NSUInteger location1 = range1.location == NSNotFound ? NSUIntegerMax : range1.location;
-    NSUInteger location2 = range2.location == NSNotFound ? NSUIntegerMax : range2.location;
-    if (location1 < location2) return NSOrderedAscending;
-    if (location1 > location2) return NSOrderedDescending;
-    return NSOrderedSame;
 }
 
 - (void)setSwipeActionTo:(HPNoteListTableViewCell*)cell imageNamed:(NSString*)imageName color:(UIColor*)color state:(MCSwipeTableViewCellState)state block:(void (^)(HPNoteListTableViewCell *cell))block
@@ -657,94 +623,70 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
      }];
 }
 
-- (NSArray*)tableView:(UITableView*)tableView notesInSection:(NSInteger)section
-{
-    NSArray *notes = self.searchDisplayController.searchResultsTableView == tableView ? (section == 0 ? _searchResults : _archivedSearchResults) : _notes;
-    return notes;
-}
+#pragma mark HPSectionArrayDataSourceDelegate
 
-#pragma mark - UITableViewDataSource
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+- (void)dataSource:(HPSectionArrayDataSource*)dataSource configureCell:(HPNoteSearchTableViewCell *)cell withItem:(HPNote *)note atIndexPath:(NSIndexPath*)indexPath
 {
-    return self.searchDisplayController.searchResultsTableView == tableView ? (_archivedSearchResults.count > 0 ? 2 : 1) : 1;
-}
-
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-{
-    return section == 1 ? NSLocalizedString(@"Archived", @"") : nil;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    NSArray *objects = [self tableView:tableView notesInSection:section];
-    return objects.count;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    HPNoteTableViewCell *cell = (HPNoteTableViewCell*)[tableView dequeueReusableCellWithIdentifier:HPNoteListTableViewCellReuseIdentifier forIndexPath:indexPath];
-    
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    
-    NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
-    HPNote *note = [objects objectAtIndex:indexPath.row];
-    if (self.searchDisplayController.searchResultsTableView == tableView)
-    {
-        HPNoteSearchTableViewCell *searchCell = (HPNoteSearchTableViewCell*)cell;
-        searchCell.searchText = _searchString;
-    }
-    else
-    {
-        HPNoteListTableViewCell *noteCell = (HPNoteListTableViewCell*)cell;
-        noteCell.separatorInset = UIEdgeInsetsZero;
-        noteCell.reuseSwipeViews = YES;
-        noteCell.shouldAnimateIcons = NO;
-        noteCell.firstTrigger = 1.0f/3.0f;
-        noteCell.secondTrigger = 2.0f/3.0f;
-        __weak id weakSelf = self;
-        
-        if (!self.indexItem.disableRemove)
-        {
-            if (note.archived)
-            {
-                [self setSwipeActionTo:noteCell imageNamed:@"icon-inbox" color:[UIColor iOS7greenColor] state:MCSwipeTableViewCellState1 block:^(HPNoteListTableViewCell *cell) {
-                    [weakSelf unarchiveNoteInCell:cell];
-                }];
-                [self setSwipeActionTo:noteCell imageNamed:@"icon-trash" color:[UIColor iOS7redColor] state:MCSwipeTableViewCellState3 block:^(HPNoteListTableViewCell *cell) {
-                    [weakSelf trashNoteInCell:cell];
-                }];
-            }
-            else
-            {
-                [self setSwipeActionTo:noteCell imageNamed:@"icon-archive" color:[UIColor iOS7orangeColor] state:MCSwipeTableViewCellState3 block:^(HPNoteListTableViewCell *cell) {
-                    [weakSelf archiveNoteInCell:cell];
-                }];
-                [self setSwipeActionTo:noteCell imageNamed:@"icon-trash" color:[UIColor iOS7redColor] state:MCSwipeTableViewCellState4 block:^(HPNoteListTableViewCell *cell) {
-                    [weakSelf trashNoteInCell:cell];
-                }];
-            }
-        }
-    }
+    cell.searchText = _searchString;
     [cell setNote:note ofTag:self.indexItem.tag detailMode:_sortMode];
-    return cell;
 }
 
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+#pragma mark AGNListDataSourceDelegate
+
+- (BOOL)canMoveItemsInDataSource:(HPArrayDataSource*)dataSource
 {
-    if (self.searchDisplayController.searchResultsTableView == tableView) return NO;
     if (_sortMode == HPTagSortModeOrder) return YES;
     NSString *criteriaDescription = [self descriptionForSortMode:_sortMode];
     [_titleView setSubtitle:criteriaDescription animated:YES transient:YES];
     return NO;
 }
 
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
+- (void)dataSource:(HPArrayDataSource*)dataSource configureCell:(HPNoteListTableViewCell *)cell withItem:(HPNote *)note atIndex:(NSUInteger)index
+{
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    HPNoteListTableViewCell *noteCell = (HPNoteListTableViewCell*)cell;
+    noteCell.separatorInset = UIEdgeInsetsZero;
+    noteCell.reuseSwipeViews = YES;
+    noteCell.shouldAnimateIcons = NO;
+    noteCell.firstTrigger = 1.0f/3.0f;
+    noteCell.secondTrigger = 2.0f/3.0f;
+    __weak id weakSelf = self;
+    
+    if (!self.indexItem.disableRemove)
+    {
+        if (note.archived)
+        {
+            [self setSwipeActionTo:noteCell imageNamed:@"icon-inbox" color:[UIColor iOS7greenColor] state:MCSwipeTableViewCellState1 block:^(HPNoteListTableViewCell *cell) {
+                [weakSelf unarchiveNoteInCell:cell];
+            }];
+            [self setSwipeActionTo:noteCell imageNamed:@"icon-trash" color:[UIColor iOS7redColor] state:MCSwipeTableViewCellState3 block:^(HPNoteListTableViewCell *cell) {
+                [weakSelf trashNoteInCell:cell];
+            }];
+        }
+        else
+        {
+            [self setSwipeActionTo:noteCell imageNamed:@"icon-archive" color:[UIColor iOS7orangeColor] state:MCSwipeTableViewCellState3 block:^(HPNoteListTableViewCell *cell) {
+                [weakSelf archiveNoteInCell:cell];
+            }];
+            [self setSwipeActionTo:noteCell imageNamed:@"icon-trash" color:[UIColor iOS7redColor] state:MCSwipeTableViewCellState4 block:^(HPNoteListTableViewCell *cell) {
+                [weakSelf trashNoteInCell:cell];
+            }];
+        }
+    }
+    [cell setNote:note ofTag:self.indexItem.tag detailMode:_sortMode];
+}
+
+- (void)dataSource:(HPArrayDataSource*)dataSource willMoveItemAtIndex:(NSUInteger)sourceIndex toIndex:(NSUInteger)destinationIndex
 {
     _ignoreNotesDidChangeNotification = YES;
     HPTag *tag = self.indexItem.tag;
-    [[HPNoteManager sharedManager] reorderNotes:_notes exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row inTag:tag];
-    [_notes exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
+    NSArray *notes = [NSArray arrayWithArray:_listDataSource.items];
+    [[HPNoteManager sharedManager] reorderNotes:notes exchangeObjectAtIndex:sourceIndex withObjectAtIndex:destinationIndex inTag:tag];
+}
+
+- (void)dataSource:(HPArrayDataSource*)dataSource didMoveItemAtIndex:(NSUInteger)sourceIndex toIndex:(NSUInteger)destinationIndex
+{
     _ignoreNotesDidChangeNotification = NO;
 }
 
@@ -752,9 +694,9 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
-    HPNote *note = [objects objectAtIndex:indexPath.row];
-    if (objects.count < 6)
+    id<HPDataSource> dataSource = (id<HPDataSource>) tableView.dataSource;
+    HPNote *note = [dataSource itemAtIndexPath:indexPath];
+    if ([dataSource itemCount] < 6)
     { // Height will be calculated anyway as all indexPaths will be visible
         return [self tableView:tableView heightForNote:note];
     }
@@ -767,8 +709,8 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
-    HPNote *note = [objects objectAtIndex:indexPath.row];
+    id<HPDataSource> dataSource = (id<HPDataSource>) tableView.dataSource;
+    HPNote *note = [dataSource itemAtIndexPath:indexPath];
     return [self tableView:tableView heightForNote:note];
 }
 
@@ -789,9 +731,10 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     _indexPathOfSelectedNote = indexPath;
-    NSArray *objects = [self tableView:tableView notesInSection:indexPath.section];
-    HPNote *note = [objects objectAtIndex:indexPath.row];
-    [self showNote:note in:objects];
+    id<HPDataSource> dataSource = (id<HPDataSource>) tableView.dataSource;
+    HPNote *note = [dataSource itemAtIndexPath:indexPath];
+    NSArray *notes = [dataSource itemsAtSection:indexPath.section];
+    [self showNote:note in:notes];
 }
 
 #pragma mark - UISearchDisplayDelegate
@@ -816,8 +759,8 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     self.title = self.indexItem.title;
     _searching = NO;
     _searchString = nil;
-    _searchResults = nil;
-    _archivedSearchResults = nil;
+    _searchDataSource = [[AGNSearchDataSource alloc] initWithSections:@[] cellIdentifier:HPNoteListTableViewCellReuseIdentifier];
+    controller.searchResultsDataSource = _searchDataSource;
 }
 
 - (void)searchDisplayController:(UISearchDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView
@@ -830,8 +773,9 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
     _searchString = searchString;
-    _searchResults = [self notesWithSearchString:searchString archived:NO];
-    _archivedSearchResults = [self notesWithSearchString:searchString archived:YES];
+    _searchDataSource = [[AGNSearchDataSource alloc] initWithSearch:searchString indexItem:self.indexItem cellIdentifier:HPNoteListTableViewCellReuseIdentifier];
+    _searchDataSource.delegate = self;
+    controller.searchResultsDataSource = _searchDataSource;
     return YES;
 }
 
@@ -937,9 +881,11 @@ NSComparisonResult HPCompareSearchResults(NSString *text1, NSString *text2, NSSt
     self.navigationItem.rightBarButtonItem.enabled = NO;
     _titleView.userInteractionEnabled = NO;
     self.searchDisplayController.active = NO;
+    // TODO: Read-only mode
     _emptyTitleLabel.text = NSLocalizedString(@"iCloud sync", @"");
     _emptySubtitleLabel.text = NSLocalizedString(@"Receiving notes from iCloud…", @"");
-    _notes = [NSMutableArray array];
+    _listDataSource = [[AGNListDataSource alloc] initWithItems:@[] cellIdentifier:HPNoteListTableViewCellReuseIdentifier];
+    _notesTableView.dataSource = _listDataSource;
     _indexItem = nil;
     [_notesTableView reloadData];
     [self updateEmptyView:YES];
