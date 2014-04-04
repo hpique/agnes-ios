@@ -15,8 +15,11 @@
 @dynamic cd_notes;
 @dynamic cd_order;
 @dynamic cd_sortMode;
-@dynamic uuid;
+@dynamic cd_views;
 @dynamic name;
+@dynamic uuid;
+@dynamic viewedAt;
+
 @end
 
 @implementation HPTag (Convenience)
@@ -100,6 +103,28 @@
     NSNumber *value = @(sortMode);
     [self willChangeValueForKey:key];
     self.cd_sortMode = value;
+    [self didChangeValueForKey:key];
+}
+
+- (NSUInteger)views
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(views));
+    
+    [self willAccessValueForKey:key];
+    NSNumber *value = self.cd_views;
+    [self didAccessValueForKey:key];
+    return [value unsignedIntegerValue];
+}
+
+- (void)setViews:(NSUInteger)views
+{
+    static NSString *key = nil;
+    if (!key) key = NSStringFromSelector(@selector(views));
+    
+    NSNumber *value = @(views);
+    [self willChangeValueForKey:key];
+    self.cd_views = value;
     [self didChangeValueForKey:key];
 }
 

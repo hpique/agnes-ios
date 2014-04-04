@@ -31,7 +31,9 @@
 
 - (HPTag*)tagWithName:(NSString*)name;
 
-#pragma mark Operations
+@end
+
+@interface HPTagManager (Actions)
 
 - (void)archiveNote:(HPNote*)note;
 
@@ -40,5 +42,7 @@
 - (void)removeDuplicates;
 
 - (void)unarchiveNote:(HPNote*)note;
+
+- (void)viewTag:(HPTag*)tag;
 
 @end

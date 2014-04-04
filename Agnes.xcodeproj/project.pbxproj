@@ -178,6 +178,7 @@
 		873E092118EBAC13007E9675 /* HPDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDataSource.h; sourceTree = "<group>"; };
 		873E092418EBAECA007E9675 /* AGNSearchDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNSearchDataSource.h; sourceTree = "<group>"; };
 		873E092518EBAECA007E9675 /* AGNSearchDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNSearchDataSource.m; sourceTree = "<group>"; };
+		873E092718EF1EDC007E9675 /* Agnes 1.0.3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Agnes 1.0.3.xcdatamodel"; sourceTree = "<group>"; };
 		873E228018A9AFB500E7919C /* HPAgnesImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAgnesImageCache.h; sourceTree = "<group>"; };
 		873E228118A9AFB500E7919C /* HPAgnesImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAgnesImageCache.m; sourceTree = "<group>"; };
 		873E228318AA447700E7919C /* UIView+hp_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+hp_utils.h"; sourceTree = "<group>"; };
@@ -1229,9 +1230,10 @@
 		87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				873E092718EF1EDC007E9675 /* Agnes 1.0.3.xcdatamodel */,
 				87E37E87188BDFA6000333EA /* Agnes.xcdatamodel */,
 			);
-			currentVersion = 87E37E87188BDFA6000333EA /* Agnes.xcdatamodel */;
+			currentVersion = 873E092718EF1EDC007E9675 /* Agnes 1.0.3.xcdatamodel */;
 			path = Agnes.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

@@ -149,7 +149,66 @@ static NSString *const HPTagArchiveName = @"Archive";
     return [_tagTrie everyObjectForKeyWithPrefix:normalizedPrefix];
 }
 
-#pragma mark Operations
+#pragma mark - Private
+
+- (HPTag*)insertTagWithName:(NSString*)name isSystem:(BOOL)isSystem
+{
+    HPTag *tag = [HPTag insertNewObjectIntoContext:self.context];
+    tag.uuid = [[NSUUID UUID] UUIDString];
+    tag.name = name;
+    tag.order = CGFLOAT_MAX;
+    tag.isSystem = isSystem;
+    return tag;
+}
+
+- (void)removeDuplicatesOfTagNamed:(NSString*)tagName
+{
+    NSArray *tags = [self tagsForName:tagName];
+    if (tags.count < 2) return;
+    
+    HPTag *mainTag = [tags firstObject];
+    NSArray *duplicateTags = [tags subarrayWithRange:NSMakeRange(1, tags.count - 1)];
+    for (HPTag *duplicate in duplicateTags)
+    {
+        NSSet *notes = [NSSet setWithSet:duplicate.cd_notes];
+        for (HPNote *note in notes)
+        {
+            [duplicate removeCd_notesObject:note];
+            [note removeCd_tagsObject:duplicate];
+            [mainTag addCd_notesObject:note];
+            [note addCd_tagsObject:mainTag];
+        }
+        [self.context deleteObject:duplicate];
+    }
+}
+
+- (NSArray*)tagsForName:(NSString*)name
+{
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K =[c] %@", NSStringFromSelector(@selector(name)), name];
+    fetchRequest.predicate = predicate;
+    // In case of duplicate tags always return the same one. This is needed by removeDuplicatesOfTagNamed: and helps reduce conflicts in other cases.
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(uuid)) ascending:YES];
+    fetchRequest.sortDescriptors = @[sortDescriptor];
+    NSError *error;
+    NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
+    NSAssert(result, @"Fetch %@ failed with error %@", fetchRequest, error);
+    return result;
+}
+
+- (HPTag*)systemTagWithName:(NSString*)name
+{
+    HPTag *tag = [self tagForName:name];
+    if (!tag)
+    {
+        tag = [self insertTagWithName:name isSystem:YES];
+    }
+    return tag;
+}
+
+@end
+
+@implementation HPTagManager(Actions)
 
 - (void)archiveNote:(HPNote*)note
 {
@@ -159,7 +218,7 @@ static NSString *const HPTagArchiveName = @"Archive";
         HPTag *inboxTag = self.inboxTag;
         [inboxTag removeCd_notesObject:note];
         [note removeCd_tagsObject:inboxTag];
-
+        
         HPTag *archiveTag = self.archiveTag;
         [archiveTag addCd_notesObject:note];
         [note addCd_tagsObject:self.archiveTag];
@@ -252,61 +311,12 @@ static NSString *const HPTagArchiveName = @"Archive";
     }];
 }
 
-#pragma mark - Private
-
-- (HPTag*)insertTagWithName:(NSString*)name isSystem:(BOOL)isSystem
+- (void)viewTag:(HPTag*)tag
 {
-    HPTag *tag = [HPTag insertNewObjectIntoContext:self.context];
-    tag.uuid = [[NSUUID UUID] UUIDString];
-    tag.name = name;
-    tag.order = CGFLOAT_MAX;
-    tag.isSystem = isSystem;
-    return tag;
-}
-
-- (void)removeDuplicatesOfTagNamed:(NSString*)tagName
-{
-    NSArray *tags = [self tagsForName:tagName];
-    if (tags.count < 2) return;
-    
-    HPTag *mainTag = [tags firstObject];
-    NSArray *duplicateTags = [tags subarrayWithRange:NSMakeRange(1, tags.count - 1)];
-    for (HPTag *duplicate in duplicateTags)
-    {
-        NSSet *notes = [NSSet setWithSet:duplicate.cd_notes];
-        for (HPNote *note in notes)
-        {
-            [duplicate removeCd_notesObject:note];
-            [note removeCd_tagsObject:duplicate];
-            [mainTag addCd_notesObject:note];
-            [note addCd_tagsObject:mainTag];
-        }
-        [self.context deleteObject:duplicate];
-    }
-}
-
-- (NSArray*)tagsForName:(NSString*)name
-{
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K =[c] %@", NSStringFromSelector(@selector(name)), name];
-    fetchRequest.predicate = predicate;
-    // In case of duplicate tags always return the same one. This is needed by removeDuplicatesOfTagNamed: and helps reduce conflicts in other cases.
-    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:NSStringFromSelector(@selector(uuid)) ascending:YES];
-    fetchRequest.sortDescriptors = @[sortDescriptor];
-    NSError *error;
-    NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
-    NSAssert(result, @"Fetch %@ failed with error %@", fetchRequest, error);
-    return result;
-}
-
-- (HPTag*)systemTagWithName:(NSString*)name
-{
-    HPTag *tag = [self tagForName:name];
-    if (!tag)
-    {
-        tag = [self insertTagWithName:name isSystem:YES];
-    }
-    return tag;
+    [self performNoUndoModelUpdateAndSave:NO block:^{
+        tag.views++;
+        tag.viewedAt = [NSDate date];
+    }];
 }
 
 @end
