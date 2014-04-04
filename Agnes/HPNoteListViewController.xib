@@ -13,6 +13,7 @@
                 <outlet property="_listDataSource" destination="DBj-55-afb" id="TAa-St-71S"/>
                 <outlet property="_notesTableView" destination="6Ye-Ag-F8Q" id="6m9-an-rAu"/>
                 <outlet property="_searchBar" destination="qkn-uy-VC4" id="SSS-kz-XcU"/>
+                <outlet property="_searchDataSource" destination="a8V-2H-2rV" id="DJd-uM-dbR"/>
                 <outlet property="_titleView" destination="jTE-Aa-Rve" id="c3r-jh-O5e"/>
                 <outlet property="searchDisplayController" destination="Nwp-7R-4x2" id="EZX-5f-4tN"/>
                 <outlet property="view" destination="1" id="zdJ-cQ-i5U"/>
@@ -89,6 +90,7 @@
                 <outlet property="delegate" destination="-1" id="nfX-Bi-qRE"/>
                 <outlet property="searchBar" destination="qkn-uy-VC4" id="Ru0-Lg-m85"/>
                 <outlet property="searchContentsController" destination="-1" id="ZCi-Sj-TcQ"/>
+                <outlet property="searchResultsDataSource" destination="a8V-2H-2rV" id="gnE-u0-Yl4"/>
                 <outlet property="searchResultsDelegate" destination="-1" id="fPs-0d-HNO"/>
             </connections>
         </searchDisplayController>
@@ -110,6 +112,11 @@
         <customObject id="DBj-55-afb" customClass="AGNListDataSource">
             <connections>
                 <outlet property="delegate" destination="-1" id="CSL-rC-UPp"/>
+            </connections>
+        </customObject>
+        <customObject id="a8V-2H-2rV" customClass="AGNSearchDataSource">
+            <connections>
+                <outlet property="delegate" destination="-1" id="AaC-HK-mqD"/>
             </connections>
         </customObject>
     </objects>

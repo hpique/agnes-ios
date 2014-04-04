@@ -48,8 +48,8 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     
     BOOL _searching;
     NSString *_searchString;
-    AGNSearchDataSource *_searchDataSource;
     __weak IBOutlet HPNoteListSearchBar *_searchBar;
+    IBOutlet AGNSearchDataSource *_searchDataSource;
     
     IBOutlet HPNavigationBarToggleTitleView *_titleView;
     
@@ -116,6 +116,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     _notesTableView.delegate = self;
     [_notesTableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:NO];
     _listDataSource.cellIdentifier = HPNoteListTableViewCellReuseIdentifier;
+    _searchDataSource.cellIdentifier = HPNoteListTableViewCellReuseIdentifier;
     
     {
         UIImage *image = [[UIImage imageNamed:@"icon-more"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
@@ -431,16 +432,11 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
     if (animated)
     {
-        NSArray *previousSearchResults = _searchDataSource.inboxResults;
-        NSArray *previousArchivedSearchResults = _searchDataSource.archivedResults;
-        NSArray *previousData = previousSearchResults == nil || previousArchivedSearchResults == nil ? nil : @[previousSearchResults, previousArchivedSearchResults];
-        
-        _searchDataSource = [[AGNSearchDataSource alloc] initWithSearch:_searchString indexItem:self.indexItem cellIdentifier:HPNoteListTableViewCellReuseIdentifier];
-        _searchDataSource.delegate = self;
-        searchTableView.dataSource = _searchDataSource;
+        NSArray *previousData = _searchDataSource.sections;
+        NSArray *currentData = [_searchDataSource search:_searchString inIndexItem:self.indexItem];
         
         [searchTableView hp_reloadChangesWithPreviousData:previousData
-                                              currentData:_searchDataSource.sections
+                                              currentData:currentData
                                                  keyBlock:^id<NSCopying>(HPNote *note) {
                                                      return note.objectID;
                                                  } reloadBlock:^BOOL(HPNote *note) {
@@ -758,8 +754,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     self.title = self.indexItem.title;
     _searching = NO;
     _searchString = nil;
-    _searchDataSource = [[AGNSearchDataSource alloc] initWithSections:@[] cellIdentifier:HPNoteListTableViewCellReuseIdentifier];
-    controller.searchResultsDataSource = _searchDataSource;
+    _searchDataSource.sections = @[];
 }
 
 - (void)searchDisplayController:(UISearchDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView
@@ -772,8 +767,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
     _searchString = searchString;
-    _searchDataSource = [[AGNSearchDataSource alloc] initWithSearch:searchString indexItem:self.indexItem cellIdentifier:HPNoteListTableViewCellReuseIdentifier];
-    _searchDataSource.delegate = self;
+    [_searchDataSource search:searchString inIndexItem:self.indexItem];
     controller.searchResultsDataSource = _searchDataSource;
     return YES;
 }

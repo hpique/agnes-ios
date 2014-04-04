@@ -53,16 +53,13 @@ NSArray *AGNSearchIndexItem(HPIndexItem *indexItem, NSString *searchString, BOOL
 
 #pragma mark Public
 
-- (instancetype)initWithSearch:(NSString*)search
-                     indexItem:(HPIndexItem*)indexItem
-                cellIdentifier:(NSString *)cellIdentifier
+- (NSArray*)search:(NSString*)search inIndexItem:(HPIndexItem*)indexItem
 {
     NSArray *inboxResults = AGNSearchIndexItem(indexItem, search, NO);
     NSArray *archivedResults = AGNSearchIndexItem(indexItem, search, YES);
     NSArray *sections = archivedResults.count > 0 ? @[inboxResults, archivedResults] : @[inboxResults];
-
-    self = [super initWithSections:sections cellIdentifier:cellIdentifier];
-    return self;
+    self.sections = sections;
+    return sections;
 }
 
 - (NSArray*)inboxResults
@@ -72,7 +69,7 @@ NSArray *AGNSearchIndexItem(HPIndexItem *indexItem, NSString *searchString, BOOL
 
 - (NSArray*)archivedResults
 {
-    return self.sections.count > 1 ? [self itemsAtSection:1] : nil;
+    return self.sectionCount > 1 ? [self itemsAtSection:1] : nil;
 }
 
 @end

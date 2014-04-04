@@ -11,11 +11,9 @@
 
 @interface AGNSearchDataSource : HPSectionArrayDataSource
 
-- (instancetype)initWithSearch:(NSString*)search
-                     indexItem:(HPIndexItem*)indexItem
-                cellIdentifier:(NSString *)cellIdentifier;
-
 @property (nonatomic, readonly) NSArray *inboxResults;
 @property (nonatomic, readonly) NSArray *archivedResults;
+
+- (NSArray*)search:(NSString*)search inIndexItem:(HPIndexItem*)indexItem;
 
 @end

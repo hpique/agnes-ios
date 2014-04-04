@@ -9,30 +9,51 @@
 #import "HPSectionArrayDataSource.h"
 
 @implementation HPSectionArrayDataSource {
-    NSMutableArray *_sections;
-    NSString *_cellIdentifier;
+    NSMutableArray *_mutableSections;
+}
+
+- (instancetype)init
+{
+    return [self initWithSections:@[] cellIdentifier:nil];
 }
 
 - (instancetype)initWithSections:(NSArray *)sections cellIdentifier:(NSString *)cellIdentifier
 {
     if (self = [super init])
     {
-        _sections = [sections copy];
+        _mutableSections = [sections copy];
         _cellIdentifier = [cellIdentifier copy];
     }
     return self;
+}
+
+#pragma mark Properties
+
+- (void)setSections:(NSArray *)sections
+{
+    _mutableSections = [sections mutableCopy];
+}
+
+- (NSArray*)sections
+{
+    return [_mutableSections copy];
+}
+
+- (NSUInteger)sectionCount
+{
+    return _mutableSections.count;
 }
 
 #pragma mark UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return _sections.count;
+    return self.sectionCount;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    NSArray *items = _sections[section];
+    NSArray *items = _mutableSections[section];
     return items.count;
 }
 
@@ -60,7 +81,7 @@
 - (NSUInteger)itemCount
 {
     NSUInteger itemCount = 0;
-    for (NSArray *items in _sections)
+    for (NSArray *items in _mutableSections)
     {
         itemCount += items.count;
     }
@@ -69,7 +90,7 @@
 
 - (NSArray*)itemsAtSection:(NSUInteger)section
 {
-    NSArray *items = _sections[section];
+    NSArray *items = _mutableSections[section];
     return items;
 }
 
@@ -78,7 +99,7 @@
 - (NSIndexPath*)indexPathOfItem:(id)item
 {
     __block NSIndexPath *indexPath = nil;
-    [_sections enumerateObjectsUsingBlock:^(NSArray *items, NSUInteger section, BOOL *stop) {
+    [_mutableSections enumerateObjectsUsingBlock:^(NSArray *items, NSUInteger section, BOOL *stop) {
         const NSUInteger row = [items indexOfObject:item];
         if (row != NSNotFound)
         {

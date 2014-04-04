@@ -15,11 +15,15 @@
 - (instancetype)initWithSections:(NSArray *)sections
                cellIdentifier:(NSString *)cellIdentifier;
 
-@property (nonatomic, weak) id<HPSectionArrayDataSourceDelegate> delegate;
+@property (nonatomic, copy) NSString *cellIdentifier;
 
-@property (nonatomic, readonly) NSArray *sections;
+@property (nonatomic, weak) IBOutlet id<HPSectionArrayDataSourceDelegate> delegate;
+
+@property (nonatomic, copy) NSArray *sections;
 
 - (NSIndexPath*)indexPathOfItem:(id)item;
+
+@property (nonatomic, readonly) NSUInteger sectionCount;
 
 @end
 
