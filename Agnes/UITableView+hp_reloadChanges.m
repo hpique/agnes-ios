@@ -22,7 +22,7 @@ const NSUInteger HPTableViewMaxChangesWithoutFullReload = 20;
         [self reloadData];
         return;
     }
-    NSInteger sectionCount = [self.dataSource numberOfSectionsInTableView:self];
+    NSInteger sectionCount = [self.dataSource respondsToSelector:@selector(numberOfSectionsInTableView:)] ? [self.dataSource numberOfSectionsInTableView:self] : 1;
     NSMutableArray *indexPathsToDelete = [NSMutableArray array];
     NSMutableArray *indexPathsToInsert = [NSMutableArray array];
     NSMutableArray *indexPathsToMove = [NSMutableArray array];

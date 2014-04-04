@@ -9,9 +9,12 @@
 #import "HPArrayDataSource.h"
 
 @implementation HPArrayDataSource {
-    NSMutableArray *_items;
-    NSString *_cellIdentifier;
-    HPArrayDataSourceConfigureCellBlock _configureCellBlock;
+    NSMutableArray *_mutableItems;
+}
+
+- (instancetype)init
+{
+    return [self initWithItems:@[] cellIdentifier:nil configureCellBlock:nil];
 }
 
 - (instancetype)initWithItems:(NSArray *)items cellIdentifier:(NSString *)cellIdentifier
@@ -23,11 +26,35 @@
 {
     if (self = [super init])
     {
-        _items = [items mutableCopy];
+        _mutableItems = [items mutableCopy];
         _cellIdentifier = [cellIdentifier copy];
-        _configureCellBlock = configureCellBlock;
+        _configureCellBlock = [configureCellBlock copy];
     }
     return self;
+}
+
+#pragma mark Public
+
+- (NSUInteger)indexOfItem:(id)item
+{
+    return [_mutableItems indexOfObject:item];
+}
+
+- (void)removeItemAtIndex:(NSUInteger)index
+{
+    [_mutableItems removeObjectAtIndex:index];
+}
+
+#pragma mark Properties
+
+- (void)setItems:(NSArray *)items
+{
+    _mutableItems = [items mutableCopy];
+}
+
+- (NSArray*)items
+{
+    return [_mutableItems copy];
 }
 
 #pragma mark UITableViewDataSource
@@ -41,7 +68,7 @@
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:_cellIdentifier forIndexPath:indexPath];
     const NSUInteger index = indexPath.row;
-    id item = _items[index];
+    id item = _mutableItems[index];
     if (_configureCellBlock)
     {
         _configureCellBlock(cell, item, index);
@@ -61,7 +88,7 @@
     {
         [self.delegate dataSource:self willMoveItemAtIndex:sourceIndex toIndex:destinationIndex];
     }
-    [_items exchangeObjectAtIndex:sourceIndex withObjectAtIndex:destinationIndex];
+    [_mutableItems exchangeObjectAtIndex:sourceIndex withObjectAtIndex:destinationIndex];
     if ([self.delegate respondsToSelector:@selector(dataSource:didMoveItemAtIndex:toIndex:)])
     {
         [self.delegate dataSource:self didMoveItemAtIndex:sourceIndex toIndex:destinationIndex];
@@ -73,18 +100,18 @@
 - (id)itemAtIndexPath:(NSIndexPath*)indexPath
 {
     const NSUInteger index = indexPath.row;
-    id item = _items[index];
+    id item = _mutableItems[index];
     return item;
 }
 
 - (NSUInteger)itemCount
 {
-    return _items.count;
+    return _mutableItems.count;
 }
 
 - (NSArray*)itemsAtSection:(NSUInteger)section
 {
-    return _items;
+    return _mutableItems;
 }
 
 @end

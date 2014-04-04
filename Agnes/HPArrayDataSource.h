@@ -21,9 +21,17 @@ typedef void (^HPArrayDataSourceConfigureCellBlock)(id cell, id item, NSUInteger
                cellIdentifier:(NSString *)cellIdentifier
            configureCellBlock:(HPArrayDataSourceConfigureCellBlock)configureCellBlock;
 
-@property (nonatomic, weak) id<HPArrayDataSourceDelegate> delegate;
+@property (nonatomic, copy) NSString *cellIdentifier;
 
-@property (nonatomic, readonly) NSMutableArray *items;
+@property (nonatomic, copy) HPArrayDataSourceConfigureCellBlock configureCellBlock;
+
+@property (nonatomic, copy) NSArray *items;
+
+@property (nonatomic, weak) IBOutlet id<HPArrayDataSourceDelegate> delegate;
+
+- (NSUInteger)indexOfItem:(id)item;
+
+- (void)removeItemAtIndex:(NSUInteger)index;
 
 @end
 

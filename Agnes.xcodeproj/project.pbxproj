@@ -421,6 +421,10 @@
 		8740FAE1188A8B87004CF099 /* List */ = {
 			isa = PBXGroup;
 			children = (
+				873E091718EB829A007E9675 /* AGNListDataSource.h */,
+				873E091818EB829A007E9675 /* AGNListDataSource.m */,
+				873E092418EBAECA007E9675 /* AGNSearchDataSource.h */,
+				873E092518EBAECA007E9675 /* AGNSearchDataSource.m */,
 				87AA3D06189F342800FBEAAF /* HPNote+List.h */,
 				87AA3D07189F342800FBEAAF /* HPNote+List.m */,
 				872C19B7189896B90013C9A5 /* HPNoteListSearchBar.h */,
@@ -438,10 +442,6 @@
 				871CD009189B098200E39CFA /* HPNoteSearchTableViewCell.xib */,
 				8740FAE6188AA7DB004CF099 /* HPNoteTableViewCell.h */,
 				8740FAE7188AA7DB004CF099 /* HPNoteTableViewCell.m */,
-				873E091718EB829A007E9675 /* AGNListDataSource.h */,
-				873E091818EB829A007E9675 /* AGNListDataSource.m */,
-				873E092418EBAECA007E9675 /* AGNSearchDataSource.h */,
-				873E092518EBAECA007E9675 /* AGNSearchDataSource.m */,
 			);
 			name = List;
 			sourceTree = "<group>";

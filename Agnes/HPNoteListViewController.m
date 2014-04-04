@@ -44,7 +44,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 @implementation HPNoteListViewController {
     __weak IBOutlet HPReorderTableView *_notesTableView;
-    AGNListDataSource *_listDataSource;
+    IBOutlet AGNListDataSource *_listDataSource;
     
     BOOL _searching;
     NSString *_searchString;
@@ -110,11 +110,12 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
         self.navigationItem.titleView = _titleView;
         self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem];
     }
-    
+   
     UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
     [_notesTableView registerNib:nib forCellReuseIdentifier:HPNoteListTableViewCellReuseIdentifier];
     _notesTableView.delegate = self;
     [_notesTableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:NO];
+    _listDataSource.cellIdentifier = HPNoteListTableViewCellReuseIdentifier;
     
     {
         UIImage *image = [[UIImage imageNamed:@"icon-more"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
@@ -231,7 +232,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"export_list"];
     _noteExporter = [[HPNoteExporter alloc] init];
     [_titleView setSubtitle:NSLocalizedString(@"Preparing notes for export", @"") animated:YES transient:NO];
-    NSArray *notes = [NSArray arrayWithArray:_listDataSource.items];
+    NSArray *notes = _listDataSource.items;
     [_noteExporter exportNotes:notes name:self.indexItem.exportPrefix progress:^(NSString *message) {
         [_titleView setSubtitle:message animated:NO transient:NO];
     } success:^(NSURL *fileURL) {
@@ -380,7 +381,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     if (self.tableView == _notesTableView)
     {
-        NSUInteger row = [_listDataSource.items indexOfObject:note];
+        NSUInteger row = [_listDataSource indexOfItem:note];
         return row == NSNotFound ? nil : [NSIndexPath indexPathForRow:row inSection:0];
     }
     else
@@ -399,11 +400,9 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     updatedNotes = [updatedNotes setByAddingObjectsFromSet:_pendingUpdatedNotes];
     [_pendingUpdatedNotes removeAllObjects];
     
-    NSArray *previousNotes = [NSArray arrayWithArray:_listDataSource.items];
+    NSArray *previousNotes = _listDataSource.items;
     NSArray *notes = self.indexItem.notes;
-    _listDataSource = [[AGNListDataSource alloc] initWithItems:notes cellIdentifier:HPNoteListTableViewCellReuseIdentifier];
-    _listDataSource.delegate = self;
-    _notesTableView.dataSource = _listDataSource;
+    _listDataSource.items = notes;
     
     if (animated)
     {
@@ -458,7 +457,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     NSIndexPath *indexPath = [_notesTableView indexPathForCell:cell];
     [self changeModel:block changeView:^{
-        [_listDataSource.items removeObjectAtIndex:indexPath.row];
+        [_listDataSource removeItemAtIndex:indexPath.row];
         [_notesTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self updateEmptyView:YES];
     }];
@@ -482,7 +481,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)updateEmptyView:(BOOL)animated
 {
-    BOOL empty = _listDataSource.items.count == 0;
+    BOOL empty = _listDataSource.itemCount == 0;
     if (empty != _emptyListView.hidden) return;
 
     if (animated)
@@ -681,7 +680,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     _ignoreNotesDidChangeNotification = YES;
     HPTag *tag = self.indexItem.tag;
-    NSArray *notes = [NSArray arrayWithArray:_listDataSource.items];
+    NSArray *notes = _listDataSource.items;
     [[HPNoteManager sharedManager] reorderNotes:notes exchangeObjectAtIndex:sourceIndex withObjectAtIndex:destinationIndex inTag:tag];
 }
 
@@ -884,8 +883,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     // TODO: Read-only mode
     _emptyTitleLabel.text = NSLocalizedString(@"iCloud sync", @"");
     _emptySubtitleLabel.text = NSLocalizedString(@"Receiving notes from iCloud…", @"");
-    _listDataSource = [[AGNListDataSource alloc] initWithItems:@[] cellIdentifier:HPNoteListTableViewCellReuseIdentifier];
-    _notesTableView.dataSource = _listDataSource;
+    _listDataSource.items = @[];
     _indexItem = nil;
     [_notesTableView reloadData];
     [self updateEmptyView:YES];

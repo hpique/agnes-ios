@@ -75,5 +75,4 @@ NSArray *AGNSearchIndexItem(HPIndexItem *indexItem, NSString *searchString, BOOL
     return self.sections.count > 1 ? [self itemsAtSection:1] : nil;
 }
 
-
 @end

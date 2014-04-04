@@ -10,6 +10,7 @@
                 <outlet property="_emptyListView" destination="f65-dw-v5R" id="jaJ-aS-USG"/>
                 <outlet property="_emptySubtitleLabel" destination="ac8-4x-E4n" id="frA-Yr-Y0y"/>
                 <outlet property="_emptyTitleLabel" destination="Lq5-vr-rI1" id="epu-Q5-9bi"/>
+                <outlet property="_listDataSource" destination="DBj-55-afb" id="TAa-St-71S"/>
                 <outlet property="_notesTableView" destination="6Ye-Ag-F8Q" id="6m9-an-rAu"/>
                 <outlet property="_searchBar" destination="qkn-uy-VC4" id="SSS-kz-XcU"/>
                 <outlet property="_titleView" destination="jTE-Aa-Rve" id="c3r-jh-O5e"/>
@@ -36,6 +37,7 @@
                         </connections>
                     </searchBar>
                     <connections>
+                        <outlet property="dataSource" destination="DBj-55-afb" id="F2j-Ry-EM3"/>
                         <outlet property="delegate" destination="-1" id="Dam-oJ-TTL"/>
                     </connections>
                 </tableView>
@@ -105,5 +107,10 @@
                 <action selector="tapTitleView:" destination="-1" id="Tfx-3n-Qog"/>
             </connections>
         </tapGestureRecognizer>
+        <customObject id="DBj-55-afb" customClass="AGNListDataSource">
+            <connections>
+                <outlet property="delegate" destination="-1" id="CSL-rC-UPp"/>
+            </connections>
+        </customObject>
     </objects>
 </document>
