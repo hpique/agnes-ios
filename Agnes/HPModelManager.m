@@ -60,12 +60,15 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     [notificationCenter addObserver:self selector:@selector(storesDidChange:) name:NSPersistentStoreCoordinatorStoresDidChangeNotification object:psc];
     [notificationCenter addObserver:self selector:@selector(persistentStoreDidImportUbiquitousContentChanges:) name:NSPersistentStoreDidImportUbiquitousContentChangesNotification object:psc];
     
+    NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption : @YES,
+                               NSInferMappingModelAutomaticallyOption : @YES,
+                               NSPersistentStoreUbiquitousContentNameKey : @"notes" };
     NSError* error;
     NSPersistentStore *persistentStore = [self.managedObjectContext.persistentStoreCoordinator
                                           addPersistentStoreWithType:NSSQLiteStoreType
                                           configuration:nil
                                           URL:self.storeURL
-                                          options:@{ NSPersistentStoreUbiquitousContentNameKey : @"notes" }
+                                          options:options
                                           error:&error];
     if (!persistentStore)
     {
@@ -195,11 +198,14 @@ NSString *const HPModelManagerDidReplaceModelNotification = @"HPModelManagerDidR
     
     NSManagedObjectContext *importContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     importContext.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
+    NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption : @YES,
+                               NSInferMappingModelAutomaticallyOption : @YES,
+                               NSPersistentStoreRemoveUbiquitousMetadataOption : @YES };
     NSError* error;
     NSPersistentStore *importStore = [importContext.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
                                                                                             configuration:nil
                                                                                                       URL:importPersistentStoreURL
-                                                                                                  options:@{NSPersistentStoreRemoveUbiquitousMetadataOption : @(YES)}
+                                                                                                  options:options
                                                                                                     error:&error];
     if (!importStore)
     {
