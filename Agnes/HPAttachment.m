@@ -58,7 +58,6 @@ const CGFloat AGNAttachmentImageQuality = 0.75;
     return attachment;
 }
 
-
 @end
 
 @implementation HPAttachment(Convenience)

@@ -103,13 +103,11 @@ static NSString *const HPTagArchiveName = @"Archive";
     static NSPredicate *predicate = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        predicate = [NSPredicate predicateWithFormat:@"%K != %@ && %K != %@ && ANY %K.%K == NO",
+        predicate = [NSPredicate predicateWithFormat:@"%K != %@ && %K != %@",
                      NSStringFromSelector(@selector(name)),
                      HPTagInboxName,
                      NSStringFromSelector(@selector(name)),
-                     HPTagArchiveName,
-                     NSStringFromSelector(@selector(cd_notes)),
-                     NSStringFromSelector(@selector(cd_archived))];
+                     HPTagArchiveName];
     });
     NSArray *indexTags = [self objectsWithPredicate:predicate];
     return indexTags;
