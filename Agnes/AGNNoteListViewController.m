@@ -215,7 +215,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     return _searching ? self.searchDisplayController.searchResultsTableView : _notesTableView;
 }
 
-#pragma mark - Actions
+#pragma mark Actions
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
@@ -737,10 +737,11 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [self showNote:note in:notes];
 }
 
-#pragma mark - UISearchDisplayDelegate
+#pragma mark UISearchDisplayDelegate
 
 - (void) searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"search"];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     self.title = NSLocalizedString(@"Search", @"");
     [_searchBar setWillBeginSearch];
