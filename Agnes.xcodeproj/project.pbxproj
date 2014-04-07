@@ -66,8 +66,8 @@
 		8763DA5B18883B2B000D9569 /* HPNoteListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA5A18883B2B000D9569 /* HPNoteListViewController.m */; };
 		8763DA5D18883B6D000D9569 /* HPNoteListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA5C18883B6D000D9569 /* HPNoteListViewController.xib */; };
 		8763DA631888420A000D9569 /* HPNoteManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA621888420A000D9569 /* HPNoteManager.m */; };
-		8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6518884650000D9569 /* HPNoteViewController.m */; };
-		8763DA6818884650000D9569 /* HPNoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA6618884650000D9569 /* HPNoteViewController.xib */; };
+		8763DA6718884650000D9569 /* AGNNoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6518884650000D9569 /* AGNNoteViewController.m */; };
+		8763DA6818884650000D9569 /* AGNNoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA6618884650000D9569 /* AGNNoteViewController.xib */; };
 		8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */; };
 		8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */; };
 		87A6905B18B4C59400F97E13 /* hashtags.plist in Resources */ = {isa = PBXBuildFile; fileRef = 87A6905918B4C59400F97E13 /* hashtags.plist */; };
@@ -225,9 +225,9 @@
 		8763DA5C18883B6D000D9569 /* HPNoteListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteListViewController.xib; sourceTree = "<group>"; };
 		8763DA611888420A000D9569 /* HPNoteManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteManager.h; sourceTree = "<group>"; };
 		8763DA621888420A000D9569 /* HPNoteManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteManager.m; sourceTree = "<group>"; };
-		8763DA6418884650000D9569 /* HPNoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteViewController.h; sourceTree = "<group>"; };
-		8763DA6518884650000D9569 /* HPNoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteViewController.m; sourceTree = "<group>"; };
-		8763DA6618884650000D9569 /* HPNoteViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteViewController.xib; sourceTree = "<group>"; };
+		8763DA6418884650000D9569 /* AGNNoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNNoteViewController.h; sourceTree = "<group>"; };
+		8763DA6518884650000D9569 /* AGNNoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNNoteViewController.m; sourceTree = "<group>"; };
+		8763DA6618884650000D9569 /* AGNNoteViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AGNNoteViewController.xib; sourceTree = "<group>"; };
 		8763DA69188942F6000D9569 /* HPBaseTextStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPBaseTextStorage.h; sourceTree = "<group>"; };
 		8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPBaseTextStorage.m; sourceTree = "<group>"; };
 		8763DA6C18897982000D9569 /* HPNoteListTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteListTableViewCell.h; sourceTree = "<group>"; };
@@ -450,6 +450,9 @@
 		8740FAE2188A8BA2004CF099 /* Note Detail */ = {
 			isa = PBXGroup;
 			children = (
+				8763DA6418884650000D9569 /* AGNNoteViewController.h */,
+				8763DA6518884650000D9569 /* AGNNoteViewController.m */,
+				8763DA6618884650000D9569 /* AGNNoteViewController.xib */,
 				871F7C3F18D8A55400E6CA07 /* AGNTagTapGestureRecognizer.h */,
 				871F7C4018D8A55400E6CA07 /* AGNTagTapGestureRecognizer.m */,
 				8763DA69188942F6000D9569 /* HPBaseTextStorage.h */,
@@ -462,9 +465,6 @@
 				87E37E40188B6158000333EA /* HPNoteAction.m */,
 				871429AA18933D6600DA588F /* HPNoteActivityItemSource.h */,
 				871429AB18933D6600DA588F /* HPNoteActivityItemSource.m */,
-				8763DA6418884650000D9569 /* HPNoteViewController.h */,
-				8763DA6518884650000D9569 /* HPNoteViewController.m */,
-				8763DA6618884650000D9569 /* HPNoteViewController.xib */,
 				8740FAEF188B2AC5004CF099 /* HPTagSuggestionsView.h */,
 				8740FAF0188B2AC5004CF099 /* HPTagSuggestionsView.m */,
 			);
@@ -824,7 +824,7 @@
 				872C19A518986F6C0013C9A5 /* Localizable.stringsdict in Resources */,
 				87AA3CF8189C13E100FBEAAF /* HPImageViewController.xib in Resources */,
 				871CD013189B4EE200E39CFA /* sample.jpg in Resources */,
-				8763DA6818884650000D9569 /* HPNoteViewController.xib in Resources */,
+				8763DA6818884650000D9569 /* AGNNoteViewController.xib in Resources */,
 				87F47BB118ACE5E600F1FB48 /* sample-thumbnail@2x.jpg in Resources */,
 				871CD00A189B098200E39CFA /* HPNoteSearchTableViewCell.xib in Resources */,
 				8763DA3D18883ACF000D9569 /* Images.xcassets in Resources */,
@@ -929,7 +929,7 @@
 				87E37E3E188B57C0000333EA /* HPPreferencesManager.m in Sources */,
 				87E37EF4188CB169000333EA /* HPRootViewController.m in Sources */,
 				87AA3D1718A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m in Sources */,
-				8763DA6718884650000D9569 /* HPNoteViewController.m in Sources */,
+				8763DA6718884650000D9569 /* AGNNoteViewController.m in Sources */,
 				87A6907018B4CA8600F97E13 /* HPTracker.m in Sources */,
 				87CAF3B718B79DF0004380BB /* CVRAlertView.m in Sources */,
 				87AA3CF7189C13E100FBEAAF /* HPImageViewController.m in Sources */,

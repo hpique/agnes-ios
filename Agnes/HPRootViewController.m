@@ -11,7 +11,7 @@
 #import "HPNoteListDetailTransitionAnimator.h"
 #import "HPNoteListViewController.h"
 #import "HPIndexViewController.h"
-#import "HPNoteViewController.h"
+#import "AGNNoteViewController.h"
 #import "HPIndexItem.h"
 #import "HPTracker.h"
 #import "HPTagManager.h"
@@ -99,7 +99,7 @@
                                                 fromViewController:(UIViewController *)fromVC
                                                   toViewController:(UIViewController *)toVC
 {
-    _prompForRating = [fromVC isKindOfClass:[HPNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]]  && [iRate sharedInstance].shouldPromptForRating;
+    _prompForRating = [fromVC isKindOfClass:[AGNNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]]  && [iRate sharedInstance].shouldPromptForRating;
     
     if ([HPNoteListDetailTransitionAnimator canTransitionFromViewController:fromVC toViewController:toVC])
     {

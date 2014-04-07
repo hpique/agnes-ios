@@ -9,7 +9,7 @@
 #import "HPNoteListViewController.h"
 #import "AGNListDataSource.h"
 #import "AGNSearchDataSource.h"
-#import "HPNoteViewController.h"
+#import "AGNNoteViewController.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPNote.h"
@@ -38,7 +38,7 @@
 
 static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
-@interface HPNoteListViewController () <UITableViewDelegate, AGNListDataSourceDelegate, HPSectionArrayDataSourceDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate, HPNoteViewControllerDelegate, UISearchDisplayDelegate>
+@interface HPNoteListViewController () <UITableViewDelegate, AGNListDataSourceDelegate, HPSectionArrayDataSourceDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate, AGNNoteViewControllerDelegate, UISearchDisplayDelegate>
 
 @end
 
@@ -202,7 +202,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)showBlankNoteAnimated:(BOOL)animated
 {
     _indexPathOfSelectedNote = nil;
-    HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:nil notes:@[] indexItem:self.indexItem];
+    AGNNoteViewController *noteViewController = [AGNNoteViewController noteViewControllerWithNote:nil notes:@[] indexItem:self.indexItem];
     noteViewController.delegate = self;
     [self.navigationController pushViewController:noteViewController animated:animated];
 }
@@ -527,7 +527,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void)showNote:(HPNote*)note in:(NSArray*)notes
 {
-    HPNoteViewController *noteViewController = [HPNoteViewController noteViewControllerWithNote:note notes:notes indexItem:self.indexItem];
+    AGNNoteViewController *noteViewController = [AGNNoteViewController noteViewControllerWithNote:note notes:notes indexItem:self.indexItem];
     noteViewController.delegate = self;
     if (_searchString) noteViewController.search = _searchString;
     [self.navigationController pushViewController:noteViewController animated:YES];
@@ -814,7 +814,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 
 #pragma mark - HPNoteViewControllerDelegate
 
-- (void)noteViewController:(HPNoteViewController*)viewController didSelectIndexItem:(HPIndexItem*)indexItem
+- (void)noteViewController:(AGNNoteViewController*)viewController didSelectIndexItem:(HPIndexItem*)indexItem
 {
     if (indexItem.tag != self.indexItem.tag)
     {

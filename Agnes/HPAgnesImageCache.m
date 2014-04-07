@@ -9,7 +9,7 @@
 #import "HPAgnesImageCache.h"
 #import "HPData.h"
 #import "HPNoteTableViewCell.h"
-#import "HPNoteViewController.h"
+#import "AGNNoteViewController.h"
 #import "HPAttachmentManager.h"
 #import "HPFontManager.h"
 #import "UIImage+hp_utils.h"
@@ -31,7 +31,7 @@ static NSString *const HPAgnesImageCacheFormatThumbnail = @"thumbnail";
     if (self)
     {
         HNKCache *cache = [HNKCache sharedCache];
-        const CGFloat minimumNoteWidth = [HPNoteViewController minimumNoteWidth];
+        const CGFloat minimumNoteWidth = [AGNNoteViewController minimumNoteWidth];
         {
             HNKCacheFormat *format = [[HNKCacheFormat alloc] initWithName:HPAgnesImageCacheFormatDetailDefault];
             format.size = CGSizeMake(minimumNoteWidth, minimumNoteWidth);

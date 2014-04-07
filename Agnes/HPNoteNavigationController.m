@@ -7,7 +7,7 @@
 //
 
 #import "HPNoteNavigationController.h"
-#import "HPNoteViewController.h"
+#import "AGNNoteViewController.h"
 #import "HPNoteListViewController.h"
 #import "HPNote.h"
 
@@ -38,9 +38,9 @@
         UIViewController *backViewController = self.viewControllers[count - 2];
         [self setTransitioningInViewController:backViewController];
     }
-    if ([topViewContoller isKindOfClass:[HPNoteViewController class]])
+    if ([topViewContoller isKindOfClass:[AGNNoteViewController class]])
     {
-        HPNoteViewController *noteViewController = (HPNoteViewController*)topViewContoller;
+        AGNNoteViewController *noteViewController = (AGNNoteViewController*)topViewContoller;
         [noteViewController saveNote:NO /* animated */];
     }
     return [super popViewControllerAnimated:animated];
