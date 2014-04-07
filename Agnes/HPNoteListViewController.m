@@ -812,7 +812,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     return NO;
 }
 
-#pragma mark - HPNoteViewControllerDelegate
+#pragma mark AGNNoteViewControllerDelegate
 
 - (void)noteViewController:(AGNNoteViewController*)viewController didSelectIndexItem:(HPIndexItem*)indexItem
 {
