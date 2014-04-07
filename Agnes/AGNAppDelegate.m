@@ -9,7 +9,7 @@
 #import "AGNAppDelegate.h"
 #import "HPIndexItem.h"
 #import "HPPreferencesManager.h"
-#import "HPRootViewController.h"
+#import "AGNRootViewController.h"
 #import "HPNoteImporter.h"
 #import "HPAgnesNavigationController.h"
 #import "HPModelManager.h"
@@ -107,7 +107,7 @@
 
 - (void)loadRootViewController
 {
-    HPRootViewController *drawerController = [[HPRootViewController alloc] init];
+    AGNRootViewController *drawerController = [[AGNRootViewController alloc] init];
     self.window.rootViewController = drawerController;
 }
 

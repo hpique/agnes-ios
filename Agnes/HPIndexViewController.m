@@ -14,7 +14,7 @@
 #import "HPIndexItemTableViewCell.h"
 #import "HPNote.h"
 #import "HPTag.h"
-#import "HPRootViewController.h"
+#import "AGNRootViewController.h"
 #import "HPNavigationBarToggleTitleView.h"
 #import "HPPreferencesManager.h"
 #import "HPModelManager.h"
@@ -263,7 +263,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     HPIndexItem *item = [_items objectAtIndex:indexPath.row];
-    [self.hp_rootViewController setListIndexItem:item animated:YES];
+    [self.agn_rootViewController setListIndexItem:item animated:YES];
 }
 
 #pragma mark Actions
@@ -271,7 +271,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 - (void)addBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_note"];
-    [self.hp_rootViewController showBlankNote];
+    [self.agn_rootViewController showBlankNote];
 }
 
 - (IBAction)tapTitleView:(id)sender
