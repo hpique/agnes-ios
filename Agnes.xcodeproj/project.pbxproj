@@ -56,7 +56,7 @@
 		8763DA2F18883ACF000D9569 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2E18883ACF000D9569 /* UIKit.framework */; };
 		8763DA3518883ACF000D9569 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA3318883ACF000D9569 /* InfoPlist.strings */; };
 		8763DA3718883ACF000D9569 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA3618883ACF000D9569 /* main.m */; };
-		8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA3A18883ACF000D9569 /* HPAppDelegate.m */; };
+		8763DA3B18883ACF000D9569 /* AGNAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA3A18883ACF000D9569 /* AGNAppDelegate.m */; };
 		8763DA3D18883ACF000D9569 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA3C18883ACF000D9569 /* Images.xcassets */; };
 		8763DA4418883ACF000D9569 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA4318883ACF000D9569 /* XCTest.framework */; };
 		8763DA4518883ACF000D9569 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2A18883ACF000D9569 /* Foundation.framework */; };
@@ -212,8 +212,8 @@
 		8763DA3418883ACF000D9569 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8763DA3618883ACF000D9569 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8763DA3818883ACF000D9569 /* Agnes-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Agnes-Prefix.pch"; sourceTree = "<group>"; };
-		8763DA3918883ACF000D9569 /* HPAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPAppDelegate.h; sourceTree = "<group>"; };
-		8763DA3A18883ACF000D9569 /* HPAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HPAppDelegate.m; sourceTree = "<group>"; };
+		8763DA3918883ACF000D9569 /* AGNAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AGNAppDelegate.h; sourceTree = "<group>"; };
+		8763DA3A18883ACF000D9569 /* AGNAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AGNAppDelegate.m; sourceTree = "<group>"; };
 		8763DA3C18883ACF000D9569 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		8763DA4218883ACF000D9569 /* AgnesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AgnesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8763DA4318883ACF000D9569 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -530,8 +530,8 @@
 				87DA062618A27A6E00762E12 /* Agnes.entitlements */,
 				87E37E86188BDFA6000333EA /* Agnes.xcdatamodeld */,
 				8740FAF2188B39FC004CF099 /* External */,
-				8763DA3918883ACF000D9569 /* HPAppDelegate.h */,
-				8763DA3A18883ACF000D9569 /* HPAppDelegate.m */,
+				8763DA3918883ACF000D9569 /* AGNAppDelegate.h */,
+				8763DA3A18883ACF000D9569 /* AGNAppDelegate.m */,
 				8763DA3C18883ACF000D9569 /* Images.xcassets */,
 				87D02E16188ECB8600273DEC /* Logic */,
 				87E37E89188BE369000333EA /* Model */,
@@ -934,7 +934,7 @@
 				87CAF3B718B79DF0004380BB /* CVRAlertView.m in Sources */,
 				87AA3CF7189C13E100FBEAAF /* HPImageViewController.m in Sources */,
 				873E091F18EBABDA007E9675 /* HPSectionArrayDataSource.m in Sources */,
-				8763DA3B18883ACF000D9569 /* HPAppDelegate.m in Sources */,
+				8763DA3B18883ACF000D9569 /* AGNAppDelegate.m in Sources */,
 				873E091918EB829A007E9675 /* AGNListDataSource.m in Sources */,
 				87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */,
 				8704D60718A109EB00C8977E /* HPAgnesUIMetrics.m in Sources */,

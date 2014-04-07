@@ -8,7 +8,7 @@
 
 #import "HPTagManager.h"
 #import "HPTag.h"
-#import "HPAppDelegate.h"
+#import "AGNAppDelegate.h"
 #import "NDTrie.h"
 #import "HPNote.h"
 #import "HPTracker.h"
@@ -70,7 +70,7 @@ static NSString *const HPTagArchiveName = @"Archive";
     static HPTagManager *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        HPAppDelegate *appDelegate = (HPAppDelegate*)[UIApplication sharedApplication].delegate;
+        AGNAppDelegate *appDelegate = (AGNAppDelegate*)[UIApplication sharedApplication].delegate;
         instance = [[HPTagManager alloc] initWithManagedObjectContext:appDelegate.managedObjectContext];
     });
     return instance;

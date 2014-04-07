@@ -8,7 +8,7 @@
 
 #import "HPAttachmentManager.h"
 #import "HPAttachment.h"
-#import "HPAppDelegate.h"
+#import "AGNAppDelegate.h"
 
 @implementation HPAttachmentManager
 
@@ -24,7 +24,7 @@
     static HPAttachmentManager *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        HPAppDelegate *appDelegate = (HPAppDelegate*)[UIApplication sharedApplication].delegate;
+        AGNAppDelegate *appDelegate = (AGNAppDelegate*)[UIApplication sharedApplication].delegate;
         instance = [[HPAttachmentManager alloc] initWithManagedObjectContext:appDelegate.managedObjectContext];
     });
     return instance;

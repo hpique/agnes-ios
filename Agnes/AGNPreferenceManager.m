@@ -8,7 +8,7 @@
 
 #import "AGNPreferenceManager.h"
 #import "AGNPreference.h"
-#import "HPAppDelegate.h"
+#import "AGNAppDelegate.h"
 
 static NSString *const AGNPreferenceTutorialNotesAddedKey = @"tutorialNotesAdded";
 
@@ -26,7 +26,7 @@ static NSString *const AGNPreferenceTutorialNotesAddedKey = @"tutorialNotesAdded
     static AGNPreferenceManager *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        HPAppDelegate *appDelegate = (HPAppDelegate*)[UIApplication sharedApplication].delegate;
+        AGNAppDelegate *appDelegate = (AGNAppDelegate*)[UIApplication sharedApplication].delegate;
         instance = [[AGNPreferenceManager alloc] initWithManagedObjectContext:appDelegate.managedObjectContext];
     });
     return instance;

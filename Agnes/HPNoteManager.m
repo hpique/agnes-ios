@@ -10,7 +10,7 @@
 #import "HPTagManager.h"
 #import "HPPreferencesManager.h"
 #import "HPNote.h"
-#import "HPAppDelegate.h"
+#import "AGNAppDelegate.h"
 #import "HPNote.h"
 #import "HPTag.h"
 #import "HPAttachment.h"
@@ -104,7 +104,7 @@ static NSInteger HPNoteManagerTutorialNotesCount = 6;
     static HPNoteManager *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        HPAppDelegate *appDelegate = (HPAppDelegate*)[UIApplication sharedApplication].delegate;
+        AGNAppDelegate *appDelegate = (AGNAppDelegate*)[UIApplication sharedApplication].delegate;
         instance = [[HPNoteManager alloc] initWithManagedObjectContext:appDelegate.managedObjectContext];
     });
     return instance;
