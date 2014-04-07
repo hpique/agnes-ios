@@ -7,7 +7,7 @@
 //
 
 #import "HPAgnesViewController.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 
 @interface HPAgnesViewController ()
 
@@ -19,7 +19,7 @@
 {
     [super viewWillAppear:animated];
     // TODO: Use view controller based status bar appearance. First fix bug in MMDrawerController that causes the left view controller to glitch on appearence.
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
     const BOOL statusBarHidden = preferences.statusBarHidden;
     UIApplication *app = [UIApplication sharedApplication];
     if (app.statusBarHidden != statusBarHidden)

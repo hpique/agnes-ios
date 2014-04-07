@@ -8,7 +8,7 @@
 
 #import "AGNAppDelegate.h"
 #import "HPIndexItem.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "AGNRootViewController.h"
 #import "HPNoteImporter.h"
 #import "HPAgnesNavigationController.h"
@@ -66,7 +66,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReplaceModelNotification:) name:HPModelManagerDidReplaceModelNotification object:_modelManager];
     }
     
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
     [preferences styleStatusBar];
     [UIApplication sharedApplication].keyWindow.tintColor = preferences.tintColor;
     [preferences styleNavigationBar:[UINavigationBar appearance]];

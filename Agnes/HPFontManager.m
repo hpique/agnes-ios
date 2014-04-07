@@ -7,7 +7,7 @@
 //
 
 #import "HPFontManager.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPNote.h"
 
 NSString *const HPFontManagerDidChangeFontsNotification = @"HPFontManagerDidChangeFontsNotification";
@@ -50,9 +50,9 @@ NSString *const HPFontManagerSystemFontName = @"system";
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         instance = [[HPFontManager alloc] init];
-        instance.dinamicType = [HPPreferencesManager sharedManager].dynamicType;
-        instance.fontName = [HPPreferencesManager sharedManager].fontName;
-        instance.fontSize = [HPPreferencesManager sharedManager].fontSize;
+        instance.dinamicType = [AGNPreferencesManager sharedManager].dynamicType;
+        instance.fontName = [AGNPreferencesManager sharedManager].fontName;
+        instance.fontSize = [AGNPreferencesManager sharedManager].fontSize;
     });
     return instance;
 }

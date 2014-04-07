@@ -17,7 +17,7 @@
 #import "HPNoteListTableViewCell.h"
 #import "HPNoteSearchTableViewCell.h"
 #import "HPIndexItem.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPNoteExporter.h"
 #import "HPNoteImporter.h"
 #import "HPReorderTableView.h"
@@ -195,7 +195,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 
     _indexItem = indexItem;
     
-    [HPPreferencesManager sharedManager].lastViewedTagName = indexItem.tag.name;
+    [AGNPreferencesManager sharedManager].lastViewedTagName = indexItem.tag.name;
     [self updateIndexItem];
     [self reloadNotesAnimated:NO];
     _notesTableView.contentOffset = CGPointMake(0, _notesTableView.tableHeaderView.bounds.size.height - _notesTableView.contentInset.top);
@@ -749,7 +749,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (void) searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller
 {
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
     [[UIApplication sharedApplication] setStatusBarStyle:preferences.statusBarStyle animated:YES];
     [_searchBar setWillEndSearch];
 }

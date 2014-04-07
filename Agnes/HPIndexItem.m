@@ -12,7 +12,7 @@
 #import "HPTagManager.h"
 #import "HPModelManager.h"
 #import "HPFontManager.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 
 NSString* NSStringFromIndexSortMode(HPIndexSortMode sortMode)
 {

@@ -11,7 +11,7 @@
 #import "HPTag.h"
 #import "HPNote+List.h"
 #import "TTTAttributedLabel.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPFontManager.h"
 
 @interface HPNoteListTableViewCell()
@@ -44,7 +44,7 @@
 - (void)applyPreferences
 {
     [super applyPreferences];
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
     HPFontManager *fonts = [HPFontManager sharedManager];
     self.titleLabel.truncationTokenStringAttributes = @{ NSFontAttributeName : fonts.fontForNoteTitle, NSForegroundColorAttributeName : preferences.tintColor };
     self.bodyLabel.truncationTokenStringAttributes =  @{ NSFontAttributeName : fonts.fontForNoteBody, NSForegroundColorAttributeName : preferences.tintColor };
@@ -96,7 +96,7 @@
 - (void)setHighlightedText:(NSString*)text inLabel:(TTTAttributedLabel*)label
 {
     [label setText:text afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
-        HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+        AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
         NSRegularExpression* regex = [HPNote tagRegularExpression];
         NSDictionary* attributes = @{ NSForegroundColorAttributeName : preferences.tintColor };
         

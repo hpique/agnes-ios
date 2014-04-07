@@ -7,7 +7,7 @@
 //
 
 #import "HPNavigationBarToggleTitleView.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPFontManager.h"
 #import <Lyt/Lyt.h>
 
@@ -63,14 +63,14 @@
     [_subtitleLabel lyt_placeBelowView:_titleLabel margin:-4];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferencesNotification:) name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferencesNotification:) name:AGNPreferencesManagerDidChangePreferencesNotification object:[AGNPreferencesManager sharedManager]];
 }
 
 - (void)dealloc
 {
     [_restoreTitleTimer invalidate];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNPreferencesManagerDidChangePreferencesNotification object:[AGNPreferencesManager sharedManager]];
 }
 
 #pragma mark Public
@@ -129,7 +129,7 @@
 
 - (void)applyPreferences
 {
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
     UIColor *barForegroundColor = preferences.barForegroundColor;
     _titleLabel.textColor = barForegroundColor;
     _subtitleLabel.textColor = barForegroundColor;

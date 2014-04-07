@@ -8,7 +8,7 @@
 
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPNote.h"
 #import "AGNAppDelegate.h"
 #import "HPNote.h"

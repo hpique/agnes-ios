@@ -8,7 +8,7 @@
 
 #import "HPNoteAction.h"
 #import "HPNoteManager.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPNote.h"
 #import "NSString+hp_utils.h"
 
@@ -38,22 +38,22 @@
             return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
         }]];
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-tintColor}" replacementBlock:^NSString *{
-            return [HPPreferencesManager sharedManager].tintColorName;
+            return [AGNPreferencesManager sharedManager].tintColorName;
         }]];
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-barTintColor}" replacementBlock:^NSString *{
-            return [HPPreferencesManager sharedManager].barTintColorName;
+            return [AGNPreferencesManager sharedManager].barTintColorName;
         }]];
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-statusBarHidden}" replacementBlock:^NSString *{
-            return [HPPreferencesManager sharedManager].statusBarHidden ? @"yes" : @"no";
+            return [AGNPreferencesManager sharedManager].statusBarHidden ? @"yes" : @"no";
         }]];
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-dynamicType}" replacementBlock:^NSString *{
-            return [HPPreferencesManager sharedManager].dynamicType ? @"yes" : @"no";
+            return [AGNPreferencesManager sharedManager].dynamicType ? @"yes" : @"no";
         }]];
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-fontName}" replacementBlock:^NSString *{
-            return [HPPreferencesManager sharedManager].fontName;
+            return [AGNPreferencesManager sharedManager].fontName;
         }]];
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-fontSize}" replacementBlock:^NSString *{
-            return [NSString stringWithFormat:@"%ld", (long)[HPPreferencesManager sharedManager].fontSize];
+            return [NSString stringWithFormat:@"%ld", (long)[AGNPreferencesManager sharedManager].fontSize];
         }]];
         instance = actions;
     });
@@ -73,7 +73,7 @@
 {
     if (note.isSystem)
     {
-        [[HPPreferencesManager sharedManager] applyPreferences:mutableText];
+        [[AGNPreferencesManager sharedManager] applyPreferences:mutableText];
         [mutableText deleteCharactersInRange:NSMakeRange(0, mutableText.length)];
         [mutableText appendString:note.text];
         return YES;

@@ -17,7 +17,7 @@
 #import "HPNoteAction.h"
 #import "HPIndexItem.h"
 #import "HPNoteActivityItemSource.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPBrowserViewController.h"
 #import "HPFontManager.h"
 #import "HPAttachment.h"
@@ -567,7 +567,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(didFinishTyping) object:nil];
     if (typing)
     {
-        HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+        AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
         NSDate *now = [NSDate date];
         if (_typingPreviousDate)
         {
@@ -591,7 +591,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     }
     else if (self.navigationController.navigationBarHidden)
     {
-        if ([UIApplication sharedApplication].statusBarHidden && ![HPPreferencesManager sharedManager].statusBarHidden)
+        if ([UIApplication sharedApplication].statusBarHidden && ![AGNPreferencesManager sharedManager].statusBarHidden)
         {
             [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
         }

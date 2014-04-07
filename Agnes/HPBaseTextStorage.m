@@ -11,7 +11,7 @@
 #import "HPAttachment.h"
 #import "HPNote+Detail.h"
 #import "HPFontManager.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import <MessageUI/MessageUI.h>
 #import "UIColor+hp_utils.h"
 #import "NSString+hp_utils.h"
@@ -167,7 +167,7 @@
 - (void)highlightTags:(NSRange)changedRange
 {
     NSRegularExpression* regex = [HPNote tagRegularExpression];
-    UIColor *color = [HPPreferencesManager sharedManager].tintColor;
+    UIColor *color = [AGNPreferencesManager sharedManager].tintColor;
     NSDictionary* attributes = @{ NSForegroundColorAttributeName : color };
     
     [self removeAttribute:NSForegroundColorAttributeName range:changedRange];
@@ -189,7 +189,7 @@
     NSRange searchRange = NSMakeRange(0, text.length);
     NSString *pattern = [NSRegularExpression escapedPatternForString:self.search];
     NSRegularExpression* regex = [NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:nil];
-    UIColor *color = [HPPreferencesManager sharedManager].tintColor;
+    UIColor *color = [AGNPreferencesManager sharedManager].tintColor;
     color = [color hp_lighterColor];
     NSDictionary* attributes = @{ NSBackgroundColorAttributeName : color};
     

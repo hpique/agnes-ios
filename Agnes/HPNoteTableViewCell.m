@@ -10,7 +10,7 @@
 #import "HPNote.h"
 #import "HPNote+List.h"
 #import "HPFontManager.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPAgnesImageCache.h"
 #import "HPAgnesUIMetrics.h"
 #import "HPAttachment.h"
@@ -202,7 +202,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 
 - (void)initHelper
 {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferences:) name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferences:) name:AGNPreferencesManagerDidChangePreferencesNotification object:[AGNPreferencesManager sharedManager]];
     
     {
         
@@ -224,7 +224,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPPreferencesManagerDidChangePreferencesNotification object:[HPPreferencesManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNPreferencesManagerDidChangePreferencesNotification object:[AGNPreferencesManager sharedManager]];
     [self removeNoteObserver];
     [_modifiedAtSortModeTimer invalidate];
 }
@@ -442,7 +442,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 
 - (void)applyPreferences
 {
-    UIColor *borderColor = [HPPreferencesManager sharedManager].tintColor;
+    UIColor *borderColor = [AGNPreferencesManager sharedManager].tintColor;
     borderColor = [borderColor hp_lighterColor];
     self.thumbnailView.layer.borderColor = borderColor.CGColor;
 }

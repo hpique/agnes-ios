@@ -16,7 +16,7 @@
 #import "HPTag.h"
 #import "AGNRootViewController.h"
 #import "HPNavigationBarToggleTitleView.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPModelManager.h"
 #import "MMDrawerController.h"
 #import "UITableView+hp_reloadChanges.h"
@@ -67,7 +67,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     UIBarButtonItem *addBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addBarButtonItemAction:)];
     self.navigationItem.rightBarButtonItems = @[fixedSpace, addBarButtonItem];
     
-    _sortMode = [HPPreferencesManager sharedManager].indexSortMode;
+    _sortMode = [AGNPreferencesManager sharedManager].indexSortMode;
     
     [self reloadData];
     if (_selectedIndexItem)
@@ -288,7 +288,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSInteger index = [values indexOfObject:@(_sortMode)];
     index = (index + 1) % values.count;
     _sortMode = [values[index] intValue];
-    [HPPreferencesManager sharedManager].indexSortMode = _sortMode;
+    [AGNPreferencesManager sharedManager].indexSortMode = _sortMode;
     NSString *modeString = NSStringFromIndexSortMode(_sortMode);
     [_titleView setSubtitle:modeString animated:YES transient:YES];
     [self reloadData];

@@ -9,7 +9,7 @@
 #import "HPModelManager.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "AGNPreferenceManager.h"
 #import "HPAttachment.h"
 #import "HPData.h"

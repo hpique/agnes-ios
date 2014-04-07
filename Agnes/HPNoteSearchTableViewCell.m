@@ -9,7 +9,7 @@
 #import "HPNoteSearchTableViewCell.h"
 #import "HPNote.h"
 #import "HPNote+List.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPFontManager.h"
 #import "NSString+hp_utils.h"
 
@@ -94,7 +94,7 @@ static NSString* HPLineWithMatch(NSString *text, NSString *search)
 
 - (NSAttributedString*)highlightMatchesInText:(NSString*)text
 {
-    HPPreferencesManager *preferences = [HPPreferencesManager sharedManager];
+    AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
     UIColor *matchColor = preferences.tintColor;
     NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithString:text];
     [text hp_enumerateOccurrencesOfString:self.searchText options:NSCaseInsensitiveSearch usingBlock:^(NSRange matchRange, BOOL *stop) {

@@ -10,7 +10,7 @@
 #import "HPNoteManager.h"
 #import "HPNoteListDetailTransitionAnimator.h"
 #import "AGNNoteListViewController.h"
-#import "HPPreferencesManager.h"
+#import "AGNPreferencesManager.h"
 #import "HPIndexViewController.h"
 #import "AGNNoteViewController.h"
 #import "HPIndexItem.h"
@@ -104,7 +104,7 @@
 
 - (HPIndexItem*)lastIndexItem
 {
-    NSString *lastViewedTagName = [HPPreferencesManager sharedManager].lastViewedTagName;
+    NSString *lastViewedTagName = [AGNPreferencesManager sharedManager].lastViewedTagName;
     if (!lastViewedTagName) return nil;
     
     HPTag *lastViewedTag = [[HPTagManager sharedManager] tagForName:lastViewedTagName];
