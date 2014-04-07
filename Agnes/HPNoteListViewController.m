@@ -462,6 +462,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)startObserving
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(statusNotification:) name:HPStatusNotification object:nil];
@@ -471,6 +472,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPStatusNotification object:nil];
 }
@@ -823,7 +825,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }
 }
 
-#pragma mark - Notifications
+#pragma mark Notifications
 
 - (void)indexItemDidChangeNotification:(NSNotification*)notification
 {
@@ -839,7 +841,7 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     NSDictionary *userInfo = notification.userInfo;
 
     // Only consider updated notes. Insertions and deletions are handled in indexItemDidChangeNotification:
-    NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
+    NSSet *updated = userInfo[NSUpdatedObjectsKey];
     if (updated.count == 0) return;
     
     if (self.transitioning || !_visible)
@@ -849,6 +851,16 @@ static NSString* HPNoteListTableViewCellReuseIdentifier = @"Cell";
     }
     
     [self reloadNotesWithUpdates:updated animated:YES];
+}
+
+- (void)tagsDidChangeNotification:(NSNotification*)notification
+{
+    NSDictionary *userInfo = notification.userInfo;
+    NSSet *deleted = userInfo[NSDeletedObjectsKey];
+    if ([deleted containsObject:self.indexItem.tag])
+    {
+        self.indexItem = [HPIndexItem inboxIndexItem];
+    }
 }
 
 - (void)didChangeFontsNotification:(NSNotification*)notification
