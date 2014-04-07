@@ -35,7 +35,7 @@
     const NSRange range = NSMakeRange(characterIndex, 1);
     NSRange foundRange;
     NSString *tagName = [text hp_tagInRange:range enclosing:YES tagRange:&foundRange];
-    if (tagName)
+    if (tagName && ![tagName isEqualToString:HPNoteTagEscapeString])
     {
 
         const NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:range actualCharacterRange:nil];
