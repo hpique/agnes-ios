@@ -8,7 +8,7 @@
 
 #import "HPNoteNavigationController.h"
 #import "AGNNoteViewController.h"
-#import "HPNoteListViewController.h"
+#import "AGNNoteListViewController.h"
 #import "HPNote.h"
 
 @interface HPNoteNavigationController ()

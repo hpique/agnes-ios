@@ -9,7 +9,7 @@
 #import "HPRootViewController.h"
 #import "HPNoteManager.h"
 #import "HPNoteListDetailTransitionAnimator.h"
-#import "HPNoteListViewController.h"
+#import "AGNNoteListViewController.h"
 #import "HPIndexViewController.h"
 #import "AGNNoteViewController.h"
 #import "HPIndexItem.h"
@@ -19,12 +19,12 @@
 #import <iRate/iRate.h>
 #import <CoreData/CoreData.h>
 
-@interface HPRootViewController()<HPNoteListViewControllerDelegate>
+@interface HPRootViewController()<AGNNoteListViewControllerDelegate>
 
 @end
 
 @implementation HPRootViewController {
-    HPNoteListViewController *_listViewController;
+    AGNNoteListViewController *_listViewController;
     HPIndexViewController *_indexViewController;
     BOOL _prompForRating;
 }
@@ -42,7 +42,7 @@
     self.view.backgroundColor = [UIColor whiteColor];
     
     HPIndexItem *indexItem = [HPIndexItem inboxIndexItem];
-    _listViewController = [[HPNoteListViewController alloc] initWithIndexItem:indexItem];
+    _listViewController = [[AGNNoteListViewController alloc] initWithIndexItem:indexItem];
     _listViewController.delegate = self;
     HPNoteNavigationController *centerController = [[HPNoteNavigationController alloc] initWithRootViewController:_listViewController];
     centerController.delegate = self;
@@ -99,7 +99,7 @@
                                                 fromViewController:(UIViewController *)fromVC
                                                   toViewController:(UIViewController *)toVC
 {
-    _prompForRating = [fromVC isKindOfClass:[AGNNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]]  && [iRate sharedInstance].shouldPromptForRating;
+    _prompForRating = [fromVC isKindOfClass:[AGNNoteViewController class]] && [toVC isKindOfClass:[AGNNoteListViewController class]]  && [iRate sharedInstance].shouldPromptForRating;
     
     if ([HPNoteListDetailTransitionAnimator canTransitionFromViewController:fromVC toViewController:toVC])
     {
@@ -118,9 +118,9 @@
     }
 }
 
-#pragma mark HPNoteListViewControllerDelegate
+#pragma mark AGNNoteListViewControllerDelegate
 
-- (void)noteListViewController:(HPNoteListViewController*)viewController didChangeIndexItem:(HPIndexItem*)indexItem
+- (void)noteListViewController:(AGNNoteListViewController*)viewController didChangeIndexItem:(HPIndexItem*)indexItem
 {
     [_indexViewController selectIndexItem:indexItem];
 }

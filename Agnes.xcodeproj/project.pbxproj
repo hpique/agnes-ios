@@ -63,8 +63,8 @@
 		8763DA4618883ACF000D9569 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8763DA2E18883ACF000D9569 /* UIKit.framework */; };
 		8763DA4E18883ACF000D9569 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA4C18883ACF000D9569 /* InfoPlist.strings */; };
 		8763DA5018883ACF000D9569 /* AgnesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA4F18883ACF000D9569 /* AgnesTests.m */; };
-		8763DA5B18883B2B000D9569 /* HPNoteListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA5A18883B2B000D9569 /* HPNoteListViewController.m */; };
-		8763DA5D18883B6D000D9569 /* HPNoteListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA5C18883B6D000D9569 /* HPNoteListViewController.xib */; };
+		8763DA5B18883B2B000D9569 /* AGNNoteListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA5A18883B2B000D9569 /* AGNNoteListViewController.m */; };
+		8763DA5D18883B6D000D9569 /* AGNNoteListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA5C18883B6D000D9569 /* AGNNoteListViewController.xib */; };
 		8763DA631888420A000D9569 /* HPNoteManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA621888420A000D9569 /* HPNoteManager.m */; };
 		8763DA6718884650000D9569 /* AGNNoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6518884650000D9569 /* AGNNoteViewController.m */; };
 		8763DA6818884650000D9569 /* AGNNoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA6618884650000D9569 /* AGNNoteViewController.xib */; };
@@ -220,9 +220,9 @@
 		8763DA4B18883ACF000D9569 /* AgnesTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AgnesTests-Info.plist"; sourceTree = "<group>"; };
 		8763DA4D18883ACF000D9569 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8763DA4F18883ACF000D9569 /* AgnesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AgnesTests.m; sourceTree = "<group>"; };
-		8763DA5918883B2B000D9569 /* HPNoteListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteListViewController.h; sourceTree = "<group>"; };
-		8763DA5A18883B2B000D9569 /* HPNoteListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListViewController.m; sourceTree = "<group>"; };
-		8763DA5C18883B6D000D9569 /* HPNoteListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPNoteListViewController.xib; sourceTree = "<group>"; };
+		8763DA5918883B2B000D9569 /* AGNNoteListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNNoteListViewController.h; sourceTree = "<group>"; };
+		8763DA5A18883B2B000D9569 /* AGNNoteListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNNoteListViewController.m; sourceTree = "<group>"; };
+		8763DA5C18883B6D000D9569 /* AGNNoteListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AGNNoteListViewController.xib; sourceTree = "<group>"; };
 		8763DA611888420A000D9569 /* HPNoteManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteManager.h; sourceTree = "<group>"; };
 		8763DA621888420A000D9569 /* HPNoteManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteManager.m; sourceTree = "<group>"; };
 		8763DA6418884650000D9569 /* AGNNoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNNoteViewController.h; sourceTree = "<group>"; };
@@ -433,9 +433,9 @@
 				8763DA6C18897982000D9569 /* HPNoteListTableViewCell.h */,
 				8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */,
 				87AD2F82188E900B0065EEBA /* HPNoteListTableViewCell.xib */,
-				8763DA5918883B2B000D9569 /* HPNoteListViewController.h */,
-				8763DA5A18883B2B000D9569 /* HPNoteListViewController.m */,
-				8763DA5C18883B6D000D9569 /* HPNoteListViewController.xib */,
+				8763DA5918883B2B000D9569 /* AGNNoteListViewController.h */,
+				8763DA5A18883B2B000D9569 /* AGNNoteListViewController.m */,
+				8763DA5C18883B6D000D9569 /* AGNNoteListViewController.xib */,
 				871429F418955CF900DA588F /* HPNoteNavigationController.h */,
 				871429F518955CF900DA588F /* HPNoteNavigationController.m */,
 				8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */,
@@ -818,7 +818,7 @@
 				87E37EFB188D97F3000333EA /* HPBrowserViewController.xib in Resources */,
 				871CD014189B4EE200E39CFA /* sample@2x.jpg in Resources */,
 				8763DA3518883ACF000D9569 /* InfoPlist.strings in Resources */,
-				8763DA5D18883B6D000D9569 /* HPNoteListViewController.xib in Resources */,
+				8763DA5D18883B6D000D9569 /* AGNNoteListViewController.xib in Resources */,
 				87F47BB218ACE5E600F1FB48 /* sample-thumbnail.jpg in Resources */,
 				871429A91892E87A00DA588F /* HPIndexItemTableViewCell.xib in Resources */,
 				872C19A518986F6C0013C9A5 /* Localizable.stringsdict in Resources */,
@@ -895,7 +895,7 @@
 			files = (
 				87AA3D08189F342800FBEAAF /* HPNote+List.m in Sources */,
 				87DA062918A27ADC00762E12 /* HPModelManager.m in Sources */,
-				8763DA5B18883B2B000D9569 /* HPNoteListViewController.m in Sources */,
+				8763DA5B18883B2B000D9569 /* AGNNoteListViewController.m in Sources */,
 				8740FAF1188B2AC5004CF099 /* HPTagSuggestionsView.m in Sources */,
 				8740FAE8188AA7DB004CF099 /* HPNoteTableViewCell.m in Sources */,
 				871CD008189ABD5300E39CFA /* UIImage+hp_utils.m in Sources */,

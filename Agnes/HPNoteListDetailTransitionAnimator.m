@@ -7,7 +7,7 @@
 //
 
 #import "HPNoteListDetailTransitionAnimator.h"
-#import "HPNoteListViewController.h"
+#import "AGNNoteListViewController.h"
 #import "AGNNoteViewController.h"
 #import "HPNoteTableViewCell.h"
 #import "HPNoteNavigationController.h"
@@ -30,10 +30,10 @@
     id fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
     id toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
     
-    if ([fromViewController isKindOfClass:[HPNoteListViewController class]] && [toViewController isKindOfClass:[AGNNoteViewController class]])
+    if ([fromViewController isKindOfClass:[AGNNoteListViewController class]] && [toViewController isKindOfClass:[AGNNoteViewController class]])
     {
         [self animateTransition:transitionContext fromList:fromViewController toDetail:toViewController];
-    } else if ([fromViewController isKindOfClass:[AGNNoteViewController class]] && [toViewController isKindOfClass:[HPNoteListViewController class]])
+    } else if ([fromViewController isKindOfClass:[AGNNoteViewController class]] && [toViewController isKindOfClass:[AGNNoteListViewController class]])
     {
         [self animateTransition:transitionContext fromDetail:fromViewController toList:toViewController];
     }
@@ -54,22 +54,22 @@
         id<HPNoteTransitionViewController> transitionViewController = (id<HPNoteTransitionViewController>)toVC;
         if (transitionViewController.wantsDefaultTransition) return NO;
     }
-    if ([fromVC isKindOfClass:[HPNoteListViewController class]] && [toVC isKindOfClass:[AGNNoteViewController class]])
+    if ([fromVC isKindOfClass:[AGNNoteListViewController class]] && [toVC isKindOfClass:[AGNNoteViewController class]])
     {
-        HPNoteListViewController *listViewController = (HPNoteListViewController*) fromVC;
+        AGNNoteListViewController *listViewController = (AGNNoteListViewController*) fromVC;
         if (listViewController.indexPathOfSelectedNote)
         {
             return YES;
         }
     }
-    if ([fromVC isKindOfClass:[AGNNoteViewController class]] && [toVC isKindOfClass:[HPNoteListViewController class]])
+    if ([fromVC isKindOfClass:[AGNNoteViewController class]] && [toVC isKindOfClass:[AGNNoteListViewController class]])
     {
         AGNNoteViewController *noteViewController = (AGNNoteViewController*) fromVC;
         HPNote *note = noteViewController.note;
         if (!note) return NO; // Note was trashed
         if ([note isNew]) return NO;
         
-        HPNoteListViewController *listViewController = (HPNoteListViewController*) toVC;
+        AGNNoteListViewController *listViewController = (AGNNoteListViewController*) toVC;
         BOOL selected = [listViewController selectNote:note];
         if (selected)
         {
@@ -81,7 +81,7 @@
 
 #pragma mark Private
 
-- (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext fromList:(HPNoteListViewController*)fromViewController toDetail:(AGNNoteViewController*)toViewController
+- (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext fromList:(AGNNoteListViewController*)fromViewController toDetail:(AGNNoteViewController*)toViewController
 {
     UIView *containerView = transitionContext.containerView;
     [transitionContext.containerView addSubview:toViewController.view];
@@ -209,7 +209,7 @@
     }];
 }
 
-- (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext fromDetail:(AGNNoteViewController*)fromViewController toList:(HPNoteListViewController*)toViewController
+- (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext fromDetail:(AGNNoteViewController*)fromViewController toList:(AGNNoteListViewController*)toViewController
 {
     UIView *containerView = transitionContext.containerView;
     [containerView addSubview:toViewController.view];

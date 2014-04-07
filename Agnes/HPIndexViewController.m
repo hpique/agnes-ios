@@ -7,7 +7,7 @@
 //
 
 #import "HPIndexViewController.h"
-#import "HPNoteListViewController.h"
+#import "AGNNoteListViewController.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPIndexItem.h"

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="5053" systemVersion="13C64" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AGNNoteListViewController">
+            <connections>
+                <outlet property="_emptyCenterYTitleLabelLayoutConstraint" destination="JOn-Aj-on7" id="bEe-NG-hhV"/>
+                <outlet property="_emptyListView" destination="f65-dw-v5R" id="jaJ-aS-USG"/>
+                <outlet property="_emptySubtitleLabel" destination="ac8-4x-E4n" id="frA-Yr-Y0y"/>
+                <outlet property="_emptyTitleLabel" destination="Lq5-vr-rI1" id="epu-Q5-9bi"/>
+                <outlet property="_listDataSource" destination="DBj-55-afb" id="TAa-St-71S"/>
+                <outlet property="_notesTableView" destination="6Ye-Ag-F8Q" id="6m9-an-rAu"/>
+                <outlet property="_searchBar" destination="qkn-uy-VC4" id="SSS-kz-XcU"/>
+                <outlet property="_searchDataSource" destination="a8V-2H-2rV" id="DJd-uM-dbR"/>
+                <outlet property="_titleView" destination="jTE-Aa-Rve" id="c3r-jh-O5e"/>
+                <outlet property="searchDisplayController" destination="Nwp-7R-4x2" id="EZX-5f-4tN"/>
+                <outlet property="view" destination="1" id="zdJ-cQ-i5U"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="1">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" allowsSelectionDuringEditing="YES" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="6Ye-Ag-F8Q" customClass="HPReorderTableView">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <searchBar key="tableHeaderView" contentMode="redraw" searchBarStyle="minimal" id="qkn-uy-VC4" customClass="HPNoteListSearchBar">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <textInputTraits key="textInputTraits"/>
+                        <connections>
+                            <outlet property="delegate" destination="-1" id="SGw-kM-Lzh"/>
+                        </connections>
+                    </searchBar>
+                    <connections>
+                        <outlet property="dataSource" destination="DBj-55-afb" id="F2j-Ry-EM3"/>
+                        <outlet property="delegate" destination="-1" id="Dam-oJ-TTL"/>
+                    </connections>
+                </tableView>
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f65-dw-v5R">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No notes" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="Lq5-vr-rI1">
+                            <rect key="frame" x="20" y="254" width="280" height="21"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tip or motivator" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="ac8-4x-E4n">
+                            <rect key="frame" x="20" y="275" width="280" height="21"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="Lq5-vr-rI1" secondAttribute="trailing" constant="20" id="8UI-SD-PVN"/>
+                        <constraint firstAttribute="centerY" secondItem="Lq5-vr-rI1" secondAttribute="centerY" constant="20" id="JOn-Aj-on7"/>
+                        <constraint firstItem="Lq5-vr-rI1" firstAttribute="leading" secondItem="f65-dw-v5R" secondAttribute="leading" constant="20" id="NOL-wZ-R7b"/>
+                        <constraint firstItem="Lq5-vr-rI1" firstAttribute="leading" secondItem="ac8-4x-E4n" secondAttribute="leading" id="PCW-Qu-vEK"/>
+                        <constraint firstItem="Lq5-vr-rI1" firstAttribute="trailing" secondItem="ac8-4x-E4n" secondAttribute="trailing" id="a7d-Oy-F0Y"/>
+                        <constraint firstItem="ac8-4x-E4n" firstAttribute="top" secondItem="Lq5-vr-rI1" secondAttribute="bottom" id="hBw-dp-4dA"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="6Ye-Ag-F8Q" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="ETb-gt-Ldr"/>
+                <constraint firstAttribute="bottom" secondItem="6Ye-Ag-F8Q" secondAttribute="bottom" id="IRo-op-R0f"/>
+                <constraint firstAttribute="trailing" secondItem="6Ye-Ag-F8Q" secondAttribute="trailing" id="PF7-ra-4iO"/>
+                <constraint firstItem="f65-dw-v5R" firstAttribute="top" secondItem="1" secondAttribute="top" id="Pys-iC-mlZ"/>
+                <constraint firstItem="6Ye-Ag-F8Q" firstAttribute="top" secondItem="1" secondAttribute="top" id="YaU-gH-asA"/>
+                <constraint firstAttribute="bottom" secondItem="f65-dw-v5R" secondAttribute="bottom" id="mrz-PJ-SUZ"/>
+                <constraint firstItem="f65-dw-v5R" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="n8x-RB-b7v"/>
+                <constraint firstAttribute="trailing" secondItem="f65-dw-v5R" secondAttribute="trailing" id="uNS-Pf-qPT"/>
+            </constraints>
+            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+            <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+        </view>
+        <searchDisplayController id="Nwp-7R-4x2">
+            <connections>
+                <outlet property="delegate" destination="-1" id="nfX-Bi-qRE"/>
+                <outlet property="searchBar" destination="qkn-uy-VC4" id="Ru0-Lg-m85"/>
+                <outlet property="searchContentsController" destination="-1" id="ZCi-Sj-TcQ"/>
+                <outlet property="searchResultsDataSource" destination="a8V-2H-2rV" id="gnE-u0-Yl4"/>
+                <outlet property="searchResultsDelegate" destination="-1" id="fPs-0d-HNO"/>
+            </connections>
+        </searchDisplayController>
+        <view contentMode="scaleToFill" id="jTE-Aa-Rve" customClass="HPNavigationBarToggleTitleView">
+            <rect key="frame" x="0.0" y="0.0" width="160" height="44"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+            <gestureRecognizers/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outletCollection property="gestureRecognizers" destination="niI-pX-2h1" appends="YES" id="wc0-ac-Hft"/>
+            </connections>
+        </view>
+        <tapGestureRecognizer id="niI-pX-2h1">
+            <connections>
+                <action selector="tapTitleView:" destination="-1" id="Tfx-3n-Qog"/>
+            </connections>
+        </tapGestureRecognizer>
+        <customObject id="DBj-55-afb" customClass="AGNListDataSource">
+            <connections>
+                <outlet property="delegate" destination="-1" id="CSL-rC-UPp"/>
+            </connections>
+        </customObject>
+        <customObject id="a8V-2H-2rV" customClass="AGNSearchDataSource">
+            <connections>
+                <outlet property="delegate" destination="-1" id="AaC-HK-mqD"/>
+            </connections>
+        </customObject>
+    </objects>
+</document>
