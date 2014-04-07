@@ -678,12 +678,16 @@
 			children = (
 				87FD524518BA50340069FB16 /* AGNPreference.h */,
 				87FD524618BA50340069FB16 /* AGNPreference.m */,
+				87FD524818BA50550069FB16 /* AGNPreferenceManager.h */,
+				87FD524918BA50550069FB16 /* AGNPreferenceManager.m */,
 				871CCFFE189AB77800E39CFA /* HPAttachment.h */,
 				871CCFFF189AB77800E39CFA /* HPAttachment.m */,
 				87AA3D1218A0026400FBEAAF /* HPAttachmentManager.h */,
 				87AA3D1318A0026400FBEAAF /* HPAttachmentManager.m */,
 				871CD000189AB77800E39CFA /* HPData.h */,
 				871CD001189AB77800E39CFA /* HPData.m */,
+				87CAF3B218B78141004380BB /* HPModelContextImporter.h */,
+				87CAF3B318B78141004380BB /* HPModelContextImporter.m */,
 				87DA062718A27ADC00762E12 /* HPModelManager.h */,
 				87DA062818A27ADC00762E12 /* HPModelManager.m */,
 				87E37EE5188C413C000333EA /* HPNote.h */,
@@ -694,10 +698,6 @@
 				87E37EE9188C413D000333EA /* HPTag.m */,
 				87E37EEF188CA5F5000333EA /* HPTagManager.h */,
 				87E37EF0188CA5F5000333EA /* HPTagManager.m */,
-				87CAF3B218B78141004380BB /* HPModelContextImporter.h */,
-				87CAF3B318B78141004380BB /* HPModelContextImporter.m */,
-				87FD524818BA50550069FB16 /* AGNPreferenceManager.h */,
-				87FD524918BA50550069FB16 /* AGNPreferenceManager.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
