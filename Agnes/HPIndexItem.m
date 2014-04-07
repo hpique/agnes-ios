@@ -86,7 +86,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerDidReplaceModelNotification object:nil];
 }
 
-+ (HPIndexItem*)inboxIndexItem
++ (instancetype)inboxIndexItem
 {
     static HPIndexItem *instance = nil;
     static dispatch_once_t onceToken;
@@ -102,7 +102,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return instance;
 }
 
-+ (HPIndexItem*)archiveIndexItem
++ (instancetype)archiveIndexItem
 {
     static HPIndexItem *instance = nil;
     static dispatch_once_t onceToken;
@@ -121,7 +121,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return instance;
 }
 
-+ (HPIndexItem*)systemIndexItem
++ (instancetype)systemIndexItem
 {
     static HPIndexItem *instance = nil;
     static dispatch_once_t onceToken;
@@ -137,8 +137,12 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return instance;
 }
 
-+ (HPIndexItem*)indexItemWithTag:(HPTag*)tag
++ (instancetype)indexItemWithTag:(HPTag*)tag
 {
+    HPTagManager *tagManager = [HPTagManager sharedManager];
+    if (tag == tagManager.inboxTag) return [HPIndexItem inboxIndexItem];
+    if (tag == tagManager.archiveTag) return [HPIndexItem archiveIndexItem];
+    
     HPIndexItem *item = [[HPIndexItem alloc] init];
     item.tag = tag;
     item.title = tag.name;

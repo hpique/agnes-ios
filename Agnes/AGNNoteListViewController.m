@@ -192,7 +192,10 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [self.searchDisplayController setActive:NO];
     _indexPathOfSelectedNote = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPIndexItemDidChangeNotification object:_indexItem];
+
     _indexItem = indexItem;
+    
+    [HPPreferencesManager sharedManager].lastViewedTagName = indexItem.tag.name;
     [self updateIndexItem];
     [self reloadNotesAnimated:NO];
     _notesTableView.contentOffset = CGPointMake(0, _notesTableView.tableHeaderView.bounds.size.height - _notesTableView.contentInset.top);

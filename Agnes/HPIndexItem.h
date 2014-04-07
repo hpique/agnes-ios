@@ -43,13 +43,13 @@ extern NSString* const HPIndexItemDidChangeNotification;
 @property (nonatomic, readonly) HPTag *tag;
 @property (nonatomic, copy) NSString *title;
 
-+ (HPIndexItem*)inboxIndexItem;
++ (instancetype)inboxIndexItem;
 
-+ (HPIndexItem*)archiveIndexItem;
++ (instancetype)archiveIndexItem;
 
-+ (HPIndexItem*)indexItemWithTag:(HPTag*)tag;
++ (instancetype)indexItemWithTag:(HPTag*)tag;
 
-+ (HPIndexItem*)systemIndexItem;
++ (instancetype)systemIndexItem;
 
 - (NSArray*)notes:(BOOL)archived;
 

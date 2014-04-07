@@ -19,6 +19,7 @@ NSString *const HPAgnesDefaultsKeyDynamicType = @"HPAgnesDynamicType";
 NSString *const HPAgnesDefaultsKeyFontName = @"HPAgnesFontName";
 NSString *const HPAgnesDefaultsKeyFontSize = @"HPAgnesFontSize";
 NSString *const HPAgnesDefaultsKeyIndexSortMode = @"HPIndexSortMode";
+NSString *const AGNDefaultsKeyLastViewedTag = @"AGNLastViewedTag";
 NSString *const HPAgnesDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 NSString *const HPAgnesDefaultsKeyTintColor = @"HPAgnesTintColor";
 NSString *const HPAgnesDefaultsKeyTypingSpeed = @"HPAgnesTypingSpeed";
@@ -133,6 +134,12 @@ static CGFloat AGNLuminanceMiddle = 0.6;
     return value ? [value integerValue] : HPAgnesDefaultIndexSortMode;
 }
 
+- (NSString*)lastViewedTagName
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    return [userDefaults valueForKey:AGNDefaultsKeyLastViewedTag];
+}
+
 - (void)setBarTintColor:(UIColor *)barTintColor
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -155,6 +162,12 @@ static CGFloat AGNLuminanceMiddle = 0.6;
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     [userDefaults setObject:@(indexSortMode) forKey:HPAgnesDefaultsKeyIndexSortMode];
+}
+
+- (void)setLastViewedTagName:(NSString *)lastViewedTagName
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:lastViewedTagName forKey:AGNDefaultsKeyLastViewedTag];
 }
 
 - (void)setStatusBarHidden:(BOOL)statusBarHidden

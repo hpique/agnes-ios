@@ -10,6 +10,7 @@
 #import "HPNoteManager.h"
 #import "HPNoteListDetailTransitionAnimator.h"
 #import "AGNNoteListViewController.h"
+#import "HPPreferencesManager.h"
 #import "HPIndexViewController.h"
 #import "AGNNoteViewController.h"
 #import "HPIndexItem.h"
@@ -41,12 +42,14 @@
     self.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningNavigationBar | MMOpenDrawerGestureModeBezelPanningCenterView;
     self.view.backgroundColor = [UIColor whiteColor];
     
-    HPIndexItem *indexItem = [HPIndexItem inboxIndexItem];
+    HPIndexItem *indexItem = [self lastIndexItem] ? : [HPIndexItem inboxIndexItem];
     _listViewController = [[AGNNoteListViewController alloc] initWithIndexItem:indexItem];
     _listViewController.delegate = self;
     HPNoteNavigationController *centerController = [[HPNoteNavigationController alloc] initWithRootViewController:_listViewController];
     centerController.delegate = self;
-    _indexViewController = [[HPIndexViewController alloc] init];
+    
+    _indexViewController = [HPIndexViewController new];
+    [_indexViewController selectIndexItem:indexItem];
     HPAgnesNavigationController *leftController = [[HPAgnesNavigationController alloc] initWithRootViewController:_indexViewController];
     self.centerViewController = centerController;
     self.leftDrawerViewController = leftController;
@@ -64,7 +67,12 @@
     return [HPNoteManager sharedManager].context.undoManager;
 }
 
-#pragma mark - Public
+#pragma mark Public
+
+- (HPIndexItem*)indexItem
+{
+    return _listViewController.indexItem;
+}
 
 - (void)setListIndexItem:(HPIndexItem*)indexItem animated:(BOOL)animated
 {
@@ -90,6 +98,20 @@
     {
         [self closeDrawerAnimated:YES completion:nil];
     }
+}
+
+#pragma mark Private
+
+- (HPIndexItem*)lastIndexItem
+{
+    NSString *lastViewedTagName = [HPPreferencesManager sharedManager].lastViewedTagName;
+    if (!lastViewedTagName) return nil;
+    
+    HPTag *lastViewedTag = [[HPTagManager sharedManager] tagForName:lastViewedTagName];
+    if (!lastViewedTag) return nil;
+    
+    HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:lastViewedTag];
+    return indexItem.noteCount > 0 ? indexItem : nil;
 }
 
 #pragma mark UINavigationControllerDelegate

@@ -15,6 +15,8 @@
 
 - (void)showBlankNote;
 
+@property (nonatomic, readonly) HPIndexItem *indexItem;
+
 @end
 
 @interface UIViewController(AGNRootViewController)

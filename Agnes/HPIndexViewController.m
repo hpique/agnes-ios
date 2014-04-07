@@ -37,6 +37,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     HPIndexSortMode _sortMode;
     
     NSCache *_indexItemCache;
+    HPIndexItem *_selectedIndexItem;
 }
 
 @synthesize tableView = _tableView;
@@ -69,7 +70,10 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     _sortMode = [HPPreferencesManager sharedManager].indexSortMode;
     
     [self reloadData];
-    [self selectIndexItem:[HPIndexItem inboxIndexItem]];
+    if (_selectedIndexItem)
+    {
+        [self selectIndexItem:_selectedIndexItem];
+    }
     [self startObserving];
 }
 
@@ -89,6 +93,9 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)selectIndexItem:(HPIndexItem*)indexItem
 {
+    _selectedIndexItem = indexItem;
+    if (!self.tableView) return;
+    
     __block NSUInteger index = [_items indexOfObject:indexItem];
     if (index == NSNotFound)
     {
