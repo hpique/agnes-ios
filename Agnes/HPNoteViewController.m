@@ -134,6 +134,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActiveNotification:) name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
 
     
     {
@@ -188,6 +189,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -902,7 +904,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     }
 }
 
-#pragma mark - Notifications
+#pragma mark Notifications
 
 - (void)applicationWillResignActiveNotification:(NSNotification*)notification
 {
@@ -944,7 +946,7 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
     if (_ignoreNotesDidChangeNotification) return;
     
     NSDictionary *userInfo = notification.userInfo;
-    NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
+    NSSet *deleted = userInfo[NSDeletedObjectsKey];
     if ([deleted containsObject:_note])
     {
         [self finishEditing];
@@ -956,12 +958,25 @@ const CGFloat HPNoteEditorAttachmentAnimationFrameRate = 60;
         _notes = notes;
         _noteIndex = [notes indexOfObject:_note];
     }
-    NSSet *updated = [userInfo objectForKey:NSUpdatedObjectsKey];
+    NSSet *updated = userInfo[NSUpdatedObjectsKey];
     if ([updated containsObject:_note])
     {
         [self displayNote];
     }
 
+}
+
+- (void)tagsDidChangeNotification:(NSNotification*)notification
+{
+    if (_currentTag)
+    {
+        NSDictionary *userInfo = notification.userInfo;
+        NSSet *deleted = userInfo[NSDeletedObjectsKey];
+        if ([deleted containsObject:_currentTag])
+        {
+            _currentTag = nil;
+        }
+    }
 }
 
 - (void)keyboardWillHideNotification:(NSNotification *)notification
