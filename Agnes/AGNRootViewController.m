@@ -10,6 +10,8 @@
 #import "AGNPreferencesManager.h"
 #import "AGNNoteListViewController.h"
 #import "AGNNoteViewController.h"
+#import "AGNRootPadViewController.h"
+#import "AGNRootPhoneViewController.h"
 #import "HPIndexViewController.h"
 #import "HPNoteNavigationController.h"
 #import "HPAgnesNavigationController.h"
@@ -79,12 +81,24 @@
     [_listViewController showBlankNoteAnimated:NO];
 }
 
+- (void)viewDidLoadAddChildViewController:(UIViewController *)childController
+{
+    [self addChildViewController:childController];
+    [self.view addSubview:childController.view];
+    [childController didMoveToParentViewController:self];
+}
+
 - (void)willReplaceModel
 {
     if (self.listNavigationController.topViewController != self.listViewController)
     {
         [self.listNavigationController popToRootViewControllerAnimated:YES];
     }
+}
+
++ (instancetype)rootViewController
+{
+    return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone ? [AGNRootPhoneViewController new] : [AGNRootPadViewController new];
 }
 
 #pragma mark UINavigationControllerDelegate

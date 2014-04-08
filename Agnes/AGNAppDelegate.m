@@ -9,7 +9,7 @@
 #import "AGNAppDelegate.h"
 #import "HPIndexItem.h"
 #import "AGNPreferencesManager.h"
-#import "AGNRootPhoneViewController.h"
+#import "AGNRootViewController.h"
 #import "HPNoteImporter.h"
 #import "HPAgnesNavigationController.h"
 #import "HPModelManager.h"
@@ -107,8 +107,7 @@
 
 - (void)loadRootViewController
 {
-    AGNRootPhoneViewController *drawerController = [[AGNRootPhoneViewController alloc] init];
-    self.window.rootViewController = drawerController;
+    self.window.rootViewController = [AGNRootViewController rootViewController];
 }
 
 #pragma mark  Notifications
