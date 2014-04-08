@@ -1113,6 +1113,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Agnes/Agnes-Prefix.pch";
 				INFOPLIST_FILE = "Agnes/Agnes-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Users/hpique/workspace/agnes-ios/Agnes/TestFlightSDK3.0.0",
@@ -1120,7 +1121,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "F7D02201-5ABC-466F-B0D8-59C4F8808027";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1142,6 +1143,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Agnes/Agnes-Prefix.pch";
 				INFOPLIST_FILE = "Agnes/Agnes-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Users/hpique/workspace/agnes-ios/Agnes/TestFlightSDK3.0.0",
@@ -1149,7 +1151,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "088EE63B-803A-4A07-9F82-1561C47FCA75";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
