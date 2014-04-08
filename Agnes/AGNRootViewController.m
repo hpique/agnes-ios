@@ -2,31 +2,25 @@
 //  AGNRootViewController.m
 //  Agnes
 //
-//  Created by Hermes on 20/01/14.
+//  Created by Hermés Piqué on 08/04/14.
 //  Copyright (c) 2014 Hermes Pique. All rights reserved.
 //
 
 #import "AGNRootViewController.h"
-#import "HPNoteManager.h"
-#import "HPNoteListDetailTransitionAnimator.h"
-#import "AGNNoteListViewController.h"
 #import "AGNPreferencesManager.h"
-#import "HPIndexViewController.h"
+#import "AGNNoteListViewController.h"
 #import "AGNNoteViewController.h"
-#import "HPIndexItem.h"
-#import "HPTracker.h"
+#import "HPIndexViewController.h"
+#import "HPNoteNavigationController.h"
+#import "HPAgnesNavigationController.h"
+#import "HPNoteListDetailTransitionAnimator.h"
 #import "HPTagManager.h"
+#import "HPIndexItem.h"
 #import "HPModelManager.h"
+#import "HPTracker.h"
 #import <iRate/iRate.h>
-#import <CoreData/CoreData.h>
-
-@interface AGNRootViewController()<AGNNoteListViewControllerDelegate>
-
-@end
 
 @implementation AGNRootViewController {
-    AGNNoteListViewController *_listViewController;
-    HPIndexViewController *_indexViewController;
     BOOL _prompForRating;
 }
 
@@ -38,24 +32,23 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.closeDrawerGestureModeMask = MMOpenDrawerGestureModeAll;
-    self.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningNavigationBar | MMOpenDrawerGestureModeBezelPanningCenterView;
+
     self.view.backgroundColor = [UIColor whiteColor];
     
     HPIndexItem *indexItem = [self lastIndexItem] ? : [HPIndexItem inboxIndexItem];
     _listViewController = [[AGNNoteListViewController alloc] initWithIndexItem:indexItem];
     _listViewController.delegate = self;
-    HPNoteNavigationController *centerController = [[HPNoteNavigationController alloc] initWithRootViewController:_listViewController];
-    centerController.delegate = self;
+    _listNavigationController = [[HPNoteNavigationController alloc] initWithRootViewController:_listViewController];
+    _listNavigationController.delegate = self;
     
     _indexViewController = [HPIndexViewController new];
     [_indexViewController selectIndexItem:indexItem];
-    HPAgnesNavigationController *leftController = [[HPAgnesNavigationController alloc] initWithRootViewController:_indexViewController];
-    self.centerViewController = centerController;
-    self.leftDrawerViewController = leftController;
+    _indexNavigationController = [[HPAgnesNavigationController alloc] initWithRootViewController:_indexViewController];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
 }
+
+#pragma mark UIResponder
 
 - (BOOL)canBecomeFirstResponder
 {
@@ -69,24 +62,14 @@
 
 #pragma mark Public
 
-- (HPIndexItem*)indexItem
-{
-    return _listViewController.indexItem;
-}
-
 - (void)setListIndexItem:(HPIndexItem*)indexItem animated:(BOOL)animated
 {
     [[HPTracker defaultTracker] trackScreenWithName:indexItem.listScreenName];
     [[HPTagManager sharedManager] viewTag:indexItem.tag];
     _listViewController.indexItem = indexItem;
-    if (self.openSide != MMDrawerSideNone)
+    if (_listNavigationController.topViewController != _listViewController)
     {
-        [self closeDrawerAnimated:animated completion:nil];
-    }
-    UINavigationController *navigationController = (UINavigationController*)self.centerViewController;
-    if (navigationController.topViewController != _listViewController)
-    {
-        [navigationController popToRootViewControllerAnimated:YES];
+        [_listNavigationController popToRootViewControllerAnimated:YES];
     }
 }
 
@@ -94,24 +77,14 @@
 {
     _listViewController.indexItem = [HPIndexItem inboxIndexItem];
     [_listViewController showBlankNoteAnimated:NO];
-    if (self.openSide != MMDrawerSideNone)
-    {
-        [self closeDrawerAnimated:YES completion:nil];
-    }
 }
 
-#pragma mark Private
-
-- (HPIndexItem*)lastIndexItem
+- (void)willReplaceModel
 {
-    NSString *lastViewedTagName = [AGNPreferencesManager sharedManager].lastViewedTagName;
-    if (!lastViewedTagName) return nil;
-    
-    HPTag *lastViewedTag = [[HPTagManager sharedManager] tagForName:lastViewedTagName];
-    if (!lastViewedTag) return nil;
-    
-    HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:lastViewedTag];
-    return indexItem.noteCount > 0 ? indexItem : nil;
+    if (self.listNavigationController.topViewController != self.listViewController)
+    {
+        [self.listNavigationController popToRootViewControllerAnimated:YES];
+    }
 }
 
 #pragma mark UINavigationControllerDelegate
@@ -147,19 +120,25 @@
     [_indexViewController selectIndexItem:indexItem];
 }
 
+#pragma mark Private
+
+- (HPIndexItem*)lastIndexItem
+{
+    NSString *lastViewedTagName = [AGNPreferencesManager sharedManager].lastViewedTagName;
+    if (!lastViewedTagName) return nil;
+    
+    HPTag *lastViewedTag = [[HPTagManager sharedManager] tagForName:lastViewedTagName];
+    if (!lastViewedTag) return nil;
+    
+    HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:lastViewedTag];
+    return indexItem.noteCount > 0 ? indexItem : nil;
+}
+
 #pragma mark Notifications
 
 - (void)willReplaceModelNotification:(NSNotification*)notification
 {
-    if (self.openSide != MMDrawerSideNone)
-    {
-        [self closeDrawerAnimated:YES completion:nil];
-    }
-    UINavigationController *navigationController = (UINavigationController*)self.centerViewController;
-    if (navigationController.topViewController != _listViewController)
-    {
-        [navigationController popToRootViewControllerAnimated:YES];
-    }
+    [self willReplaceModel];
 }
 
 @end
@@ -181,4 +160,3 @@
 }
 
 @end
-

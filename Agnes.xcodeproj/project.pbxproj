@@ -12,6 +12,8 @@
 		8704D60A18A19B0400C8977E /* HPAgnesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8704D60918A19B0400C8977E /* HPAgnesViewController.m */; };
 		870B5AEE18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m in Sources */ = {isa = PBXBuildFile; fileRef = 870B5AED18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m */; };
 		870B5AF118903BE4009A11AB /* HPFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 870B5AF018903BE4009A11AB /* HPFontManager.m */; };
+		8711F1AA18F4067D00F27EC1 /* AGNRootPadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8711F1A918F4067D00F27EC1 /* AGNRootPadViewController.m */; };
+		8711F1AE18F4073900F27EC1 /* AGNRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8711F1AD18F4073900F27EC1 /* AGNRootViewController.m */; };
 		871429A71892E84400DA588F /* HPIndexItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429A61892E84400DA588F /* HPIndexItemTableViewCell.m */; };
 		871429A91892E87A00DA588F /* HPIndexItemTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 871429A81892E87A00DA588F /* HPIndexItemTableViewCell.xib */; };
 		871429AC18933D6600DA588F /* HPNoteActivityItemSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429AB18933D6600DA588F /* HPNoteActivityItemSource.m */; };
@@ -98,7 +100,7 @@
 		87E37EEA188C413D000333EA /* HPTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EE9188C413D000333EA /* HPTag.m */; };
 		87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EED188CA0D0000333EA /* HPEntityManager.m */; };
 		87E37EF1188CA5F5000333EA /* HPTagManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EF0188CA5F5000333EA /* HPTagManager.m */; };
-		87E37EF4188CB169000333EA /* AGNRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EF3188CB169000333EA /* AGNRootViewController.m */; };
+		87E37EF4188CB169000333EA /* AGNRootPhoneViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EF3188CB169000333EA /* AGNRootPhoneViewController.m */; };
 		87E37EF6188D9166000333EA /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E37EF5188D9166000333EA /* MessageUI.framework */; };
 		87E37EFA188D97F3000333EA /* HPBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37EF8188D97F3000333EA /* HPBrowserViewController.m */; };
 		87E37EFB188D97F3000333EA /* HPBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */; };
@@ -132,6 +134,10 @@
 		870B5AED18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListDetailTransitionAnimator.m; sourceTree = "<group>"; };
 		870B5AEF18903BE4009A11AB /* HPFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPFontManager.h; sourceTree = "<group>"; };
 		870B5AF018903BE4009A11AB /* HPFontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPFontManager.m; sourceTree = "<group>"; };
+		8711F1A818F4067D00F27EC1 /* AGNRootPadViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNRootPadViewController.h; sourceTree = "<group>"; };
+		8711F1A918F4067D00F27EC1 /* AGNRootPadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNRootPadViewController.m; sourceTree = "<group>"; };
+		8711F1AC18F4073900F27EC1 /* AGNRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNRootViewController.h; sourceTree = "<group>"; };
+		8711F1AD18F4073900F27EC1 /* AGNRootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNRootViewController.m; sourceTree = "<group>"; };
 		871429A51892E84400DA588F /* HPIndexItemTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPIndexItemTableViewCell.h; sourceTree = "<group>"; };
 		871429A61892E84400DA588F /* HPIndexItemTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPIndexItemTableViewCell.m; sourceTree = "<group>"; };
 		871429A81892E87A00DA588F /* HPIndexItemTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPIndexItemTableViewCell.xib; sourceTree = "<group>"; };
@@ -287,8 +293,8 @@
 		87E37EED188CA0D0000333EA /* HPEntityManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPEntityManager.m; sourceTree = "<group>"; };
 		87E37EEF188CA5F5000333EA /* HPTagManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPTagManager.h; sourceTree = "<group>"; };
 		87E37EF0188CA5F5000333EA /* HPTagManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPTagManager.m; sourceTree = "<group>"; };
-		87E37EF2188CB169000333EA /* AGNRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNRootViewController.h; sourceTree = "<group>"; };
-		87E37EF3188CB169000333EA /* AGNRootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNRootViewController.m; sourceTree = "<group>"; };
+		87E37EF2188CB169000333EA /* AGNRootPhoneViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNRootPhoneViewController.h; sourceTree = "<group>"; };
+		87E37EF3188CB169000333EA /* AGNRootPhoneViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNRootPhoneViewController.m; sourceTree = "<group>"; };
 		87E37EF5188D9166000333EA /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		87E37EF7188D97F3000333EA /* HPBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPBrowserViewController.h; sourceTree = "<group>"; };
 		87E37EF8188D97F3000333EA /* HPBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPBrowserViewController.m; sourceTree = "<group>"; };
@@ -344,6 +350,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8711F1AB18F4071200F27EC1 /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				8711F1A818F4067D00F27EC1 /* AGNRootPadViewController.h */,
+				8711F1A918F4067D00F27EC1 /* AGNRootPadViewController.m */,
+				87E37EF2188CB169000333EA /* AGNRootPhoneViewController.h */,
+				87E37EF3188CB169000333EA /* AGNRootPhoneViewController.m */,
+				8711F1AC18F4073900F27EC1 /* AGNRootViewController.h */,
+				8711F1AD18F4073900F27EC1 /* AGNRootViewController.m */,
+			);
+			name = Root;
+			sourceTree = "<group>";
+		};
 		872C19A618987B970013C9A5 /* TestFlightSDK2.1.4 */ = {
 			isa = PBXGroup;
 			children = (
@@ -655,8 +674,6 @@
 		87D02E1A188EE7DC00273DEC /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				87E37EF2188CB169000333EA /* AGNRootViewController.h */,
-				87E37EF3188CB169000333EA /* AGNRootViewController.m */,
 				873E228018A9AFB500E7919C /* HPAgnesImageCache.h */,
 				873E228118A9AFB500E7919C /* HPAgnesImageCache.m */,
 				8704D60518A109EB00C8977E /* HPAgnesUIMetrics.h */,
@@ -669,6 +686,7 @@
 				8740FAE1188A8B87004CF099 /* List */,
 				87A6907818B4F8A200F97E13 /* Navigation */,
 				8740FAE2188A8BA2004CF099 /* Note Detail */,
+				8711F1AB18F4071200F27EC1 /* Root */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -900,6 +918,7 @@
 				8740FAE8188AA7DB004CF099 /* HPNoteTableViewCell.m in Sources */,
 				871CD008189ABD5300E39CFA /* UIImage+hp_utils.m in Sources */,
 				8740FAE5188A8C3F004CF099 /* HPIndexItem.m in Sources */,
+				8711F1AE18F4073900F27EC1 /* AGNRootViewController.m in Sources */,
 				874F1AA618BC95B2006C1323 /* HPTextInteractionTapGestureRecognizer.m in Sources */,
 				8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */,
 				87E37E41188B6158000333EA /* HPNoteAction.m in Sources */,
@@ -927,7 +946,7 @@
 				87CAF3B418B78141004380BB /* HPModelContextImporter.m in Sources */,
 				871CD002189AB77800E39CFA /* HPAttachment.m in Sources */,
 				87E37E3E188B57C0000333EA /* AGNPreferencesManager.m in Sources */,
-				87E37EF4188CB169000333EA /* AGNRootViewController.m in Sources */,
+				87E37EF4188CB169000333EA /* AGNRootPhoneViewController.m in Sources */,
 				87AA3D1718A0E22800FBEAAF /* HPNoFirstResponderActionSheet.m in Sources */,
 				8763DA6718884650000D9569 /* AGNNoteViewController.m in Sources */,
 				87A6907018B4CA8600F97E13 /* HPTracker.m in Sources */,
@@ -950,6 +969,7 @@
 				87AA3D11189FF79B00FBEAAF /* HPNote+Detail.m in Sources */,
 				8704D60A18A19B0400C8977E /* HPAgnesViewController.m in Sources */,
 				871429F618955CF900DA588F /* HPNoteNavigationController.m in Sources */,
+				8711F1AA18F4067D00F27EC1 /* AGNRootPadViewController.m in Sources */,
 				8763DA631888420A000D9569 /* HPNoteManager.m in Sources */,
 				871429A71892E84400DA588F /* HPIndexItemTableViewCell.m in Sources */,
 				87AA3D1418A0026400FBEAAF /* HPAttachmentManager.m in Sources */,
