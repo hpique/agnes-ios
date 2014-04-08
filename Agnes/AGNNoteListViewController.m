@@ -28,8 +28,6 @@
 #import "HPNavigationBarToggleTitleView.h"
 #import "HPModelManager.h"
 #import "UITableView+hp_reloadChanges.h"
-#import "MMDrawerController.h"
-#import "MMDrawerBarButtonItem.h"
 #import "UIViewController+MMDrawerController.h"
 #import "UIColor+iOS7Colors.h"
 #import "UIImage+hp_utils.h"
@@ -105,8 +103,6 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     
     {
         _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-plus"] style:UIBarButtonItemStylePlain target:self action:@selector(addNoteBarButtonItemAction:)];
-        MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
-        self.navigationItem.leftBarButtonItem = drawerBarButton;
         self.navigationItem.titleView = _titleView;
         self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem];
     }
@@ -264,11 +260,6 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [self removeNoteInCell:cell modelBlock:^{
         [[HPTagManager sharedManager] unarchiveNote:cell.note];
     }];
-}
-
-- (void)drawerBarButtonAction:(MMDrawerBarButtonItem*)barButtonItem
-{
-    [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
 
 - (void)optionsButtonItemAction:(id)sender

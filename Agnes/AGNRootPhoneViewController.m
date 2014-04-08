@@ -8,6 +8,7 @@
 
 #import "AGNRootPhoneViewController.h"
 #import <MMDrawerController/MMDrawerController.h>
+#import <MMDrawerController/MMDrawerBarButtonItem.h>
 
 @implementation AGNRootPhoneViewController {
     MMDrawerController *_drawerController;
@@ -21,6 +22,9 @@
     _drawerController.closeDrawerGestureModeMask = MMOpenDrawerGestureModeAll;
     _drawerController.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningNavigationBar | MMOpenDrawerGestureModeBezelPanningCenterView;
     
+    MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
+    self.listViewController.navigationItem.leftBarButtonItem = drawerBarButton;
+
     [self viewDidLoadAddChildViewController:_drawerController];
 }
 
@@ -42,6 +46,13 @@
 {
     [super willReplaceModel];
     [self closeDrawerAnimated:YES];
+}
+
+#pragma mark Actions
+
+- (void)drawerBarButtonAction:(MMDrawerBarButtonItem*)barButtonItem
+{
+    [_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
 
 #pragma mark Private
