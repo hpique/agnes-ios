@@ -46,6 +46,4 @@ extern NSString* const AGNPreferencesManagerDidChangePreferencesNotification;
 
 @property (nonatomic, readonly) NSString *tintColorName;
 
-@property (nonatomic, assign) NSTimeInterval typingSpeed;
-
 @end

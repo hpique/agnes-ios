@@ -22,7 +22,6 @@ NSString *const AGNDefaultsKeyIndexSortMode = @"HPIndexSortMode";
 NSString *const AGNDefaultsKeyLastViewedTag = @"AGNLastViewedTag";
 NSString *const AGNDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 NSString *const AGNDefaultsKeyTintColor = @"HPAgnesTintColor";
-NSString *const AGNDefaultsKeyTypingSpeed = @"HPAgnesTypingSpeed";
 
 NSString *const AGNPreferencesKeyStatusBarHidden = @"statusBarHidden";
 NSString *const AGNPreferencesKeyBarTintColor = @"barTintColor";
@@ -39,7 +38,6 @@ static NSInteger AGNDefaultFontSize = 16;
 static NSInteger AGNDefaultIndexSortMode = HPIndexSortModeOrder;
 static UIColor* AGNDefaultTintColor = nil;
 static BOOL AGNDefaultStatusBarHidden = NO;
-static NSTimeInterval AGNDefaultTypingSpeed = 0.5;
 static CGFloat AGNLuminanceMiddle = 0.6;
 
 @implementation AGNPreferencesManager
@@ -187,12 +185,6 @@ static CGFloat AGNLuminanceMiddle = 0.6;
     [[NSNotificationCenter defaultCenter] postNotificationName:AGNPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
-- (void)setTypingSpeed:(NSTimeInterval)typingSpeed
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults setObject:@(typingSpeed) forKey:AGNDefaultsKeyTypingSpeed];
-}
-
 - (BOOL)statusBarHidden
 {
     return [self boolValueForKey:AGNDefaultsKeyStatusBarHidden default:AGNDefaultStatusBarHidden];
@@ -213,12 +205,6 @@ static CGFloat AGNLuminanceMiddle = 0.6;
 - (NSString*)tintColorName
 {
     return [self.tintColor stringValue];
-}
-
-- (NSTimeInterval)typingSpeed
-{
-    NSNumber *value = [[NSUserDefaults standardUserDefaults] objectForKey:AGNDefaultsKeyTypingSpeed];
-    return value ? [value doubleValue] : AGNDefaultTypingSpeed;
 }
 
 - (void)applyPreferences:(NSString*)preferences

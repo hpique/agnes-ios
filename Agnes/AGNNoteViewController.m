@@ -8,6 +8,7 @@
 
 #import "AGNNoteViewController.h"
 #import "AGNTagTapGestureRecognizer.h"
+#import "AGNTypingController.h"
 #import "HPNote.h"
 #import "HPNote+Detail.h"
 #import "HPNoteManager.h"
@@ -36,11 +37,10 @@
 const NSTimeInterval AGNNoteEditorAttachmentAnimationDuration = 0.3;
 const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
-@interface AGNNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate>
+@interface AGNNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate, AGNTypingControllerDelegate>
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
 @property (nonatomic, assign) BOOL textChanged;
-@property (nonatomic, readonly) BOOL typing;
 
 @end
 
@@ -80,8 +80,8 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     HPImageViewController *_presentedImageViewController;
     
     NSTimer *_autosaveTimer;
-    NSTimer *_typingTimer;
-    NSDate *_typingPreviousDate;
+    
+    AGNTypingController *_typingController;
     
     __weak IBOutlet NSLayoutConstraint *_toolbarHeightConstraint;
     
@@ -99,7 +99,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 @synthesize noteTextView = _bodyTextView;
 @synthesize search = _search;
 @synthesize transitioning = _transitioning;
-@synthesize typing = _typing;
 @synthesize wantsDefaultTransition = _wantsDefaultTransition;
 
 - (void)viewDidLoad
@@ -135,7 +134,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActiveNotification:) name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
-
     
     {
         _bodyTextStorage = [HPBaseTextStorage new];
@@ -177,6 +175,9 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
         self.note = [self insertBlankNote];
     }
     [self displayNote];
+    
+    _typingController = [AGNTypingController new];
+    _typingController.delegate = self;
 }
 
 - (void)dealloc
@@ -213,7 +214,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    if (self.typing) [self setTyping:NO animated:animated];
+    if (_typingController.typing) [_typingController setTyping:NO animated:animated];
     if (!self.transitioning) return; // Don't continue if we're presenting a modal controller
     
     // TODO: Do this only when we're transitiong back to the list or to the menu
@@ -443,11 +444,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     _presentedImageViewController = nil;
 }
 
-- (void)didFinishTyping
-{
-    [self setTyping:NO animated:YES];
-}
-
 - (void)finishEditing
 {
     [self.navigationController popViewControllerAnimated:YES];
@@ -557,47 +553,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     else
     {
         [_autosaveTimer invalidate];
-    }
-}
-
-- (void)setTyping:(BOOL)typing animated:(BOOL)animated
-{
-    _typing = typing;
-    [_typingTimer invalidate];
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(didFinishTyping) object:nil];
-    if (typing)
-    {
-        AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
-        NSDate *now = [NSDate date];
-        if (_typingPreviousDate)
-        {
-            NSTimeInterval currentSpeed = [now timeIntervalSinceDate:_typingPreviousDate];
-            static CGFloat currentSpeedWeight = 0.05;
-            preferences.typingSpeed = preferences.typingSpeed * (1 - currentSpeedWeight) + currentSpeed * currentSpeedWeight;
-        }
-        _typingPreviousDate = now;
-        if (!self.navigationController.navigationBarHidden && UIInterfaceOrientationIsLandscape(self.interfaceOrientation))
-        {
-            [self.navigationController setNavigationBarHidden:YES animated:animated];
-            if (![UIApplication sharedApplication].statusBarHidden)
-            {
-                [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
-            }
-        }
-        static CGFloat stopMultiplier = 5;
-        static CGFloat minimumDelay = 2;
-        const CGFloat typingDelay = MAX(preferences.typingSpeed * stopMultiplier, minimumDelay) ;
-        _typingTimer = [NSTimer scheduledTimerWithTimeInterval:typingDelay target:self selector:@selector(didFinishTyping) userInfo:nil repeats:NO];
-    }
-    else if (self.navigationController.navigationBarHidden)
-    {
-        if ([UIApplication sharedApplication].statusBarHidden && ![AGNPreferencesManager sharedManager].statusBarHidden)
-        {
-            [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
-        }
-        _typingPreviousDate = nil;
-        [self.navigationController setNavigationBarHidden:NO animated:animated];
-        [_bodyTextView scrollToVisibleCaretAnimated:NO];
     }
 }
 
@@ -736,9 +691,10 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
         [self changeToEmptyNote];
     }
 }
+
 - (IBAction)swipeDown:(id)sender
 { // For when the text view doesn't have enough content to enable scrolling
-    [self setTyping:NO animated:YES];
+    [_typingController setTyping:NO animated:YES];
 }
 
 - (void)tagTapGesture:(AGNTagTapGestureRecognizer*)gestureRecognizer
@@ -784,7 +740,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     const CGPoint offset = scrollView.contentOffset;
     if (_scrollViewPreviousOffset.y > offset.y)
     { // Scrolling down
-        [self setTyping:NO animated:YES];
+        [_typingController setTyping:NO animated:YES];
     }
     _scrollViewPreviousOffset = offset;
 }
@@ -806,7 +762,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)textViewDidChange:(UITextView *)textView
 {
     self.textChanged = YES;
-    [self setTyping:YES animated:YES];
+    [_typingController setTyping:YES animated:YES];
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
@@ -832,8 +788,20 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
-    [self performSelector:@selector(didFinishTyping) withObject:nil afterDelay:0.5]; // Give time to UITextView to update the selection
+    [_typingController performSelector:@selector(finishTyping) withObject:nil afterDelay:0.5]; // Give time to UITextView to update the selection
     return !_bodyTextView.isFirstResponder;
+}
+
+#pragma mark AGNTypingControllerDelegate
+
+- (UINavigationController*)navigationControllerForTypingController:(AGNTypingController*)typingController
+{
+    return self.navigationController;
+}
+
+- (void)typingController:(AGNTypingController*)typingController didShowBarsAnimated:(BOOL)animated
+{
+    [_bodyTextView scrollToVisibleCaretAnimated:NO];
 }
 
 #pragma mark HPTextInteractionTapGestureRecognizerDelegate
@@ -983,7 +951,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 {
     if (self.transitioning) return; // Do not animate keyboard when animating to list
     
-    [self setTyping:NO animated:YES];
+    [_typingController setTyping:NO animated:YES];
     
     UIEdgeInsets contentInset = UIEdgeInsetsMake(_bodyTextView.contentInset.top, _originalBodyTextViewInset.left, _originalBodyTextViewInset.bottom, _originalBodyTextViewInset.right);
 
