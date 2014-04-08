@@ -16,6 +16,7 @@
     __weak IBOutlet UILabel *_detailView;
     __weak IBOutlet UILabel *_titleView;
     __weak IBOutlet UIImageView *_iconView;
+    __weak IBOutlet NSLayoutConstraint *_detailLabelRightConstraint;
 }
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -38,6 +39,9 @@
 {
     _titleView.font = [HPFontManager sharedManager].fontForIndexCellTitle;
     _detailView.font = [HPFontManager sharedManager].fontForIndexCellDetail;
+
+    _detailLabelRightConstraint.constant = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone ? 36 : 16;
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFonts:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
 }
 

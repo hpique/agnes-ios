@@ -9,6 +9,7 @@
 #import "AGNRootPadViewController.h"
 #import "HPIndexItem.h"
 #import <Lyt/Lyt.h>
+#import <iOS7Colors/UIColor+iOS7Colors.h>
 
 static CGFloat const AGNIndexWidth = 240;
 
@@ -20,6 +21,8 @@ static CGFloat const AGNIndexWidth = 240;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.view.backgroundColor = [UIColor iOS7lightGrayColor];
     
     UIImage *hashtagImage = [UIImage imageNamed:@"icon-hashtag"];
     UIBarButtonItem *toggleIndexBarButtonItem = [[UIBarButtonItem alloc] initWithImage:hashtagImage style:UIBarButtonItemStylePlain target:self action:@selector(toggleIndexBarButtonAction:)];
