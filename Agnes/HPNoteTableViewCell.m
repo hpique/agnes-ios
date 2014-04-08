@@ -206,9 +206,9 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     
     {
         
-        _titleDetailConstraint = [_detailLabel lyt_constraintByPlacingLeftToView:_titleLabel margin:8];
-        _thumbnailDetailConstraint = [_thumbnailView lyt_constraintByPlacingLeftToView:_detailLabel margin:8];
-        _thumbnailTitleConstraint = [_thumbnailView lyt_constraintByPlacingLeftToView:_titleLabel margin:8];
+        _titleDetailConstraint = [_detailLabel lyt_constraintByPlacingLeftOfView:_titleLabel margin:8];
+        _thumbnailDetailConstraint = [_thumbnailView lyt_constraintByPlacingLeftOfView:_detailLabel margin:8];
+        _thumbnailTitleConstraint = [_thumbnailView lyt_constraintByPlacingLeftOfView:_titleLabel margin:8];
         _bodyLabelAlignRightToDetailConstraint = [_bodyLabel lyt_constraintByAligningRightToView:_detailLabel];
         
         self.thumbnailViewWidthConstraint.constant = [HPNoteTableViewCell thumbnailViewWidth];
