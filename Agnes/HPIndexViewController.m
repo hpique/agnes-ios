@@ -62,11 +62,6 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(10, 0, 10, 0);
     
-    UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
-    fixedSpace.width = 15;
-    UIBarButtonItem *addBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addBarButtonItemAction:)];
-    self.navigationItem.rightBarButtonItems = @[fixedSpace, addBarButtonItem];
-    
     _sortMode = [AGNPreferencesManager sharedManager].indexSortMode;
     
     [self reloadData];
@@ -274,12 +269,6 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 }
 
 #pragma mark Actions
-
-- (void)addBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_note"];
-    [self.agn_rootViewController showBlankNote];
-}
 
 - (IBAction)tapTitleView:(id)sender
 {
