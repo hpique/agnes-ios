@@ -32,6 +32,17 @@
     UICollectionView *_suggestionsView;
 }
 
+- (id)init
+{
+    const UIInterfaceOrientation interfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    
+    const CGSize buttonSize = [HPKeyboardButton sizeForOrientation:interfaceOrientation];
+    const CGFloat buttonTopMargin = [HPKeyboardButton topMarginForOrientation:interfaceOrientation];
+    const CGRect frame = CGRectMake(0, 0, 320, buttonSize.height + buttonTopMargin);
+
+    return [self initWithFrame:frame inputViewStyle:UIInputViewStyleKeyboard];
+}
+
 - (id)initWithFrame:(CGRect)frame inputViewStyle:(UIInputViewStyle)inputViewStyle
 {
     self = [super initWithFrame:frame inputViewStyle:inputViewStyle];
@@ -61,16 +72,12 @@
     const CGFloat height = self.bounds.size.height;
     layout.itemSize = CGSizeMake(100, height);
     UIInterfaceOrientation interfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
-    CGSize buttonSize = [HPKeyboardButton sizeForOrientation:interfaceOrientation];
-    BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
-    const CGFloat keySeparator = landscape ? 5 : 6;
+    const CGSize buttonSize = [HPKeyboardButton sizeForOrientation:interfaceOrientation];
+
+    const CGFloat keySeparator = [HPKeyboardButton keySeparatorForOrientation:interfaceOrientation];
     layout.headerReferenceSize = CGSizeMake(buttonSize.width + keySeparator, height);
-    
-    const BOOL widescreen = fabs((double)[UIScreen mainScreen].bounds.size.height - (double)568) < DBL_EPSILON;
-    static CGFloat SideInsetLandscape = 3;
-    static CGFloat SideInsetLandscapeWidescreen = 23;
-    static CGFloat SideInsetPortrait = 3;
-    const CGFloat sideInset = landscape ? (widescreen ? SideInsetLandscapeWidescreen : SideInsetLandscape) : SideInsetPortrait;
+
+    const CGFloat sideInset = [HPKeyboardButton sideInsetForOrientation:interfaceOrientation];
     _suggestionsView.contentInset = UIEdgeInsetsMake(0, sideInset, 0, sideInset);
     [_suggestionsView.collectionViewLayout invalidateLayout];
     [super layoutSubviews];

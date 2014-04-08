@@ -749,9 +749,8 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {
-    const BOOL landscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
     textView.inputAccessoryView = nil;
-    _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, landscape ? 36 : 44) inputViewStyle:UIInputViewStyleKeyboard];
+    _suggestionsView = [HPTagSuggestionsView new];
     _suggestionsView.delegate = self;
     NSRange tagRange;
     _suggestionsView.prefix = [_bodyTextView.text hp_tagInRange:textView.selectedRange enclosing:NO tagRange:&tagRange];

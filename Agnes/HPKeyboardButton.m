@@ -8,6 +8,12 @@
 
 #import "HPKeyboardButton.h"
 
+static BOOL HPIsWidescreen()
+{
+    const BOOL isWidescreen = fabs((double)[UIScreen mainScreen].bounds.size.height - (double)568) < DBL_EPSILON;
+    return isWidescreen;
+}
+
 @implementation HPKeyboardButton
 
 - (id)initWithFrame:(CGRect)frame
@@ -30,7 +36,18 @@
 - (void)setTitle:(NSString *)title forState:(UIControlState)state
 {
     [super setTitle:title forState:state];
-    CGFloat fontSize = title.length == 1 ? 22 : 16;
+    
+    static CGFloat const FontSizeCharacterLandscapePad = 36;
+    static CGFloat const FontSizeCharacterPortraitPad = 28;
+    static CGFloat const FontSizeWordLandscapePad = 26;
+    static CGFloat const FontSizeWordPortraitPad = 21;
+    
+    const UIInterfaceOrientation interfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    const BOOL isLandscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
+    const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
+    const BOOL isWord = title.length > 1;
+    
+    CGFloat fontSize = isPhone ? (isWord ? 22 : 16) : (isLandscape ? (isWord ? FontSizeWordLandscapePad : FontSizeCharacterLandscapePad) : (isWord ? FontSizeWordPortraitPad : FontSizeCharacterPortraitPad));
     self.titleLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:fontSize];
     [self setNeedsLayout]; // Without this the title doesn't change when cells are reused. WTF?
 }
@@ -50,17 +67,67 @@
 
 + (CGSize)sizeForOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
+    static CGFloat const WidthLandscapePhone = 43;
+    static CGFloat const HeightLandscapePhone = 32;
+    static CGFloat const WidthLandscapePad = 76;
+    static CGFloat const HeightLandscapePad = 75;
+    static CGFloat const WidthLandscapePhoneWidescreen = 47;
+    static CGFloat const WidthPortraitPhone = 26;
+    static CGFloat const HeightPortraitPhone = 38;
+    static CGFloat const WidthPortraitPad = 56;
+    static CGFloat const HeightPortraitPad = 58;
+
     const BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
-    static CGFloat LandscapeHeight = 32;
-    static CGFloat LandscapeWidth = 43;
-    static CGFloat LandscapeWidescreenWidth = 47;
-    static CGFloat PortraitHeight = 38;
-    static CGFloat PortraitWidth = 26;
-    const CGFloat height = landscape ? LandscapeHeight : PortraitHeight;
-    const BOOL widescreen = fabs((double)[UIScreen mainScreen].bounds.size.height - (double)568) < DBL_EPSILON;
-    const CGFloat width = landscape ? (widescreen ? LandscapeWidescreenWidth : LandscapeWidth) : PortraitWidth;
+    const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
+    const BOOL isWidescreen = HPIsWidescreen();
+    
+    const CGFloat height = isPhone ? (landscape ? HeightLandscapePhone : HeightPortraitPhone) : (landscape ? HeightLandscapePad : HeightPortraitPad);
+    const CGFloat width = isPhone ? (landscape ? (isWidescreen ? WidthLandscapePhoneWidescreen : WidthLandscapePhone) : WidthPortraitPhone) : (landscape ? WidthLandscapePad : WidthPortraitPad);
+    
     return CGSizeMake(width, height);
 }
 
++ (CGFloat)keySeparatorForOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    static CGFloat const SeparatorLandscapePhone = 5;
+    static CGFloat const SeparatorPortraitPhone = 6;
+    static CGFloat const SeparatorLandscapePad = 14;
+    static CGFloat const SeparatorPortraitPad = 12;
+
+    const BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
+    const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
+
+    const CGFloat separator = isPhone ? (landscape ? SeparatorLandscapePhone : SeparatorPortraitPhone) : (landscape ? SeparatorLandscapePad : SeparatorPortraitPad);
+    return separator;
+}
+
++ (CGFloat)sideInsetForOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    static CGFloat const SideInsetLandscapePhone = 3;
+    static CGFloat const SideInsetLandscapeWidescreenPhone = 23;
+    static CGFloat const SideInsetPortraitPhone = 3;
+    static CGFloat const SideInsetLandscapePad = 7;
+    static CGFloat const SideInsetPortraitPad = 6;
+    
+    const BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
+    const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
+    const BOOL isWidescreen = HPIsWidescreen();
+    
+    const CGFloat sideInset = isPhone ? (landscape ? (isWidescreen ? SideInsetLandscapeWidescreenPhone : SideInsetLandscapePhone) : SideInsetPortraitPhone) : (landscape ? SideInsetLandscapePad : SideInsetPortraitPad);
+    return sideInset;
+}
+
++ (CGFloat)topMarginForOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    static CGFloat const HeightLandscapePhone = 4;
+    static CGFloat const HeightPortraitPhone = 6;
+    static CGFloat const HeightLandscapeTablet = 11;
+    static CGFloat const HeightPortraitTablet = 8;
+
+    const BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
+    const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
+    const CGFloat separator = isPhone ? (landscape ? HeightLandscapePhone : HeightPortraitPhone) : (landscape ? HeightLandscapeTablet : HeightPortraitTablet);
+    return separator;
+}
 
 @end
