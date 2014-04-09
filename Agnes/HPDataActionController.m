@@ -32,7 +32,6 @@
     NSInteger _phoneNumberActionSheetCopyIndex;
 }
 
-
 - (void)showActionSheetForURL:(NSURL*)url fromRect:(CGRect)rect inView:(UIView*)view
 {
     _actionSheetURL = url;

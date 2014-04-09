@@ -141,7 +141,10 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     [super viewWillAppear:animated];
     _visible = YES;
-    [[HPTracker defaultTracker] trackScreenWithName:self.indexItem.listScreenName];
+    if (self.indexItem)
+    {
+        [[HPTracker defaultTracker] trackScreenWithName:self.indexItem.listScreenName];
+    }
     if (self.searchDisplayController.isActive)
     {
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];        
