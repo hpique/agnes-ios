@@ -50,44 +50,6 @@
 
 #pragma mark - Private
 
-- (void)addContactWithEmail:(NSString*)email phoneNumber:(NSString*)phoneNumber image:(UIImage*)image
-{
-    ABRecordRef person = ABPersonCreate();
-    
-    if (email)
-    {
-        ABMutableMultiValueRef emailMultiValue = ABMultiValueCreateMutable(kABMultiStringPropertyType);
-        ABMultiValueAddValueAndLabel(emailMultiValue, (__bridge CFStringRef) email, kABWorkLabel, NULL);
-        ABRecordSetValue(person, kABPersonEmailProperty, emailMultiValue, nil);
-        CFRelease(emailMultiValue);
-    }
-    
-    if (phoneNumber)
-    {
-        ABMutableMultiValueRef phoneNumberMultiValue = ABMultiValueCreateMutable(kABMultiStringPropertyType);
-        ABMultiValueAddValueAndLabel(phoneNumberMultiValue, (__bridge CFStringRef) phoneNumber, kABPersonPhoneMainLabel, NULL);
-        ABRecordSetValue(person, kABPersonPhoneProperty, phoneNumberMultiValue, nil);
-        CFRelease(phoneNumberMultiValue);
-    }
-    
-    if (image)
-    {
-        CFErrorRef error = nil;
-        NSData *data = UIImageJPEGRepresentation(image, 0.75);
-        bool result = ABPersonSetImageData(person, (__bridge CFDataRef)data, &error);
-        if (!result)
-        {
-            NSLog(@"Failed to set image data in person");
-        }
-    }
-    
-    ABUnknownPersonViewController *controller = [[ABUnknownPersonViewController alloc] init];
-    controller.displayedPerson = person;
-    controller.allowsAddingToAddressBook = YES;
-    [self.navigationController pushViewController:controller animated:YES];
-    CFRelease(person);
-}
-
 - (void)sendEmail:(NSString*)recipient
 {
     if (![MFMailComposeViewController canSendMail]) return;
@@ -155,7 +117,64 @@
     [_phoneNumberActionSheet showFromRect:rect inView:view animated:YES];
 }
 
-#pragma mark - UIActionSheetDelegate
+#pragma mark Adding contacts
+
+- (void)addContactWithEmail:(NSString*)email phoneNumber:(NSString*)phoneNumber image:(UIImage*)image
+{
+    ABRecordRef person = ABPersonCreate();
+    
+    if (email)
+    {
+        ABMutableMultiValueRef emailMultiValue = ABMultiValueCreateMutable(kABMultiStringPropertyType);
+        ABMultiValueAddValueAndLabel(emailMultiValue, (__bridge CFStringRef) email, kABWorkLabel, NULL);
+        ABRecordSetValue(person, kABPersonEmailProperty, emailMultiValue, nil);
+        CFRelease(emailMultiValue);
+    }
+    
+    if (phoneNumber)
+    {
+        ABMutableMultiValueRef phoneNumberMultiValue = ABMultiValueCreateMutable(kABMultiStringPropertyType);
+        ABMultiValueAddValueAndLabel(phoneNumberMultiValue, (__bridge CFStringRef) phoneNumber, kABPersonPhoneMainLabel, NULL);
+        ABRecordSetValue(person, kABPersonPhoneProperty, phoneNumberMultiValue, nil);
+        CFRelease(phoneNumberMultiValue);
+    }
+    
+    if (image)
+    {
+        CFErrorRef error = nil;
+        NSData *data = UIImageJPEGRepresentation(image, 0.75);
+        bool result = ABPersonSetImageData(person, (__bridge CFDataRef)data, &error);
+        if (!result)
+        {
+            NSLog(@"Failed to set image data in person");
+        }
+    }
+    
+    ABUnknownPersonViewController *controller = [ABUnknownPersonViewController new];
+    controller.displayedPerson = person;
+    controller.allowsAddingToAddressBook = YES;
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+    {
+        [self.navigationController pushViewController:controller animated:YES];
+    }
+    else
+    {
+        controller.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelAddContactAction:)];
+        UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:controller];
+        navigationController.modalPresentationStyle = UIModalPresentationFormSheet;
+        [self presentViewController:navigationController animated:YES completion:nil];
+    }
+    
+    CFRelease(person);
+}
+
+- (void)cancelAddContactAction:(UIBarButtonItem*)barButtonItem
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
