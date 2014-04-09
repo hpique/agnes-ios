@@ -108,7 +108,7 @@
 		87E37EFB188D97F3000333EA /* HPBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */; };
 		87E37EFD188DA9B1000333EA /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E37EFC188DA9B1000333EA /* AddressBook.framework */; };
 		87E37EFF188DA9B5000333EA /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E37EFE188DA9B5000333EA /* AddressBookUI.framework */; };
-		87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37F01188DB2E7000333EA /* HPDataActionViewController.m */; };
+		87E37F03188DB2E7000333EA /* HPDataActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37F01188DB2E7000333EA /* HPDataActionController.m */; };
 		87E37F07188E4CD4000333EA /* HPKeyboardButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E37F06188E4CD4000333EA /* HPKeyboardButton.m */; };
 		87F47BB118ACE5E600F1FB48 /* sample-thumbnail@2x.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 87F47BAF18ACE5E600F1FB48 /* sample-thumbnail@2x.jpg */; };
 		87F47BB218ACE5E600F1FB48 /* sample-thumbnail.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 87F47BB018ACE5E600F1FB48 /* sample-thumbnail.jpg */; };
@@ -307,8 +307,8 @@
 		87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPBrowserViewController.xib; sourceTree = "<group>"; };
 		87E37EFC188DA9B1000333EA /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		87E37EFE188DA9B5000333EA /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = System/Library/Frameworks/AddressBookUI.framework; sourceTree = SDKROOT; };
-		87E37F00188DB2E7000333EA /* HPDataActionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDataActionViewController.h; sourceTree = "<group>"; };
-		87E37F01188DB2E7000333EA /* HPDataActionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDataActionViewController.m; sourceTree = "<group>"; };
+		87E37F00188DB2E7000333EA /* HPDataActionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDataActionController.h; sourceTree = "<group>"; };
+		87E37F01188DB2E7000333EA /* HPDataActionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDataActionController.m; sourceTree = "<group>"; };
 		87E37F05188E4CD4000333EA /* HPKeyboardButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPKeyboardButton.h; sourceTree = "<group>"; };
 		87E37F06188E4CD4000333EA /* HPKeyboardButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPKeyboardButton.m; sourceTree = "<group>"; };
 		87F47BAF18ACE5E600F1FB48 /* sample-thumbnail@2x.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "sample-thumbnail@2x.jpg"; sourceTree = "<group>"; };
@@ -390,6 +390,8 @@
 				87E37EF7188D97F3000333EA /* HPBrowserViewController.h */,
 				87E37EF8188D97F3000333EA /* HPBrowserViewController.m */,
 				87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */,
+				87E37F00188DB2E7000333EA /* HPDataActionController.h */,
+				87E37F01188DB2E7000333EA /* HPDataActionController.m */,
 				87AA3CF1189C13E100FBEAAF /* HPImageViewController.h */,
 				87AA3CF2189C13E100FBEAAF /* HPImageViewController.m */,
 				87AA3CF3189C13E100FBEAAF /* HPImageViewController.xib */,
@@ -486,8 +488,6 @@
 				8711F1B018F45DD900F27EC1 /* AGNTypingController.m */,
 				8763DA69188942F6000D9569 /* HPBaseTextStorage.h */,
 				8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */,
-				87E37F00188DB2E7000333EA /* HPDataActionViewController.h */,
-				87E37F01188DB2E7000333EA /* HPDataActionViewController.m */,
 				87AA3D0F189FF79B00FBEAAF /* HPNote+Detail.h */,
 				87AA3D10189FF79B00FBEAAF /* HPNote+Detail.m */,
 				87E37E3F188B6158000333EA /* HPNoteAction.h */,
@@ -966,7 +966,7 @@
 				873E091F18EBABDA007E9675 /* HPSectionArrayDataSource.m in Sources */,
 				8763DA3B18883ACF000D9569 /* AGNAppDelegate.m in Sources */,
 				873E091918EB829A007E9675 /* AGNListDataSource.m in Sources */,
-				87E37F03188DB2E7000333EA /* HPDataActionViewController.m in Sources */,
+				87E37F03188DB2E7000333EA /* HPDataActionController.m in Sources */,
 				8704D60718A109EB00C8977E /* HPAgnesUIMetrics.m in Sources */,
 				871F7C4118D8A55400E6CA07 /* AGNTagTapGestureRecognizer.m in Sources */,
 				873E228218A9AFB500E7919C /* HPAgnesImageCache.m in Sources */,

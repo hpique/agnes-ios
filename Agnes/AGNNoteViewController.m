@@ -27,6 +27,7 @@
 #import "NSString+hp_utils.h"
 #import "HPNoFirstResponderActionSheet.h"
 #import "HPAgnesUIMetrics.h"
+#import "HPDataActionController.h"
 #import "HPTracker.h"
 #import "HPTextInteractionTapGestureRecognizer.h"
 #import "UIImage+hp_utils.h"
@@ -38,7 +39,7 @@
 const NSTimeInterval AGNNoteEditorAttachmentAnimationDuration = 0.3;
 const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
-@interface AGNNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate, AGNTypingControllerDelegate>
+@interface AGNNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate, AGNTypingControllerDelegate, HPDataActionControllerDelegate>
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
 @property (nonatomic, assign) BOOL textChanged;
@@ -67,6 +68,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     NSInteger _attachmentActionSheetCameraIndex;
     NSInteger _attachmentActionSheetPhotosIndex;
     UIActionSheet *_deleteNoteActionSheet;
+    HPDataActionController *_dataActionController;
     
     NSMutableArray *_notes;
     NSInteger _noteIndex;
@@ -180,6 +182,9 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     
     _typingController = [AGNTypingController new];
     _typingController.delegate = self;
+    
+    _dataActionController = [HPDataActionController new];
+    _dataActionController.delegate = self;
 }
 
 - (void)dealloc
@@ -464,7 +469,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     }
     else
     {
-        [self showActionSheetForURL:url fromRect:rect inView:view];
+        [_dataActionController showActionSheetForURL:url fromRect:rect inView:view];
     }
 }
 
@@ -904,10 +909,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
         }
         _attachmentActionSheet = nil;
     }
-    else
-    {
-        [super actionSheet:actionSheet clickedButtonAtIndex:buttonIndex];
-    }
 }
 
 #pragma mark Notifications
@@ -999,19 +1000,23 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     _bodyTextView.textContainerInset = _originalTextContainerInset;
 }
 
-#pragma mark - HPDataActionViewController
+#pragma mark - HPDataActionControllerDelegate
 
-- (void)addContactWithEmail:(NSString *)email phoneNumber:(NSString *)phoneNumber image:(UIImage*)image
+- (UIViewController*)viewControllerForDataActionController:(HPDataActionController*)dataActionController
+{
+    return self;
+}
+
+- (void)dataActionController:(HPDataActionController*)dataActionController willAddContact:(HPContact*)contact
 { // Attempt to find addditional contact data in the note
     NSAttributedString *attributedText = self.noteTextView.attributedText;
-    if (!email) email = [attributedText hp_valueOfLinkWithScheme:@"mailto"];
-    if (!phoneNumber) phoneNumber = [attributedText hp_valueOfLinkWithScheme:@"tel"];
-    if (!image)
+    if (!contact.email) contact.email = [attributedText hp_valueOfLinkWithScheme:@"mailto"];
+    if (!contact.phoneNumber) contact.phoneNumber = [attributedText hp_valueOfLinkWithScheme:@"tel"];
+    if (!contact.image)
     {
         NSAttributedString *attributedText = self.noteTextView.attributedText;
-        image = [attributedText hp_imageOfFirstAttachment];
+        contact.image = [attributedText hp_imageOfFirstAttachment];
     }
-    [super addContactWithEmail:email phoneNumber:phoneNumber image:image];
 }
 
 #pragma mark - UIImagePickerControllerDelegate
