@@ -25,7 +25,7 @@ static BOOL HPIsWidescreen()
         self.layer.shadowOffset = CGSizeMake(0, 1);
         self.layer.shadowOpacity = 1;
         self.layer.shadowRadius = 0;
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [self.class backgroundColorForControlState:UIControlStateNormal];
         self.titleLabel.adjustsFontSizeToFitWidth = YES;
         self.titleLabel.minimumScaleFactor = 0.75;
         [self setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
@@ -33,13 +33,23 @@ static BOOL HPIsWidescreen()
     return self;
 }
 
+- (void)setHighlighted:(BOOL)highlighted
+{
+    [super setHighlighted:highlighted];
+    self.backgroundColor = [self.class backgroundColorForControlState:highlighted ? UIControlStateHighlighted : UIControlStateNormal];
+}
+
 - (void)setTitle:(NSString *)title forState:(UIControlState)state
 {
     [super setTitle:title forState:state];
     
+    static CGFloat const FontSizeCharacterLandscapePhone = 22;
     static CGFloat const FontSizeCharacterLandscapePad = 36;
+    static CGFloat const FontSizeCharacterPortraitPhone = 22;
     static CGFloat const FontSizeCharacterPortraitPad = 28;
+    static CGFloat const FontSizeWordLandscapePhone = 16;
     static CGFloat const FontSizeWordLandscapePad = 26;
+    static CGFloat const FontSizeWordPortraitPhone = 16;
     static CGFloat const FontSizeWordPortraitPad = 21;
     
     const UIInterfaceOrientation interfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
@@ -47,8 +57,8 @@ static BOOL HPIsWidescreen()
     const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
     const BOOL isWord = title.length > 1;
     
-    CGFloat fontSize = isPhone ? (isWord ? 22 : 16) : (isLandscape ? (isWord ? FontSizeWordLandscapePad : FontSizeCharacterLandscapePad) : (isWord ? FontSizeWordPortraitPad : FontSizeCharacterPortraitPad));
-    self.titleLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:fontSize];
+    CGFloat fontSize = isPhone ? (isLandscape ? (isWord ? FontSizeWordLandscapePhone : FontSizeCharacterLandscapePhone) : (isWord ? FontSizeWordPortraitPhone : FontSizeCharacterPortraitPhone)) : (isLandscape ? (isWord ? FontSizeWordLandscapePad : FontSizeCharacterLandscapePad) : (isWord ? FontSizeWordPortraitPad : FontSizeCharacterPortraitPad));
+    self.titleLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:fontSize];
     [self setNeedsLayout]; // Without this the title doesn't change when cells are reused. WTF?
 }
 
@@ -62,6 +72,7 @@ static BOOL HPIsWidescreen()
     } else {
         CGSize superIntrinsicSize = [super intrinsicContentSize];
         return CGSizeMake(superIntrinsicSize.width, size.height);
+        
     }
 }
 
@@ -69,7 +80,7 @@ static BOOL HPIsWidescreen()
 {
     static CGFloat const WidthLandscapePhone = 43;
     static CGFloat const HeightLandscapePhone = 32;
-    static CGFloat const WidthLandscapePad = 76;
+    static CGFloat const WidthLandscapePad = 77;
     static CGFloat const HeightLandscapePad = 75;
     static CGFloat const WidthLandscapePhoneWidescreen = 47;
     static CGFloat const WidthPortraitPhone = 26;
@@ -90,6 +101,7 @@ static BOOL HPIsWidescreen()
 + (CGFloat)keySeparatorForOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     static CGFloat const SeparatorLandscapePhone = 5;
+    static CGFloat const SeparatorLandscapePhoneWidescreen = 6;
     static CGFloat const SeparatorPortraitPhone = 6;
     static CGFloat const SeparatorLandscapePad = 14;
     static CGFloat const SeparatorPortraitPad = 12;
@@ -97,7 +109,7 @@ static BOOL HPIsWidescreen()
     const BOOL landscape = UIInterfaceOrientationIsLandscape(interfaceOrientation);
     const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
 
-    const CGFloat separator = isPhone ? (landscape ? SeparatorLandscapePhone : SeparatorPortraitPhone) : (landscape ? SeparatorLandscapePad : SeparatorPortraitPad);
+    const CGFloat separator = isPhone ? (landscape ? (HPIsWidescreen() ? SeparatorLandscapePhoneWidescreen : SeparatorLandscapePhone) : SeparatorPortraitPhone) : (landscape ? SeparatorLandscapePad : SeparatorPortraitPad);
     return separator;
 }
 
@@ -128,6 +140,19 @@ static BOOL HPIsWidescreen()
     const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
     const CGFloat separator = isPhone ? (landscape ? HeightLandscapePhone : HeightPortraitPhone) : (landscape ? HeightLandscapeTablet : HeightPortraitTablet);
     return separator;
+}
+
+#pragma mark Utils
+
++ (UIColor*)backgroundColorForControlState:(UIControlState)controlState
+{
+    switch (controlState) {
+        case UIControlStateHighlighted:
+            return [UIColor colorWithRed:213.0f/255.0f green:215.0f/255.0f blue:217.0f/255.0f alpha:0.99];
+        default:
+            return [UIColor colorWithWhite:1 alpha:0.99];
+    }
+
 }
 
 @end

@@ -49,7 +49,6 @@
     if (self) {
         UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
         layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-        layout.minimumLineSpacing = 6;
         layout.minimumInteritemSpacing = 0;
         _suggestionsView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
         _suggestionsView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -70,12 +69,17 @@
 {
     UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout*)_suggestionsView.collectionViewLayout;
     const CGFloat height = self.bounds.size.height;
-    layout.itemSize = CGSizeMake(100, height);
     UIInterfaceOrientation interfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    
     const CGSize buttonSize = [HPKeyboardButton sizeForOrientation:interfaceOrientation];
-
     const CGFloat keySeparator = [HPKeyboardButton keySeparatorForOrientation:interfaceOrientation];
+    
+    const CGFloat buttonMultiplier = UIInterfaceOrientationIsLandscape(interfaceOrientation) ? 2 : (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone ? 3 : 2);
+    const CGFloat itemWidth = buttonSize.width * buttonMultiplier + keySeparator * (buttonMultiplier - 1);
+
     layout.headerReferenceSize = CGSizeMake(buttonSize.width + keySeparator, height);
+    layout.itemSize = CGSizeMake(itemWidth, height);
+    layout.minimumLineSpacing = keySeparator;
 
     const CGFloat sideInset = [HPKeyboardButton sideInsetForOrientation:interfaceOrientation];
     _suggestionsView.contentInset = UIEdgeInsetsMake(0, sideInset, 0, sideInset);
@@ -174,11 +178,8 @@
         _button.enabled = NO;
         [self.contentView addSubview:_button];
         
-        NSDictionary *viewsDictionary = NSDictionaryOfVariableBindings(_button);
-        NSArray *constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_button]|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:viewsDictionary];
-        
-        [_button lyt_alignBottomToView:self.contentView margin:-1]; // For the shadow
-        [self.contentView addConstraints:constraints];
+        [_button lyt_alignSidesToParentWithMargin:0];
+        [_button lyt_alignBottomToParentWithMargin:-1]; // For the shadow
     }
     return self;
 }
@@ -191,14 +192,13 @@
 {
     if (self = [super initWithFrame:frame])
     {
-        _button = [[HPKeyboardButton alloc] init];
+        _button = [HPKeyboardButton new];
         [_button setTitle:@"#" forState:UIControlStateNormal];
         _button.translatesAutoresizingMaskIntoConstraints = NO;
         [self addSubview:_button];
-        
-        NSDictionary *viewsDictionary = NSDictionaryOfVariableBindings(_button);
-        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_button]-6-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:viewsDictionary]];
-        [_button lyt_alignBottomToView:self margin:-1]; // For the shadow
+
+        [_button lyt_alignLeftToParent];
+        [_button lyt_alignBottomToParentWithMargin:-1];
     }
     return self;
 }
