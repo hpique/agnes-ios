@@ -15,6 +15,7 @@
 		8711F1AA18F4067D00F27EC1 /* AGNRootPadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8711F1A918F4067D00F27EC1 /* AGNRootPadViewController.m */; };
 		8711F1AE18F4073900F27EC1 /* AGNRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8711F1AD18F4073900F27EC1 /* AGNRootViewController.m */; };
 		8711F1B118F45DD900F27EC1 /* AGNTypingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8711F1B018F45DD900F27EC1 /* AGNTypingController.m */; };
+		8711F1B418F587A200F27EC1 /* UIViewController+hp_modals.m in Sources */ = {isa = PBXBuildFile; fileRef = 8711F1B318F587A200F27EC1 /* UIViewController+hp_modals.m */; };
 		871429A71892E84400DA588F /* HPIndexItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429A61892E84400DA588F /* HPIndexItemTableViewCell.m */; };
 		871429A91892E87A00DA588F /* HPIndexItemTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 871429A81892E87A00DA588F /* HPIndexItemTableViewCell.xib */; };
 		871429AC18933D6600DA588F /* HPNoteActivityItemSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 871429AB18933D6600DA588F /* HPNoteActivityItemSource.m */; };
@@ -141,6 +142,8 @@
 		8711F1AD18F4073900F27EC1 /* AGNRootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNRootViewController.m; sourceTree = "<group>"; };
 		8711F1AF18F45DD900F27EC1 /* AGNTypingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNTypingController.h; sourceTree = "<group>"; };
 		8711F1B018F45DD900F27EC1 /* AGNTypingController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNTypingController.m; sourceTree = "<group>"; };
+		8711F1B218F587A200F27EC1 /* UIViewController+hp_modals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+hp_modals.h"; sourceTree = "<group>"; };
+		8711F1B318F587A200F27EC1 /* UIViewController+hp_modals.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+hp_modals.m"; sourceTree = "<group>"; };
 		871429A51892E84400DA588F /* HPIndexItemTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPIndexItemTableViewCell.h; sourceTree = "<group>"; };
 		871429A61892E84400DA588F /* HPIndexItemTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPIndexItemTableViewCell.m; sourceTree = "<group>"; };
 		871429A81892E87A00DA588F /* HPIndexItemTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPIndexItemTableViewCell.xib; sourceTree = "<group>"; };
@@ -381,9 +384,9 @@
 		87393C5418A55F27006AB087 /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
-				873E092018EBABE4007E9675 /* Data Source */,
 				87CAF3B518B79DF0004380BB /* CVRAlertView.h */,
 				87CAF3B618B79DF0004380BB /* CVRAlertView.m */,
+				873E092018EBABE4007E9675 /* Data Source */,
 				87E37EF7188D97F3000333EA /* HPBrowserViewController.h */,
 				87E37EF8188D97F3000333EA /* HPBrowserViewController.m */,
 				87E37EF9188D97F3000333EA /* HPBrowserViewController.xib */,
@@ -410,6 +413,8 @@
 				87393C5218A55F0D006AB087 /* UITextView+hp_utils.m */,
 				873E228318AA447700E7919C /* UIView+hp_utils.h */,
 				873E228418AA447700E7919C /* UIView+hp_utils.m */,
+				8711F1B218F587A200F27EC1 /* UIViewController+hp_modals.h */,
+				8711F1B318F587A200F27EC1 /* UIViewController+hp_modals.m */,
 			);
 			name = UIKit;
 			sourceTree = "<group>";
@@ -974,6 +979,7 @@
 				87E37EEE188CA0D0000333EA /* HPEntityManager.m in Sources */,
 				87AA3D11189FF79B00FBEAAF /* HPNote+Detail.m in Sources */,
 				8704D60A18A19B0400C8977E /* HPAgnesViewController.m in Sources */,
+				8711F1B418F587A200F27EC1 /* UIViewController+hp_modals.m in Sources */,
 				871429F618955CF900DA588F /* HPNoteNavigationController.m in Sources */,
 				8711F1AA18F4067D00F27EC1 /* AGNRootPadViewController.m in Sources */,
 				8763DA631888420A000D9569 /* HPNoteManager.m in Sources */,

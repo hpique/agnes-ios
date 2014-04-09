@@ -13,6 +13,6 @@
 
 - (void)addContactWithEmail:(NSString*)email phoneNumber:(NSString*)phoneNumber image:(UIImage*)image;
 
-- (void)showActionSheetForURL:(NSURL*)url;
+- (void)showActionSheetForURL:(NSURL*)url fromRect:(CGRect)rect inView:(UIView*)view;
 
 @end

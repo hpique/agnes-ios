@@ -33,18 +33,18 @@
 }
 
 
-- (void)showActionSheetForURL:(NSURL*)url
+- (void)showActionSheetForURL:(NSURL*)url fromRect:(CGRect)rect inView:(UIView*)view
 {
     _actionSheetURL = url;
     NSString *scheme = url.scheme;
     if ([scheme isEqualToString:@"mailto"])
     {
-        [self showEmailActionSheet];
+        [self showEmailActionSheetFromRect:rect inView:view];
     }
     else if ([scheme isEqualToString:@"tel"])
     {
         NSString *phoneNumber = url.host;
-        [self showActionSheetForPhoneNumber:phoneNumber];
+        [self showActionSheetForPhoneNumber:phoneNumber fromRect:rect inView:view];
     }
 }
 
@@ -103,7 +103,7 @@
 - (void)sendMessage:(NSString*)phoneNumber
 {
     if (![MFMessageComposeViewController canSendText]) return;
-    MFMessageComposeViewController *messageComposer = [[MFMessageComposeViewController alloc] init];
+    MFMessageComposeViewController *messageComposer = [MFMessageComposeViewController new];
     messageComposer.recipients = @[phoneNumber];
     messageComposer.messageComposeDelegate = self;
     [self presentViewController:messageComposer animated:YES completion:nil];
@@ -114,7 +114,7 @@
     [UIPasteboard generalPasteboard].string = value;
 }
 
-- (void)showEmailActionSheet
+- (void)showEmailActionSheetFromRect:(CGRect)rect inView:(UIView*)view
 {
     UIActionSheet *actionSheet = [[UIActionSheet alloc] init];
     actionSheet.delegate = self;
@@ -128,10 +128,10 @@
     NSInteger cancelButtonIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
     actionSheet.cancelButtonIndex = cancelButtonIndex;
     _emailActionSheet = actionSheet;
-    [actionSheet showInView:self.view];
+    [actionSheet showFromRect:rect inView:view animated:YES];
 }
 
-- (void)showActionSheetForPhoneNumber:(NSString*)phoneNumber
+- (void)showActionSheetForPhoneNumber:(NSString*)phoneNumber fromRect:(CGRect)rect inView:(UIView*)view
 {
     _actionSheetPhoneNumber = phoneNumber;
     _phoneNumberActionSheet = [[UIActionSheet alloc] init];
@@ -152,7 +152,7 @@
     _phoneNumberActionSheetCopyIndex = [_phoneNumberActionSheet addButtonWithTitle:NSLocalizedString(@"Copy", @"")];
     NSInteger cancelButtonIndex = [_phoneNumberActionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
     _phoneNumberActionSheet.cancelButtonIndex = cancelButtonIndex;
-    [_phoneNumberActionSheet showInView:self.view];
+    [_phoneNumberActionSheet showFromRect:rect inView:view animated:YES];
 }
 
 #pragma mark - UIActionSheetDelegate

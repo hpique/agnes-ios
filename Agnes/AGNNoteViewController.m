@@ -31,6 +31,7 @@
 #import "HPTextInteractionTapGestureRecognizer.h"
 #import "UIImage+hp_utils.h"
 #import "UITextView+hp_utils.h"
+#import "UIViewController+hp_modals.h"
 #import <PSPDFTextView/PSPDFTextView.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
@@ -61,6 +62,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     
     IBOutlet UILabel *_detailLabel;
 
+    UIPopoverController *_navigationBarPopoverController;
     UIActionSheet *_attachmentActionSheet;
     NSInteger _attachmentActionSheetCameraIndex;
     NSInteger _attachmentActionSheetPhotosIndex;
@@ -227,6 +229,10 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
             _ignoreNotesDidChangeNotification = NO;
         }
     }
+    
+    [self hp_dismissActionSheet:&_attachmentActionSheet animated:animated];
+    [self hp_dismissActionSheet:&_deleteNoteActionSheet animated:animated];
+    [self hp_dismissPopover:&_navigationBarPopoverController animated:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -449,7 +455,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-- (void)handleURL:(NSURL*)url
+- (void)handleURL:(NSURL*)url fromRect:(CGRect)rect inView:(UIView*)view
 {
     NSString *scheme = url.scheme;
     if ([scheme hasPrefix:@"http"])
@@ -458,7 +464,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     }
     else
     {
-        [self showActionSheetForURL:url];
+        [self showActionSheetForURL:url fromRect:rect inView:view];
     }
 }
 
@@ -573,10 +579,58 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [self.toolbar setItems:@[_trashBarButtonItem, flexibleSpace, _detailBarButtonItem, flexibleSpace, rightBarButtonItem] animated:animated];
 }
 
-#pragma mark - Actions
+#pragma mark Toolbar
+
+- (void)archiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    if ([self hp_dismissActionSheet:&_deleteNoteActionSheet animated:YES]) return;
+    
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"archive_note"];
+    [[HPTagManager sharedManager] archiveNote:self.note];
+    [self finishEditing];
+}
+
+- (IBAction)detailLabelTapGestureRecognizer:(id)sender
+{
+    if ([self hp_dismissActionSheet:&_deleteNoteActionSheet animated:YES]) return;
+    
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"toggle_note_detail"];
+    self.detailMode = (self.detailMode + 1) % HPNoteDetailModeCount;
+    [self displayDetail];
+}
+
+- (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    if ([self hp_dismissActionSheet:&_deleteNoteActionSheet animated:YES]) return;
+    
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_note"];
+    if ([self.note isEmptyInTag:_currentTag])
+    {
+        [self trashNote];
+    }
+    else
+    {
+        _deleteNoteActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:NSLocalizedString(@"Delete Note", @"") otherButtonTitles:nil];
+        [_deleteNoteActionSheet showFromBarButtonItem:barButtonItem animated:YES];
+    }
+}
+
+- (void)unarchiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    if ([self hp_dismissActionSheet:&_deleteNoteActionSheet animated:YES]) return;
+    
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"unarchive_note"];
+    [[HPTagManager sharedManager] unarchiveNote:self.note];
+    [self finishEditing];
+}
+
+#pragma mark Navigation Bar
 
 - (void)actionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    if ([self hp_dismissPopover:&_navigationBarPopoverController animated:YES]) return;
+    [self hp_dismissActionSheet:&_attachmentActionSheet animated:YES];
+    
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"share_note"];
     [self autosave];
     HPNoteActivityItemSource *activityItem = [[HPNoteActivityItemSource alloc] initWithNote:self.note];
@@ -585,27 +639,35 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     NSAttributedString *attributedText = self.noteTextView.attributedText;
     UIImage *attachmentImage = [attributedText hp_imageOfFirstAttachment];
     if (attachmentImage) [items addObject:attachmentImage];
+    
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
-    [self presentViewController:activityViewController animated:YES completion:nil];
-}
-
-- (void)archiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"archive_note"];
-    [[HPTagManager sharedManager] archiveNote:self.note];
-    [self finishEditing];
+    
+    _navigationBarPopoverController = [self hp_presentActivityViewController:activityViewController fromBarButtonItem:barButtonItem animated:YES];
+    if (_navigationBarPopoverController)
+    {
+        activityViewController.completionHandler = ^(NSString *activityType, BOOL completed){
+            [_navigationBarPopoverController dismissPopoverAnimated:YES];
+            _navigationBarPopoverController = nil;
+        };
+    }
 }
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [self hp_dismissActionSheet:&_attachmentActionSheet animated:YES];
+    [self hp_dismissPopover:&_navigationBarPopoverController animated:YES];
+    
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_note"];
     [self changeToEmptyNote];
 }
 
 - (void)attachmentBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    if ([self hp_dismissActionSheet:&_attachmentActionSheet animated:YES]) return;
+    [self hp_dismissPopover:&_navigationBarPopoverController animated:YES];
+    
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_attachment"];
-    _attachmentActionSheet = [[HPNoFirstResponderActionSheet alloc] init];
+    _attachmentActionSheet = [HPNoFirstResponderActionSheet new];
     _attachmentActionSheet.delegate = self;
     _attachmentActionSheetCameraIndex = -1;
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
@@ -619,8 +681,11 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     }
     NSInteger cancelButtonIndex = [_attachmentActionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
     _attachmentActionSheet.cancelButtonIndex = cancelButtonIndex;
-    [_attachmentActionSheet showInView:self.view];
+    
+    [_attachmentActionSheet showFromBarButtonItem:barButtonItem animated:YES];
 }
+
+#pragma mark Actions
 
 - (void)attachmentTrashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
@@ -642,13 +707,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     UIImage *image = _presentedImageViewController.image;
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[image] applicationActivities:nil];
     [_presentedImageViewController presentViewController:activityViewController animated:YES completion:nil];
-}
-
-- (IBAction)detailLabelTapGestureRecognizer:(id)sender
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"toggle_note_detail"];
-    self.detailMode = (self.detailMode + 1) % HPNoteDetailModeCount;
-    [self displayDetail];
 }
 
 - (void)doneBarButtonItemAction:(UIBarButtonItem*)barButtonItem
@@ -703,27 +761,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     HPTag *tag = [[HPTagManager sharedManager] tagWithName:tagName];
     HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag];
     [self.delegate noteViewController:self didSelectIndexItem:indexItem];
-    [self finishEditing];
-}
-
-- (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_note"];
-    if ([self.note isEmptyInTag:_currentTag])
-    {
-        [self trashNote];
-    }
-    else
-    {
-        _deleteNoteActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:NSLocalizedString(@"Delete Note", @"") otherButtonTitles:nil];
-        [_deleteNoteActionSheet showInView:self.view];
-    }
-}
-
-- (void)unarchiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"unarchive_note"];
-    [[HPTagManager sharedManager] unarchiveNote:self.note];
     [self finishEditing];
 }
 
@@ -808,7 +845,9 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 -(void)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer handleTapOnURL:(NSURL*)url inRange:(NSRange)characterRange
 {
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"click_link"];
-    [self handleURL:url];
+    
+    const CGRect rect = [_bodyTextView hp_rectForCharacterRange:characterRange];
+    [self handleURL:url fromRect:rect inView:_bodyTextView];
 }
 
 -(void)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer handleTapOnTextAttachment:(NSTextAttachment*)textAttachment inRange:(NSRange)characterRange
@@ -1078,7 +1117,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     return nil;
 }
 
-#pragma mark - UIImageViewControllerDelegate
+#pragma mark UIImageViewControllerDelegate
 
 - (void)imageViewControllerDidDismiss:(HPImageViewController*)imageViewController
 {
