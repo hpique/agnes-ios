@@ -59,6 +59,7 @@
         AGNNoteListViewController *listViewController = (AGNNoteListViewController*) fromVC;
         if (listViewController.indexPathOfSelectedNote)
         {
+            NSLog(@"%@", NSStringFromCGRect(toVC.view.frame));
             return YES;
         }
     }
@@ -86,6 +87,7 @@
     UIView *containerView = transitionContext.containerView;
     [transitionContext.containerView addSubview:toViewController.view];
     toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
+    [toViewController.view layoutIfNeeded]; // To adjust the text inset in iPad
     
     // HACK: We need to call this here to ensure that the text is properly positioned. Doing this in viewWillAppear: or viewWillLayoutSubviews conflicted with the animations.
     [toViewController.noteTextView scrollToVisibleCaretAnimated:NO];

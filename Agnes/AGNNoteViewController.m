@@ -155,8 +155,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _bodyTextView.font = [HPFontManager sharedManager].fontForNoteBody;
 
-        CGFloat sideInset = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation] - _bodyTextView.textContainer.lineFragmentPadding;
-        _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, sideInset, 20 + self.toolbar.frame.size.height, sideInset);
         _bodyTextView.delegate = self;
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
         [self.view addSubview:_bodyTextView];
@@ -173,6 +171,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     }
     
     [self layoutToolbar];
+    [self updateTextInset];
     
     if (!_note)
     {
@@ -218,6 +217,12 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     self.transitioning = NO;
 }
 
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    [self updateTextInset];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
@@ -256,8 +261,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 {
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     [self layoutToolbar];
-    CGFloat sideInset = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation] - _bodyTextView.textContainer.lineFragmentPadding;
-    _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, sideInset, 20 + self.toolbar.frame.size.height, sideInset);
+    [self updateTextInset];
 }
 
 #pragma mark - Class
@@ -315,15 +319,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     return NO;
 }
 
-+ (CGFloat)minimumNoteWidth
-{
-    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait]; // Portrait has the smallest margins
-    const CGSize screenSize = [UIScreen mainScreen].bounds.size;
-    const CGFloat minLength = MIN(screenSize.width, screenSize.height);
-    const CGFloat width = minLength - sideMargin * 2;
-    return width;
-}
-
 - (void)setNote:(HPNote *)note
 {
     _note = note;
@@ -343,6 +338,34 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     _indexItem = indexItem;
     _currentTag = indexItem.tag;
     _bodyTextStorage.tag = _currentTag.name;
+}
+
+#pragma mark Layout
+
++ (CGFloat)minimumNoteWidth
+{
+    const CGFloat minimumWidth = 768 - 240; // For iPad
+    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait width:minimumWidth]; // Portrait has the smallest margins
+    const CGSize screenSize = [UIScreen mainScreen].bounds.size;
+    const CGFloat minLength = MIN(MIN(screenSize.width, screenSize.height), minimumWidth);
+    const CGFloat width = minLength - sideMargin * 2;
+    return width;
+}
+
+#pragma mark Layout (private)
+
+- (void)updateTextInset
+{
+    const CGFloat width = self.view.bounds.size.width;
+    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation width:width];
+    const CGFloat sideInset = sideMargin - _bodyTextView.textContainer.lineFragmentPadding;
+    _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, sideInset, 20 + self.toolbar.frame.size.height, sideInset);
+}
+
+- (void)layoutToolbar
+{
+    const CGFloat height = self.navigationController.toolbar.frame.size.height;
+    _toolbarHeightConstraint.constant = height;
 }
 
 #pragma mark - Private
@@ -485,12 +508,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
         [_notes insertObject:note atIndex:_noteIndex + 1];
     }
     return note;
-}
-
-- (void)layoutToolbar
-{
-    const CGFloat height = self.navigationController.toolbar.frame.size.height;
-    _toolbarHeightConstraint.constant = height;
 }
 
 - (void)openBrowserURL:(NSURL*)url

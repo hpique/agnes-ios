@@ -430,7 +430,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 + (CGFloat)widthForTitleOfNote:(HPNote*)note cellWidth:(CGFloat)cellWidth
 {
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-    CGFloat width = cellWidth - [HPAgnesUIMetrics sideMarginForInterfaceOrientation:orientation] * 2;
+    CGFloat width = cellWidth - [HPAgnesUIMetrics sideMarginForInterfaceOrientation:orientation width:cellWidth] * 2;
     if (note.hasThumbnail)
     {
         width -= HPNoteTableViewCellThumbnailMarginLeading + [self thumbnailViewWidth];
@@ -579,7 +579,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 - (void)setMargins
 {
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-    CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:orientation];
+    CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:orientation width:self.bounds.size.width];
     self.titleLabelLeadingSpaceConstraint.constant = sideMargin;
     switch (_layoutMode) {
         case HPNoteTableViewCellLayoutModeDefault:
