@@ -205,9 +205,8 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferences:) name:AGNPreferencesManagerDidChangePreferencesNotification object:[AGNPreferencesManager sharedManager]];
     
     {
-        
-        _titleDetailConstraint = [_detailLabel lyt_constraintByPlacingLeftOfView:_titleLabel margin:8];
-        _thumbnailDetailConstraint = [_thumbnailView lyt_constraintByPlacingLeftOfView:_detailLabel margin:8];
+        _titleDetailConstraint = [_detailLabel lyt_constraintByPlacingRightOfView:_titleLabel margin:8];
+        _thumbnailDetailConstraint = [_thumbnailView lyt_constraintByPlacingRightOfView:_detailLabel margin:8];
         _thumbnailTitleConstraint = [_thumbnailView lyt_constraintByPlacingRightOfView:_titleLabel margin:8];
         _bodyLabelAlignRightToDetailConstraint = [_bodyLabel lyt_constraintByAligningRightToView:_detailLabel];
         
@@ -254,6 +253,10 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 {
     [self setMargins];
     [super layoutSubviews];
+    const CGFloat width = self.contentView.bounds.size.width;
+    const CGFloat titleWidth = [self.class widthForTitleOfNote:self.note cellWidth:width];
+    _titleLabel.preferredMaxLayoutWidth = titleWidth;
+    _bodyLabel.preferredMaxLayoutWidth = titleWidth;
 }
 
 - (void)updateConstraints

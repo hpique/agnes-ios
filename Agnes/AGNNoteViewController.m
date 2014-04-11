@@ -275,6 +275,16 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     return noteViewController;
 }
 
++ (CGFloat)minimumNoteWidth
+{
+    const CGFloat minimumWidth = 768 - 240; // For iPad
+    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait width:minimumWidth]; // Portrait has the smallest margins
+    const CGSize screenSize = [UIScreen mainScreen].bounds.size;
+    const CGFloat minLength = MIN(MIN(screenSize.width, screenSize.height), minimumWidth);
+    const CGFloat width = minLength - sideMargin * 2;
+    return width;
+}
+
 #pragma mark - Public
 
 - (NSString*)search
@@ -342,30 +352,21 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
 #pragma mark Layout
 
-+ (CGFloat)minimumNoteWidth
-{
-    const CGFloat minimumWidth = 768 - 240; // For iPad
-    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait width:minimumWidth]; // Portrait has the smallest margins
-    const CGSize screenSize = [UIScreen mainScreen].bounds.size;
-    const CGFloat minLength = MIN(MIN(screenSize.width, screenSize.height), minimumWidth);
-    const CGFloat width = minLength - sideMargin * 2;
-    return width;
-}
-
-#pragma mark Layout (private)
-
-- (void)updateTextInset
-{
-    const CGFloat width = self.view.bounds.size.width;
-    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation width:width];
-    const CGFloat sideInset = sideMargin - _bodyTextView.textContainer.lineFragmentPadding;
-    _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, sideInset, 20 + self.toolbar.frame.size.height, sideInset);
-}
-
 - (void)layoutToolbar
 {
     const CGFloat height = self.navigationController.toolbar.frame.size.height;
     _toolbarHeightConstraint.constant = height;
+}
+
+-(void)updateTextInset
+{
+    const CGFloat width = self.view.bounds.size.width;
+    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation width:width];
+    const CGFloat sideInset = sideMargin - _bodyTextView.textContainer.lineFragmentPadding;
+    static const CGFloat TopInsetPhone = 20;
+    static const CGFloat TopInsetPad = 44;
+    const CGFloat topInset = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone ? TopInsetPhone : TopInsetPad;
+    _bodyTextView.textContainerInset = UIEdgeInsetsMake(topInset, sideInset, topInset + self.toolbar.frame.size.height, sideInset);
 }
 
 #pragma mark - Private

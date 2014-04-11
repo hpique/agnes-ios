@@ -32,13 +32,14 @@ NSString *const AGNPreferencesKeyTintColor = @"tintColor";
 NSString *const AGNPreferencesValueDefault = @"default";
 
 static UIColor* AGNDefaultBarTintColor = nil;
-static BOOL AGNDefaultDynamicType = NO;
-static NSString* AGNDefaultFontName = @"AvenirNext-Regular";
-static NSInteger AGNDefaultFontSize = 16;
-static NSInteger AGNDefaultIndexSortMode = HPIndexSortModeOrder;
+static BOOL const AGNDefaultDynamicType = NO;
+static NSString* const AGNDefaultFontName = @"AvenirNext-Regular";
+static NSInteger const AGNDefaultFontSizePhone = 16;
+static NSInteger const AGNDefaultFontSizePad = 18;
+static NSInteger const AGNDefaultIndexSortMode = HPIndexSortModeOrder;
 static UIColor* AGNDefaultTintColor = nil;
 static BOOL AGNDefaultStatusBarHidden = NO;
-static CGFloat AGNLuminanceMiddle = 0.6;
+static CGFloat const AGNLuminanceMiddle = 0.6;
 
 @implementation AGNPreferencesManager
 
@@ -105,7 +106,7 @@ static CGFloat AGNLuminanceMiddle = 0.6;
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSNumber *fontSize = [userDefaults objectForKey:AGNDefaultsKeyFontSize];
-    return fontSize ? [fontSize integerValue] : AGNDefaultFontSize;
+    return fontSize ? [fontSize integerValue] : [self.class defaultFontSize];
 }
 
 - (void)setFontName:(NSString *)fontName
@@ -264,6 +265,11 @@ static CGFloat AGNLuminanceMiddle = 0.6;
     return color ? : defaultColor;
 }
 
++ (CGFloat)defaultFontSize
+{
+    return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone ? AGNDefaultFontSizePhone : AGNDefaultFontSizePad;
+}
+
 - (void)setPreferenceValue:(NSString*)value forKey:(NSString*)key
 {
     if ([key isEqualToString:AGNPreferencesKeyTintColor])
@@ -324,7 +330,7 @@ static CGFloat AGNLuminanceMiddle = 0.6;
 
 - (void)updateFontSizeFromValue:(NSString*)value
 {
-    NSInteger fontSize = [value isEqualToString:AGNPreferencesValueDefault] ? AGNDefaultFontSize : [value integerValue];
+    NSInteger fontSize = [value isEqualToString:AGNPreferencesValueDefault] ? [self.class defaultFontSize] : [value integerValue];
     if (self.fontSize == fontSize) return;
     self.fontSize = MIN(MAX(8, fontSize), 28); // Prevent app from becoming unusable
 }
