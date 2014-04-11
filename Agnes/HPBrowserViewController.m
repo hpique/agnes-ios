@@ -32,7 +32,7 @@
 	[self.webView loadRequest:[NSURLRequest requestWithURL:self.url]];
     self.navigationController.navigationBar.topItem.title = @"";
     
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneBarButtonItemAction:)];
+    UIBarButtonItem *doneBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneBarButtonItemAction:)];
 
     _backBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-previous"] landscapeImagePhone:nil style:UIBarButtonItemStylePlain target:self action:@selector(backBarButtonItemAction:)];
     _backBarButtonItem.enabled = NO;
@@ -41,7 +41,18 @@
     _safariBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-safari"] landscapeImagePhone:nil style:UIBarButtonItemStylePlain target:self action:@selector(safariBarButtonItemAction:)];
     _shareBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareBarButtonItemAction:)];
     UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    self.toolbarItems = @[_backBarButtonItem, flexibleSpace, _forwardBarButtonItem, flexibleSpace, _shareBarButtonItem, flexibleSpace, _safariBarButtonItem];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+    {
+        self.navigationItem.leftBarButtonItem = doneBarButtonItem;
+        self.toolbarItems = @[_backBarButtonItem, flexibleSpace, _forwardBarButtonItem, flexibleSpace, _shareBarButtonItem, flexibleSpace, _safariBarButtonItem];
+    }
+    else
+    {
+        self.navigationItem.leftBarButtonItems = @[doneBarButtonItem, _backBarButtonItem, _forwardBarButtonItem, _shareBarButtonItem];
+        self.navigationItem.rightBarButtonItems = @[_safariBarButtonItem];
+    }
+    
     
     //    self.webView.scrollView.delegate = self;
 //    _previousOffset = self.webView.scrollView.contentOffset;
@@ -53,7 +64,7 @@
 {
     [super viewWillAppear:animated];
     _previousToolbarHiddenValue = self.navigationController.toolbarHidden;
-    self.navigationController.toolbarHidden = NO;
+    self.navigationController.toolbarHidden = self.toolbarItems == nil;
 }
 
 - (void)viewWillDisappear:(BOOL)animated
