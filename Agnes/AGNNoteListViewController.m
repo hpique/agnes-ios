@@ -643,8 +643,9 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     noteCell.separatorInset = UIEdgeInsetsZero;
     noteCell.reuseSwipeViews = YES;
     noteCell.shouldAnimateIcons = NO;
-    noteCell.firstTrigger = 1.0f/3.0f;
-    noteCell.secondTrigger = 2.0f/3.0f;
+    const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
+    noteCell.firstTrigger = isPhone ? 1.0f/3.0f : 0.2f;
+    noteCell.secondTrigger = isPhone ? 2.0f/3.0f : 0.4f;
     __weak id weakSelf = self;
     
     if (!self.indexItem.disableRemove)
