@@ -45,6 +45,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSInteger _optionsActionSheetUndoIndex;
     NSInteger _optionsActionSheetRedoIndex;
     NSInteger _optionsActionSheetExportIndex;
+    NSInteger _optionsActionSheetExportAllIndex;
     
     AGNExportController *_exportController;
 }
@@ -133,7 +134,14 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 #pragma mark Private
 
-- (void)exportNotes
+- (void)exportAllNotes
+{
+    NSArray *notes = [HPNoteManager sharedManager].objects;
+    NSString *title = NSLocalizedString(@"Agnes", @"");
+    [_exportController exportNotes:notes title:title statusView:_titleView];
+}
+
+- (void)exportSelectedNotes
 {
     if ([_selectedIndexItem canExport])
     {
@@ -331,6 +339,13 @@ static NSString *HPIndexCellIdentifier = @"Cell";
         _optionsActionSheetExportIndex = [actionSheet addButtonWithTitle:title];
     }
     
+    _optionsActionSheetExportAllIndex = - 1;
+    NSArray *allNotes = [HPNoteManager sharedManager].objects;
+    if (allNotes.count > 0)
+    {
+        _optionsActionSheetExportAllIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Export All Notes", @"")];
+    }
+    
     if (actionSheet.numberOfButtons > 0)
     {
         _optionsActionSheet = actionSheet;
@@ -361,7 +376,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     if (buttonIndex == _optionsActionSheetExportIndex)
     {
         [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"export_list"];
-        [self exportNotes];
+        [self exportSelectedNotes];
+    }
+    else if (buttonIndex == _optionsActionSheetExportAllIndex)
+    {
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"export_all"];
+        [self exportAllNotes];
     }
     else if (buttonIndex == _optionsActionSheetRedoIndex)
     {
@@ -375,6 +395,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
         [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"undo" label:undoManager.undoActionName];
         [undoManager undo];
     }
+    _optionsActionSheet = nil;
 }
 
 #pragma mark AGNExportControllerDelegate
