@@ -8,6 +8,7 @@
 
 #import "AGNRootPadViewController.h"
 #import "HPIndexItem.h"
+#import "HPIndexViewController.h"
 #import <Lyt/Lyt.h>
 #import <iOS7Colors/UIColor+iOS7Colors.h>
 
@@ -16,6 +17,7 @@ static CGFloat const AGNIndexWidth = 240;
 @implementation AGNRootPadViewController {
     NSLayoutConstraint *_indexLeftConstraint;
     NSLayoutConstraint *_listLeftConstraint;
+    UIButton *_toggleIndexButton;
 }
 
 - (void)viewDidLoad
@@ -23,10 +25,6 @@ static CGFloat const AGNIndexWidth = 240;
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor iOS7lightGrayColor];
-    
-    UIImage *hashtagImage = [UIImage imageNamed:@"icon-hashtag"];
-    UIBarButtonItem *toggleIndexBarButtonItem = [[UIBarButtonItem alloc] initWithImage:hashtagImage style:UIBarButtonItemStylePlain target:self action:@selector(toggleIndexBarButtonAction:)];
-    self.listViewController.navigationItem.leftBarButtonItem = toggleIndexBarButtonItem;
     
     [self viewDidLoadAddChildViewController:self.indexNavigationController];
     [self viewDidLoadAddChildViewController:self.listNavigationController];
@@ -48,11 +46,58 @@ static CGFloat const AGNIndexWidth = 240;
         [controllerView lyt_alignRightToParent];
         [controllerView lyt_alignBottomToParent];
     }
+    
+    {
+        UIImage *hashtagImage = [[UIImage imageNamed:@"icon-hashtag"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        _toggleIndexButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        _toggleIndexButton.tintColor = [UIColor whiteColor];
+        [_toggleIndexButton setBackgroundImage:hashtagImage forState:UIControlStateNormal];
+        _toggleIndexButton.frame = CGRectMake(20, 28, hashtagImage.size.width, hashtagImage.size.height);
+        [_toggleIndexButton addTarget:self action:@selector(toggleIndexButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:_toggleIndexButton];
+        [self.view bringSubviewToFront:self.indexNavigationController.view];
+    }
+    {
+        UIImage *image = [UIImage imageNamed:@"icon-left"];
+        UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(toggleIndexBarButtonAction:)];
+        self.indexViewController.navigationItem.leftBarButtonItem = barButton;
+    }
 }
 
 #pragma mark Actions
 
 - (void)toggleIndexBarButtonAction:(UIBarButtonItem*)barButtonItem
+{
+    [self toggleIndex];
+}
+
+- (void)toggleIndexButtonAction:(UIButton*)button
+{
+    [self toggleIndex];
+}
+
+#pragma mark UINavigationController
+
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+    if ([self.superclass instancesRespondToSelector:@selector(navigationController:willShowViewController:animated:)])
+    {
+        [super navigationController:navigationController willShowViewController:viewController animated:animated];
+    }
+    if ([viewController isKindOfClass:AGNNoteListViewController.class])
+    {
+        _toggleIndexButton.hidden = NO;
+    }
+    else
+    {
+        _toggleIndexButton.hidden = YES;
+    }
+}
+
+
+#pragma mark Toggling the index
+
+- (void)toggleIndex
 {
     const BOOL hide = _indexLeftConstraint.constant == 0;
     if (hide)
