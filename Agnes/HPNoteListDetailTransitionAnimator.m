@@ -216,6 +216,7 @@
     UIView *containerView = transitionContext.containerView;
     [containerView addSubview:toViewController.view];
     toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
+    [toViewController.view layoutIfNeeded];
     
     UIView *backgroundView = [self coverView:toViewController.view rect:toViewController.view.bounds color:[UIColor whiteColor] context:transitionContext];
     [containerView bringSubviewToFront:toViewController.view];
