@@ -21,6 +21,7 @@
 #import "HPModelManager.h"
 #import "MMDrawerController.h"
 #import "UITableView+hp_reloadChanges.h"
+#import "UIViewController+hp_modals.h"
 #import "UIViewController+MMDrawerController.h"
 #import "HPTracker.h"
 
@@ -40,6 +41,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSCache *_indexItemCache;
     HPIndexItem *_selectedIndexItem;
     
+    UIActionSheet *_optionsActionSheet;
     NSInteger _optionsActionSheetUndoIndex;
     NSInteger _optionsActionSheetRedoIndex;
     NSInteger _optionsActionSheetExportIndex;
@@ -94,6 +96,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [[HPTracker defaultTracker] trackScreenWithName:@"Index"];
 }
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self hp_dismissActionSheet:&_optionsActionSheet animated:YES];
+}
+
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
@@ -127,10 +135,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)exportNotes
 {
-    // TODO: Check if selected index path can be exported
-    NSIndexPath *selectedIndexPath = [self.tableView indexPathForSelectedRow];
-    HPIndexItem *indexItem = _items[selectedIndexPath.row];
-    [_exportController exportNotes:indexItem.notes title:indexItem.exportPrefix statusView:_titleView];
+    if ([_selectedIndexItem canExport])
+    {
+        NSArray *notes = _selectedIndexItem.notes;
+        NSString *title = _selectedIndexItem.exportPrefix;
+        [_exportController exportNotes:notes title:title statusView:_titleView];
+    }
 }
 
 - (void)reloadData
@@ -288,27 +298,16 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    HPIndexItem *item = [_items objectAtIndex:indexPath.row];
-    [self.agn_rootViewController setListIndexItem:item animated:YES];
+    _selectedIndexItem = [_items objectAtIndex:indexPath.row];
+    [self.agn_rootViewController setListIndexItem:_selectedIndexItem animated:YES];
 }
 
 #pragma mark Actions
 
-- (IBAction)tapTitleView:(id)sender
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"toggle_tag_sort"];
-    NSArray *values = @[@(HPIndexSortModeOrder), @(HPIndexSortModeAlphabetical), @(HPIndexSortModeCount)];
-    NSInteger index = [values indexOfObject:@(_sortMode)];
-    index = (index + 1) % values.count;
-    _sortMode = [values[index] intValue];
-    [AGNPreferencesManager sharedManager].indexSortMode = _sortMode;
-    NSString *modeString = NSStringFromIndexSortMode(_sortMode);
-    [_titleView setSubtitle:modeString animated:YES transient:YES];
-    [self reloadData];
-}
-
 - (void)optionsBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    if ([self hp_dismissActionSheet:&_optionsActionSheet animated:YES]) return;
+    
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"options"];
     UIActionSheet *actionSheet = [UIActionSheet new];
     actionSheet.delegate = self;
@@ -325,10 +324,34 @@ static NSString *HPIndexCellIdentifier = @"Cell";
         _optionsActionSheetRedoIndex = [actionSheet addButtonWithTitle:[undoManager redoMenuItemTitle]];
     }
     
-    _optionsActionSheetExportIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Export", @"")];
-    NSInteger cancelIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
-    actionSheet.cancelButtonIndex = cancelIndex;
-    [actionSheet showFromBarButtonItem:barButtonItem animated:YES];
+    _optionsActionSheetExportIndex = -1;
+    if ([_selectedIndexItem canExport])
+    {
+        NSString *title = [NSString stringWithFormat:NSLocalizedString(@"Export %@", @""), _selectedIndexItem.title];
+        _optionsActionSheetExportIndex = [actionSheet addButtonWithTitle:title];
+    }
+    
+    if (actionSheet.numberOfButtons > 0)
+    {
+        _optionsActionSheet = actionSheet;
+        NSInteger cancelIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
+        actionSheet.cancelButtonIndex = cancelIndex;
+        [actionSheet showFromBarButtonItem:barButtonItem animated:YES];
+    }
+    // TODO: Disable options button when no options are available
+}
+
+- (IBAction)tapTitleView:(id)sender
+{
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"toggle_tag_sort"];
+    NSArray *values = @[@(HPIndexSortModeOrder), @(HPIndexSortModeAlphabetical), @(HPIndexSortModeCount)];
+    NSInteger index = [values indexOfObject:@(_sortMode)];
+    index = (index + 1) % values.count;
+    _sortMode = [values[index] intValue];
+    [AGNPreferencesManager sharedManager].indexSortMode = _sortMode;
+    NSString *modeString = NSStringFromIndexSortMode(_sortMode);
+    [_titleView setSubtitle:modeString animated:YES transient:YES];
+    [self reloadData];
 }
 
 #pragma mark UIActionSheetDelegate

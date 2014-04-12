@@ -69,6 +69,10 @@
                 [vc setSubject:subject];
                 [vc addAttachmentData:data mimeType:@"application/zip" fileName:@"notes.zip"];
                 UIViewController *viewController = [self.delegate viewControllerForExportController:self];
+                if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+                {
+                    vc.modalPresentationStyle = UIModalPresentationFormSheet;
+                }
                 [viewController presentViewController:vc animated:YES completion:nil];
             }
             else

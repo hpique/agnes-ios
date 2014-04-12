@@ -23,6 +23,7 @@ extern NSString* const HPIndexItemDidChangeNotification;
 @interface HPIndexItem : NSObject
 
 @property (nonatomic, strong) NSArray *allowedSortModes;
+@property (nonatomic, readonly) BOOL canExport;
 @property (nonatomic, readonly) BOOL disableAdd;
 @property (nonatomic, readonly) BOOL disableRemove;
 @property (nonatomic, readonly) NSString* emptySubtitle;
