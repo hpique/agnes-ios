@@ -12,7 +12,7 @@
 #import <Lyt/Lyt.h>
 #import <iOS7Colors/UIColor+iOS7Colors.h>
 
-static CGFloat const AGNIndexWidth = 240;
+static CGFloat const AGNIndexWidth = 280;
 
 @implementation AGNRootPadViewController {
     NSLayoutConstraint *_indexLeftConstraint;

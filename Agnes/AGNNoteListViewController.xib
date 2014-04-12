@@ -12,10 +12,7 @@
                 <outlet property="_emptyTitleLabel" destination="Lq5-vr-rI1" id="epu-Q5-9bi"/>
                 <outlet property="_listDataSource" destination="DBj-55-afb" id="TAa-St-71S"/>
                 <outlet property="_notesTableView" destination="6Ye-Ag-F8Q" id="6m9-an-rAu"/>
-                <outlet property="_searchBar" destination="qkn-uy-VC4" id="SSS-kz-XcU"/>
-                <outlet property="_searchDataSource" destination="a8V-2H-2rV" id="DJd-uM-dbR"/>
                 <outlet property="_titleView" destination="jTE-Aa-Rve" id="c3r-jh-O5e"/>
-                <outlet property="searchDisplayController" destination="Nwp-7R-4x2" id="EZX-5f-4tN"/>
                 <outlet property="view" destination="1" id="zdJ-cQ-i5U"/>
             </connections>
         </placeholder>
@@ -28,15 +25,6 @@
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    <searchBar key="tableHeaderView" contentMode="redraw" searchBarStyle="minimal" id="qkn-uy-VC4" customClass="HPNoteListSearchBar">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <textInputTraits key="textInputTraits"/>
-                        <connections>
-                            <outlet property="delegate" destination="-1" id="SGw-kM-Lzh"/>
-                        </connections>
-                    </searchBar>
                     <connections>
                         <outlet property="dataSource" destination="DBj-55-afb" id="F2j-Ry-EM3"/>
                         <outlet property="delegate" destination="-1" id="Dam-oJ-TTL"/>
@@ -85,15 +73,6 @@
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
         </view>
-        <searchDisplayController id="Nwp-7R-4x2">
-            <connections>
-                <outlet property="delegate" destination="-1" id="nfX-Bi-qRE"/>
-                <outlet property="searchBar" destination="qkn-uy-VC4" id="Ru0-Lg-m85"/>
-                <outlet property="searchContentsController" destination="-1" id="ZCi-Sj-TcQ"/>
-                <outlet property="searchResultsDataSource" destination="a8V-2H-2rV" id="gnE-u0-Yl4"/>
-                <outlet property="searchResultsDelegate" destination="-1" id="fPs-0d-HNO"/>
-            </connections>
-        </searchDisplayController>
         <view contentMode="scaleToFill" id="jTE-Aa-Rve" customClass="HPNavigationBarToggleTitleView">
             <rect key="frame" x="0.0" y="0.0" width="160" height="44"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -112,11 +91,6 @@
         <customObject id="DBj-55-afb" customClass="AGNListDataSource">
             <connections>
                 <outlet property="delegate" destination="-1" id="CSL-rC-UPp"/>
-            </connections>
-        </customObject>
-        <customObject id="a8V-2H-2rV" customClass="AGNSearchDataSource">
-            <connections>
-                <outlet property="delegate" destination="-1" id="AaC-HK-mqD"/>
             </connections>
         </customObject>
     </objects>

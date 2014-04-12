@@ -8,6 +8,7 @@
 
 #import "HPIndexViewController.h"
 #import "AGNNoteListViewController.h"
+#import "AGNExportController.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPIndexItem.h"
@@ -23,7 +24,7 @@
 #import "UIViewController+MMDrawerController.h"
 #import "HPTracker.h"
 
-@interface HPIndexViewController ()
+@interface HPIndexViewController ()<UIActionSheetDelegate, AGNExportControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
@@ -38,6 +39,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     
     NSCache *_indexItemCache;
     HPIndexItem *_selectedIndexItem;
+    
+    NSInteger _optionsActionSheetUndoIndex;
+    NSInteger _optionsActionSheetRedoIndex;
+    NSInteger _optionsActionSheetExportIndex;
+    
+    AGNExportController *_exportController;
 }
 
 @synthesize tableView = _tableView;
@@ -52,6 +59,15 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [super viewDidLoad];
     
     _indexItemCache = [NSCache new];
+    
+    _exportController = [AGNExportController new];
+    _exportController.delegate = self;
+    
+    {
+        UIImage *image = [UIImage imageNamed:@"icon-more"];
+        UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(optionsBarButtonItemAction:)];
+        self.navigationItem.rightBarButtonItem = barButton;
+    }
     
     self.title = NSLocalizedString(@"Agnes", "Index title");
     self.navigationItem.titleView = _titleView;
@@ -108,6 +124,14 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 }
 
 #pragma mark Private
+
+- (void)exportNotes
+{
+    // TODO: Check if selected index path can be exported
+    NSIndexPath *selectedIndexPath = [self.tableView indexPathForSelectedRow];
+    HPIndexItem *indexItem = _items[selectedIndexPath.row];
+    [_exportController exportNotes:indexItem.notes title:indexItem.exportPrefix statusView:_titleView];
+}
 
 - (void)reloadData
 {
@@ -281,6 +305,60 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSString *modeString = NSStringFromIndexSortMode(_sortMode);
     [_titleView setSubtitle:modeString animated:YES transient:YES];
     [self reloadData];
+}
+
+- (void)optionsBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"options"];
+    UIActionSheet *actionSheet = [UIActionSheet new];
+    actionSheet.delegate = self;
+    NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+    _optionsActionSheetUndoIndex = -1;
+    if ([undoManager canUndo])
+    {
+        _optionsActionSheetUndoIndex = [actionSheet addButtonWithTitle:[undoManager undoMenuItemTitle]];
+    }
+    
+    _optionsActionSheetRedoIndex = -1;
+    if ([undoManager canRedo])
+    {
+        _optionsActionSheetRedoIndex = [actionSheet addButtonWithTitle:[undoManager redoMenuItemTitle]];
+    }
+    
+    _optionsActionSheetExportIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Export", @"")];
+    NSInteger cancelIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
+    actionSheet.cancelButtonIndex = cancelIndex;
+    [actionSheet showFromBarButtonItem:barButtonItem animated:YES];
+}
+
+#pragma mark UIActionSheetDelegate
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == _optionsActionSheetExportIndex)
+    {
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"export_list"];
+        [self exportNotes];
+    }
+    else if (buttonIndex == _optionsActionSheetRedoIndex)
+    {
+        NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"redo" label:undoManager.redoActionName];
+        [undoManager redo];
+    }
+    else if (buttonIndex == _optionsActionSheetUndoIndex)
+    {
+        NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"undo" label:undoManager.undoActionName];
+        [undoManager undo];
+    }
+}
+
+#pragma mark AGNExportControllerDelegate
+
+- (UIViewController*)viewControllerForExportController:(AGNExportController*)exportController
+{
+    return self;
 }
 
 #pragma mark Notifications
