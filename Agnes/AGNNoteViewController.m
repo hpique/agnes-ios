@@ -552,9 +552,13 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (void)presentImagePickerControllerWithType:(UIImagePickerControllerSourceType)type
 {
-    UIImagePickerController *controller = [[UIImagePickerController alloc] init];
+    UIImagePickerController *controller = [UIImagePickerController new];
     controller.delegate = self;
     controller.sourceType = type;
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        controller.modalPresentationStyle = UIModalPresentationFormSheet;
+    }
     [self presentViewController:controller animated:YES completion:^{}];
 }
 
