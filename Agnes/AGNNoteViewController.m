@@ -9,6 +9,7 @@
 #import "AGNNoteViewController.h"
 #import "AGNTagTapGestureRecognizer.h"
 #import "AGNTypingController.h"
+#import "AGNRootPadViewController.h"
 #import "HPNote.h"
 #import "HPNote+Detail.h"
 #import "HPNoteManager.h"
@@ -277,7 +278,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
 + (CGFloat)minimumNoteWidth
 {
-    const CGFloat minimumWidth = 768 - 240; // For iPad
+    const CGFloat minimumWidth = 768 - AGNIndexWidthPad; // For iPad
     const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait width:minimumWidth]; // Portrait has the smallest margins
     const CGSize screenSize = [UIScreen mainScreen].bounds.size;
     const CGFloat minLength = MIN(MIN(screenSize.width, screenSize.height), minimumWidth);

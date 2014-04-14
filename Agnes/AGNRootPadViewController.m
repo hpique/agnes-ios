@@ -13,7 +13,7 @@
 #import <Lyt/Lyt.h>
 #import <iOS7Colors/UIColor+iOS7Colors.h>
 
-static CGFloat const AGNIndexWidth = 280;
+CGFloat const AGNIndexWidthPad = 280;
 
 @implementation AGNRootPadViewController {
     NSLayoutConstraint *_indexLeftConstraint;
@@ -33,7 +33,7 @@ static CGFloat const AGNIndexWidth = 280;
     {
         UIView *controllerView = self.indexNavigationController.view;
         controllerView.translatesAutoresizingMaskIntoConstraints = NO;
-        [controllerView lyt_setWidth:AGNIndexWidth];
+        [controllerView lyt_setWidth:AGNIndexWidthPad];
         [controllerView lyt_alignTopToParent];
         _indexLeftConstraint = [controllerView lyt_alignLeftToParent];
         [controllerView lyt_alignBottomToParent];
@@ -114,7 +114,7 @@ static CGFloat const AGNIndexWidth = 280;
     
     [UIView animateWithDuration:0.3 animations:^{
         [self setListBackIndicatorImageForFullscreen:hide];
-        _indexLeftConstraint.constant = hide ? - AGNIndexWidth : 0;
+        _indexLeftConstraint.constant = hide ? - AGNIndexWidthPad : 0;
         _listLeftConstraint.constant = hide ? 0 : 1;
         [self.view layoutIfNeeded];
     } completion:^(BOOL finished) {

@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "AGNRootViewController.h"
 
+extern CGFloat const AGNIndexWidthPad;
+
 @interface AGNRootPadViewController : AGNRootViewController
 
 @end
