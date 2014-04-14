@@ -28,9 +28,9 @@
 #import "HPModelManager.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "UIImage+hp_utils.h"
+#import "NSNotification+hp_status.h"
 #import "UIViewController+MMDrawerController.h"
 #import <iOS7Colors/UIColor+iOS7Colors.h>
-#import "NSNotification+hp_status.h"
 
 static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 

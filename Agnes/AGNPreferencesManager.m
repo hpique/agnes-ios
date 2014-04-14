@@ -243,6 +243,7 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
 - (void)styleSearchBar
 {
     UIColor* barTintColor = [AGNPreferencesManager sharedManager].barTintColor;
+    barTintColor = [barTintColor colorBlendedWithColor:[UIColor whiteColor] factor:0.1]; // Blend with white to compensate bar translucency
     UIImage *backgroundImage = [UIImage hp_imageWithColor:barTintColor size:CGSizeMake(1, 1)];
     [[UISearchBar appearance] setBackgroundImage:backgroundImage forBarPosition:UIBarPositionTopAttached barMetrics:UIBarMetricsDefault];
 }
