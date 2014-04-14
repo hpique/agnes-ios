@@ -59,7 +59,6 @@
         AGNNoteListViewController *listViewController = (AGNNoteListViewController*) fromVC;
         if (listViewController.indexPathOfSelectedNote)
         {
-            NSLog(@"%@", NSStringFromCGRect(toVC.view.frame));
             return YES;
         }
     }
