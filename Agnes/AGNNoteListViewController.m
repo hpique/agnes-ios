@@ -28,7 +28,7 @@
 #import "HPModelManager.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "UIViewController+MMDrawerController.h"
-#import "UIColor+iOS7Colors.h"
+#import <iOS7Colors/UIColor+iOS7Colors.h>
 #import "UIImage+hp_utils.h"
 #import "NSNotification+hp_status.h"
 
@@ -44,7 +44,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     
     BOOL _searching;
     NSString *_searchString;
-    __weak IBOutlet HPNoteListSearchBar *_searchBar;
+    __weak IBOutlet UISearchBar *_searchBar;
     IBOutlet AGNSearchDataSource *_searchDataSource;
     
     IBOutlet HPNavigationBarToggleTitleView *_titleView;
@@ -106,18 +106,17 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     _searchDataSource.cellIdentifier = AGNNoteListTableViewCellReuseIdentifier;
     
     {
-        UIImage *image = [[UIImage imageNamed:@"icon-more"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [_searchBar.actionButton setImage:image forState:UIControlStateNormal];
-        UIImage *imageAlt = [[UIImage imageNamed:@"icon-more-alt"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [_searchBar.actionButton setImage:imageAlt forState:UIControlStateHighlighted];
-        _searchBar.actionButton.frame = CGRectMake(0, 0, MAX(image.size.width, 40), _searchBar.frame.size.height);
-        [_searchBar.actionButton addTarget:self action:@selector(optionsButtonItemAction:) forControlEvents:UIControlEventTouchUpInside];
-    }
-    {
-        UISearchBar *searchBar = self.searchDisplayController.searchBar;
-        searchBar.keyboardType = UIKeyboardTypeTwitter;
-        [searchBar setBackgroundImage:[UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault]; // HACK: See: http://stackoverflow.com/questions/19927542/ios7-backgroundimage-for-uisearchbar
-        searchBar.autocorrectionType = UITextAutocorrectionTypeNo; // HACK: See: http://stackoverflow.com/questions/8608529/autocorrect-in-uisearchbar-interferes-when-i-hit-didselectrowatindexpath
+        _searchBar.keyboardType = UIKeyboardTypeTwitter;
+        
+        [_searchBar setBackgroundImage:[UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault]; // HACK: See: http://stackoverflow.com/questions/19927542/ios7-backgroundimage-for-uisearchbar
+        UIColor* barTintColor = [AGNPreferencesManager sharedManager].barTintColor;
+        [_searchBar setBackgroundImage:[UIImage hp_imageWithColor:barTintColor size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionTopAttached barMetrics:UIBarMetricsDefault];
+       
+        UIColor *searchFieldBackgroundColor = [UIColor colorWithWhite:0.92 alpha:1];
+        UIImage *searchFieldBackgroundImage = [[UIImage hp_imageWithColor:searchFieldBackgroundColor size:CGSizeMake(100, 28)] hp_imageByRoundingCornersWithRadius:4];
+        [_searchBar setSearchFieldBackgroundImage:searchFieldBackgroundImage forState:UIControlStateNormal];
+        
+        _searchBar.autocorrectionType = UITextAutocorrectionTypeNo; // HACK: See: http://stackoverflow.com/questions/8608529/autocorrect-in-uisearchbar-interferes-when-i-hit-didselectrowatindexpath
     }
     
     [self applyFonts];
@@ -235,11 +234,6 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [self removeNoteInCell:cell modelBlock:^{
         [[HPTagManager sharedManager] unarchiveNote:cell.note];
     }];
-}
-
-- (void)optionsButtonItemAction:(id)sender
-{
-
 }
 
 - (IBAction)tapTitleView:(id)sender
@@ -635,15 +629,16 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"search"];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     self.title = NSLocalizedString(@"Search", @"");
-    [_searchBar setWillBeginSearch];
     _searching = YES;
+    _searchBar.tintColor = [UIColor whiteColor];
 }
 
 - (void) searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller
 {
     AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
     [[UIApplication sharedApplication] setStatusBarStyle:preferences.statusBarStyle animated:YES];
-    [_searchBar setWillEndSearch];
+    _searchBar.translucent = NO;
+    _searchBar.tintColor = nil;
 }
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
@@ -665,7 +660,6 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     _searchString = searchString;
     [_searchDataSource search:searchString inIndexItem:self.indexItem];
-    controller.searchResultsDataSource = _searchDataSource;
     return YES;
 }
 

@@ -52,6 +52,17 @@
     return CGRectIntegral(rect);
 }
 
+- (UIImage*)hp_imageByRoundingCornersWithRadius:(float)radius
+{
+    UIGraphicsBeginImageContextWithOptions(self.size, NO, 0);
+    CGRect rect = CGRectMake(0, 0, self.size.width, self.size.height);
+    [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius] addClip];
+    [self drawInRect:rect];
+    UIImage *roundedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return roundedImage;
+}
+
 - (UIImage *)hp_imageByScalingToSize:(CGSize)newSize
 {
     UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
@@ -73,6 +84,5 @@
     UIGraphicsEndImageContext();
     return image;
 }
-
 
 @end

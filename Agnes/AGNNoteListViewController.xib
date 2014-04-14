@@ -12,7 +12,10 @@
                 <outlet property="_emptyTitleLabel" destination="Lq5-vr-rI1" id="epu-Q5-9bi"/>
                 <outlet property="_listDataSource" destination="DBj-55-afb" id="TAa-St-71S"/>
                 <outlet property="_notesTableView" destination="6Ye-Ag-F8Q" id="6m9-an-rAu"/>
+                <outlet property="_searchBar" destination="JZL-Wb-Chp" id="gXf-ZF-KVu"/>
+                <outlet property="_searchDataSource" destination="M1Y-6b-GcM" id="4CJ-VG-gid"/>
                 <outlet property="_titleView" destination="jTE-Aa-Rve" id="c3r-jh-O5e"/>
+                <outlet property="searchDisplayController" destination="HEl-KA-0pk" id="M2f-SB-zfi"/>
                 <outlet property="view" destination="1" id="zdJ-cQ-i5U"/>
             </connections>
         </placeholder>
@@ -25,6 +28,14 @@
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <searchBar key="tableHeaderView" contentMode="redraw" searchBarStyle="minimal" id="JZL-Wb-Chp" customClass="HPNoteListSearchBar">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                        <textInputTraits key="textInputTraits"/>
+                        <connections>
+                            <outlet property="delegate" destination="-1" id="a0v-Xr-NdY"/>
+                        </connections>
+                    </searchBar>
                     <connections>
                         <outlet property="dataSource" destination="DBj-55-afb" id="F2j-Ry-EM3"/>
                         <outlet property="delegate" destination="-1" id="Dam-oJ-TTL"/>
@@ -93,5 +104,19 @@
                 <outlet property="delegate" destination="-1" id="CSL-rC-UPp"/>
             </connections>
         </customObject>
+        <customObject id="M1Y-6b-GcM" customClass="AGNSearchDataSource">
+            <connections>
+                <outlet property="delegate" destination="-1" id="IWx-1M-J6B"/>
+            </connections>
+        </customObject>
+        <searchDisplayController id="HEl-KA-0pk">
+            <connections>
+                <outlet property="delegate" destination="-1" id="dqh-3j-5Gf"/>
+                <outlet property="searchBar" destination="JZL-Wb-Chp" id="6VM-3y-bNC"/>
+                <outlet property="searchContentsController" destination="-1" id="H1V-Eb-4a1"/>
+                <outlet property="searchResultsDataSource" destination="M1Y-6b-GcM" id="352-6p-BPv"/>
+                <outlet property="searchResultsDelegate" destination="-1" id="R1P-lm-VAN"/>
+            </connections>
+        </searchDisplayController>
     </objects>
 </document>
