@@ -9,6 +9,7 @@
 #import "AGNRootPadViewController.h"
 #import "HPIndexItem.h"
 #import "HPIndexViewController.h"
+#import "UIImage+hp_utils.h"
 #import <Lyt/Lyt.h>
 #import <iOS7Colors/UIColor+iOS7Colors.h>
 
@@ -62,6 +63,8 @@ static CGFloat const AGNIndexWidth = 280;
         UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(toggleIndexBarButtonAction:)];
         self.indexViewController.navigationItem.leftBarButtonItem = barButton;
     }
+    
+    [self setListBackIndicatorImageForFullscreen:NO];
 }
 
 #pragma mark Actions
@@ -108,8 +111,9 @@ static CGFloat const AGNIndexWidth = 280;
     {
         [self.indexNavigationController viewWillAppear:YES];
     }
-    [self.indexNavigationController viewWillDisappear:YES];
+    
     [UIView animateWithDuration:0.3 animations:^{
+        [self setListBackIndicatorImageForFullscreen:hide];
         _indexLeftConstraint.constant = hide ? - AGNIndexWidth : 0;
         _listLeftConstraint.constant = hide ? 0 : 1;
         [self.view layoutIfNeeded];
@@ -123,6 +127,18 @@ static CGFloat const AGNIndexWidth = 280;
             [self.indexNavigationController viewDidAppear:YES];
         }
     }];
+}
+
+#pragma mark Appearence
+
+- (void)setListBackIndicatorImageForFullscreen:(BOOL)fullscreen
+{
+    UINavigationBar *listNavigationBar = self.listNavigationController.navigationBar;
+    // The image must have a size for the animation to look right
+    UIImage *backIndicatorImage = fullscreen ? nil : [UIImage hp_imageWithColor:[UIColor clearColor] size:CGSizeMake(10, 22)];
+    listNavigationBar.backIndicatorImage = backIndicatorImage;
+    listNavigationBar.backIndicatorTransitionMaskImage = backIndicatorImage;
+    
 }
 
 @end

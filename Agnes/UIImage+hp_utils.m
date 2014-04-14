@@ -63,7 +63,9 @@
 
 + (UIImage*)hp_imageWithColor:(UIColor*)color size:(CGSize)size
 {
-    UIGraphicsBeginImageContextWithOptions(size, YES, 0);
+    const CGFloat alpha = CGColorGetAlpha(color.CGColor);
+    const BOOL opaque = alpha == 1;
+    UIGraphicsBeginImageContextWithOptions(size, opaque, 0);
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSetFillColorWithColor(context, color.CGColor);
     CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
