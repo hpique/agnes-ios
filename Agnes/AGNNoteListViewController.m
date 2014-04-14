@@ -593,7 +593,8 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     else
     {
         HPTag *tag = _notesTableView == tableView ? self.indexItem.tag : [HPTagManager sharedManager].inboxTag; // Search doesn't care about tags
-        return [HPNoteTableViewCell estimatedHeightForNote:note inTag:tag];
+        const CGFloat width = tableView.bounds.size.width;
+        return [HPNoteTableViewCell estimatedHeightForNote:note width:width inTag:tag];
     }
 }
 
@@ -606,7 +607,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (CGFloat)tableView:(UITableView *)tableView heightForNote:(HPNote *)note
 {
-    CGFloat width = tableView.bounds.size.width;
+    const CGFloat width = tableView.bounds.size.width;
     if (tableView == _notesTableView)
     {
         HPTag *tag = self.indexItem.tag;
