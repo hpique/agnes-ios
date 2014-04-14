@@ -8,9 +8,10 @@
 
 #import "AGNPreferencesManager.h"
 #import "HPFontManager.h"
-#import "ColorUtils.h"
-#import "UIColor+iOS7Colors.h"
 #import "UIColor+hp_utils.h"
+#import "UIImage+hp_utils.h"
+#import <iOS7Colors/UIColor+iOS7Colors.h>
+#import <ColorUtils/ColorUtils.h>
 
 NSString *const AGNPreferencesManagerDidChangePreferencesNotification = @"AGNPreferencesManagerDidChangePreferencesNotification";
 
@@ -145,6 +146,7 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     NSString *colorString = [barTintColor stringValue];
     [userDefaults setValue:colorString forKey:AGNDefaultsKeyBarTintColor];
     [self styleStatusBar];
+    [self styleSearchBar];
     [self styleNavigationBar:[UINavigationBar appearance]];
     [[NSNotificationCenter defaultCenter] postNotificationName:AGNPreferencesManagerDidChangePreferencesNotification object:self];
 }
@@ -236,6 +238,13 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     [[UIBarButtonItem appearance] setTitleTextAttributes:barButtontitleTextAttributes forState:UIControlStateNormal];
     // TODO: Fix MFMailComposeViewController buttons. See: http://stackoverflow.com/questions/19736481/how-do-i-make-the-color-of-uibarbuttonitems-for-mfmailcomposeviewcontroller-from
     // TODO: Update current back button. Don't know how to access it.
+}
+
+- (void)styleSearchBar
+{
+    UIColor* barTintColor = [AGNPreferencesManager sharedManager].barTintColor;
+    UIImage *backgroundImage = [UIImage hp_imageWithColor:barTintColor size:CGSizeMake(1, 1)];
+    [[UISearchBar appearance] setBackgroundImage:backgroundImage forBarPosition:UIBarPositionTopAttached barMetrics:UIBarMetricsDefault];
 }
 
 - (void)styleStatusBar

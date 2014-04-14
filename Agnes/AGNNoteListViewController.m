@@ -27,9 +27,9 @@
 #import "HPNavigationBarToggleTitleView.h"
 #import "HPModelManager.h"
 #import "UITableView+hp_reloadChanges.h"
+#import "UIImage+hp_utils.h"
 #import "UIViewController+MMDrawerController.h"
 #import <iOS7Colors/UIColor+iOS7Colors.h>
-#import "UIImage+hp_utils.h"
 #import "NSNotification+hp_status.h"
 
 static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
@@ -106,16 +106,12 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     _searchDataSource.cellIdentifier = AGNNoteListTableViewCellReuseIdentifier;
     
     {
+        [[AGNPreferencesManager sharedManager] styleSearchBar];
         _searchBar.keyboardType = UIKeyboardTypeTwitter;
-        
         [_searchBar setBackgroundImage:[UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault]; // HACK: See: http://stackoverflow.com/questions/19927542/ios7-backgroundimage-for-uisearchbar
-        UIColor* barTintColor = [AGNPreferencesManager sharedManager].barTintColor;
-        [_searchBar setBackgroundImage:[UIImage hp_imageWithColor:barTintColor size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionTopAttached barMetrics:UIBarMetricsDefault];
-       
         UIColor *searchFieldBackgroundColor = [UIColor colorWithWhite:0.92 alpha:1];
         UIImage *searchFieldBackgroundImage = [[UIImage hp_imageWithColor:searchFieldBackgroundColor size:CGSizeMake(100, 28)] hp_imageByRoundingCornersWithRadius:4];
         [_searchBar setSearchFieldBackgroundImage:searchFieldBackgroundImage forState:UIControlStateNormal];
-        
         _searchBar.autocorrectionType = UITextAutocorrectionTypeNo; // HACK: See: http://stackoverflow.com/questions/8608529/autocorrect-in-uisearchbar-interferes-when-i-hit-didselectrowatindexpath
     }
     
@@ -630,7 +626,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     self.title = NSLocalizedString(@"Search", @"");
     _searching = YES;
-    _searchBar.tintColor = [UIColor whiteColor];
+    _searchBar.tintColor = [AGNPreferencesManager sharedManager].barForegroundColor;
 }
 
 - (void) searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller

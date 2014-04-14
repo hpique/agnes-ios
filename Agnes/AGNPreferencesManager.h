@@ -20,6 +20,8 @@ extern NSString* const AGNPreferencesManagerDidChangePreferencesNotification;
 
 - (void)styleNavigationBar:(UINavigationBar*)navigationBar;
 
+- (void)styleSearchBar;
+
 - (void)styleStatusBar;
 
 @property (nonatomic, assign) BOOL dynamicType;
