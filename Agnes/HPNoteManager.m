@@ -140,7 +140,7 @@ static NSInteger HPNoteManagerTutorialNotesCount = 6;
     NSString *text;
     long i = 1;
     NSMutableArray *texts = [NSMutableArray array];
-    while ((text = [self stringWithFormat:keyFormat index:i]))
+    while ((text = [self localizedStringWithFormat:keyFormat index:i]))
     {
         [texts addObject:text];
         i++;
@@ -194,10 +194,15 @@ static NSInteger HPNoteManagerTutorialNotesCount = 6;
     return notes;
 }
 
-- (NSString*)stringWithFormat:(NSString*)format index:(long)i
+- (NSString*)localizedStringWithFormat:(NSString*)format index:(long)i
 {
     NSString *key = [NSString stringWithFormat:format, i];
-    NSString *value = NSLocalizedString(key, @"");
+    NSString *modifier = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone ? @"~iphone" : @"~ipad";
+    NSString *keyWithModifier = [key stringByAppendingString:modifier];
+    NSString *value = NSLocalizedString(keyWithModifier, @"");
+    if (![value isEqualToString:keyWithModifier]) return value;
+    
+    value = NSLocalizedString(key, @"");
     return [value isEqualToString:key] ? nil : value;
 }
 
