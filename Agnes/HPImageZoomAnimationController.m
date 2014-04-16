@@ -68,8 +68,9 @@
     transitionView.contentMode = UIViewContentModeScaleAspectFill;
     transitionView.clipsToBounds = YES;
     
-    const CGRect referenceRect = [self referenceRectInContext:transitionContext];
-    transitionView.frame = [containerView convertRect:referenceRect fromView:fromViewController.view];
+    UIView *fromView = fromViewController.view;
+    const CGRect referenceRect = [self referenceRectInView:fromView];
+    transitionView.frame = [containerView convertRect:referenceRect fromView:fromView];
     
     UIView *coverView;
     if (self.coverColor)
@@ -102,7 +103,7 @@
                          transitionView.frame = transitionViewFinalFrame;
                      }
                      completion:^(BOOL finished) {
-                         fromViewController.view.alpha = 1;
+                         fromView.alpha = 1;
                          
                          [backgroundView removeFromSuperview];
                          [coverView removeFromSuperview];
@@ -135,8 +136,9 @@
     transitionViewInitialFrame = [transitionContext.containerView convertRect:transitionViewInitialFrame
                                                                      fromView:fromViewController.imageView];
     
-    const CGRect referenceRect = [self referenceRectInContext:transitionContext];
-    CGRect transitionViewFinalFrame = [transitionContext.containerView convertRect:referenceRect fromView:toViewController.view];
+    UIView *toView = toViewController.view;
+    const CGRect referenceRect = [self referenceRectInView:toView];
+    CGRect transitionViewFinalFrame = [transitionContext.containerView convertRect:referenceRect fromView:toView];
     
     UIView *coverView;
     if (self.coverColor)
@@ -162,7 +164,7 @@
                           delay:0
                         options:UIViewAnimationOptionCurveEaseInOut
                      animations:^{
-                         toViewController.view.alpha = 1;
+                         toView.alpha = 1;
                          transitionView.frame = transitionViewFinalFrame;
                      } completion:^(BOOL finished) {
                          [coverView removeFromSuperview];
@@ -178,18 +180,16 @@
     return _image ? : _imageView.image;
 }
 
-- (CGRect)referenceRectInContext:(id<UIViewControllerContextTransitioning>)transitionContext
+- (CGRect)referenceRectInView:(UIView*)view
 {
-    UIViewController *fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
-    UIView *fromView = fromViewController.view;
     CGRect imageRect;
     if ([self.delegate respondsToSelector:@selector(imageZoomTransition:rectInView:)])
     {
-        imageRect = [self.delegate imageZoomTransition:self rectInView:fromView];
+        imageRect = [self.delegate imageZoomTransition:self rectInView:view];
     }
     else
     {
-        imageRect = [fromView convertRect:_imageView.bounds fromView:_imageView];
+        imageRect = [view convertRect:_imageView.bounds fromView:_imageView];
     }
     return imageRect;
 }
