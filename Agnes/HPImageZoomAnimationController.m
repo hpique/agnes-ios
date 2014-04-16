@@ -10,52 +10,45 @@
 #import "HPImageViewController.h"
 #import "UIImage+hp_utils.h"
 
-@interface HPImageZoomAnimationController()
-
-@property (nonatomic, readonly) UIImage* referenceImage;
-@property (nonatomic, readonly) CGRect referenceRect;
-@property (nonatomic, readonly) UIView* referenceView;
-
-@end
-
 @implementation HPImageZoomAnimationController {
-    UIImage *_referenceImage;
-    CGRect _referenceRect;
-    UIView *_referenceView;
+    UIImageView *_imageView;
+    UIImage *_image;
 }
 
-@synthesize referenceImage = _referenceImage;
-@synthesize referenceRect = _referenceRect;
-@synthesize referenceView = _referenceView;
-
-- (id)initWithReferenceImageView:(UIImageView *)referenceImageView {
-    NSAssert(referenceImageView.contentMode == UIViewContentModeScaleAspectFill, @"*** referenceImageView must have a UIViewContentModeScaleAspectFill contentMode!");
-    return [self initWithReferenceImage:referenceImageView.image
-                                   view:referenceImageView
-                                   rect:referenceImageView.bounds];
-}
-
-- (id)initWithReferenceImage:(UIImage*)image view:(UIView *)view rect:(CGRect)rect
+- (id)initWithImageView:(UIImageView *)imageView
 {
-    if (self = [super init]) {
-        _referenceImage = image;
-        _referenceView = view;
-        _referenceRect = rect;
+    NSAssert(imageView.contentMode == UIViewContentModeScaleAspectFill, @"Image view must have a UIViewContentModeScaleAspectFill contentMode");
+    if (self = [super init])
+    {
+        _imageView = imageView;
     }
     return self;
 }
 
-- (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext {
+- (id)initWithImage:(UIImage *)image
+{
+    if (self = [super init])
+    {
+        _image = image;
+    }
+    return self;
+}
+
+- (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext
+{
     UIViewController *viewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
     return viewController.isBeingPresented ? 0.5 : 0.25;
 }
 
-- (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext {
+- (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext
+{
     UIViewController *viewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
-    if (viewController.isBeingPresented) {
+    if (viewController.isBeingPresented)
+    {
         [self animateZoomInTransition:transitionContext];
     }
-    else {
+    else
+    {
         [self animateZoomOutTransition:transitionContext];
     }
 }
@@ -65,7 +58,7 @@
     // Get the view controllers participating in the transition
     UIViewController *fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
     HPImageViewController *toViewController = (HPImageViewController *)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
-    NSAssert([toViewController isKindOfClass:HPImageViewController.class], @"*** toViewController must be a TGRImageViewController!");
+    NSAssert([toViewController isKindOfClass:HPImageViewController.class], @"Destination view controller must be a HPImageViewController");
     
     UIView *containerView = transitionContext.containerView;
     
@@ -74,7 +67,9 @@
     UIImageView *transitionView = [[UIImageView alloc] initWithImage:self.referenceImage];
     transitionView.contentMode = UIViewContentModeScaleAspectFill;
     transitionView.clipsToBounds = YES;
-    transitionView.frame = [containerView convertRect:self.referenceRect fromView:self.referenceView];
+    
+    const CGRect referenceRect = [self referenceRectInContext:transitionContext];
+    transitionView.frame = [containerView convertRect:referenceRect fromView:fromViewController.view];
     
     UIView *coverView;
     if (self.coverColor)
@@ -128,10 +123,11 @@
     UIView *containerView = transitionContext.containerView;
     
     // The toViewController view will fade in during the transition
-    toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
-    toViewController.view.alpha = 0;
     [containerView addSubview:toViewController.view];
     [containerView sendSubviewToBack:toViewController.view];
+    toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
+    toViewController.view.alpha = 0;
+    [toViewController.view layoutIfNeeded];
     
     // Compute the initial frame for the temporary view based on the image view
     // of the TGRImageViewController
@@ -139,16 +135,13 @@
     transitionViewInitialFrame = [transitionContext.containerView convertRect:transitionViewInitialFrame
                                                                      fromView:fromViewController.imageView];
     
-    // Compute the final frame for the temporary view based on the reference
-    // image view
-    CGRect transitionViewFinalFrame = [transitionContext.containerView convertRect:self.referenceRect
-                                                                          fromView:self.referenceView];
+    const CGRect referenceRect = [self referenceRectInContext:transitionContext];
+    CGRect transitionViewFinalFrame = [transitionContext.containerView convertRect:referenceRect fromView:toViewController.view];
     
     UIView *coverView;
     if (self.coverColor)
     {
-        CGRect frame = [toViewController.view convertRect:_referenceRect fromView:_referenceView];
-        coverView = [[UIView alloc] initWithFrame:frame];
+        coverView = [[UIView alloc] initWithFrame:referenceRect];
         coverView.backgroundColor = self.coverColor;
         [toViewController.view addSubview:coverView];
     }
@@ -178,5 +171,27 @@
                      }];
 }
 
+#pragma mark Private
+
+- (UIImage*)referenceImage
+{
+    return _image ? : _imageView.image;
+}
+
+- (CGRect)referenceRectInContext:(id<UIViewControllerContextTransitioning>)transitionContext
+{
+    UIViewController *fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+    UIView *fromView = fromViewController.view;
+    CGRect imageRect;
+    if ([self.delegate respondsToSelector:@selector(imageZoomTransition:rectInView:)])
+    {
+        imageRect = [self.delegate imageZoomTransition:self rectInView:fromView];
+    }
+    else
+    {
+        imageRect = [fromView convertRect:_imageView.bounds fromView:_imageView];
+    }
+    return imageRect;
+}
 
 @end

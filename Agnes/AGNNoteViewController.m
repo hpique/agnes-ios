@@ -40,7 +40,7 @@
 const NSTimeInterval AGNNoteEditorAttachmentAnimationDuration = 0.3;
 const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
-@interface AGNNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate, AGNTypingControllerDelegate, HPDataActionControllerDelegate>
+@interface AGNNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate, AGNTypingControllerDelegate, HPDataActionControllerDelegate, HPImageZoomTransitionDelegate>
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
 @property (nonatomic, assign) BOOL textChanged;
@@ -81,7 +81,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     
     NSUInteger _presentedImageCharacterIndex;
     UIImage *_presentedImageMedium;
-    CGRect _presentedImageRect;
+    BOOL _presentedImageRemoved;
     HPImageViewController *_presentedImageViewController;
     
     NSTimer *_autosaveTimer;
@@ -476,8 +476,8 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)didDismissImageViewController
 {
     _presentedImageMedium = nil;
-    _presentedImageRect = CGRectNull;
     _presentedImageViewController = nil;
+    _presentedImageRemoved = NO;
 }
 
 - (void)finishEditing
@@ -526,14 +526,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     // Ignore character attachments
     if (attachment.mode != HPAttachmentModeDefault) return;
     
-    NSLayoutManager *layoutManager = textView.layoutManager;
-    const NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:NSMakeRange(characterIndex, 1) actualCharacterRange:nil];
-    [layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, characterIndex)];
-    CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textView.textContainer];
-    rect = CGRectOffset(rect, textView.textContainerInset.left, textView.textContainerInset.top);
-    rect = CGRectIntegral(rect);
     _presentedImageCharacterIndex = characterIndex;
-    _presentedImageRect = rect;
     _presentedImageMedium = textAttachment.image;
     
     UIImage *fullSizeImage = attachment.image;
@@ -723,7 +716,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     self.noteTextView.attributedText = attributedString;
     self.textChanged = YES;
     [self saveNote:NO];
-    _presentedImageRect = CGRectMake(_presentedImageRect.origin.x + _presentedImageRect.size.width / 2, _presentedImageRect.origin.y, 1, 1);
+    _presentedImageRemoved = YES;
     [self dismissViewControllerAnimated:YES completion:^{
         [self didDismissImageViewController];
     }];
@@ -1123,9 +1116,8 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 {
     if ([presented isKindOfClass:HPImageViewController.class])
     {
-        HPImageZoomAnimationController *controller = [[HPImageZoomAnimationController alloc] initWithReferenceImage:_presentedImageMedium
-                                                                          view:self.noteTextView
-                                                                          rect:_presentedImageRect];
+        HPImageZoomAnimationController *controller = [[HPImageZoomAnimationController alloc] initWithImage:_presentedImageMedium];
+        controller.delegate = self;
         controller.coverColor = [UIColor whiteColor];
         return controller;
     }
@@ -1136,9 +1128,8 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 {
     if ([dismissed isKindOfClass:HPImageViewController.class])
     {
-        HPImageZoomAnimationController *controller = [[HPImageZoomAnimationController alloc] initWithReferenceImage:_presentedImageMedium
-                                                                                                               view:self.noteTextView
-                                                                                                               rect:_presentedImageRect];
+        HPImageZoomAnimationController *controller = [[HPImageZoomAnimationController alloc] initWithImage:_presentedImageMedium];
+        controller.delegate = self;
         controller.coverColor = [UIColor whiteColor];
         return controller;
     }
@@ -1150,6 +1141,18 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)imageViewControllerDidDismiss:(HPImageViewController*)imageViewController
 {
     [self didDismissImageViewController];
+}
+
+#pragma mark HPImageZoomTransitionDelegate
+
+- (CGRect)imageZoomTransition:(HPImageZoomAnimationController*)transition rectInView:(UIView*)view
+{
+    CGRect imageRect = [_bodyTextView hp_rectForCharacterRange:NSMakeRange(_presentedImageCharacterIndex, 1)];
+    if (_presentedImageRemoved)
+    {
+        imageRect = CGRectMake(imageRect.origin.x + imageRect.size.width / 2, imageRect.origin.y, 1, 1);
+    }
+    return [view convertRect:imageRect fromView:_bodyTextView];
 }
 
 @end

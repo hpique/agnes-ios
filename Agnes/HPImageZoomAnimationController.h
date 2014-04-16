@@ -7,14 +7,24 @@
 
 #import <Foundation/Foundation.h>
 
-// Image zoom custom transition.
+@protocol HPImageZoomTransitionDelegate;
+
 @interface HPImageZoomAnimationController : NSObject <UIViewControllerAnimatedTransitioning>
 
-// Initializes the receiver with the specified reference image view.
-- (id)initWithReferenceImageView:(UIImageView *)referenceImageView;
+- (id)initWithImageView:(UIImageView *)referenceImageView;
 
-- (id)initWithReferenceImage:(UIImage*)image view:(UIView *)view rect:(CGRect)rect;
+- (id)initWithImage:(UIImage*)image;
 
 @property (nonatomic, strong) UIColor *coverColor;
+
+@property (nonatomic, weak) id<HPImageZoomTransitionDelegate> delegate;
+
+@end
+
+@protocol HPImageZoomTransitionDelegate <NSObject>
+
+@optional
+
+- (CGRect)imageZoomTransition:(HPImageZoomAnimationController*)transition rectInView:(UIView*)view;
 
 @end
