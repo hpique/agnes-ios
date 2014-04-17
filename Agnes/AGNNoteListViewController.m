@@ -112,7 +112,8 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     {
         [[AGNPreferencesManager sharedManager] styleSearchBar];
         _searchBar.keyboardType = UIKeyboardTypeTwitter;
-        [_searchBar setBackgroundImage:[UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault]; // HACK: See: http://stackoverflow.com/questions/19927542/ios7-backgroundimage-for-uisearchbar
+        // HACK: Using white color below shows black hairline. WTF?
+        [_searchBar setBackgroundImage:[UIImage hp_imageWithColor:[UIColor clearColor] size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault]; // HACK: See: http://stackoverflow.com/questions/19927542/ios7-backgroundimage-for-uisearchbar
         UIColor *searchFieldBackgroundColor = [UIColor colorWithWhite:0.92 alpha:1];
         UIImage *searchFieldBackgroundImage = [[UIImage hp_imageWithColor:searchFieldBackgroundColor size:CGSizeMake(100, 28)] hp_imageByRoundingCornersWithRadius:4];
         [_searchBar setSearchFieldBackgroundImage:searchFieldBackgroundImage forState:UIControlStateNormal];
