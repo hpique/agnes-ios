@@ -100,6 +100,10 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
    
     UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
     [_notesTableView registerNib:nib forCellReuseIdentifier:AGNNoteListTableViewCellReuseIdentifier];
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        _notesTableView.sectionHeaderHeight = 8;
+    }
     _notesTableView.delegate = self;
     [_notesTableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:NO];
     _listDataSource.cellIdentifier = AGNNoteListTableViewCellReuseIdentifier;
@@ -571,6 +575,11 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 }
 
 #pragma mark - UITableViewDelegate
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    return [UIView new]; // Don't use default colored header
+}
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
