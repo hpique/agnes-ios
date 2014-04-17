@@ -34,7 +34,9 @@
 	<true/>
 	<key>UIStatusBarHidden~ipad</key>
 	<false/>
-	<key>UISupportedInterfaceOrientations</key>
+    <key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
+    <key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
