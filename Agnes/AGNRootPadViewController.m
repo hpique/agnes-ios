@@ -74,7 +74,7 @@ static CGFloat const AGNIndexShownMargin = 0;
         [self.view bringSubviewToFront:self.indexNavigationController.view];
     }
     {
-        UIImage *image = [UIImage imageNamed:@"icon-left"];
+        UIImage *image = [UIImage imageNamed:@"icon-hide"];
         UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(toggleIndexBarButtonAction:)];
         self.indexViewController.navigationItem.leftBarButtonItem = barButton;
     }
