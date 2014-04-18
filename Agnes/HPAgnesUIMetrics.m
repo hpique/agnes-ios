@@ -8,6 +8,8 @@
 
 #import "HPAgnesUIMetrics.h"
 
+CGFloat const AGNIndexWidthPad = 280;
+
 @implementation HPAgnesUIMetrics
 
 + (CGFloat)sideMarginForInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation width:(CGFloat)width
@@ -22,13 +24,19 @@
     { // iPad landscape
         static CGFloat const MarginSmallLandscapePad = 40;
         static CGFloat const MarginLandscapePad = 102;
-        return width < 1024 ? MarginSmallLandscapePad : MarginLandscapePad;
+        
+        const CGFloat ratio = (width - (1024 - AGNIndexWidthPad)) / AGNIndexWidthPad;
+        const CGFloat margin = (MarginLandscapePad - MarginSmallLandscapePad) * ratio;
+        return MAX(MarginSmallLandscapePad, MIN(MarginLandscapePad, margin));
     }
     else
     { // iPad portrait
         static CGFloat MarginSmallPortraitPad = 26;
         static CGFloat MarginPortraitPad = 77;
-        return width < 768 ? MarginSmallPortraitPad : MarginPortraitPad;
+
+        const CGFloat ratio = (width - (768 - AGNIndexWidthPad)) / AGNIndexWidthPad;
+        const CGFloat margin = (MarginPortraitPad - MarginSmallPortraitPad) * ratio;
+        return MAX(MarginSmallPortraitPad, MIN(MarginPortraitPad, margin));
     }
 }
 

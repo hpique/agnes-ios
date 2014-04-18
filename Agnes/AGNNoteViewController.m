@@ -9,7 +9,6 @@
 #import "AGNNoteViewController.h"
 #import "AGNTagTapGestureRecognizer.h"
 #import "AGNTypingController.h"
-#import "AGNRootPadViewController.h"
 #import "HPNote.h"
 #import "HPNote+Detail.h"
 #import "HPNoteManager.h"
