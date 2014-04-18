@@ -58,7 +58,7 @@ static BOOL HPIsWidescreen()
     const BOOL isWord = title.length > 1;
     
     CGFloat fontSize = isPhone ? (isLandscape ? (isWord ? FontSizeWordLandscapePhone : FontSizeCharacterLandscapePhone) : (isWord ? FontSizeWordPortraitPhone : FontSizeCharacterPortraitPhone)) : (isLandscape ? (isWord ? FontSizeWordLandscapePad : FontSizeCharacterLandscapePad) : (isWord ? FontSizeWordPortraitPad : FontSizeCharacterPortraitPad));
-    self.titleLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:fontSize];
+    self.titleLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:fontSize];
     [self setNeedsLayout]; // Without this the title doesn't change when cells are reused. WTF?
 }
 
@@ -69,10 +69,11 @@ static BOOL HPIsWidescreen()
     if (title.length == 1)
     {
         return size;
-    } else {
+    }
+    else
+    {
         CGSize superIntrinsicSize = [super intrinsicContentSize];
         return CGSizeMake(superIntrinsicSize.width, size.height);
-        
     }
 }
 
