@@ -34,7 +34,7 @@
 #import "UITextView+hp_utils.h"
 #import "UIViewController+hp_modals.h"
 #import <PSPDFTextView/PSPDFTextView.h>
-#import <MobileCoreServices/MobileCoreServices.h>
+@import MobileCoreServices;
 
 const NSTimeInterval AGNNoteEditorAttachmentAnimationDuration = 0.3;
 const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
@@ -285,7 +285,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     return width;
 }
 
-#pragma mark - Public
+#pragma mark Public
 
 - (NSString*)search
 {
@@ -369,7 +369,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     _bodyTextView.textContainerInset = UIEdgeInsetsMake(topInset, sideInset, topInset + self.toolbar.frame.size.height, sideInset);
 }
 
-#pragma mark - Private
+#pragma mark Private
 
 - (void)autosave
 {
@@ -705,7 +705,13 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [_attachmentActionSheet showFromBarButtonItem:barButtonItem animated:YES];
 }
 
-#pragma mark Actions
+- (void)doneBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"dismiss_keyboard"];
+    [self.view endEditing:YES];
+}
+
+#pragma mark Attachment Toolbar
 
 - (void)attachmentTrashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
@@ -729,11 +735,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [_presentedImageViewController presentViewController:activityViewController animated:YES completion:nil];
 }
 
-- (void)doneBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"dismiss_keyboard"];
-    [self.view endEditing:YES];
-}
+#pragma mark Gestures
 
 - (IBAction)swipeRightAction:(id)sender
 {
@@ -802,7 +804,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     _scrollViewPreviousOffset = offset;
 }
 
-#pragma mark - UITextViewDelegate
+#pragma mark UITextViewDelegate
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {
@@ -876,7 +878,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [self presentTextAttachment:textAttachment atIndex:characterRange.location];
 }
 
-#pragma mark - HPTagSuggestionsViewDelegate
+#pragma mark HPTagSuggestionsViewDelegate
 
 - (void)tagSuggestionsView:(HPTagSuggestionsView *)tagSuggestionsView didSelectSuggestion:(NSString*)suggestion
 {
@@ -900,7 +902,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [_bodyTextView replaceRange:textRange withText:key];
 }
 
-#pragma mark - UIActionSheetDelegate
+#pragma mark UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
@@ -958,8 +960,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 }
 
 - (void)keyboardDidShowNotification:(NSNotification *)notification
-{
-    // TODO: Do this earlier
+{ // TODO: Do this earlier
     [_bodyTextView scrollToVisibleCaretAnimated:YES];
 }
 
@@ -985,19 +986,17 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     {
         [self displayNote];
     }
-
 }
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {
-    if (_currentTag)
+    if (!_currentTag) return;
+
+    NSDictionary *userInfo = notification.userInfo;
+    NSSet *deleted = userInfo[NSDeletedObjectsKey];
+    if ([deleted containsObject:_currentTag])
     {
-        NSDictionary *userInfo = notification.userInfo;
-        NSSet *deleted = userInfo[NSDeletedObjectsKey];
-        if ([deleted containsObject:_currentTag])
-        {
-            _currentTag = nil;
-        }
+        _currentTag = nil;
     }
 }
 
@@ -1015,7 +1014,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     _bodyTextView.textContainerInset = _originalTextContainerInset;
 }
 
-#pragma mark - HPDataActionControllerDelegate
+#pragma mark HPDataActionControllerDelegate
 
 - (UIViewController*)viewControllerForDataActionController:(HPDataActionController*)dataActionController
 {
@@ -1034,7 +1033,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     }
 }
 
-#pragma mark - UIImagePickerControllerDelegate
+#pragma mark UIImagePickerControllerDelegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
