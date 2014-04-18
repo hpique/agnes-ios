@@ -48,6 +48,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSInteger _optionsActionSheetExportAllIndex;
     
     AGNExportController *_exportController;
+    
+    BOOL _ignoreTagChanges;
 }
 
 @synthesize tableView = _tableView;
@@ -273,7 +275,9 @@ static NSString *HPIndexCellIdentifier = @"Cell";
             [tags addObject:tag];
         }
     }];
+    _ignoreTagChanges = YES;
     [[HPTagManager sharedManager] reorderTags:tags exchangeObjectAtIndex:fromIndex withObjectAtIndex:toIndex];
+    _ignoreTagChanges = NO;
     [_items exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
 }
 
@@ -404,6 +408,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {
+    if (_ignoreTagChanges) return;
+    
     NSDictionary *userInfo = notification.userInfo;
     NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
     NSSet *invalidated = [userInfo objectForKey:NSInvalidatedObjectsKey];
