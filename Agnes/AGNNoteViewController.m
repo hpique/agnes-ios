@@ -9,6 +9,7 @@
 #import "AGNNoteViewController.h"
 #import "AGNTagTapGestureRecognizer.h"
 #import "AGNTypingController.h"
+#import "AGNGalleryController.h"
 #import "HPNote.h"
 #import "HPNote+Detail.h"
 #import "HPNoteManager.h"
@@ -22,8 +23,6 @@
 #import "HPBrowserViewController.h"
 #import "HPFontManager.h"
 #import "HPAttachment.h"
-#import "HPImageViewController.h"
-#import "HPImageZoomAnimationController.h"
 #import "NSString+hp_utils.h"
 #import "HPNoFirstResponderActionSheet.h"
 #import "HPAgnesUIMetrics.h"
@@ -34,12 +33,14 @@
 #import "UITextView+hp_utils.h"
 #import "UIViewController+hp_modals.h"
 #import <PSPDFTextView/PSPDFTextView.h>
+#import <RMGallery/RMGalleryViewController.h>
+#import <RMGallery/RMGalleryTransition.h>
 @import MobileCoreServices;
 
 const NSTimeInterval AGNNoteEditorAttachmentAnimationDuration = 0.3;
 const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
-@interface AGNNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate, AGNTypingControllerDelegate, HPDataActionControllerDelegate, HPImageZoomTransitionDelegate>
+@interface AGNNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate, AGNTypingControllerDelegate, HPDataActionControllerDelegate, AGNGalleryControllerDelegate>
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
 @property (nonatomic, assign) BOOL textChanged;
@@ -78,13 +79,9 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     BOOL _viewDidAppear;
     BOOL _hasEnteredEditingModeOnce;
     
-    NSUInteger _presentedImageCharacterIndex;
-    UIImage *_presentedImageMedium;
-    BOOL _presentedImageRemoved;
-    HPImageViewController *_presentedImageViewController;
-    
     NSTimer *_autosaveTimer;
     
+    AGNGalleryController *_galleryController;
     AGNTypingController *_typingController;
     
     __weak IBOutlet NSLayoutConstraint *_toolbarHeightConstraint;
@@ -181,6 +178,11 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     
     _typingController = [AGNTypingController new];
     _typingController.delegate = self;
+    
+    _galleryController = [AGNGalleryController new];
+    _galleryController.delegate = self;
+    _galleryController.textView = _bodyTextView;
+    _galleryController.viewController = self;
     
     _dataActionController = [HPDataActionController new];
     _dataActionController.delegate = self;
@@ -472,13 +474,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     _detailLabel.text = text;
 }
 
-- (void)didDismissImageViewController
-{
-    _presentedImageMedium = nil;
-    _presentedImageViewController = nil;
-    _presentedImageRemoved = NO;
-}
-
 - (void)finishEditing
 {
     [self.navigationController popViewControllerAnimated:YES];
@@ -525,21 +520,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     // Ignore character attachments
     if (attachment.mode != HPAttachmentModeDefault) return;
     
-    _presentedImageCharacterIndex = characterIndex;
-    _presentedImageMedium = textAttachment.image;
-    
-    UIImage *fullSizeImage = attachment.image;
-    HPImageViewController *viewController = [[HPImageViewController alloc] initWithImage:fullSizeImage];
-    viewController.delegate = self;
-    viewController.transitioningDelegate = self;
-    _presentedImageViewController = viewController;
-    
-    UIBarButtonItem *trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(attachmentTrashBarButtonItemAction:)];
-    UIBarButtonItem *actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(attachmentActionBarButtonItemAction:)];
-    UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
-    viewController.toolbarItems = @[trashBarButtonItem, flexibleSpace, actionBarButtonItem];
-    
-    [self presentViewController:viewController animated:YES completion:nil];
+    [_galleryController presentAttachmentAtIndex:characterIndex];
 }
 
 - (void)presentImagePickerControllerWithType:(UIImagePickerControllerSourceType)type
@@ -711,30 +692,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [self.view endEditing:YES];
 }
 
-#pragma mark Attachment Toolbar
-
-- (void)attachmentTrashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_attachment"];
-    NSMutableAttributedString *attributedString = self.noteTextView.attributedText.mutableCopy;
-    [attributedString replaceCharactersInRange:NSMakeRange(_presentedImageCharacterIndex, 1) withString:@""];
-    self.noteTextView.attributedText = attributedString;
-    self.textChanged = YES;
-    [self saveNote:NO];
-    _presentedImageRemoved = YES;
-    [self dismissViewControllerAnimated:YES completion:^{
-        [self didDismissImageViewController];
-    }];
-}
-
-- (void)attachmentActionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"share_attachment"];
-    UIImage *image = _presentedImageViewController.image;
-    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[image] applicationActivities:nil];
-    [_presentedImageViewController presentViewController:activityViewController animated:YES completion:nil];
-}
-
 #pragma mark Gestures
 
 - (IBAction)swipeRightAction:(id)sender
@@ -860,6 +817,14 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)typingController:(AGNTypingController*)typingController didShowBarsAnimated:(BOOL)animated
 {
     [_bodyTextView scrollToVisibleCaretAnimated:NO];
+}
+
+#pragma mark AGNGalleryControllerDelegate
+
+- (void)galleryController:(AGNGalleryController*)galleryController didTrashAttachmentAtIndex:(NSUInteger)characterIndex
+{
+    self.textChanged = YES;
+    [self saveNote:NO];
 }
 
 #pragma mark HPTextInteractionTapGestureRecognizerDelegate
@@ -1106,51 +1071,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
         [_attachmentAnimationView removeFromSuperview];
         _attachmentAnimationView = nil;
     }
-}
-
-#pragma mark - UIViewControllerTransitioningDelegate
-
-- (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source
-{
-    if ([presented isKindOfClass:HPImageViewController.class])
-    {
-        HPImageZoomAnimationController *controller = [[HPImageZoomAnimationController alloc] initWithImage:_presentedImageMedium];
-        controller.delegate = self;
-        controller.coverColor = [UIColor whiteColor];
-        return controller;
-    }
-    return nil;
-}
-
-- (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed
-{
-    if ([dismissed isKindOfClass:HPImageViewController.class])
-    {
-        HPImageZoomAnimationController *controller = [[HPImageZoomAnimationController alloc] initWithImage:_presentedImageMedium];
-        controller.delegate = self;
-        controller.coverColor = [UIColor whiteColor];
-        return controller;
-    }
-    return nil;
-}
-
-#pragma mark UIImageViewControllerDelegate
-
-- (void)imageViewControllerDidDismiss:(HPImageViewController*)imageViewController
-{
-    [self didDismissImageViewController];
-}
-
-#pragma mark HPImageZoomTransitionDelegate
-
-- (CGRect)imageZoomTransition:(HPImageZoomAnimationController*)transition rectInView:(UIView*)view
-{
-    CGRect imageRect = [_bodyTextView hp_rectForCharacterRange:NSMakeRange(_presentedImageCharacterIndex, 1)];
-    if (_presentedImageRemoved)
-    {
-        imageRect = CGRectMake(imageRect.origin.x + imageRect.size.width / 2, imageRect.origin.y, 1, 1);
-    }
-    return [view convertRect:imageRect fromView:_bodyTextView];
 }
 
 @end
