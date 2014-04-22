@@ -20,7 +20,7 @@ PODS:
   - MMDrawerController/Subclass (0.5.4):
     - MMDrawerController/Core
   - PSPDFTextView (1.1.0)
-  - RMGallery (0.0.1)
+  - RMGallery (0.0.2)
   - SSZipArchive (0.3.1)
   - TTTAttributedLabel (1.8.1)
 
@@ -66,7 +66,7 @@ SPEC CHECKSUMS:
   MHWDirectoryWatcher: c8d2677e94ab6e078d321f87c58be5fa101ae457
   MMDrawerController: 76408e0a01b0a3996479261c57aed5d5765a6ea1
   PSPDFTextView: f078c6015a9568241c9518a7bb284bb4cc2fa9e2
-  RMGallery: 08217f875431e2b89c89559fd26fd4f8e803bb01
+  RMGallery: 13d56c1ee57d8a648fcb1d0c18dacb28e85ab4b2
   SSZipArchive: 5479ec96c412904a987a3ae3180d65234aa46b6e
   TTTAttributedLabel: 3a571d73e055f4a79c304240598e4bfd199238e4
 
