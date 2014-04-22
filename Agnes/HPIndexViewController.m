@@ -71,7 +71,17 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     {
         UIImage *image = [UIImage imageNamed:@"icon-more"];
         UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(optionsBarButtonItemAction:)];
-        self.navigationItem.rightBarButtonItem = barButton;
+        
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+        { // Compensate the drawer shadow
+            UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+            fixedSpace.width = 12;
+            self.navigationItem.rightBarButtonItems = @[fixedSpace, barButton];
+        }
+        else
+        {
+            self.navigationItem.rightBarButtonItem = barButton;
+        }
     }
     
     self.title = NSLocalizedString(@"Agnes", "Index title");
