@@ -20,6 +20,8 @@ extern NSString* const AGNPreferencesManagerDidChangePreferencesNotification;
 
 - (void)styleNavigationBar:(UINavigationBar*)navigationBar;
 
+- (void)styleSearchBar;
+
 - (void)styleStatusBar;
 
 @property (nonatomic, assign) BOOL dynamicType;
@@ -45,7 +47,5 @@ extern NSString* const AGNPreferencesManagerDidChangePreferencesNotification;
 @property (nonatomic, strong) UIColor *tintColor;
 
 @property (nonatomic, readonly) NSString *tintColorName;
-
-@property (nonatomic, assign) NSTimeInterval typingSpeed;
 
 @end

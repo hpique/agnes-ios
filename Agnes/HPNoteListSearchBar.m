@@ -7,68 +7,26 @@
 //
 
 #import "HPNoteListSearchBar.h"
+#import "HPAgnesUIMetrics.h"
 
-@implementation HPNoteListSearchBar {
-    BOOL _searching;
-}
-
-- (id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
-        [self initHelper];
-    }
-    return self;
-}
-
-- (void)awakeFromNib
-{
-    [super awakeFromNib];
-    [self initHelper];
-}
-
-- (void)initHelper
-{
-    _actionButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self addSubview:_actionButton];
-}
+@implementation HPNoteListSearchBar
 
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    if (_searching) return;
     UIView *textField = [self findInView:self viewOfClass:[UITextField class]];
     if (textField)
     {
-        CGRect frame = [self convertRect:textField.bounds fromView:textField];
-        _actionButton.center = textField.center;
-        CGRect buttonFrame = _actionButton.frame;
-        CGFloat textFieldWidth = frame.size.width - buttonFrame.size.width - frame.origin.x;
-        textField.frame = CGRectMake(frame.origin.x, frame.origin.y, textFieldWidth, frame.size.height);
-        _actionButton.frame = CGRectMake(frame.origin.x + textFieldWidth + frame.origin.x, buttonFrame.origin.y, buttonFrame.size.width, buttonFrame.size.height);
+        const UIInterfaceOrientation interfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
+        const CGFloat width = self.frame.size.width;
+        const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:interfaceOrientation width:width];
+        const CGRect textFieldFrame = [self convertRect:textField.bounds fromView:textField];
+        const CGFloat preferredWidth = width - sideMargin * 2;
+        const CGFloat adjustedWidth = textFieldFrame.size.width - sideMargin + textFieldFrame.origin.x;
+        const CGFloat textFieldWidth = MIN(preferredWidth, adjustedWidth);
+        textField.frame = CGRectMake(sideMargin, textFieldFrame.origin.y, textFieldWidth, textFieldFrame.size.height);
     }
 }
-
-#pragma mark - Public
-
-- (void)setWillBeginSearch
-{
-    _searching = YES;
-    _actionButton.alpha = 1;
-    [UIView animateWithDuration:0.3 animations:^{
-        _actionButton.alpha = 0;
-    }];
-}
-
-- (void)setWillEndSearch
-{
-    _searching = NO;
-    _actionButton.alpha = 0;
-    [UIView animateWithDuration:0.3 animations:^{
-        _actionButton.alpha = 1;
-    }];
-}
-
 
 #pragma mark - Private
 

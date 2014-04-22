@@ -10,10 +10,4 @@
 
 @interface HPNoteListSearchBar : UISearchBar
 
-@property (nonatomic, readonly) UIButton *actionButton;
-
-- (void)setWillBeginSearch;
-
-- (void)setWillEndSearch;
-
 @end

@@ -107,8 +107,7 @@
 
 - (void)loadRootViewController
 {
-    AGNRootViewController *drawerController = [[AGNRootViewController alloc] init];
-    self.window.rootViewController = drawerController;
+    self.window.rootViewController = [AGNRootViewController rootViewController];
 }
 
 #pragma mark  Notifications

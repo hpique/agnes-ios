@@ -8,8 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+extern CGFloat const AGNIndexWidthPad;
+
 @interface HPAgnesUIMetrics : NSObject
 
-+ (CGFloat)sideMarginForInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
++ (CGFloat)sideMarginForInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation width:(CGFloat)width;
 
 @end

@@ -14,4 +14,10 @@
 
 + (CGSize)sizeForOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
++ (CGFloat)keySeparatorForOrientation:(UIInterfaceOrientation)interfaceOrientation;
+
++ (CGFloat)sideInsetForOrientation:(UIInterfaceOrientation)interfaceOrientation;
+
++ (CGFloat)topMarginForOrientation:(UIInterfaceOrientation)interfaceOrientation;
+
 @end

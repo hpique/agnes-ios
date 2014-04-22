@@ -44,7 +44,7 @@ extern NSUInteger const HPNoteTableViewCellLineCount;
 
 - (void)displayNote;
 
-+ (CGFloat)estimatedHeightForNote:(HPNote*)note inTag:(HPTag*)tag;
++ (CGFloat)estimatedHeightForNote:(HPNote*)note width:(CGFloat)width inTag:(HPTag*)tag;
 
 + (void)invalidateHeightCache;
 

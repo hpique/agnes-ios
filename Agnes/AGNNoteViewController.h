@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "HPDataActionViewController.h"
+#import "HPAgnesViewController.h"
 #import "HPNoteNavigationController.h"
 @class HPNote;
 @class HPIndexItem;
@@ -15,7 +15,7 @@
 
 @protocol AGNNoteViewControllerDelegate;
 
-@interface AGNNoteViewController : HPDataActionViewController<HPNoteTransitionViewController>
+@interface AGNNoteViewController : HPAgnesViewController<HPNoteTransitionViewController>
 
 @property (nonatomic, strong) HPNote *note;
 @property (nonatomic, weak) id<AGNNoteViewControllerDelegate> delegate;

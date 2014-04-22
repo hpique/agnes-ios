@@ -10,7 +10,6 @@
 
 @protocol HPTagSuggestionsViewDelegate;
 
-
 @interface HPTagSuggestionsView : UIInputView<UIInputViewAudioFeedback>
 
 @property (nonatomic, copy) NSString *prefix;

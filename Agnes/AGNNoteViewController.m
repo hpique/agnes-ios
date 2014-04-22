@@ -8,6 +8,8 @@
 
 #import "AGNNoteViewController.h"
 #import "AGNTagTapGestureRecognizer.h"
+#import "AGNTypingController.h"
+#import "AGNGalleryController.h"
 #import "HPNote.h"
 #import "HPNote+Detail.h"
 #import "HPNoteManager.h"
@@ -21,26 +23,27 @@
 #import "HPBrowserViewController.h"
 #import "HPFontManager.h"
 #import "HPAttachment.h"
-#import "HPImageViewController.h"
-#import "HPImageZoomAnimationController.h"
 #import "NSString+hp_utils.h"
 #import "HPNoFirstResponderActionSheet.h"
 #import "HPAgnesUIMetrics.h"
+#import "HPDataActionController.h"
 #import "HPTracker.h"
 #import "HPTextInteractionTapGestureRecognizer.h"
 #import "UIImage+hp_utils.h"
 #import "UITextView+hp_utils.h"
+#import "UIViewController+hp_modals.h"
 #import <PSPDFTextView/PSPDFTextView.h>
-#import <MobileCoreServices/MobileCoreServices.h>
+#import <RMGallery/RMGalleryViewController.h>
+#import <RMGallery/RMGalleryTransition.h>
+@import MobileCoreServices;
 
 const NSTimeInterval AGNNoteEditorAttachmentAnimationDuration = 0.3;
 const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
-@interface AGNNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIViewControllerTransitioningDelegate, HPImageViewControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate>
+@interface AGNNoteViewController () <UITextViewDelegate, UIActionSheetDelegate, HPTagSuggestionsViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, HPTextInteractionTapGestureRecognizerDelegate, AGNTypingControllerDelegate, HPDataActionControllerDelegate, AGNGalleryControllerDelegate>
 
 @property (nonatomic, assign) HPNoteDetailMode detailMode;
 @property (nonatomic, assign) BOOL textChanged;
-@property (nonatomic, readonly) BOOL typing;
 
 @end
 
@@ -61,10 +64,12 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     
     IBOutlet UILabel *_detailLabel;
 
+    UIPopoverController *_navigationBarPopoverController;
     UIActionSheet *_attachmentActionSheet;
     NSInteger _attachmentActionSheetCameraIndex;
     NSInteger _attachmentActionSheetPhotosIndex;
     UIActionSheet *_deleteNoteActionSheet;
+    HPDataActionController *_dataActionController;
     
     NSMutableArray *_notes;
     NSInteger _noteIndex;
@@ -74,14 +79,10 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     BOOL _viewDidAppear;
     BOOL _hasEnteredEditingModeOnce;
     
-    NSUInteger _presentedImageCharacterIndex;
-    UIImage *_presentedImageMedium;
-    CGRect _presentedImageRect;
-    HPImageViewController *_presentedImageViewController;
-    
     NSTimer *_autosaveTimer;
-    NSTimer *_typingTimer;
-    NSDate *_typingPreviousDate;
+    
+    AGNGalleryController *_galleryController;
+    AGNTypingController *_typingController;
     
     __weak IBOutlet NSLayoutConstraint *_toolbarHeightConstraint;
     
@@ -99,7 +100,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 @synthesize noteTextView = _bodyTextView;
 @synthesize search = _search;
 @synthesize transitioning = _transitioning;
-@synthesize typing = _typing;
 @synthesize wantsDefaultTransition = _wantsDefaultTransition;
 
 - (void)viewDidLoad
@@ -135,7 +135,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActiveNotification:) name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
-
     
     {
         _bodyTextStorage = [HPBaseTextStorage new];
@@ -153,8 +152,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
         _bodyTextView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _bodyTextView.font = [HPFontManager sharedManager].fontForNoteBody;
 
-        CGFloat sideInset = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation] - _bodyTextView.textContainer.lineFragmentPadding;
-        _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, sideInset, 20 + self.toolbar.frame.size.height, sideInset);
         _bodyTextView.delegate = self;
         _bodyTextView.dataDetectorTypes = UIDataDetectorTypeNone;
         [self.view addSubview:_bodyTextView];
@@ -171,12 +168,24 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     }
     
     [self layoutToolbar];
+    [self updateTextInset];
     
     if (!_note)
     {
         self.note = [self insertBlankNote];
     }
     [self displayNote];
+    
+    _typingController = [AGNTypingController new];
+    _typingController.delegate = self;
+    
+    _galleryController = [AGNGalleryController new];
+    _galleryController.delegate = self;
+    _galleryController.textView = _bodyTextView;
+    _galleryController.viewController = self;
+    
+    _dataActionController = [HPDataActionController new];
+    _dataActionController.delegate = self;
 }
 
 - (void)dealloc
@@ -210,10 +219,16 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     self.transitioning = NO;
 }
 
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    [self updateTextInset];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    if (self.typing) [self setTyping:NO animated:animated];
+    if (_typingController.typing) [_typingController setTyping:NO animated:animated];
     if (!self.transitioning) return; // Don't continue if we're presenting a modal controller
     
     // TODO: Do this only when we're transitiong back to the list or to the menu
@@ -226,6 +241,10 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
             _ignoreNotesDidChangeNotification = NO;
         }
     }
+    
+    [self hp_dismissActionSheet:&_attachmentActionSheet animated:animated];
+    [self hp_dismissActionSheet:&_deleteNoteActionSheet animated:animated];
+    [self hp_dismissPopover:&_navigationBarPopoverController animated:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -244,8 +263,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 {
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     [self layoutToolbar];
-    CGFloat sideInset = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation] - _bodyTextView.textContainer.lineFragmentPadding;
-    _bodyTextView.textContainerInset = UIEdgeInsetsMake(20, sideInset, 20 + self.toolbar.frame.size.height, sideInset);
+    [self updateTextInset];
 }
 
 #pragma mark - Class
@@ -259,7 +277,17 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     return noteViewController;
 }
 
-#pragma mark - Public
++ (CGFloat)minimumNoteWidth
+{
+    const CGFloat minimumWidth = 768 - AGNIndexWidthPad; // For iPad
+    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait width:minimumWidth]; // Portrait has the smallest margins
+    const CGSize screenSize = [UIScreen mainScreen].bounds.size;
+    const CGFloat minLength = MIN(MIN(screenSize.width, screenSize.height), minimumWidth);
+    const CGFloat width = minLength - sideMargin * 2;
+    return width;
+}
+
+#pragma mark Public
 
 - (NSString*)search
 {
@@ -303,15 +331,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     return NO;
 }
 
-+ (CGFloat)minimumNoteWidth
-{
-    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait]; // Portrait has the smallest margins
-    const CGSize screenSize = [UIScreen mainScreen].bounds.size;
-    const CGFloat minLength = MIN(screenSize.width, screenSize.height);
-    const CGFloat width = minLength - sideMargin * 2;
-    return width;
-}
-
 - (void)setNote:(HPNote *)note
 {
     _note = note;
@@ -333,7 +352,26 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     _bodyTextStorage.tag = _currentTag.name;
 }
 
-#pragma mark - Private
+#pragma mark Layout
+
+- (void)layoutToolbar
+{
+    const CGFloat height = self.navigationController.toolbar.frame.size.height;
+    _toolbarHeightConstraint.constant = height;
+}
+
+-(void)updateTextInset
+{
+    const CGFloat width = self.view.bounds.size.width;
+    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation width:width];
+    const CGFloat sideInset = sideMargin - _bodyTextView.textContainer.lineFragmentPadding;
+    static const CGFloat TopInsetPhone = 20;
+    static const CGFloat TopInsetPad = 44;
+    const CGFloat topInset = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone ? TopInsetPhone : TopInsetPad;
+    _bodyTextView.textContainerInset = UIEdgeInsetsMake(topInset, sideInset, topInset + self.toolbar.frame.size.height, sideInset);
+}
+
+#pragma mark Private
 
 - (void)autosave
 {
@@ -436,24 +474,12 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     _detailLabel.text = text;
 }
 
-- (void)didDismissImageViewController
-{
-    _presentedImageMedium = nil;
-    _presentedImageRect = CGRectNull;
-    _presentedImageViewController = nil;
-}
-
-- (void)didFinishTyping
-{
-    [self setTyping:NO animated:YES];
-}
-
 - (void)finishEditing
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-- (void)handleURL:(NSURL*)url
+- (void)handleURL:(NSURL*)url fromRect:(CGRect)rect inView:(UIView*)view
 {
     NSString *scheme = url.scheme;
     if ([scheme hasPrefix:@"http"])
@@ -462,7 +488,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     }
     else
     {
-        [self showActionSheetForURL:url];
+        [_dataActionController showActionSheetForURL:url fromRect:rect inView:view];
     }
 }
 
@@ -480,12 +506,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     return note;
 }
 
-- (void)layoutToolbar
-{
-    const CGFloat height = self.navigationController.toolbar.frame.size.height;
-    _toolbarHeightConstraint.constant = height;
-}
-
 - (void)openBrowserURL:(NSURL*)url
 {
     HPBrowserViewController *vc = [[HPBrowserViewController alloc] init];
@@ -500,35 +520,18 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     // Ignore character attachments
     if (attachment.mode != HPAttachmentModeDefault) return;
     
-    NSLayoutManager *layoutManager = textView.layoutManager;
-    const NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:NSMakeRange(characterIndex, 1) actualCharacterRange:nil];
-    [layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, characterIndex)];
-    CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textView.textContainer];
-    rect = CGRectOffset(rect, textView.textContainerInset.left, textView.textContainerInset.top);
-    rect = CGRectIntegral(rect);
-    _presentedImageCharacterIndex = characterIndex;
-    _presentedImageRect = rect;
-    _presentedImageMedium = textAttachment.image;
-    
-    UIImage *fullSizeImage = attachment.image;
-    HPImageViewController *viewController = [[HPImageViewController alloc] initWithImage:fullSizeImage];
-    viewController.delegate = self;
-    viewController.transitioningDelegate = self;
-    _presentedImageViewController = viewController;
-    
-    UIBarButtonItem *trashBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(attachmentTrashBarButtonItemAction:)];
-    UIBarButtonItem *actionBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(attachmentActionBarButtonItemAction:)];
-    UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
-    viewController.toolbarItems = @[trashBarButtonItem, flexibleSpace, actionBarButtonItem];
-    
-    [self presentViewController:viewController animated:YES completion:nil];
+    [_galleryController presentAttachmentAtIndex:characterIndex];
 }
 
 - (void)presentImagePickerControllerWithType:(UIImagePickerControllerSourceType)type
 {
-    UIImagePickerController *controller = [[UIImagePickerController alloc] init];
+    UIImagePickerController *controller = [UIImagePickerController new];
     controller.delegate = self;
     controller.sourceType = type;
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        controller.modalPresentationStyle = UIModalPresentationFormSheet;
+    }
     [self presentViewController:controller animated:YES completion:^{}];
 }
 
@@ -560,47 +563,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     }
 }
 
-- (void)setTyping:(BOOL)typing animated:(BOOL)animated
-{
-    _typing = typing;
-    [_typingTimer invalidate];
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(didFinishTyping) object:nil];
-    if (typing)
-    {
-        AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
-        NSDate *now = [NSDate date];
-        if (_typingPreviousDate)
-        {
-            NSTimeInterval currentSpeed = [now timeIntervalSinceDate:_typingPreviousDate];
-            static CGFloat currentSpeedWeight = 0.05;
-            preferences.typingSpeed = preferences.typingSpeed * (1 - currentSpeedWeight) + currentSpeed * currentSpeedWeight;
-        }
-        _typingPreviousDate = now;
-        if (!self.navigationController.navigationBarHidden && UIInterfaceOrientationIsLandscape(self.interfaceOrientation))
-        {
-            [self.navigationController setNavigationBarHidden:YES animated:animated];
-            if (![UIApplication sharedApplication].statusBarHidden)
-            {
-                [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
-            }
-        }
-        static CGFloat stopMultiplier = 5;
-        static CGFloat minimumDelay = 2;
-        const CGFloat typingDelay = MAX(preferences.typingSpeed * stopMultiplier, minimumDelay) ;
-        _typingTimer = [NSTimer scheduledTimerWithTimeInterval:typingDelay target:self selector:@selector(didFinishTyping) userInfo:nil repeats:NO];
-    }
-    else if (self.navigationController.navigationBarHidden)
-    {
-        if ([UIApplication sharedApplication].statusBarHidden && ![AGNPreferencesManager sharedManager].statusBarHidden)
-        {
-            [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
-        }
-        _typingPreviousDate = nil;
-        [self.navigationController setNavigationBarHidden:NO animated:animated];
-        [_bodyTextView scrollToVisibleCaretAnimated:NO];
-    }
-}
-
 - (void)trashNote
 {
     _ignoreNotesDidChangeNotification = YES;
@@ -618,10 +580,58 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [self.toolbar setItems:@[_trashBarButtonItem, flexibleSpace, _detailBarButtonItem, flexibleSpace, rightBarButtonItem] animated:animated];
 }
 
-#pragma mark - Actions
+#pragma mark Toolbar
+
+- (void)archiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    if ([self hp_dismissActionSheet:&_deleteNoteActionSheet animated:YES]) return;
+    
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"archive_note"];
+    [[HPTagManager sharedManager] archiveNote:self.note];
+    [self finishEditing];
+}
+
+- (IBAction)detailLabelTapGestureRecognizer:(id)sender
+{
+    if ([self hp_dismissActionSheet:&_deleteNoteActionSheet animated:YES]) return;
+    
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"toggle_note_detail"];
+    self.detailMode = (self.detailMode + 1) % HPNoteDetailModeCount;
+    [self displayDetail];
+}
+
+- (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    if ([self hp_dismissActionSheet:&_deleteNoteActionSheet animated:YES]) return;
+    
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_note"];
+    if ([self.note isEmptyInTag:_currentTag])
+    {
+        [self trashNote];
+    }
+    else
+    {
+        _deleteNoteActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:NSLocalizedString(@"Delete Note", @"") otherButtonTitles:nil];
+        [_deleteNoteActionSheet showFromBarButtonItem:barButtonItem animated:YES];
+    }
+}
+
+- (void)unarchiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+{
+    if ([self hp_dismissActionSheet:&_deleteNoteActionSheet animated:YES]) return;
+    
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"unarchive_note"];
+    [[HPTagManager sharedManager] unarchiveNote:self.note];
+    [self finishEditing];
+}
+
+#pragma mark Navigation Bar
 
 - (void)actionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    if ([self hp_dismissPopover:&_navigationBarPopoverController animated:YES]) return;
+    [self hp_dismissActionSheet:&_attachmentActionSheet animated:YES];
+    
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"share_note"];
     [self autosave];
     HPNoteActivityItemSource *activityItem = [[HPNoteActivityItemSource alloc] initWithNote:self.note];
@@ -630,27 +640,35 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     NSAttributedString *attributedText = self.noteTextView.attributedText;
     UIImage *attachmentImage = [attributedText hp_imageOfFirstAttachment];
     if (attachmentImage) [items addObject:attachmentImage];
+    
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
-    [self presentViewController:activityViewController animated:YES completion:nil];
-}
-
-- (void)archiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"archive_note"];
-    [[HPTagManager sharedManager] archiveNote:self.note];
-    [self finishEditing];
+    
+    _navigationBarPopoverController = [self hp_presentActivityViewController:activityViewController fromBarButtonItem:barButtonItem animated:YES];
+    if (_navigationBarPopoverController)
+    {
+        activityViewController.completionHandler = ^(NSString *activityType, BOOL completed){
+            [_navigationBarPopoverController dismissPopoverAnimated:YES];
+            _navigationBarPopoverController = nil;
+        };
+    }
 }
 
 - (void)addNoteBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    [self hp_dismissActionSheet:&_attachmentActionSheet animated:YES];
+    [self hp_dismissPopover:&_navigationBarPopoverController animated:YES];
+    
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_note"];
     [self changeToEmptyNote];
 }
 
 - (void)attachmentBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
+    if ([self hp_dismissActionSheet:&_attachmentActionSheet animated:YES]) return;
+    [self hp_dismissPopover:&_navigationBarPopoverController animated:YES];
+    
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_attachment"];
-    _attachmentActionSheet = [[HPNoFirstResponderActionSheet alloc] init];
+    _attachmentActionSheet = [HPNoFirstResponderActionSheet new];
     _attachmentActionSheet.delegate = self;
     _attachmentActionSheetCameraIndex = -1;
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
@@ -664,36 +682,8 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     }
     NSInteger cancelButtonIndex = [_attachmentActionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
     _attachmentActionSheet.cancelButtonIndex = cancelButtonIndex;
-    [_attachmentActionSheet showInView:self.view];
-}
-
-- (void)attachmentTrashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_attachment"];
-    NSMutableAttributedString *attributedString = self.noteTextView.attributedText.mutableCopy;
-    [attributedString replaceCharactersInRange:NSMakeRange(_presentedImageCharacterIndex, 1) withString:@""];
-    self.noteTextView.attributedText = attributedString;
-    self.textChanged = YES;
-    [self saveNote:NO];
-    _presentedImageRect = CGRectMake(_presentedImageRect.origin.x + _presentedImageRect.size.width / 2, _presentedImageRect.origin.y, 1, 1);
-    [self dismissViewControllerAnimated:YES completion:^{
-        [self didDismissImageViewController];
-    }];
-}
-
-- (void)attachmentActionBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"share_attachment"];
-    UIImage *image = _presentedImageViewController.image;
-    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[image] applicationActivities:nil];
-    [_presentedImageViewController presentViewController:activityViewController animated:YES completion:nil];
-}
-
-- (IBAction)detailLabelTapGestureRecognizer:(id)sender
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"toggle_note_detail"];
-    self.detailMode = (self.detailMode + 1) % HPNoteDetailModeCount;
-    [self displayDetail];
+    
+    [_attachmentActionSheet showFromBarButtonItem:barButtonItem animated:YES];
 }
 
 - (void)doneBarButtonItemAction:(UIBarButtonItem*)barButtonItem
@@ -701,6 +691,8 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"dismiss_keyboard"];
     [self.view endEditing:YES];
 }
+
+#pragma mark Gestures
 
 - (IBAction)swipeRightAction:(id)sender
 {
@@ -736,9 +728,10 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
         [self changeToEmptyNote];
     }
 }
+
 - (IBAction)swipeDown:(id)sender
 { // For when the text view doesn't have enough content to enable scrolling
-    [self setTyping:NO animated:YES];
+    [_typingController setTyping:NO animated:YES];
 }
 
 - (void)tagTapGesture:(AGNTagTapGestureRecognizer*)gestureRecognizer
@@ -747,27 +740,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     HPTag *tag = [[HPTagManager sharedManager] tagWithName:tagName];
     HPIndexItem *indexItem = [HPIndexItem indexItemWithTag:tag];
     [self.delegate noteViewController:self didSelectIndexItem:indexItem];
-    [self finishEditing];
-}
-
-- (void)trashBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_note"];
-    if ([self.note isEmptyInTag:_currentTag])
-    {
-        [self trashNote];
-    }
-    else
-    {
-        _deleteNoteActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"") destructiveButtonTitle:NSLocalizedString(@"Delete Note", @"") otherButtonTitles:nil];
-        [_deleteNoteActionSheet showInView:self.view];
-    }
-}
-
-- (void)unarchiveBarButtonItemAction:(UIBarButtonItem*)barButtonItem
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"unarchive_note"];
-    [[HPTagManager sharedManager] unarchiveNote:self.note];
     [self finishEditing];
 }
 
@@ -784,18 +756,17 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     const CGPoint offset = scrollView.contentOffset;
     if (_scrollViewPreviousOffset.y > offset.y)
     { // Scrolling down
-        [self setTyping:NO animated:YES];
+        [_typingController setTyping:NO animated:YES];
     }
     _scrollViewPreviousOffset = offset;
 }
 
-#pragma mark - UITextViewDelegate
+#pragma mark UITextViewDelegate
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {
-    const BOOL landscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
     textView.inputAccessoryView = nil;
-    _suggestionsView = [[HPTagSuggestionsView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, landscape ? 36 : 44) inputViewStyle:UIInputViewStyleKeyboard];
+    _suggestionsView = [HPTagSuggestionsView new];
     _suggestionsView.delegate = self;
     NSRange tagRange;
     _suggestionsView.prefix = [_bodyTextView.text hp_tagInRange:textView.selectedRange enclosing:NO tagRange:&tagRange];
@@ -806,7 +777,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 - (void)textViewDidChange:(UITextView *)textView
 {
     self.textChanged = YES;
-    [self setTyping:YES animated:YES];
+    [_typingController setTyping:YES animated:YES];
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
@@ -832,8 +803,28 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
-    [self performSelector:@selector(didFinishTyping) withObject:nil afterDelay:0.5]; // Give time to UITextView to update the selection
+    [_typingController performSelector:@selector(finishTyping) withObject:nil afterDelay:0.5]; // Give time to UITextView to update the selection
     return !_bodyTextView.isFirstResponder;
+}
+
+#pragma mark AGNTypingControllerDelegate
+
+- (UINavigationController*)navigationControllerForTypingController:(AGNTypingController*)typingController
+{
+    return self.navigationController;
+}
+
+- (void)typingController:(AGNTypingController*)typingController didShowBarsAnimated:(BOOL)animated
+{
+    [_bodyTextView scrollToVisibleCaretAnimated:NO];
+}
+
+#pragma mark AGNGalleryControllerDelegate
+
+- (void)galleryController:(AGNGalleryController*)galleryController didTrashAttachmentAtIndex:(NSUInteger)characterIndex
+{
+    self.textChanged = YES;
+    [self saveNote:NO];
 }
 
 #pragma mark HPTextInteractionTapGestureRecognizerDelegate
@@ -841,7 +832,9 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 -(void)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer handleTapOnURL:(NSURL*)url inRange:(NSRange)characterRange
 {
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"click_link"];
-    [self handleURL:url];
+    
+    const CGRect rect = [_bodyTextView hp_rectForCharacterRange:characterRange];
+    [self handleURL:url fromRect:rect inView:_bodyTextView];
 }
 
 -(void)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer handleTapOnTextAttachment:(NSTextAttachment*)textAttachment inRange:(NSRange)characterRange
@@ -850,7 +843,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [self presentTextAttachment:textAttachment atIndex:characterRange.location];
 }
 
-#pragma mark - HPTagSuggestionsViewDelegate
+#pragma mark HPTagSuggestionsViewDelegate
 
 - (void)tagSuggestionsView:(HPTagSuggestionsView *)tagSuggestionsView didSelectSuggestion:(NSString*)suggestion
 {
@@ -874,7 +867,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     [_bodyTextView replaceRange:textRange withText:key];
 }
 
-#pragma mark - UIActionSheetDelegate
+#pragma mark UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
@@ -897,10 +890,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
             [self presentImagePickerControllerWithType:UIImagePickerControllerSourceTypePhotoLibrary];
         }
         _attachmentActionSheet = nil;
-    }
-    else
-    {
-        [super actionSheet:actionSheet clickedButtonAtIndex:buttonIndex];
     }
 }
 
@@ -936,8 +925,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 }
 
 - (void)keyboardDidShowNotification:(NSNotification *)notification
-{
-    // TODO: Do this earlier
+{ // TODO: Do this earlier
     [_bodyTextView scrollToVisibleCaretAnimated:YES];
 }
 
@@ -963,19 +951,17 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     {
         [self displayNote];
     }
-
 }
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {
-    if (_currentTag)
+    if (!_currentTag) return;
+
+    NSDictionary *userInfo = notification.userInfo;
+    NSSet *deleted = userInfo[NSDeletedObjectsKey];
+    if ([deleted containsObject:_currentTag])
     {
-        NSDictionary *userInfo = notification.userInfo;
-        NSSet *deleted = userInfo[NSDeletedObjectsKey];
-        if ([deleted containsObject:_currentTag])
-        {
-            _currentTag = nil;
-        }
+        _currentTag = nil;
     }
 }
 
@@ -983,7 +969,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 {
     if (self.transitioning) return; // Do not animate keyboard when animating to list
     
-    [self setTyping:NO animated:YES];
+    [_typingController setTyping:NO animated:YES];
     
     UIEdgeInsets contentInset = UIEdgeInsetsMake(_bodyTextView.contentInset.top, _originalBodyTextViewInset.left, _originalBodyTextViewInset.bottom, _originalBodyTextViewInset.right);
 
@@ -993,22 +979,26 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
     _bodyTextView.textContainerInset = _originalTextContainerInset;
 }
 
-#pragma mark - HPDataActionViewController
+#pragma mark HPDataActionControllerDelegate
 
-- (void)addContactWithEmail:(NSString *)email phoneNumber:(NSString *)phoneNumber image:(UIImage*)image
-{ // Attempt to find addditional contact data in the note
-    NSAttributedString *attributedText = self.noteTextView.attributedText;
-    if (!email) email = [attributedText hp_valueOfLinkWithScheme:@"mailto"];
-    if (!phoneNumber) phoneNumber = [attributedText hp_valueOfLinkWithScheme:@"tel"];
-    if (!image)
-    {
-        NSAttributedString *attributedText = self.noteTextView.attributedText;
-        image = [attributedText hp_imageOfFirstAttachment];
-    }
-    [super addContactWithEmail:email phoneNumber:phoneNumber image:image];
+- (UIViewController*)viewControllerForDataActionController:(HPDataActionController*)dataActionController
+{
+    return self;
 }
 
-#pragma mark - UIImagePickerControllerDelegate
+- (void)dataActionController:(HPDataActionController*)dataActionController willAddContact:(HPContact*)contact
+{ // Attempt to find addditional contact data in the note
+    NSAttributedString *attributedText = self.noteTextView.attributedText;
+    if (!contact.email) contact.email = [attributedText hp_valueOfLinkWithScheme:@"mailto"];
+    if (!contact.phoneNumber) contact.phoneNumber = [attributedText hp_valueOfLinkWithScheme:@"tel"];
+    if (!contact.image)
+    {
+        NSAttributedString *attributedText = self.noteTextView.attributedText;
+        contact.image = [attributedText hp_imageOfFirstAttachment];
+    }
+}
+
+#pragma mark UIImagePickerControllerDelegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
@@ -1081,41 +1071,6 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
         [_attachmentAnimationView removeFromSuperview];
         _attachmentAnimationView = nil;
     }
-}
-
-#pragma mark - UIViewControllerTransitioningDelegate
-
-- (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source
-{
-    if ([presented isKindOfClass:HPImageViewController.class])
-    {
-        HPImageZoomAnimationController *controller = [[HPImageZoomAnimationController alloc] initWithReferenceImage:_presentedImageMedium
-                                                                          view:self.noteTextView
-                                                                          rect:_presentedImageRect];
-        controller.coverColor = [UIColor whiteColor];
-        return controller;
-    }
-    return nil;
-}
-
-- (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed
-{
-    if ([dismissed isKindOfClass:HPImageViewController.class])
-    {
-        HPImageZoomAnimationController *controller = [[HPImageZoomAnimationController alloc] initWithReferenceImage:_presentedImageMedium
-                                                                                                               view:self.noteTextView
-                                                                                                               rect:_presentedImageRect];
-        controller.coverColor = [UIColor whiteColor];
-        return controller;
-    }
-    return nil;
-}
-
-#pragma mark - UIImageViewControllerDelegate
-
-- (void)imageViewControllerDidDismiss:(HPImageViewController*)imageViewController
-{
-    [self didDismissImageViewController];
 }
 
 @end

@@ -1,25 +1,26 @@
 PODS:
   - ColorUtils (1.1.2)
-  - Haneke (0.0.5)
+  - Haneke (0.0.6)
   - HPReorderTableView (0.1)
   - iOS7Colors (2.0.0)
-  - iRate (1.9.3)
-  - Lyt (0.0.1)
+  - iRate (1.10.2)
+  - Lyt (0.1)
   - MCSwipeTableViewCell (2.0.0)
   - MHWDirectoryWatcher (0.0.4)
-  - MMDrawerController (0.5.3):
+  - MMDrawerController (0.5.4):
     - MMDrawerController/Core
     - MMDrawerController/MMDrawerBarButtonItem
     - MMDrawerController/MMDrawerVisualStates
     - MMDrawerController/Subclass
-  - MMDrawerController/Core (0.5.3)
-  - MMDrawerController/MMDrawerBarButtonItem (0.5.3):
+  - MMDrawerController/Core (0.5.4)
+  - MMDrawerController/MMDrawerBarButtonItem (0.5.4):
     - MMDrawerController/Core
-  - MMDrawerController/MMDrawerVisualStates (0.5.3):
+  - MMDrawerController/MMDrawerVisualStates (0.5.4):
     - MMDrawerController/Core
-  - MMDrawerController/Subclass (0.5.3):
+  - MMDrawerController/Subclass (0.5.4):
     - MMDrawerController/Core
   - PSPDFTextView (1.1.0)
+  - RMGallery (0.0.2)
   - SSZipArchive (0.3.1)
   - TTTAttributedLabel (1.8.1)
 
@@ -29,11 +30,12 @@ DEPENDENCIES:
   - HPReorderTableView (~> 0.1)
   - iOS7Colors (~> 2.0.0)
   - iRate (~> 1.9)
-  - Lyt (from `https://github.com/robotmedia/Lyt.git`)
+  - Lyt
   - MCSwipeTableViewCell (from `https://github.com/hpique/MCSwipeTableViewCell.git`)
   - MHWDirectoryWatcher (~> 0.0)
   - MMDrawerController (~> 0.5)
   - PSPDFTextView (from `https://github.com/hpique/PSPDFTextView.git`, branch `agnes`)
+  - RMGallery (from `https://github.com/robotmedia/RMGallery.git`)
   - SSZipArchive (~> 0.3)
   - TTTAttributedLabel (from `https://github.com/hpique/TTTAttributedLabel.git`)
 
@@ -43,28 +45,29 @@ EXTERNAL SOURCES:
     :git: https://github.com/hpique/ColorUtils.git
   Haneke:
     :git: https://github.com/hpique/Haneke.git
-  Lyt:
-    :git: https://github.com/robotmedia/Lyt.git
   MCSwipeTableViewCell:
     :git: https://github.com/hpique/MCSwipeTableViewCell.git
   PSPDFTextView:
     :branch: agnes
     :git: https://github.com/hpique/PSPDFTextView.git
+  RMGallery:
+    :git: https://github.com/robotmedia/RMGallery.git
   TTTAttributedLabel:
     :git: https://github.com/hpique/TTTAttributedLabel.git
 
 SPEC CHECKSUMS:
   ColorUtils: 5740b610eb7b50833f46d6d9863ebaa1da55301d
-  Haneke: 34087f62b25a9b6502fefe934bc258dab94233b4
+  Haneke: ad89e9a71eaa52b50170524b9105d45a0bae8408
   HPReorderTableView: e614ee4bb07d17548d4c2131b48d59c668f424ca
-  iOS7Colors: 80d700ca0fe4415eeea1cfb74d4d790ffa0375ab
-  iRate: 99aef520b335a1eb4a14a8d9ba5e8db4e1d95bbe
-  Lyt: ac3d01f9839fbec5393d3ca03dfd5361defe34b2
+  iOS7Colors: 4b2a8e22c0bacab6cc9818357e920fa734283246
+  iRate: eb8ca35519dd57a586e4c72bb5135ccb6abee908
+  Lyt: 0a209fccc61a9e706b19e828d1ffc352ccab1b54
   MCSwipeTableViewCell: 40d2d91d618ed5248d20b7d75018a4a33b0477dc
   MHWDirectoryWatcher: c8d2677e94ab6e078d321f87c58be5fa101ae457
-  MMDrawerController: 4445e1927e8947b7e2382136c9b7109840efbfb9
+  MMDrawerController: 76408e0a01b0a3996479261c57aed5d5765a6ea1
   PSPDFTextView: f078c6015a9568241c9518a7bb284bb4cc2fa9e2
-  SSZipArchive: 47d0589a15452311749a4eeecb97e12800d127de
+  RMGallery: 13d56c1ee57d8a648fcb1d0c18dacb28e85ab4b2
+  SSZipArchive: 5479ec96c412904a987a3ae3180d65234aa46b6e
   TTTAttributedLabel: 3a571d73e055f4a79c304240598e4bfd199238e4
 
-COCOAPODS: 0.29.0
+COCOAPODS: 0.32.1

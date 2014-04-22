@@ -8,9 +8,10 @@
 
 #import "AGNPreferencesManager.h"
 #import "HPFontManager.h"
-#import "ColorUtils.h"
-#import "UIColor+iOS7Colors.h"
 #import "UIColor+hp_utils.h"
+#import "UIImage+hp_utils.h"
+#import <iOS7Colors/UIColor+iOS7Colors.h>
+#import <ColorUtils/ColorUtils.h>
 
 NSString *const AGNPreferencesManagerDidChangePreferencesNotification = @"AGNPreferencesManagerDidChangePreferencesNotification";
 
@@ -22,7 +23,6 @@ NSString *const AGNDefaultsKeyIndexSortMode = @"HPIndexSortMode";
 NSString *const AGNDefaultsKeyLastViewedTag = @"AGNLastViewedTag";
 NSString *const AGNDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 NSString *const AGNDefaultsKeyTintColor = @"HPAgnesTintColor";
-NSString *const AGNDefaultsKeyTypingSpeed = @"HPAgnesTypingSpeed";
 
 NSString *const AGNPreferencesKeyStatusBarHidden = @"statusBarHidden";
 NSString *const AGNPreferencesKeyBarTintColor = @"barTintColor";
@@ -33,14 +33,14 @@ NSString *const AGNPreferencesKeyTintColor = @"tintColor";
 NSString *const AGNPreferencesValueDefault = @"default";
 
 static UIColor* AGNDefaultBarTintColor = nil;
-static BOOL AGNDefaultDynamicType = NO;
-static NSString* AGNDefaultFontName = @"AvenirNext-Regular";
-static NSInteger AGNDefaultFontSize = 16;
-static NSInteger AGNDefaultIndexSortMode = HPIndexSortModeOrder;
+static BOOL const AGNDefaultDynamicType = NO;
+static NSString* const AGNDefaultFontName = @"AvenirNext-Regular";
+static NSInteger const AGNDefaultFontSizePhone = 16;
+static NSInteger const AGNDefaultFontSizePad = 18;
+static NSInteger const AGNDefaultIndexSortMode = HPIndexSortModeOrder;
 static UIColor* AGNDefaultTintColor = nil;
 static BOOL AGNDefaultStatusBarHidden = NO;
-static NSTimeInterval AGNDefaultTypingSpeed = 0.5;
-static CGFloat AGNLuminanceMiddle = 0.6;
+static CGFloat const AGNLuminanceMiddle = 0.6;
 
 @implementation AGNPreferencesManager
 
@@ -107,7 +107,7 @@ static CGFloat AGNLuminanceMiddle = 0.6;
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSNumber *fontSize = [userDefaults objectForKey:AGNDefaultsKeyFontSize];
-    return fontSize ? [fontSize integerValue] : AGNDefaultFontSize;
+    return fontSize ? [fontSize integerValue] : [self.class defaultFontSize];
 }
 
 - (void)setFontName:(NSString *)fontName
@@ -146,6 +146,7 @@ static CGFloat AGNLuminanceMiddle = 0.6;
     NSString *colorString = [barTintColor stringValue];
     [userDefaults setValue:colorString forKey:AGNDefaultsKeyBarTintColor];
     [self styleStatusBar];
+    [self styleSearchBar];
     [self styleNavigationBar:[UINavigationBar appearance]];
     [[NSNotificationCenter defaultCenter] postNotificationName:AGNPreferencesManagerDidChangePreferencesNotification object:self];
 }
@@ -187,12 +188,6 @@ static CGFloat AGNLuminanceMiddle = 0.6;
     [[NSNotificationCenter defaultCenter] postNotificationName:AGNPreferencesManagerDidChangePreferencesNotification object:self];
 }
 
-- (void)setTypingSpeed:(NSTimeInterval)typingSpeed
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults setObject:@(typingSpeed) forKey:AGNDefaultsKeyTypingSpeed];
-}
-
 - (BOOL)statusBarHidden
 {
     return [self boolValueForKey:AGNDefaultsKeyStatusBarHidden default:AGNDefaultStatusBarHidden];
@@ -213,12 +208,6 @@ static CGFloat AGNLuminanceMiddle = 0.6;
 - (NSString*)tintColorName
 {
     return [self.tintColor stringValue];
-}
-
-- (NSTimeInterval)typingSpeed
-{
-    NSNumber *value = [[NSUserDefaults standardUserDefaults] objectForKey:AGNDefaultsKeyTypingSpeed];
-    return value ? [value doubleValue] : AGNDefaultTypingSpeed;
 }
 
 - (void)applyPreferences:(NSString*)preferences
@@ -251,6 +240,14 @@ static CGFloat AGNLuminanceMiddle = 0.6;
     // TODO: Update current back button. Don't know how to access it.
 }
 
+- (void)styleSearchBar
+{
+    UIColor* barTintColor = [AGNPreferencesManager sharedManager].barTintColor;
+    barTintColor = [barTintColor colorBlendedWithColor:[UIColor whiteColor] factor:0.1]; // Blend with white to compensate bar translucency
+    UIImage *backgroundImage = [UIImage hp_imageWithColor:barTintColor size:CGSizeMake(1, 1)];
+    [[UISearchBar appearance] setBackgroundImage:backgroundImage forBarPosition:UIBarPositionTopAttached barMetrics:UIBarMetricsDefault];
+}
+
 - (void)styleStatusBar
 {
     [UIApplication sharedApplication].statusBarHidden = self.statusBarHidden;
@@ -276,6 +273,11 @@ static CGFloat AGNLuminanceMiddle = 0.6;
         color = [UIColor colorWithString:colorString];
     }
     return color ? : defaultColor;
+}
+
++ (CGFloat)defaultFontSize
+{
+    return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone ? AGNDefaultFontSizePhone : AGNDefaultFontSizePad;
 }
 
 - (void)setPreferenceValue:(NSString*)value forKey:(NSString*)key
@@ -338,7 +340,7 @@ static CGFloat AGNLuminanceMiddle = 0.6;
 
 - (void)updateFontSizeFromValue:(NSString*)value
 {
-    NSInteger fontSize = [value isEqualToString:AGNPreferencesValueDefault] ? AGNDefaultFontSize : [value integerValue];
+    NSInteger fontSize = [value isEqualToString:AGNPreferencesValueDefault] ? [self.class defaultFontSize] : [value integerValue];
     if (self.fontSize == fontSize) return;
     self.fontSize = MIN(MAX(8, fontSize), 28); // Prevent app from becoming unusable
 }

@@ -8,6 +8,7 @@
 
 #import "HPIndexViewController.h"
 #import "AGNNoteListViewController.h"
+#import "AGNExportController.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPIndexItem.h"
@@ -20,10 +21,11 @@
 #import "HPModelManager.h"
 #import "MMDrawerController.h"
 #import "UITableView+hp_reloadChanges.h"
+#import "UIViewController+hp_modals.h"
 #import "UIViewController+MMDrawerController.h"
 #import "HPTracker.h"
 
-@interface HPIndexViewController ()
+@interface HPIndexViewController ()<UIActionSheetDelegate, AGNExportControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
@@ -38,6 +40,16 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     
     NSCache *_indexItemCache;
     HPIndexItem *_selectedIndexItem;
+    
+    UIActionSheet *_optionsActionSheet;
+    NSInteger _optionsActionSheetUndoIndex;
+    NSInteger _optionsActionSheetRedoIndex;
+    NSInteger _optionsActionSheetExportIndex;
+    NSInteger _optionsActionSheetExportAllIndex;
+    
+    AGNExportController *_exportController;
+    
+    BOOL _ignoreTagChanges;
 }
 
 @synthesize tableView = _tableView;
@@ -53,6 +65,25 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     
     _indexItemCache = [NSCache new];
     
+    _exportController = [AGNExportController new];
+    _exportController.delegate = self;
+    
+    {
+        UIImage *image = [UIImage imageNamed:@"icon-more"];
+        UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(optionsBarButtonItemAction:)];
+        
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+        { // Compensate the drawer shadow
+            UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+            fixedSpace.width = 12;
+            self.navigationItem.rightBarButtonItems = @[fixedSpace, barButton];
+        }
+        else
+        {
+            self.navigationItem.rightBarButtonItem = barButton;
+        }
+    }
+    
     self.title = NSLocalizedString(@"Agnes", "Index title");
     self.navigationItem.titleView = _titleView;
     [_titleView setTitle:self.title];
@@ -61,11 +92,6 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [self.tableView registerNib:nib forCellReuseIdentifier:HPIndexCellIdentifier];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(10, 0, 10, 0);
-    
-    UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
-    fixedSpace.width = 15;
-    UIBarButtonItem *addBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addBarButtonItemAction:)];
-    self.navigationItem.rightBarButtonItems = @[fixedSpace, addBarButtonItem];
     
     _sortMode = [AGNPreferencesManager sharedManager].indexSortMode;
     
@@ -81,6 +107,12 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 {
     [super viewWillAppear:animated];
     [[HPTracker defaultTracker] trackScreenWithName:@"Index"];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self hp_dismissActionSheet:&_optionsActionSheet animated:YES];
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
@@ -113,6 +145,23 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 }
 
 #pragma mark Private
+
+- (void)exportAllNotes
+{
+    NSArray *notes = [HPNoteManager sharedManager].objects;
+    NSString *title = NSLocalizedString(@"Agnes", @"");
+    [_exportController exportNotes:notes title:title statusView:_titleView];
+}
+
+- (void)exportSelectedNotes
+{
+    if ([_selectedIndexItem canExport])
+    {
+        NSArray *notes = _selectedIndexItem.notes;
+        NSString *title = _selectedIndexItem.exportPrefix;
+        [_exportController exportNotes:notes title:title statusView:_titleView];
+    }
+}
 
 - (void)reloadData
 {
@@ -184,11 +233,6 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 #pragma mark UITableViewDataSource
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    return 1;
-}
-
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return _items.count;
@@ -241,7 +285,9 @@ static NSString *HPIndexCellIdentifier = @"Cell";
             [tags addObject:tag];
         }
     }];
+    _ignoreTagChanges = YES;
     [[HPTagManager sharedManager] reorderTags:tags exchangeObjectAtIndex:fromIndex withObjectAtIndex:toIndex];
+    _ignoreTagChanges = NO;
     [_items exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
 }
 
@@ -269,16 +315,54 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    HPIndexItem *item = [_items objectAtIndex:indexPath.row];
-    [self.agn_rootViewController setListIndexItem:item animated:YES];
+    _selectedIndexItem = [_items objectAtIndex:indexPath.row];
+    [self.agn_rootViewController setListIndexItem:_selectedIndexItem animated:YES];
 }
 
 #pragma mark Actions
 
-- (void)addBarButtonItemAction:(UIBarButtonItem*)barButtonItem
+- (void)optionsBarButtonItemAction:(UIBarButtonItem*)barButtonItem
 {
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"add_note"];
-    [self.agn_rootViewController showBlankNote];
+    if ([self hp_dismissActionSheet:&_optionsActionSheet animated:YES]) return;
+    
+    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"options"];
+    UIActionSheet *actionSheet = [UIActionSheet new];
+    actionSheet.delegate = self;
+    NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+    _optionsActionSheetUndoIndex = -1;
+    if ([undoManager canUndo])
+    {
+        _optionsActionSheetUndoIndex = [actionSheet addButtonWithTitle:[undoManager undoMenuItemTitle]];
+    }
+    
+    _optionsActionSheetRedoIndex = -1;
+    if ([undoManager canRedo])
+    {
+        _optionsActionSheetRedoIndex = [actionSheet addButtonWithTitle:[undoManager redoMenuItemTitle]];
+    }
+    
+    _optionsActionSheetExportIndex = -1;
+    if ([_selectedIndexItem canExport])
+    {
+        NSString *title = [NSString stringWithFormat:NSLocalizedString(@"Export %@", @""), _selectedIndexItem.title];
+        _optionsActionSheetExportIndex = [actionSheet addButtonWithTitle:title];
+    }
+    
+    _optionsActionSheetExportAllIndex = - 1;
+    NSArray *allNotes = [HPNoteManager sharedManager].objects;
+    if (allNotes.count > 0)
+    {
+        _optionsActionSheetExportAllIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Export All Notes", @"")];
+    }
+    
+    if (actionSheet.numberOfButtons > 0)
+    {
+        _optionsActionSheet = actionSheet;
+        NSInteger cancelIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
+        actionSheet.cancelButtonIndex = cancelIndex;
+        [actionSheet showFromBarButtonItem:barButtonItem animated:YES];
+    }
+    // TODO: Disable options button when no options are available
 }
 
 - (IBAction)tapTitleView:(id)sender
@@ -294,10 +378,48 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     [self reloadData];
 }
 
+#pragma mark UIActionSheetDelegate
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == _optionsActionSheetExportIndex)
+    {
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"export_list"];
+        [self exportSelectedNotes];
+    }
+    else if (buttonIndex == _optionsActionSheetExportAllIndex)
+    {
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"export_all"];
+        [self exportAllNotes];
+    }
+    else if (buttonIndex == _optionsActionSheetRedoIndex)
+    {
+        NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"redo" label:undoManager.redoActionName];
+        [undoManager redo];
+    }
+    else if (buttonIndex == _optionsActionSheetUndoIndex)
+    {
+        NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
+        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"undo" label:undoManager.undoActionName];
+        [undoManager undo];
+    }
+    _optionsActionSheet = nil;
+}
+
+#pragma mark AGNExportControllerDelegate
+
+- (UIViewController*)viewControllerForExportController:(AGNExportController*)exportController
+{
+    return self;
+}
+
 #pragma mark Notifications
 
 - (void)tagsDidChangeNotification:(NSNotification*)notification
 {
+    if (_ignoreTagChanges) return;
+    
     NSDictionary *userInfo = notification.userInfo;
     NSSet *deleted = [userInfo objectForKey:NSDeletedObjectsKey];
     NSSet *invalidated = [userInfo objectForKey:NSInvalidatedObjectsKey];

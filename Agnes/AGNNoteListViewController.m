@@ -18,7 +18,6 @@
 #import "HPNoteSearchTableViewCell.h"
 #import "HPIndexItem.h"
 #import "AGNPreferencesManager.h"
-#import "HPNoteExporter.h"
 #import "HPNoteImporter.h"
 #import "HPReorderTableView.h"
 #import "HPNoteListDetailTransitionAnimator.h"
@@ -28,17 +27,14 @@
 #import "HPNavigationBarToggleTitleView.h"
 #import "HPModelManager.h"
 #import "UITableView+hp_reloadChanges.h"
-#import "MMDrawerController.h"
-#import "MMDrawerBarButtonItem.h"
-#import "UIViewController+MMDrawerController.h"
-#import "UIColor+iOS7Colors.h"
 #import "UIImage+hp_utils.h"
 #import "NSNotification+hp_status.h"
-#import <MessageUI/MessageUI.h>
+#import "UIViewController+MMDrawerController.h"
+#import <iOS7Colors/UIColor+iOS7Colors.h>
 
 static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 
-@interface AGNNoteListViewController () <UITableViewDelegate, AGNListDataSourceDelegate, HPSectionArrayDataSourceDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UIGestureRecognizerDelegate, AGNNoteViewControllerDelegate, UISearchDisplayDelegate>
+@interface AGNNoteListViewController () <UITableViewDelegate, AGNListDataSourceDelegate, HPSectionArrayDataSourceDelegate, UIGestureRecognizerDelegate, AGNNoteViewControllerDelegate, UISearchDisplayDelegate>
 
 @end
 
@@ -48,7 +44,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     
     BOOL _searching;
     NSString *_searchString;
-    __weak IBOutlet HPNoteListSearchBar *_searchBar;
+    __weak IBOutlet UISearchBar *_searchBar;
     IBOutlet AGNSearchDataSource *_searchDataSource;
     
     IBOutlet HPNavigationBarToggleTitleView *_titleView;
@@ -58,13 +54,6 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     
     UIBarButtonItem *_addNoteBarButtonItem;
     
-    HPNoteExporter *_noteExporter;
-    UIDocumentInteractionController *_exportDocumentController;
-    
-    NSInteger _optionsActionSheetUndoIndex;
-    NSInteger _optionsActionSheetRedoIndex;
-    NSInteger _optionsActionSheetExportIndex;
-
     __weak IBOutlet UIView *_emptyListView;
     __weak IBOutlet UILabel *_emptyTitleLabel;
     __weak IBOutlet UILabel *_emptySubtitleLabel;
@@ -105,8 +94,6 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     
     {
         _addNoteBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon-plus"] style:UIBarButtonItemStylePlain target:self action:@selector(addNoteBarButtonItemAction:)];
-        MMDrawerBarButtonItem *drawerBarButton = [[MMDrawerBarButtonItem alloc] initWithTarget:self action:@selector(drawerBarButtonAction:)];
-        self.navigationItem.leftBarButtonItem = drawerBarButton;
         self.navigationItem.titleView = _titleView;
         self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem];
     }
@@ -119,18 +106,14 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     _searchDataSource.cellIdentifier = AGNNoteListTableViewCellReuseIdentifier;
     
     {
-        UIImage *image = [[UIImage imageNamed:@"icon-more"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [_searchBar.actionButton setImage:image forState:UIControlStateNormal];
-        UIImage *imageAlt = [[UIImage imageNamed:@"icon-more-alt"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [_searchBar.actionButton setImage:imageAlt forState:UIControlStateHighlighted];
-        _searchBar.actionButton.frame = CGRectMake(0, 0, MAX(image.size.width, 40), _searchBar.frame.size.height);
-        [_searchBar.actionButton addTarget:self action:@selector(optionsButtonItemAction:) forControlEvents:UIControlEventTouchUpInside];
-    }
-    {
-        UISearchBar *searchBar = self.searchDisplayController.searchBar;
-        searchBar.keyboardType = UIKeyboardTypeTwitter;
-        [searchBar setBackgroundImage:[UIImage hp_imageWithColor:[UIColor whiteColor] size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault]; // HACK: See: http://stackoverflow.com/questions/19927542/ios7-backgroundimage-for-uisearchbar
-        searchBar.autocorrectionType = UITextAutocorrectionTypeNo; // HACK: See: http://stackoverflow.com/questions/8608529/autocorrect-in-uisearchbar-interferes-when-i-hit-didselectrowatindexpath
+        [[AGNPreferencesManager sharedManager] styleSearchBar];
+        _searchBar.keyboardType = UIKeyboardTypeTwitter;
+        // HACK: Using white color below shows black hairline. WTF?
+        [_searchBar setBackgroundImage:[UIImage hp_imageWithColor:[UIColor clearColor] size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault]; // HACK: See: http://stackoverflow.com/questions/19927542/ios7-backgroundimage-for-uisearchbar
+        UIColor *searchFieldBackgroundColor = [UIColor colorWithWhite:0.92 alpha:1];
+        UIImage *searchFieldBackgroundImage = [[UIImage hp_imageWithColor:searchFieldBackgroundColor size:CGSizeMake(100, 28)] hp_imageByRoundingCornersWithRadius:4];
+        [_searchBar setSearchFieldBackgroundImage:searchFieldBackgroundImage forState:UIControlStateNormal];
+        _searchBar.autocorrectionType = UITextAutocorrectionTypeNo; // HACK: See: http://stackoverflow.com/questions/8608529/autocorrect-in-uisearchbar-interferes-when-i-hit-didselectrowatindexpath
     }
     
     [self applyFonts];
@@ -145,7 +128,10 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     [super viewWillAppear:animated];
     _visible = YES;
-    [[HPTracker defaultTracker] trackScreenWithName:self.indexItem.listScreenName];
+    if (self.indexItem)
+    {
+        [[HPTracker defaultTracker] trackScreenWithName:self.indexItem.listScreenName];
+    }
     if (self.searchDisplayController.isActive)
     {
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];        
@@ -231,25 +217,6 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     }];
 }
 
-- (void)exportNotes
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"export_list"];
-    _noteExporter = [[HPNoteExporter alloc] init];
-    [_titleView setSubtitle:NSLocalizedString(@"Preparing notes for export", @"") animated:YES transient:NO];
-    NSArray *notes = _listDataSource.items;
-    [_noteExporter exportNotes:notes name:self.indexItem.exportPrefix progress:^(NSString *message) {
-        [_titleView setSubtitle:message animated:NO transient:NO];
-    } success:^(NSURL *fileURL) {
-        [_titleView setSubtitle:@"" animated:YES transient:NO];
-        [self exportFileURL:fileURL];
-    } failure:^(NSError *error) {
-        [_titleView setSubtitle:@"" animated:YES transient:NO];
-        NSString *message = error ? [error localizedDescription] : NSLocalizedString(@"Unknown error", @"");
-        [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:message];
-        _noteExporter = nil;
-    }];
-}
-
 - (void)trashNoteInCell:(HPNoteListTableViewCell*)cell
 {
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"trash_note"];
@@ -264,35 +231,6 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [self removeNoteInCell:cell modelBlock:^{
         [[HPTagManager sharedManager] unarchiveNote:cell.note];
     }];
-}
-
-- (void)drawerBarButtonAction:(MMDrawerBarButtonItem*)barButtonItem
-{
-    [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
-}
-
-- (void)optionsButtonItemAction:(id)sender
-{
-    [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"options"];
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] init];
-    actionSheet.delegate = self;
-    NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
-    _optionsActionSheetUndoIndex = -1;
-    if ([undoManager canUndo])
-    {
-        _optionsActionSheetUndoIndex = [actionSheet addButtonWithTitle:[undoManager undoMenuItemTitle]];
-    }
-    
-    _optionsActionSheetRedoIndex = -1;
-    if ([undoManager canRedo])
-    {
-        _optionsActionSheetRedoIndex = [actionSheet addButtonWithTitle:[undoManager redoMenuItemTitle]];
-    }
-    
-    _optionsActionSheetExportIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Export", @"")];
-    NSInteger cancelIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
-    actionSheet.cancelButtonIndex = cancelIndex;
-    [actionSheet showInView:self.view];
 }
 
 - (IBAction)tapTitleView:(id)sender
@@ -315,70 +253,12 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [[UITextField appearanceWhenContainedIn:[HPNoteListSearchBar class], nil] setFont:fonts.fontForSearchBar];
 }
 
-- (void)alertErrorWithTitle:(NSString*)title message:(NSString*)message
-{
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:NSLocalizedString(@"OK", @"") otherButtonTitles:nil];
-    [alertView show];
-}
-
 - (void)changeModel:(void (^)())modelBlock changeView:(void (^)())viewBlock
 {
     _ignoreNotesDidChangeNotification = YES;
     modelBlock();
     viewBlock();
     _ignoreNotesDidChangeNotification = NO;
-}
-
-- (void)exportFileURL:(NSURL*)fileURL
-{
-    if ([MFMailComposeViewController canSendMail])
-    {
-        NSString *path = fileURL.path;
-        NSError *error = nil;
-        NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
-        NSAssert(attributes, @"Failed to get file attributes with error %@", error.localizedDescription);
-        unsigned long long fileSize = attributes.fileSize;
-        static unsigned long long MaxFileSize = 8 * 1024 * 1024; // 8MB
-        if (fileSize < MaxFileSize)
-        {
-            NSData *data = [NSData dataWithContentsOfURL:fileURL];
-            if (data)
-            {
-                MFMailComposeViewController *vc = [[MFMailComposeViewController alloc] init];
-                vc.mailComposeDelegate = self;
-                NSString *subject = [NSString stringWithFormat:NSLocalizedString(@"%@ notes", @""), self.indexItem.title];
-                [vc setSubject:subject];
-                [vc addAttachmentData:data mimeType:@"application/zip" fileName:@"notes.zip"];
-                [self presentViewController:vc animated:YES completion:nil];
-            }
-            else
-            {
-                [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:NSLocalizedString(@"Unable to read zip file", @"")];
-            }
-        }
-        else
-        {
-            [self exportNotesWithDocumentControllerFromFileURL:fileURL
-                                                  errorMessage:NSLocalizedString(@"A documents app like Google Drive or Dropbox is required for large exports", @"")];
-        }
-    }
-    else
-    {
-        [self exportNotesWithDocumentControllerFromFileURL:fileURL errorMessage:NSLocalizedString(@"A configured email client is required", @"")];
-    }
-    _noteExporter = nil;
-}
-
-- (void)exportNotesWithDocumentControllerFromFileURL:(NSURL*)fileURL errorMessage:(NSString*)errorMessage
-{
-    _exportDocumentController = [UIDocumentInteractionController interactionControllerWithURL:fileURL];
-    _exportDocumentController.name = [NSString stringWithFormat:NSLocalizedString(@"%@ notes.zip", @""), self.indexItem.exportPrefix];
-    BOOL success = [_exportDocumentController presentOpenInMenuFromRect:CGRectZero inView:self.view animated:YES];
-    if (!success)
-    {
-        _exportDocumentController = nil;
-        [self alertErrorWithTitle:NSLocalizedString(@"Export Failed", @"") message:errorMessage];
-    }
 }
 
 - (NSIndexPath*)indexPathOfNote:(HPNote*)note
@@ -649,8 +529,9 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     noteCell.separatorInset = UIEdgeInsetsZero;
     noteCell.reuseSwipeViews = YES;
     noteCell.shouldAnimateIcons = NO;
-    noteCell.firstTrigger = 1.0f/3.0f;
-    noteCell.secondTrigger = 2.0f/3.0f;
+    const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
+    noteCell.firstTrigger = isPhone ? 1.0f/3.0f : 0.2f;
+    noteCell.secondTrigger = isPhone ? 2.0f/3.0f : 0.4f;
     __weak id weakSelf = self;
     
     if (!self.indexItem.disableRemove)
@@ -692,6 +573,24 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 
 #pragma mark - UITableViewDelegate
 
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    switch (section) {
+        case 0:
+            return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 8 : 0;
+        case 1: // Search archived section header
+            return 22;
+        default:
+            return 0;
+    }
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+     // Don't use default colored header for first header
+    return section == 0 ? [UIView new] : nil;
+}
+
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     id<HPDataSource> dataSource = (id<HPDataSource>) tableView.dataSource;
@@ -703,7 +602,8 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     else
     {
         HPTag *tag = _notesTableView == tableView ? self.indexItem.tag : [HPTagManager sharedManager].inboxTag; // Search doesn't care about tags
-        return [HPNoteTableViewCell estimatedHeightForNote:note inTag:tag];
+        const CGFloat width = tableView.bounds.size.width;
+        return [HPNoteTableViewCell estimatedHeightForNote:note width:width inTag:tag];
     }
 }
 
@@ -716,7 +616,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 
 - (CGFloat)tableView:(UITableView *)tableView heightForNote:(HPNote *)note
 {
-    CGFloat width = tableView.bounds.size.width;
+    const CGFloat width = tableView.bounds.size.width;
     if (tableView == _notesTableView)
     {
         HPTag *tag = self.indexItem.tag;
@@ -744,15 +644,16 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"search"];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     self.title = NSLocalizedString(@"Search", @"");
-    [_searchBar setWillBeginSearch];
     _searching = YES;
+    _searchBar.tintColor = [AGNPreferencesManager sharedManager].barForegroundColor;
 }
 
 - (void) searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller
 {
     AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
     [[UIApplication sharedApplication] setStatusBarStyle:preferences.statusBarStyle animated:YES];
-    [_searchBar setWillEndSearch];
+    _searchBar.translucent = NO;
+    _searchBar.tintColor = nil;
 }
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
@@ -774,37 +675,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     _searchString = searchString;
     [_searchDataSource search:searchString inIndexItem:self.indexItem];
-    controller.searchResultsDataSource = _searchDataSource;
     return YES;
-}
-
-#pragma mark - UIActionSheetDelegate
-
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (buttonIndex == _optionsActionSheetExportIndex)
-    {
-        [self exportNotes];
-    }
-    else if (buttonIndex == _optionsActionSheetRedoIndex)
-    {
-        NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
-        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"redo" label:undoManager.redoActionName];
-        [undoManager redo];
-    }
-    else if (buttonIndex == _optionsActionSheetUndoIndex)
-    {
-        NSUndoManager *undoManager = [HPNoteManager sharedManager].context.undoManager;
-        [[HPTracker defaultTracker] trackEventWithCategory:@"user" action:@"undo" label:undoManager.undoActionName];
-        [undoManager undo];
-    }
-}
-
-#pragma mark - MFMailComposeViewControllerDelegate
-
-- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
-{
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - UIGestureRecognizerDelegate

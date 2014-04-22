@@ -57,7 +57,7 @@
     [self addSubview:_subtitleLabel];
 
     [_titleLabel lyt_alignSidesToView:self];
-    [_titleLabel lyt_alignCenterYToView:self];
+    [_titleLabel lyt_centerYWithView:self];
 
     [_subtitleLabel lyt_alignSidesToView:self];
     [_subtitleLabel lyt_placeBelowView:_titleLabel margin:-4];
@@ -90,8 +90,8 @@
     
     [UIView transitionWithView:self duration:duration options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
         UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-        const BOOL landscape = UIInterfaceOrientationIsLandscape(orientation);
-        if (landscape)
+        const BOOL showSubtitleAsTitle = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone && UIInterfaceOrientationIsLandscape(orientation);
+        if (showSubtitleAsTitle)
         {
             if (subtitle && subtitle.length > 0)
             {

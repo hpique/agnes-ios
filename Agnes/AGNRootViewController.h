@@ -2,20 +2,33 @@
 //  AGNRootViewController.h
 //  Agnes
 //
-//  Created by Hermes on 20/01/14.
+//  Created by Hermés Piqué on 08/04/14.
 //  Copyright (c) 2014 Hermes Pique. All rights reserved.
 //
 
-#import "MMDrawerController.h"
-@class HPIndexItem;
+#import <UIKit/UIKit.h>
+#import "AGNNoteListViewController.h"
+@class HPIndexViewController;
 
-@interface AGNRootViewController : MMDrawerController<UINavigationControllerDelegate>
+@interface AGNRootViewController : UIViewController<UINavigationControllerDelegate, AGNNoteListViewControllerDelegate>
+
+@property (nonatomic, readonly) HPIndexViewController *indexViewController;
+
+@property (nonatomic, readonly) UINavigationController *indexNavigationController;
+
+@property (nonatomic, readonly) AGNNoteListViewController *listViewController;
+
+@property (nonatomic, readonly) UINavigationController *listNavigationController;
 
 - (void)setListIndexItem:(HPIndexItem*)indexItem animated:(BOOL)animated;
 
 - (void)showBlankNote;
 
-@property (nonatomic, readonly) HPIndexItem *indexItem;
+- (void)willReplaceModel;
+
+- (void)viewDidLoadAddChildViewController:(UIViewController *)childController;
+
++ (instancetype)rootViewController;
 
 @end
 

@@ -86,6 +86,7 @@
     UIView *containerView = transitionContext.containerView;
     [transitionContext.containerView addSubview:toViewController.view];
     toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
+    [toViewController.view layoutIfNeeded]; // To adjust the text inset in iPad
     
     // HACK: We need to call this here to ensure that the text is properly positioned. Doing this in viewWillAppear: or viewWillLayoutSubviews conflicted with the animations.
     [toViewController.noteTextView scrollToVisibleCaretAnimated:NO];
@@ -214,6 +215,7 @@
     UIView *containerView = transitionContext.containerView;
     [containerView addSubview:toViewController.view];
     toViewController.view.frame = [transitionContext finalFrameForViewController:toViewController];
+    [toViewController.view layoutIfNeeded];
     
     UIView *backgroundView = [self coverView:toViewController.view rect:toViewController.view.bounds color:[UIColor whiteColor] context:transitionContext];
     [containerView bringSubviewToFront:toViewController.view];

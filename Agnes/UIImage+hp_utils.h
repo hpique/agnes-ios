@@ -14,8 +14,11 @@
 
 - (CGRect)hp_aspectFitRectForSize:(CGSize)size;
 
+- (UIImage*)hp_imageByRoundingCornersWithRadius:(float)radius;
+
 - (UIImage *)hp_imageByScalingToSize:(CGSize)newSize;
 
 + (UIImage*)hp_imageWithColor:(UIColor*)color size:(CGSize)size;
+
 
 @end

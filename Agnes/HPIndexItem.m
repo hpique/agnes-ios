@@ -154,6 +154,11 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return item;
 }
 
+- (BOOL)canExport
+{
+    return self.noteCount > 0;
+}
+
 - (BOOL)disableAdd
 {
     return _disableAdd;
@@ -500,6 +505,11 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 @end
 
 @implementation HPIndexItemSystem
+
+- (BOOL)canExport
+{
+    return NO;
+}
 
 - (HPTag*)tag
 { // For cell height calculations
