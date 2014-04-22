@@ -60,7 +60,7 @@ static CGFloat const AGNIndexShownMargin = 0;
     }
     
     {
-        UIImage *hashtagImage = [[UIImage imageNamed:@"icon-hashtag"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImage *hashtagImage = [[UIImage imageNamed:@"icon-index"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         _toggleIndexButton = [UIButton buttonWithType:UIButtonTypeCustom];
         _toggleIndexButton.tintColor = [UIColor whiteColor];
         [_toggleIndexButton setImage:hashtagImage forState:UIControlStateNormal];
