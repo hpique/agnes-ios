@@ -41,6 +41,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     NSCache *_indexItemCache;
     HPIndexItem *_selectedIndexItem;
     
+    UIBarButtonItem *_optionsBarButtonItem;
     UIActionSheet *_optionsActionSheet;
     NSInteger _optionsActionSheetUndoIndex;
     NSInteger _optionsActionSheetRedoIndex;
@@ -50,6 +51,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     AGNExportController *_exportController;
     
     BOOL _ignoreTagChanges;
+
+    BOOL _readOnly;
 }
 
 @synthesize tableView = _tableView;
@@ -70,17 +73,17 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     
     {
         UIImage *image = [UIImage imageNamed:@"icon-more"];
-        UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(optionsBarButtonItemAction:)];
+        _optionsBarButtonItem = [[UIBarButtonItem alloc] initWithImage:image style:UIBarButtonItemStylePlain target:self action:@selector(optionsBarButtonItemAction:)];
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
         { // Compensate the drawer shadow
             UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
             fixedSpace.width = 12;
-            self.navigationItem.rightBarButtonItems = @[fixedSpace, barButton];
+            self.navigationItem.rightBarButtonItems = @[fixedSpace, _optionsBarButtonItem];
         }
         else
         {
-            self.navigationItem.rightBarButtonItem = barButton;
+            self.navigationItem.rightBarButtonItem = _optionsBarButtonItem;
         }
     }
     
@@ -181,6 +184,16 @@ static NSString *HPIndexCellIdentifier = @"Cell";
     } reloadBlock:nil];
 }
 
+- (void)setReadOnly
+{
+    _readOnly = YES;
+    
+    _optionsBarButtonItem.enabled = NO;
+    [self hp_dismissActionSheet:&_optionsActionSheet animated:YES];
+    
+    [self stopObserving];
+}
+
 - (NSArray*)sortedTagIndexItems
 {
     NSArray *tags = [[HPTagManager sharedManager] indexTags];
@@ -248,6 +261,8 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (_readOnly) return NO;
+    
     if (_sortMode == HPIndexSortModeOrder)
     {
         HPIndexItem *item = [_items objectAtIndex:indexPath.row];
@@ -440,9 +455,7 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 
 - (void)willReplaceModelNotification:(NSNotification*)notification
 {
-    [self stopObserving];
-    _items = [NSMutableArray array];
-    [self.tableView reloadData];
+    [self setReadOnly];
 }
 
 @end
