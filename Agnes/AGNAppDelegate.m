@@ -124,9 +124,11 @@
 
 - (void)modelManager:(AGNModelManager*)modelManager confirmCloudStoreImportWithBlock:(void(^)(BOOL confirmed))confirmBlock
 {
+    [[HPTracker defaultTracker] trackEventWithCategory:@"system" action:@"alert_icloud_import"];
+    
     CVRAlertView *alertView = [[CVRAlertView alloc] init];
     alertView.title = NSLocalizedString(@"iCloud Off", @"");
-    alertView.message = NSLocalizedString(@"Would you like keep in your device the previously synced iCloud notes?", @"");
+    alertView.message = NSLocalizedString(@"Would you like to keep in your device the previously synced iCloud notes?", @"");
     [alertView addButtonWithTitle:NSLocalizedString(@"Don't Keep", @"")];
     NSUInteger cancelIndex = [alertView addButtonWithTitle:NSLocalizedString(@"Keep", @"")];
     alertView.cancelButtonIndex = cancelIndex;
