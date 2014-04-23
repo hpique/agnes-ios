@@ -25,7 +25,7 @@
 #import "HPNoteListSearchBar.h"
 #import "HPFontManager.h"
 #import "HPNavigationBarToggleTitleView.h"
-#import "HPModelManager.h"
+#import "AGNModelManager.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "UIImage+hp_utils.h"
 #import "NSNotification+hp_status.h"
@@ -347,7 +347,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:AGNModelManagerWillReplaceModelNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(statusNotification:) name:HPStatusNotification object:nil];
 }
 
@@ -356,7 +356,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNModelManagerWillReplaceModelNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPStatusNotification object:nil];
 }
 

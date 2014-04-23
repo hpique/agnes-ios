@@ -18,7 +18,7 @@
 #import "HPNoteListDetailTransitionAnimator.h"
 #import "HPTagManager.h"
 #import "HPIndexItem.h"
-#import "HPModelManager.h"
+#import "AGNModelManager.h"
 #import "HPTracker.h"
 #import <iRate/iRate.h>
 
@@ -28,7 +28,7 @@
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNModelManagerWillReplaceModelNotification object:nil];
 }
 
 - (void)viewDidLoad
@@ -47,7 +47,7 @@
     [_indexViewController selectIndexItem:indexItem];
     _indexNavigationController = [[HPAgnesNavigationController alloc] initWithRootViewController:_indexViewController];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:AGNModelManagerWillReplaceModelNotification object:nil];
 }
 
 #pragma mark UIResponder

@@ -10,7 +10,7 @@
 #import "HPNote.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
-#import "HPModelManager.h"
+#import "AGNModelManager.h"
 #import "HPFontManager.h"
 #import "AGNPreferencesManager.h"
 
@@ -83,7 +83,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 - (void)dealloc
 {
     [self stopObserving];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerDidReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNModelManagerDidReplaceModelNotification object:nil];
 }
 
 + (instancetype)inboxIndexItem
@@ -299,14 +299,14 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notesDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:AGNModelManagerWillReplaceModelNotification object:nil];
 }
 
 - (void)stopObserving
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPNoteManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNModelManagerWillReplaceModelNotification object:nil];
 }
 
 - (NSArray*)sortedNotesFromSet:(NSSet*)set
@@ -415,7 +415,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
 
 - (void)didReplaceModelNotification:(NSNotification*)notification
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerDidReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNModelManagerDidReplaceModelNotification object:nil];
     [self startObserving];
 }
 
@@ -424,7 +424,7 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     [self stopObserving];
     _noteCount = NSNotFound;
     _notes = nil;
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReplaceModelNotification:) name:HPModelManagerDidReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReplaceModelNotification:) name:AGNModelManagerDidReplaceModelNotification object:nil];
 }
 
 - (void)invalidateNotesAndNotifyChange

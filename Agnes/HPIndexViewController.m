@@ -18,7 +18,7 @@
 #import "AGNRootViewController.h"
 #import "HPNavigationBarToggleTitleView.h"
 #import "AGNPreferencesManager.h"
-#import "HPModelManager.h"
+#import "AGNModelManager.h"
 #import "MMDrawerController.h"
 #import "UITableView+hp_reloadChanges.h"
 #import "UIViewController+hp_modals.h"
@@ -222,13 +222,13 @@ static NSString *HPIndexCellIdentifier = @"Cell";
 - (void)startObserving
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tagsDidChangeNotification:) name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:HPModelManagerWillReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:AGNModelManagerWillReplaceModelNotification object:nil];
 }
 
 - (void)stopObserving
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerWillReplaceModelNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNModelManagerWillReplaceModelNotification object:nil];
 }
 
 #pragma mark UITableViewDataSource

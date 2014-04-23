@@ -12,7 +12,7 @@
 #import "AGNRootViewController.h"
 #import "HPNoteImporter.h"
 #import "HPAgnesNavigationController.h"
-#import "HPModelManager.h"
+#import "AGNModelManager.h"
 #import "HPTracker.h"
 #import "CVRAlertView.h"
 #import <iRate/iRate.h>
@@ -20,19 +20,19 @@
 #import "TestFlight.h"
 #import <Crashlytics/Crashlytics.h>
 
-@interface AGNAppDelegate()<HPModelManagerDelegate, iRateDelegate>
+@interface AGNAppDelegate()<AGNModelManagerDelegate, iRateDelegate>
 
 @end
 
 @implementation AGNAppDelegate {
-    HPModelManager *_modelManager;
+    AGNModelManager *_modelManager;
 }
 
 @synthesize managedObjectContext = _managedObjectContext;
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:HPModelManagerDidReplaceModelNotification object:_modelManager];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNModelManagerDidReplaceModelNotification object:_modelManager];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -58,12 +58,12 @@
     [Crashlytics startWithAPIKey:@"303898f46fabee8132e6fe426e5cd0045ca8cce2"]; // Must be last
 #endif
     {
-        _modelManager = [[HPModelManager alloc] init];
+        _modelManager = [[AGNModelManager alloc] init];
         _modelManager.delegate = self;
         [_modelManager setupManagedObjectContext];
         [_modelManager addTutorialIfNeeded];
         [_modelManager saveContext];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReplaceModelNotification:) name:HPModelManagerDidReplaceModelNotification object:_modelManager];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReplaceModelNotification:) name:AGNModelManagerDidReplaceModelNotification object:_modelManager];
     }
     
     AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
@@ -122,7 +122,7 @@
 
 #pragma mark HPModelManagerDelegate
 
-- (void)modelManager:(HPModelManager*)modelManager confirmCloudStoreImportWithBlock:(void(^)(BOOL confirmed))confirmBlock
+- (void)modelManager:(AGNModelManager*)modelManager confirmCloudStoreImportWithBlock:(void(^)(BOOL confirmed))confirmBlock
 {
     CVRAlertView *alertView = [[CVRAlertView alloc] init];
     alertView.title = NSLocalizedString(@"iCloud Off", @"");
