@@ -16,6 +16,7 @@
 #import "HPNote.h"
 #import "HPModelContextImporter.h"
 #import "NSNotification+hp_status.h"
+#import "HPDispatchUtils.h"
 
 static NSString *const AGNModelManagerUbiquityIdentityTokenKey = @"HPModelManagerUbiquityIdentityToken";
 static NSString *const AGNModelManagerPersistentStoreURLKey = @"HPModelManagerPersistentStoreURL";
@@ -251,9 +252,10 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
 
 #pragma mark - Notifications
 
+// These notifications can be called from any queue, including the main queue.
+
 - (void)persistentStoreDidImportUbiquitousContentChanges:(NSNotification*)notification
-{ // Careful: This is not always called from the main queue
-//    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
+{
     NSManagedObjectContext *moc = self.managedObjectContext;
     [moc performBlockAndWait:^{
         [moc mergeChangesFromContextDidSaveNotification:notification];
@@ -261,11 +263,7 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
 }
 
 - (void)storesWillChange:(NSNotification *)notification
-{ // Careful: This is not always called from the main queue
-//    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:AGNModelManagerWillReplaceModelNotification object:self];
-    });
+{
     NSDictionary *userInfo = notification.userInfo;
     NSManagedObjectContext *moc = self.managedObjectContext;
     NSPersistentStoreUbiquitousTransitionType transitionType = [userInfo[NSPersistentStoreUbiquitousTransitionTypeKey] integerValue];
@@ -283,11 +281,15 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
         }
         [moc reset];
     }];
+    
+    // This method is sometimes called from the main queue
+    HPDispatchSyncInMainQueueIfNeeded(^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:AGNModelManagerWillReplaceModelNotification object:self];
+    });
 }
 
 - (void)storesDidChange:(NSNotification *)notification
-{ // Careful: This is not always called from the main queue
-//    NSLog(@"%s\n%@", __PRETTY_FUNCTION__, notification);
+{
     NSDictionary *userInfo = notification.userInfo;
     NSPersistentStoreUbiquitousTransitionType transitionType = [[userInfo objectForKey:NSPersistentStoreUbiquitousTransitionTypeKey] integerValue];
     NSPersistentStore *persistentStore = [userInfo[NSAddedPersistentStoresKey] firstObject];
@@ -336,7 +338,9 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
     }
     NSString *urlString = persistentStore.URL.absoluteString;
     [defaults setObject:urlString forKey:AGNModelManagerPersistentStoreURLKey];
-    dispatch_async(dispatch_get_main_queue(), ^{
+    
+    // This method is sometimes called from the main queue
+    HPDispatchSyncInMainQueueIfNeeded(^{
         [[NSNotificationCenter defaultCenter] postNotificationName:AGNModelManagerDidReplaceModelNotification object:self];
     });
 }

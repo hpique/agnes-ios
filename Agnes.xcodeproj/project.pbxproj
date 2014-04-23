@@ -75,6 +75,7 @@
 		8763DA6818884650000D9569 /* AGNNoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8763DA6618884650000D9569 /* AGNNoteViewController.xib */; };
 		8763DA6B188942F6000D9569 /* HPBaseTextStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */; };
 		8763DA6E18897982000D9569 /* HPNoteListTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */; };
+		8772085A190812D2002E677E /* HPDispatchUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 87720859190812D2002E677E /* HPDispatchUtils.m */; };
 		877CC3B819052DAF00F9E994 /* AGNGalleryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 877CC3B719052DAF00F9E994 /* AGNGalleryController.m */; };
 		87A6905B18B4C59400F97E13 /* hashtags.plist in Resources */ = {isa = PBXBuildFile; fileRef = 87A6905918B4C59400F97E13 /* hashtags.plist */; };
 		87A6906D18B4CA2700F97E13 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A6906C18B4CA2700F97E13 /* libGoogleAnalyticsServices.a */; };
@@ -245,6 +246,8 @@
 		8763DA6A188942F6000D9569 /* HPBaseTextStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPBaseTextStorage.m; sourceTree = "<group>"; };
 		8763DA6C18897982000D9569 /* HPNoteListTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteListTableViewCell.h; sourceTree = "<group>"; };
 		8763DA6D18897982000D9569 /* HPNoteListTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListTableViewCell.m; sourceTree = "<group>"; };
+		87720858190812D2002E677E /* HPDispatchUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPDispatchUtils.h; sourceTree = "<group>"; };
+		87720859190812D2002E677E /* HPDispatchUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPDispatchUtils.m; sourceTree = "<group>"; };
 		877CC3B619052DAF00F9E994 /* AGNGalleryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNGalleryController.h; sourceTree = "<group>"; };
 		877CC3B719052DAF00F9E994 /* AGNGalleryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNGalleryController.m; sourceTree = "<group>"; };
 		87A6905A18B4C59400F97E13 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = en; path = en.lproj/hashtags.plist; sourceTree = "<group>"; };
@@ -608,6 +611,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		8772085719081294002E677E /* GCD */ = {
+			isa = PBXGroup;
+			children = (
+				87720858190812D2002E677E /* HPDispatchUtils.h */,
+				87720859190812D2002E677E /* HPDispatchUtils.m */,
+			);
+			name = GCD;
+			sourceTree = "<group>";
+		};
 		87A6905C18B4CA2700F97E13 /* GoogleAnalyticsServicesiOS_3.03a */ = {
 			isa = PBXGroup;
 			children = (
@@ -740,6 +752,7 @@
 			children = (
 				87CAF3AE18B77116004380BB /* Core Data */,
 				87CAF3AD18B770D8004380BB /* Foundation */,
+				8772085719081294002E677E /* GCD */,
 				87A6906E18B4CA8600F97E13 /* HPTracker.h */,
 				87A6906F18B4CA8600F97E13 /* HPTracker.m */,
 				87393C5418A55F27006AB087 /* UIKit */,
@@ -927,6 +940,7 @@
 			files = (
 				87AA3D08189F342800FBEAAF /* HPNote+List.m in Sources */,
 				87DA062918A27ADC00762E12 /* AGNModelManager.m in Sources */,
+				8772085A190812D2002E677E /* HPDispatchUtils.m in Sources */,
 				8763DA5B18883B2B000D9569 /* AGNNoteListViewController.m in Sources */,
 				8711F1BA18F95D6C00F27EC1 /* AGNExportController.m in Sources */,
 				8740FAF1188B2AC5004CF099 /* HPTagSuggestionsView.m in Sources */,
