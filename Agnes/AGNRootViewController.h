@@ -8,11 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import "AGNNoteListViewController.h"
-@class HPIndexViewController;
+@class AGNIndexViewController;
 
 @interface AGNRootViewController : UIViewController<UINavigationControllerDelegate, AGNNoteListViewControllerDelegate>
 
-@property (nonatomic, readonly) HPIndexViewController *indexViewController;
+@property (nonatomic, readonly) AGNIndexViewController *indexViewController;
 
 @property (nonatomic, readonly) UINavigationController *indexNavigationController;
 

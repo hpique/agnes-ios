@@ -12,7 +12,7 @@
 #import "AGNNoteViewController.h"
 #import "AGNRootPadViewController.h"
 #import "AGNRootPhoneViewController.h"
-#import "HPIndexViewController.h"
+#import "AGNIndexViewController.h"
 #import "HPNoteNavigationController.h"
 #import "HPAgnesNavigationController.h"
 #import "HPNoteListDetailTransitionAnimator.h"
@@ -43,7 +43,7 @@
     _listNavigationController = [[HPNoteNavigationController alloc] initWithRootViewController:_listViewController];
     _listNavigationController.delegate = self;
     
-    _indexViewController = [HPIndexViewController new];
+    _indexViewController = [AGNIndexViewController new];
     [_indexViewController selectIndexItem:indexItem];
     _indexNavigationController = [[HPAgnesNavigationController alloc] initWithRootViewController:_indexViewController];
     

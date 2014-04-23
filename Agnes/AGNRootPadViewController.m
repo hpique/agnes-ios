@@ -9,7 +9,7 @@
 #import "AGNRootPadViewController.h"
 #import "HPAgnesUIMetrics.h"
 #import "HPIndexItem.h"
-#import "HPIndexViewController.h"
+#import "AGNIndexViewController.h"
 #import "UIImage+hp_utils.h"
 #import <Lyt/Lyt.h>
 #import <iOS7Colors/UIColor+iOS7Colors.h>

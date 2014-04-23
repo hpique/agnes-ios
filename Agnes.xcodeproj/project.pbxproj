@@ -46,8 +46,8 @@
 		873E228518AA447700E7919C /* UIView+hp_utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E228418AA447700E7919C /* UIView+hp_utils.m */; };
 		873E9CCF189174F8003364E7 /* UITableView+hp_reloadChanges.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */; };
 		8740FADA1889B3F4004CF099 /* HPNoteSearchTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */; };
-		8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FADC188A8B69004CF099 /* HPIndexViewController.m */; };
-		8740FADF188A8B69004CF099 /* HPIndexViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8740FADD188A8B69004CF099 /* HPIndexViewController.xib */; };
+		8740FADE188A8B69004CF099 /* AGNIndexViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FADC188A8B69004CF099 /* AGNIndexViewController.m */; };
+		8740FADF188A8B69004CF099 /* AGNIndexViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8740FADD188A8B69004CF099 /* AGNIndexViewController.xib */; };
 		8740FAE5188A8C3F004CF099 /* HPIndexItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAE4188A8C3F004CF099 /* HPIndexItem.m */; };
 		8740FAE8188AA7DB004CF099 /* HPNoteTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8740FAE7188AA7DB004CF099 /* HPNoteTableViewCell.m */; };
 		8740FAEB188ACEF9004CF099 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8740FAE9188ACEF9004CF099 /* Localizable.strings */; };
@@ -200,9 +200,9 @@
 		873E9CCE189174F8003364E7 /* UITableView+hp_reloadChanges.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+hp_reloadChanges.m"; sourceTree = "<group>"; };
 		8740FAD81889B3F4004CF099 /* HPNoteSearchTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteSearchTableViewCell.h; sourceTree = "<group>"; };
 		8740FAD91889B3F4004CF099 /* HPNoteSearchTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteSearchTableViewCell.m; sourceTree = "<group>"; };
-		8740FADB188A8B69004CF099 /* HPIndexViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPIndexViewController.h; sourceTree = "<group>"; };
-		8740FADC188A8B69004CF099 /* HPIndexViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPIndexViewController.m; sourceTree = "<group>"; };
-		8740FADD188A8B69004CF099 /* HPIndexViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HPIndexViewController.xib; sourceTree = "<group>"; };
+		8740FADB188A8B69004CF099 /* AGNIndexViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNIndexViewController.h; sourceTree = "<group>"; };
+		8740FADC188A8B69004CF099 /* AGNIndexViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNIndexViewController.m; sourceTree = "<group>"; };
+		8740FADD188A8B69004CF099 /* AGNIndexViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AGNIndexViewController.xib; sourceTree = "<group>"; };
 		8740FAE3188A8C3F004CF099 /* HPIndexItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPIndexItem.h; sourceTree = "<group>"; };
 		8740FAE4188A8C3F004CF099 /* HPIndexItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPIndexItem.m; sourceTree = "<group>"; };
 		8740FAE6188AA7DB004CF099 /* HPNoteTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteTableViewCell.h; sourceTree = "<group>"; };
@@ -445,14 +445,14 @@
 			children = (
 				8711F1B818F95D6C00F27EC1 /* AGNExportController.h */,
 				8711F1B918F95D6C00F27EC1 /* AGNExportController.m */,
+				8740FADB188A8B69004CF099 /* AGNIndexViewController.h */,
+				8740FADC188A8B69004CF099 /* AGNIndexViewController.m */,
+				8740FADD188A8B69004CF099 /* AGNIndexViewController.xib */,
 				8740FAE3188A8C3F004CF099 /* HPIndexItem.h */,
 				8740FAE4188A8C3F004CF099 /* HPIndexItem.m */,
 				871429A51892E84400DA588F /* HPIndexItemTableViewCell.h */,
 				871429A61892E84400DA588F /* HPIndexItemTableViewCell.m */,
 				871429A81892E87A00DA588F /* HPIndexItemTableViewCell.xib */,
-				8740FADB188A8B69004CF099 /* HPIndexViewController.h */,
-				8740FADC188A8B69004CF099 /* HPIndexViewController.m */,
-				8740FADD188A8B69004CF099 /* HPIndexViewController.xib */,
 			);
 			name = Index;
 			sourceTree = "<group>";
@@ -860,7 +860,7 @@
 				87F47BB118ACE5E600F1FB48 /* sample-thumbnail@2x.jpg in Resources */,
 				871CD00A189B098200E39CFA /* HPNoteSearchTableViewCell.xib in Resources */,
 				8763DA3D18883ACF000D9569 /* Images.xcassets in Resources */,
-				8740FADF188A8B69004CF099 /* HPIndexViewController.xib in Resources */,
+				8740FADF188A8B69004CF099 /* AGNIndexViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -946,7 +946,7 @@
 				87E37EFA188D97F3000333EA /* HPBrowserViewController.m in Sources */,
 				87E37EEA188C413D000333EA /* HPTag.m in Sources */,
 				871429AC18933D6600DA588F /* HPNoteActivityItemSource.m in Sources */,
-				8740FADE188A8B69004CF099 /* HPIndexViewController.m in Sources */,
+				8740FADE188A8B69004CF099 /* AGNIndexViewController.m in Sources */,
 				87393C5318A55F0D006AB087 /* UITextView+hp_utils.m in Sources */,
 				87CAF3AC18B7673E004380BB /* NSNotification+hp_status.m in Sources */,
 				87D02E19188ECBA600273DEC /* HPNoteExporter.m in Sources */,
