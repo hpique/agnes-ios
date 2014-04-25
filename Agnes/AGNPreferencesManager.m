@@ -15,22 +15,22 @@
 
 NSString *const AGNPreferencesManagerDidChangePreferencesNotification = @"AGNPreferencesManagerDidChangePreferencesNotification";
 
-NSString *const AGNDefaultsKeyBarTintColor = @"HPAgnesBarTintColor";
-NSString *const AGNDefaultsKeyDynamicType = @"HPAgnesDynamicType";
-NSString *const AGNDefaultsKeyFontName = @"HPAgnesFontName";
-NSString *const AGNDefaultsKeyFontSize = @"HPAgnesFontSize";
-NSString *const AGNDefaultsKeyIndexSortMode = @"HPIndexSortMode";
-NSString *const AGNDefaultsKeyLastViewedTag = @"AGNLastViewedTag";
-NSString *const AGNDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
-NSString *const AGNDefaultsKeyTintColor = @"HPAgnesTintColor";
+static NSString *const AGNDefaultsKeyBarTintColor = @"HPAgnesBarTintColor";
+static NSString *const AGNDefaultsKeyDynamicType = @"HPAgnesDynamicType";
+static NSString *const AGNDefaultsKeyFontName = @"HPAgnesFontName";
+static NSString *const AGNDefaultsKeyFontSize = @"HPAgnesFontSize";
+static NSString *const AGNDefaultsKeyIndexSortMode = @"HPIndexSortMode";
+static NSString *const AGNDefaultsKeyLastViewedTag = @"AGNLastViewedTag";
+static NSString *const AGNDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
+static NSString *const AGNDefaultsKeyTintColor = @"HPAgnesTintColor";
 
-NSString *const AGNPreferencesKeyStatusBarHidden = @"statusBarHidden";
-NSString *const AGNPreferencesKeyBarTintColor = @"barTintColor";
-NSString *const AGNPreferencesKeyDynamicType = @"dynamicType";
-NSString *const AGNPreferencesKeyFontName = @"fontName";
-NSString *const AGNPreferencesKeyFontSize = @"fontSize";
-NSString *const AGNPreferencesKeyTintColor = @"tintColor";
-NSString *const AGNPreferencesValueDefault = @"default";
+static NSString *const AGNPreferencesKeyStatusBarHidden = @"statusBarHidden";
+static NSString *const AGNPreferencesKeyBarTintColor = @"barTintColor";
+static NSString *const AGNPreferencesKeyDynamicType = @"dynamicType";
+static NSString *const AGNPreferencesKeyFontName = @"fontName";
+static NSString *const AGNPreferencesKeyFontSize = @"fontSize";
+static NSString *const AGNPreferencesKeyTintColor = @"tintColor";
+static NSString *const AGNPreferencesValueDefault = @"default";
 
 static UIColor* AGNDefaultBarTintColor = nil;
 static BOOL const AGNDefaultDynamicType = NO;
