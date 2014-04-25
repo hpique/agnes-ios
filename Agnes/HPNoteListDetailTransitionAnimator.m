@@ -22,7 +22,7 @@
 
 - (NSTimeInterval)transitionDuration:(id <UIViewControllerContextTransitioning>)transitionContext
 {
-    return 0.5;
+    return 0.3;
 }
 
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext
@@ -158,7 +158,7 @@
     if (thumbnailViewPlaceholder) [containerView bringSubviewToFront:thumbnailViewPlaceholder];
     noteTextView.alpha = 0;
     NSTimeInterval duration = [self transitionDuration:transitionContext];
-    NSTimeInterval firstDuration = duration * 2.0/3.0;
+    NSTimeInterval firstDuration = duration * 3.0/4.0;
     NSTimeInterval secondDuration = duration - firstDuration;
     UIView *toolbar = toViewController.toolbar;
     toolbar.alpha = 0;
