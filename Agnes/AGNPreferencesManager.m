@@ -12,6 +12,7 @@
 #import "UIImage+hp_utils.h"
 #import <iOS7Colors/UIColor+iOS7Colors.h>
 #import <ColorUtils/ColorUtils.h>
+#import "HPTracker.h"
 
 NSString *const AGNPreferencesManagerDidChangePreferencesNotification = @"AGNPreferencesManagerDidChangePreferencesNotification";
 
@@ -329,12 +330,20 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     }
 }
 
+- (void)trackSetPreference:(NSString*)preference value:(NSString*)value
+{
+    [[HPTracker defaultTracker] trackEventWithCategory:@"preference" action:preference label:value];
+}
+
 - (void)updateBarTintColorFromValue:(NSString*)value
 {
     UIColor *color = [value isEqualToString:AGNPreferencesValueDefault] ? AGNDefaultBarTintColor : [UIColor colorWithString:value];
-    if (!color) return;
-    if ([self.barTintColor isEquivalentToColor:color]) return;
-    self.barTintColor = color;
+    if (color)
+    {
+        if ([self.barTintColor isEquivalentToColor:color]) return;
+        self.barTintColor = color;
+    }
+    [self trackSetPreference:AGNPreferencesKeyBarTintColor value:value];
 }
 
 - (void)updateDynamicTypeFromValue:(NSString*)value
@@ -342,6 +351,7 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     BOOL boolValue = [value isEqualToString:AGNPreferencesValueDefault] ? AGNDefaultDynamicType : [value boolValue];
     if (self.dynamicType == boolValue) return;
     self.dynamicType = boolValue;
+    [self trackSetPreference:AGNPreferencesKeyDynamicType value:value];
 }
 
 - (void)updateFontNameFromValue:(NSString*)value
@@ -351,11 +361,21 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     if (![fontName isEqualToString:HPFontManagerSystemFontName])
     {
         UIFont *font = [UIFont fontWithName:fontName size:10];
-        if (!font) return;
+        if (!font)
+        {
+            [self trackSetPreference:AGNPreferencesKeyFontName value:value];
+            return;
+        }
         NSString *resultFontName = font.fontName;
-        if (![resultFontName.lowercaseString hasPrefix:fontName]) return;
+        if (![resultFontName.lowercaseString hasPrefix:fontName])
+        {
+            [self trackSetPreference:AGNPreferencesKeyFontName value:value];
+        }
         fontName = resultFontName;
     }
+    if ([self.fontName isEqualToString:fontName]) return;
+
+    [self trackSetPreference:AGNPreferencesKeyFontName value:value];
     self.fontName = fontName;
 }
 
@@ -364,6 +384,8 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     NSInteger fontSize = [value isEqualToString:AGNPreferencesValueDefault] ? [self.class defaultFontSize] : [value integerValue];
     if (self.fontSize == fontSize) return;
     self.fontSize = MIN(MAX(8, fontSize), 28); // Prevent app from becoming unusable
+
+    [self trackSetPreference:AGNPreferencesKeyFontSize value:value];
 }
 
 - (void)updateListSeparatorsHiddenFromValue:(NSString*)value
@@ -371,6 +393,8 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     BOOL boolValue = [value isEqualToString:AGNPreferencesValueDefault] ? AGNDefaultListSeparatorsHidden : [value boolValue];
     if (self.listSeparatorsHidden == boolValue) return;
     self.listSeparatorsHidden = boolValue;
+    
+    [self trackSetPreference:AGNPreferencesKeyListSeparatorsHidden value:value];
 }
 
 - (void)updateStatusBarHiddenFromValue:(NSString*)value
@@ -378,14 +402,21 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     BOOL boolValue = [value isEqualToString:AGNPreferencesValueDefault] ? AGNDefaultStatusBarHidden : [value boolValue];
     if (self.statusBarHidden == boolValue) return;
     self.statusBarHidden = boolValue;
+    
+    [self trackSetPreference:AGNPreferencesKeyStatusBarHidden value:value];
 }
 
 - (void)updateTintColorFromValue:(NSString*)value
 {
     UIColor *color = [value isEqualToString:AGNPreferencesValueDefault] ? AGNDefaultTintColor : [UIColor colorWithString:value];
-    if (!color) return;
-    if ([self.tintColor isEquivalentToColor:color]) return;
-    self.tintColor = color;
+    if (color)
+    {
+        if ([self.tintColor isEquivalentToColor:color]) return;
+        self.tintColor = color;
+    }
+    [self trackSetPreference:AGNPreferencesKeyTintColor value:value];
 }
+
+
 
 @end
