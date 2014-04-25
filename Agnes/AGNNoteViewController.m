@@ -25,7 +25,7 @@
 #import "HPAttachment.h"
 #import "NSString+hp_utils.h"
 #import "HPNoFirstResponderActionSheet.h"
-#import "HPAgnesUIMetrics.h"
+#import "AGNUIMetrics.h"
 #import "HPDataActionController.h"
 #import "HPTracker.h"
 #import "HPTextInteractionTapGestureRecognizer.h"
@@ -280,7 +280,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 + (CGFloat)minimumNoteWidth
 {
     const CGFloat minimumWidth = 768 - AGNIndexWidthPad; // For iPad
-    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait width:minimumWidth]; // Portrait has the smallest margins
+    const CGFloat sideMargin = [AGNUIMetrics sideMarginForInterfaceOrientation:UIInterfaceOrientationPortrait width:minimumWidth]; // Portrait has the smallest margins
     const CGSize screenSize = [UIScreen mainScreen].bounds.size;
     const CGFloat minLength = MIN(MIN(screenSize.width, screenSize.height), minimumWidth);
     const CGFloat width = minLength - sideMargin * 2;
@@ -363,7 +363,7 @@ const CGFloat AGNNoteEditorAttachmentAnimationFrameRate = 60;
 -(void)updateTextInset
 {
     const CGFloat width = self.view.bounds.size.width;
-    const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation width:width];
+    const CGFloat sideMargin = [AGNUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation width:width];
     const CGFloat sideInset = sideMargin - _bodyTextView.textContainer.lineFragmentPadding;
     static const CGFloat TopInsetPhone = 20;
     static const CGFloat TopInsetPad = 44;

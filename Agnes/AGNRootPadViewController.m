@@ -7,7 +7,7 @@
 //
 
 #import "AGNRootPadViewController.h"
-#import "HPAgnesUIMetrics.h"
+#import "AGNUIMetrics.h"
 #import "HPIndexItem.h"
 #import "AGNIndexViewController.h"
 #import "UIImage+hp_utils.h"

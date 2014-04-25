@@ -10,7 +10,7 @@
 #import "AGNListDataSource.h"
 #import "AGNSearchDataSource.h"
 #import "AGNNoteViewController.h"
-#import "HPAgnesUIMetrics.h"
+#import "AGNUIMetrics.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPNote.h"
@@ -168,7 +168,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 - (void)viewWillLayoutSubviews
 {
     [super viewWillLayoutSubviews];
-    const CGFloat inset = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation width:self.view.bounds.size.width];
+    const CGFloat inset = [AGNUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation width:self.view.bounds.size.width];
     const UIEdgeInsets insets = UIEdgeInsetsMake(0, inset, 0, inset);
     _notesTableView.separatorInset = insets;
     self.searchDisplayController.searchResultsTableView.separatorInset = insets;

@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3980E9A5F51A4472B7514BF4 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9553C6822D1E4B5082F74644 /* libPods.a */; };
-		8704D60718A109EB00C8977E /* HPAgnesUIMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 8704D60618A109EB00C8977E /* HPAgnesUIMetrics.m */; };
+		8704D60718A109EB00C8977E /* AGNUIMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 8704D60618A109EB00C8977E /* AGNUIMetrics.m */; };
 		8704D60A18A19B0400C8977E /* HPAgnesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8704D60918A19B0400C8977E /* HPAgnesViewController.m */; };
 		870B5AEE18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m in Sources */ = {isa = PBXBuildFile; fileRef = 870B5AED18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.m */; };
 		870B5AF118903BE4009A11AB /* HPFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 870B5AF018903BE4009A11AB /* HPFontManager.m */; };
@@ -128,8 +128,8 @@
 
 /* Begin PBXFileReference section */
 		09E94F643D944B4DAEA256D1 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
-		8704D60518A109EB00C8977E /* HPAgnesUIMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAgnesUIMetrics.h; sourceTree = "<group>"; };
-		8704D60618A109EB00C8977E /* HPAgnesUIMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAgnesUIMetrics.m; sourceTree = "<group>"; };
+		8704D60518A109EB00C8977E /* AGNUIMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNUIMetrics.h; sourceTree = "<group>"; };
+		8704D60618A109EB00C8977E /* AGNUIMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGNUIMetrics.m; sourceTree = "<group>"; };
 		8704D60818A19B0400C8977E /* HPAgnesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPAgnesViewController.h; sourceTree = "<group>"; };
 		8704D60918A19B0400C8977E /* HPAgnesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPAgnesViewController.m; sourceTree = "<group>"; };
 		870B5AEC18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteListDetailTransitionAnimator.h; sourceTree = "<group>"; };
@@ -703,10 +703,10 @@
 		87D02E1A188EE7DC00273DEC /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				8704D60518A109EB00C8977E /* AGNUIMetrics.h */,
+				8704D60618A109EB00C8977E /* AGNUIMetrics.m */,
 				873E228018A9AFB500E7919C /* HPAgnesImageCache.h */,
 				873E228118A9AFB500E7919C /* HPAgnesImageCache.m */,
-				8704D60518A109EB00C8977E /* HPAgnesUIMetrics.h */,
-				8704D60618A109EB00C8977E /* HPAgnesUIMetrics.m */,
 				8704D60818A19B0400C8977E /* HPAgnesViewController.h */,
 				8704D60918A19B0400C8977E /* HPAgnesViewController.m */,
 				870B5AEC18902B0B009A11AB /* HPNoteListDetailTransitionAnimator.h */,
@@ -989,7 +989,7 @@
 				8763DA3B18883ACF000D9569 /* AGNAppDelegate.m in Sources */,
 				873E091918EB829A007E9675 /* AGNListDataSource.m in Sources */,
 				87E37F03188DB2E7000333EA /* HPDataActionController.m in Sources */,
-				8704D60718A109EB00C8977E /* HPAgnesUIMetrics.m in Sources */,
+				8704D60718A109EB00C8977E /* AGNUIMetrics.m in Sources */,
 				871F7C4118D8A55400E6CA07 /* AGNTagTapGestureRecognizer.m in Sources */,
 				873E228218A9AFB500E7919C /* HPAgnesImageCache.m in Sources */,
 				87142A001896CFC900DA588F /* HPNoteImporter.m in Sources */,

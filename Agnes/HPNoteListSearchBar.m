@@ -7,7 +7,7 @@
 //
 
 #import "HPNoteListSearchBar.h"
-#import "HPAgnesUIMetrics.h"
+#import "AGNUIMetrics.h"
 
 @implementation HPNoteListSearchBar
 
@@ -19,7 +19,7 @@
     {
         const UIInterfaceOrientation interfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
         const CGFloat width = self.frame.size.width;
-        const CGFloat sideMargin = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:interfaceOrientation width:width];
+        const CGFloat sideMargin = [AGNUIMetrics sideMarginForInterfaceOrientation:interfaceOrientation width:width];
         const CGRect textFieldFrame = [self convertRect:textField.bounds fromView:textField];
         const CGFloat preferredWidth = width - sideMargin * 2;
         const CGFloat adjustedWidth = textFieldFrame.size.width - sideMargin + textFieldFrame.origin.x;
