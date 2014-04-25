@@ -227,7 +227,10 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
     _layoutMode = HPNoteTableViewCellLayoutModeDefault;
     
     self.thumbnailView.layer.borderWidth = 1;
+    UIColor *separatorColor = [UIColor colorWithWhite:0.90 alpha:1];
+    self.thumbnailView.layer.borderColor = separatorColor.CGColor;
     self.thumbnailView.hnk_cacheFormat = [HPAgnesImageCache sharedCache].thumbnailFormat;
+
     [self applyPreferences];
 }
 
@@ -454,12 +457,7 @@ typedef NS_ENUM(NSInteger, HPNoteTableViewCellLayoutMode)
 
 #pragma mark - Private
 
-- (void)applyPreferences
-{
-    UIColor *borderColor = [AGNPreferencesManager sharedManager].tintColor;
-    borderColor = [borderColor hp_lighterColor];
-    self.thumbnailView.layer.borderColor = borderColor.CGColor;
-}
+- (void)applyPreferences {}
 
 - (HPNoteTableViewCellLayoutMode)calculateLayoutMode
 {

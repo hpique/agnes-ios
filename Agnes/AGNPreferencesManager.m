@@ -21,15 +21,17 @@ static NSString *const AGNDefaultsKeyFontName = @"HPAgnesFontName";
 static NSString *const AGNDefaultsKeyFontSize = @"HPAgnesFontSize";
 static NSString *const AGNDefaultsKeyIndexSortMode = @"HPIndexSortMode";
 static NSString *const AGNDefaultsKeyLastViewedTag = @"AGNLastViewedTag";
+static NSString *const AGNDefaultsKeyListSeparatorsHidden = @"AGNListSeparatorsHidden";
 static NSString *const AGNDefaultsKeyStatusBarHidden = @"HPAgnesStatusBarHidden";
 static NSString *const AGNDefaultsKeyTintColor = @"HPAgnesTintColor";
 
-static NSString *const AGNPreferencesKeyStatusBarHidden = @"statusBarHidden";
 static NSString *const AGNPreferencesKeyBarTintColor = @"barTintColor";
 static NSString *const AGNPreferencesKeyBarTintColorGB = @"barTintColour";
 static NSString *const AGNPreferencesKeyDynamicType = @"dynamicType";
 static NSString *const AGNPreferencesKeyFontName = @"fontName";
 static NSString *const AGNPreferencesKeyFontSize = @"fontSize";
+static NSString *const AGNPreferencesKeyListSeparatorsHidden = @"listSeparatorsHidden";
+static NSString *const AGNPreferencesKeyStatusBarHidden = @"statusBarHidden";
 static NSString *const AGNPreferencesKeyTintColor = @"tintColor";
 static NSString *const AGNPreferencesKeyTintColorGB = @"tintColour";
 static NSString *const AGNPreferencesValueDefault = @"default";
@@ -40,8 +42,9 @@ static NSString* const AGNDefaultFontName = @"AvenirNext-Regular";
 static NSInteger const AGNDefaultFontSizePhone = 16;
 static NSInteger const AGNDefaultFontSizePad = 18;
 static NSInteger const AGNDefaultIndexSortMode = HPIndexSortModeOrder;
-static UIColor* AGNDefaultTintColor = nil;
+static BOOL AGNDefaultListSeparatorsHidden = NO;
 static BOOL AGNDefaultStatusBarHidden = NO;
+static UIColor* AGNDefaultTintColor = nil;
 static CGFloat const AGNLuminanceMiddle = 0.6;
 
 @implementation AGNPreferencesManager
@@ -173,6 +176,13 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     [userDefaults setObject:lastViewedTagName forKey:AGNDefaultsKeyLastViewedTag];
 }
 
+- (void)setListSeparatorsHidden:(BOOL)listSeparatorsHidden
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:@(listSeparatorsHidden) forKey:AGNDefaultsKeyListSeparatorsHidden];
+    [[NSNotificationCenter defaultCenter] postNotificationName:AGNPreferencesManagerDidChangePreferencesNotification object:self];
+}
+
 - (void)setStatusBarHidden:(BOOL)statusBarHidden
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -188,6 +198,11 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     [userDefaults setValue:colorString forKey:AGNDefaultsKeyTintColor];
     [UIApplication sharedApplication].keyWindow.tintColor = self.tintColor;
     [[NSNotificationCenter defaultCenter] postNotificationName:AGNPreferencesManagerDidChangePreferencesNotification object:self];
+}
+
+- (BOOL)listSeparatorsHidden
+{
+    return [self boolValueForKey:AGNDefaultsKeyListSeparatorsHidden default:AGNDefaultListSeparatorsHidden];
 }
 
 - (BOOL)statusBarHidden
@@ -292,6 +307,10 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     {
         [self updateBarTintColorFromValue:value];
     }
+    else if ([key isEqualToString:AGNPreferencesKeyListSeparatorsHidden])
+    {
+        [self updateListSeparatorsHiddenFromValue:value];
+    }
     else if ([key isEqualToString:AGNPreferencesKeyStatusBarHidden])
     {
         [self updateStatusBarHiddenFromValue:value];
@@ -345,6 +364,13 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     NSInteger fontSize = [value isEqualToString:AGNPreferencesValueDefault] ? [self.class defaultFontSize] : [value integerValue];
     if (self.fontSize == fontSize) return;
     self.fontSize = MIN(MAX(8, fontSize), 28); // Prevent app from becoming unusable
+}
+
+- (void)updateListSeparatorsHiddenFromValue:(NSString*)value
+{
+    BOOL boolValue = [value isEqualToString:AGNPreferencesValueDefault] ? AGNDefaultListSeparatorsHidden : [value boolValue];
+    if (self.listSeparatorsHidden == boolValue) return;
+    self.listSeparatorsHidden = boolValue;
 }
 
 - (void)updateStatusBarHiddenFromValue:(NSString*)value

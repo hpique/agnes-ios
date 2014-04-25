@@ -10,6 +10,7 @@
 #import "AGNListDataSource.h"
 #import "AGNSearchDataSource.h"
 #import "AGNNoteViewController.h"
+#import "HPAgnesUIMetrics.h"
 #import "HPNoteManager.h"
 #import "HPTagManager.h"
 #import "HPNote.h"
@@ -31,6 +32,7 @@
 #import "NSNotification+hp_status.h"
 #import "UIViewController+MMDrawerController.h"
 #import <iOS7Colors/UIColor+iOS7Colors.h>
+#import "UIColor+hp_utils.h"
 
 static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 
@@ -98,15 +100,16 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
         self.navigationItem.rightBarButtonItems = @[_addNoteBarButtonItem];
     }
    
+    
     UINib *nib = [UINib nibWithNibName:@"HPNoteListTableViewCell" bundle:nil];
     [_notesTableView registerNib:nib forCellReuseIdentifier:AGNNoteListTableViewCellReuseIdentifier];
     _notesTableView.delegate = self;
     [_notesTableView setContentOffset:CGPointMake(0,self.searchDisplayController.searchBar.frame.size.height) animated:NO];
+    _notesTableView.tableFooterView = [UIView new]; // Removes separators of empty cells
     _listDataSource.cellIdentifier = AGNNoteListTableViewCellReuseIdentifier;
     _searchDataSource.cellIdentifier = AGNNoteListTableViewCellReuseIdentifier;
     
     {
-        [[AGNPreferencesManager sharedManager] styleSearchBar];
         _searchBar.keyboardType = UIKeyboardTypeTwitter;
         // HACK: Using white color below shows black hairline. WTF?
         [_searchBar setBackgroundImage:[UIImage hp_imageWithColor:[UIColor clearColor] size:CGSizeMake(1, 1)] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault]; // HACK: See: http://stackoverflow.com/questions/19927542/ios7-backgroundimage-for-uisearchbar
@@ -117,10 +120,10 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     }
     
     [self applyFonts];
+    [self applyPreferences];
     
     [self reloadNotesAnimated:NO];
     [self updateIndexItem];
-
     [self startObserving];
 }
 
@@ -160,6 +163,15 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
     [_titleView setTitle:self.title];
     [HPNoteTableViewCell invalidateHeightCache];
+}
+
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    const CGFloat inset = [HPAgnesUIMetrics sideMarginForInterfaceOrientation:self.interfaceOrientation width:self.view.bounds.size.width];
+    const UIEdgeInsets insets = UIEdgeInsetsMake(0, inset, 0, inset);
+    _notesTableView.separatorInset = insets;
+    self.searchDisplayController.searchResultsTableView.separatorInset = insets;
 }
 
 #pragma mark - Public
@@ -251,6 +263,15 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     HPFontManager *fonts = [HPFontManager sharedManager];
     [[UITextField appearanceWhenContainedIn:[HPNoteListSearchBar class], nil] setFont:fonts.fontForSearchBar];
+}
+
+- (void)applyPreferences
+{
+    AGNPreferencesManager *preferences = [AGNPreferencesManager sharedManager];
+    [preferences styleSearchBar];
+    UITableViewCellSeparatorStyle separatorStyle = preferences.listSeparatorsHidden ? UITableViewCellSeparatorStyleNone : UITableViewCellSeparatorStyleSingleLine;
+    _notesTableView.separatorStyle = separatorStyle;
+    self.searchDisplayController.searchResultsTableView.separatorStyle = separatorStyle;
 }
 
 - (void)changeModel:(void (^)())modelBlock changeView:(void (^)())viewBlock
@@ -349,6 +370,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeFontsNotification:) name:HPFontManagerDidChangeFontsNotification object:[HPFontManager sharedManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willReplaceModelNotification:) name:AGNModelManagerWillReplaceModelNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(statusNotification:) name:HPStatusNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangePreferences:) name:AGNPreferencesManagerDidChangePreferencesNotification object:[AGNPreferencesManager sharedManager]];
 }
 
 - (void)stopObserving
@@ -358,6 +380,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPEntityManagerObjectsDidChangeNotification object:[HPTagManager sharedManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNModelManagerWillReplaceModelNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:HPStatusNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AGNPreferencesManagerDidChangePreferencesNotification object:[AGNPreferencesManager sharedManager]];
 }
 
 - (void)updateEmptyView:(BOOL)animated
@@ -526,7 +549,6 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     HPNoteListTableViewCell *noteCell = (HPNoteListTableViewCell*)cell;
-    noteCell.separatorInset = UIEdgeInsetsZero;
     noteCell.reuseSwipeViews = YES;
     noteCell.shouldAnimateIcons = NO;
     const BOOL isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
@@ -668,7 +690,10 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
 {
     UINib *nib = [UINib nibWithNibName:@"HPNoteSearchTableViewCell" bundle:nil];
     [tableView registerNib:nib forCellReuseIdentifier:AGNNoteListTableViewCellReuseIdentifier];
-    tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    tableView.separatorStyle = _notesTableView.separatorStyle;
+    tableView.separatorColor = _notesTableView.separatorColor;
+    tableView.separatorInset = _notesTableView.separatorInset;
+    tableView.tableFooterView = [UIView new]; // Removes separators of empty cells
 }
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
@@ -744,6 +769,11 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     [_notesTableView reloadData];
     UITableView *searchTableView = self.searchDisplayController.searchResultsTableView;
     [searchTableView reloadData];
+}
+
+- (void)didChangePreferences:(NSNotification*)notification
+{
+    [self applyPreferences];
 }
 
 - (void)statusNotification:(NSNotification*)notification

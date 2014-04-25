@@ -40,6 +40,8 @@ extern NSString* const AGNPreferencesManagerDidChangePreferencesNotification;
 
 @property (nonatomic, copy) NSString *lastViewedTagName;
 
+@property (nonatomic, assign) BOOL listSeparatorsHidden;
+
 @property (nonatomic, assign) BOOL statusBarHidden;
 
 @property (nonatomic, readonly) UIStatusBarStyle statusBarStyle;

@@ -43,6 +43,9 @@
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-barTintColor}" replacementBlock:^NSString *{
             return [AGNPreferencesManager sharedManager].barTintColorName;
         }]];
+        [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-listSeparatorsHidden}" replacementBlock:^NSString *{
+            return [AGNPreferencesManager sharedManager].listSeparatorsHidden ? @"yes" : @"no";
+        }]];
         [actions addObject:[HPNoteActionReplace replaceActionWithTarget:@"{$agnes-statusBarHidden}" replacementBlock:^NSString *{
             return [AGNPreferencesManager sharedManager].statusBarHidden ? @"yes" : @"no";
         }]];
