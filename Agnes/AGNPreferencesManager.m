@@ -26,10 +26,12 @@ static NSString *const AGNDefaultsKeyTintColor = @"HPAgnesTintColor";
 
 static NSString *const AGNPreferencesKeyStatusBarHidden = @"statusBarHidden";
 static NSString *const AGNPreferencesKeyBarTintColor = @"barTintColor";
+static NSString *const AGNPreferencesKeyBarTintColorGB = @"barTintColour";
 static NSString *const AGNPreferencesKeyDynamicType = @"dynamicType";
 static NSString *const AGNPreferencesKeyFontName = @"fontName";
 static NSString *const AGNPreferencesKeyFontSize = @"fontSize";
 static NSString *const AGNPreferencesKeyTintColor = @"tintColor";
+static NSString *const AGNPreferencesKeyTintColorGB = @"tintColour";
 static NSString *const AGNPreferencesValueDefault = @"default";
 
 static UIColor* AGNDefaultBarTintColor = nil;
@@ -282,11 +284,11 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
 
 - (void)setPreferenceValue:(NSString*)value forKey:(NSString*)key
 {
-    if ([key isEqualToString:AGNPreferencesKeyTintColor])
+    if ([key isEqualToString:AGNPreferencesKeyTintColor] || [key isEqualToString:AGNPreferencesKeyTintColorGB])
     {
         [self updateTintColorFromValue:value];
     }
-    else if ([key isEqualToString:AGNPreferencesKeyBarTintColor])
+    else if ([key isEqualToString:AGNPreferencesKeyBarTintColor] || [key isEqualToString:AGNPreferencesKeyBarTintColorGB])
     {
         [self updateBarTintColorFromValue:value];
     }
