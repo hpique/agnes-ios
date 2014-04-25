@@ -264,6 +264,8 @@
 		87A6907318B4CCF600F97E13 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		87A6907518B4EAF900F97E13 /* HPNavigationBarToggleTitleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNavigationBarToggleTitleView.h; sourceTree = "<group>"; };
 		87A6907618B4EAF900F97E13 /* HPNavigationBarToggleTitleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNavigationBarToggleTitleView.m; sourceTree = "<group>"; };
+		87A8A8E2190A506C004A3BE7 /* en-GB */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en-GB"; path = "en-GB.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		87A8A8E3190A509C004A3BE7 /* en-GB */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "en-GB"; path = "en-GB.lproj/hashtags.plist"; sourceTree = "<group>"; };
 		87AA3D06189F342800FBEAAF /* HPNote+List.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HPNote+List.h"; sourceTree = "<group>"; };
 		87AA3D07189F342800FBEAAF /* HPNote+List.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "HPNote+List.m"; sourceTree = "<group>"; };
 		87AA3D0C189FA74B00FBEAAF /* HPAttachment+Template.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HPAttachment+Template.h"; sourceTree = "<group>"; };
@@ -841,6 +843,8 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				en_GB,
+				"en-GB",
 			);
 			mainGroup = 8763DA1E18883ACF000D9569;
 			productRefGroup = 8763DA2818883ACF000D9569 /* Products */;
@@ -1043,6 +1047,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				8740FAEA188ACEF9004CF099 /* en */,
+				87A8A8E2190A506C004A3BE7 /* en-GB */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -1067,6 +1072,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				87A6905A18B4C59400F97E13 /* en */,
+				87A8A8E3190A509C004A3BE7 /* en-GB */,
 			);
 			name = hashtags.plist;
 			sourceTree = "<group>";
