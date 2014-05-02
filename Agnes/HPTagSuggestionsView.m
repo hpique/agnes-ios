@@ -179,7 +179,7 @@
         [self.contentView addSubview:_button];
         
         [_button lyt_alignSidesToParentWithMargin:0];
-        [_button lyt_alignBottomToParentWithMargin:-1]; // For the shadow
+        [_button lyt_alignBottomToParentWithMargin:1]; // For the shadow
     }
     return self;
 }
@@ -198,7 +198,7 @@
         [self addSubview:_button];
 
         [_button lyt_alignLeftToParent];
-        [_button lyt_alignBottomToParentWithMargin:-1];
+        [_button lyt_alignBottomToParentWithMargin:1];
     }
     return self;
 }
