@@ -19,7 +19,6 @@
 #import "HPDispatchUtils.h"
 
 static NSString *const AGNModelManagerUbiquityIdentityTokenKey = @"HPModelManagerUbiquityIdentityToken";
-static NSString *const AGNModelManagerPersistentStoreURLKey = @"HPModelManagerPersistentStoreURL";
 
 NSString *const AGNModelManagerWillReplaceModelNotification = @"AGNModelManagerWillReplaceModelNotification";
 NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDidReplaceModelNotification";
@@ -29,6 +28,7 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
 @property (nonatomic, strong, readwrite) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSURL *modelURL;
 @property (nonatomic, strong) NSURL *storeURL;
+@property (nonatomic, strong) NSURL *persistentStoreURL;
 
 @end
 
@@ -72,6 +72,9 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
         NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
         abort();
     }
+    
+    // The persistent store URL will be used to import data on store changes
+    self.persistentStoreURL = persistentStore.URL;
     
     // After adding the persistent store to avoid redundant notifications
     [notificationCenter addObserver:self selector:@selector(storesWillChange:) name:NSPersistentStoreCoordinatorStoresWillChangeNotification object:psc];
@@ -275,6 +278,7 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
     NSDictionary *userInfo = notification.userInfo;
     NSManagedObjectContext *moc = self.managedObjectContext;
     NSPersistentStoreUbiquitousTransitionType transitionType = [userInfo[NSPersistentStoreUbiquitousTransitionTypeKey] integerValue];
+    
     if (transitionType == NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted)
     {
         [moc performBlockAndWait:^{
@@ -311,21 +315,14 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
         { // Was using ubiquity store
             if (!ubiquityIdentityToken)
             { // Changed to local account
-                NSString *urlString = [defaults objectForKey:AGNModelManagerPersistentStoreURLKey];
-                NSURL *previousPersistentStoreURL = [NSURL URLWithString:urlString];
-                [self importPersistentStoreAtURL:previousPersistentStoreURL isLocal:NO intoPersistentStore:persistentStore];
+                [self importPersistentStoreAtURL:self.persistentStoreURL isLocal:NO intoPersistentStore:persistentStore];
             }
         }
         else
         { // Was using local account
             if (ubiquityIdentityToken)
             { // Changed to ubiquity store
-                NSString *urlString = [defaults objectForKey:AGNModelManagerPersistentStoreURLKey];
-                if (urlString)
-                {
-                    NSURL *previousPersistentStoreURL = [NSURL URLWithString:urlString];
-                    [self importPersistentStoreAtURL:previousPersistentStoreURL isLocal:YES intoPersistentStore:persistentStore];
-                }
+                [self importPersistentStoreAtURL:self.persistentStoreURL isLocal:YES intoPersistentStore:persistentStore];
             }
         }
     }
@@ -345,8 +342,7 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
     {
         [defaults removeObjectForKey:AGNModelManagerUbiquityIdentityTokenKey];
     }
-    NSString *urlString = persistentStore.URL.absoluteString;
-    [defaults setObject:urlString forKey:AGNModelManagerPersistentStoreURLKey];
+    self.persistentStoreURL = persistentStore.URL;
     
     // This method is sometimes called from the main queue
     HPDispatchSyncInMainQueueIfNeeded(^{

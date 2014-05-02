@@ -14,6 +14,9 @@
 extern NSString *const AGNModelManagerWillReplaceModelNotification;
 extern NSString *const AGNModelManagerDidReplaceModelNotification;
 
+/**
+ Handles account changes.
+ **/
 @interface AGNModelManager : NSObject
 
 @property (nonatomic, weak) id<AGNModelManagerDelegate> delegate;
