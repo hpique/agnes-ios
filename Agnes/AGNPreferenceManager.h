@@ -14,4 +14,6 @@
 
 @property (nonatomic, assign) BOOL tutorialNotesAdded;
 
+- (void)removeDuplicates;
+
 @end

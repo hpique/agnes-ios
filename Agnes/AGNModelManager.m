@@ -57,10 +57,6 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
     __weak NSPersistentStoreCoordinator *psc = self.managedObjectContext.persistentStoreCoordinator;
     
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    [notificationCenter addObserver:self selector:@selector(storesWillChange:) name:NSPersistentStoreCoordinatorStoresWillChangeNotification object:psc];
-    [notificationCenter addObserver:self selector:@selector(storesDidChange:) name:NSPersistentStoreCoordinatorStoresDidChangeNotification object:psc];
-    [notificationCenter addObserver:self selector:@selector(persistentStoreDidImportUbiquitousContentChanges:) name:NSPersistentStoreDidImportUbiquitousContentChangesNotification object:psc];
-    
     NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption : @YES,
                                NSInferMappingModelAutomaticallyOption : @YES,
                                NSPersistentStoreUbiquitousContentNameKey : @"notes" };
@@ -76,6 +72,11 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
         NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
         abort();
     }
+    
+    // After adding the persistent store to avoid redundant notifications
+    [notificationCenter addObserver:self selector:@selector(storesWillChange:) name:NSPersistentStoreCoordinatorStoresWillChangeNotification object:psc];
+    [notificationCenter addObserver:self selector:@selector(storesDidChange:) name:NSPersistentStoreCoordinatorStoresDidChangeNotification object:psc];
+    [notificationCenter addObserver:self selector:@selector(persistentStoreDidImportUbiquitousContentChanges:) name:NSPersistentStoreDidImportUbiquitousContentChangesNotification object:psc];
 }
 
 - (void)addTutorialIfNeeded
@@ -257,8 +258,15 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
 - (void)persistentStoreDidImportUbiquitousContentChanges:(NSNotification*)notification
 {
     NSManagedObjectContext *moc = self.managedObjectContext;
-    [moc performBlockAndWait:^{
+    [moc performBlockAndWait:^
+    {
         [moc mergeChangesFromContextDidSaveNotification:notification];
+        
+        AGNPreferenceManager *preferenceManager = [[AGNPreferenceManager alloc] initWithManagedObjectContext:moc];
+        [preferenceManager removeDuplicates];
+        
+        HPTagManager *tagManager = [[HPTagManager alloc] initWithManagedObjectContext:moc];
+        [tagManager removeDuplicates];
     }];
 }
 
@@ -296,13 +304,7 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
     id<NSCoding> ubiquityIdentityToken = [NSFileManager defaultManager].ubiquityIdentityToken;
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    if (transitionType == NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted)
-    {
-        [self.managedObjectContext performBlockAndWait:^{
-            [[HPTagManager sharedManager] removeDuplicates];
-        }];
-    }
-    else
+    if (transitionType != NSPersistentStoreUbiquitousTransitionTypeInitialImportCompleted)
     {
         NSData *previousArchivedUbiquityIdentityToken = [defaults objectForKey:AGNModelManagerUbiquityIdentityTokenKey];
         if (previousArchivedUbiquityIdentityToken)
@@ -327,6 +329,13 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
             }
         }
     }
+    
+    [self.managedObjectContext performBlockAndWait:^
+    {
+        [[HPTagManager sharedManager] removeDuplicates];
+        [[AGNPreferenceManager sharedManager] removeDuplicates];
+    }];
+    
     if (ubiquityIdentityToken)
     {
         NSData *archivedUbiquityIdentityToken = [NSKeyedArchiver archivedDataWithRootObject:ubiquityIdentityToken];

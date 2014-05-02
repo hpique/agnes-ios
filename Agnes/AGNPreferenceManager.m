@@ -19,7 +19,7 @@ static NSString *const AGNPreferenceTutorialNotesAddedKey = @"tutorialNotesAdded
     return [AGNPreference entityName];
 }
 
-#pragma mark - Class
+#pragma mark Class
 
 + (AGNPreferenceManager*)sharedManager
 {
@@ -30,6 +30,17 @@ static NSString *const AGNPreferenceTutorialNotesAddedKey = @"tutorialNotesAdded
         instance = [[AGNPreferenceManager alloc] initWithManagedObjectContext:appDelegate.managedObjectContext];
     });
     return instance;
+}
+
+#pragma mark HPEntityManager
+
+- (void)didInsertObject:(AGNPreference*)preference
+{
+    [self performNoUndoModelUpdateAndSave:YES block:^
+    {
+        NSString *key = preference.key;
+        [self removeDuplicatesWithKey:key];
+    }];
 }
 
 #pragma mark Public
@@ -46,6 +57,17 @@ static NSString *const AGNPreferenceTutorialNotesAddedKey = @"tutorialNotesAdded
     return [value boolValue];
 }
 
+- (void)removeDuplicates
+{
+    [self performNoUndoModelUpdateAndSave:YES block:^
+    {
+        [self removeDuplicatesWithUniquePropertyNamed:NSStringFromSelector(@selector(key)) removeBlock:^(NSString *key)
+        {
+            [self removeDuplicatesWithKey:key];
+        }];
+    }];
+}
+
 #pragma mark Private
 
 - (NSString*)preferenceValueForKey:(NSString*)key
@@ -56,14 +78,15 @@ static NSString *const AGNPreferenceTutorialNotesAddedKey = @"tutorialNotesAdded
 
 - (void)setPreferenceValue:(NSString*)value forKey:(NSString*)key
 {
-    AGNPreference *preference = [self preferenceForKey:key];
-    if (!preference)
-    {
-        preference = [AGNPreference insertNewObjectIntoContext:self.context];
-        preference.key = key;
-    }
-    preference.value = value;
-    [self save];
+    [self performNoUndoModelUpdateAndSave:YES block:^{
+        AGNPreference *preference = [self preferenceForKey:key];
+        if (!preference)
+        {
+            preference = [AGNPreference insertNewObjectIntoContext:self.context];
+            preference.key = key;
+        }
+        preference.value = value;
+    }];
 }
 
 - (AGNPreference*)preferenceForKey:(NSString*)key
@@ -71,6 +94,20 @@ static NSString *const AGNPreferenceTutorialNotesAddedKey = @"tutorialNotesAdded
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", NSStringFromSelector(@selector(key)), key];
     NSArray *objects = [self objectsWithPredicate:predicate];
     return objects.firstObject;
+}
+
+- (void)removeDuplicatesWithKey:(NSString*)key
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K = %@", NSStringFromSelector(@selector(key)), key];
+    NSArray *preferences = [self objectsWithPredicate:predicate];
+    if (preferences.count < 2) return;
+    
+    // TODO: Use date to remove duplicates
+    NSArray *duplicates = [preferences subarrayWithRange:NSMakeRange(1, preferences.count - 1)];
+    for (NSManagedObject *preference in duplicates)
+    {
+        [self.context deleteObject:preference];
+    }
 }
 
 @end
