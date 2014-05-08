@@ -58,8 +58,10 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
 
     [UIColor registerColor:[UIColor iOS7lightBlueColor] forName:@"lightBlue"];
     [UIColor registerColor:[UIColor iOS7lightGrayColor] forName:@"lightGray"];
+    [UIColor registerColor:[UIColor iOS7lightGrayColor] forName:@"lightGrey"];
     [UIColor registerColor:[UIColor iOS7darkBlueColor] forName:@"blue"];
     [UIColor registerColor:[UIColor iOS7darkGrayColor] forName:@"gray"];
+    [UIColor registerColor:[UIColor iOS7darkGrayColor] forName:@"grey"];
     [UIColor registerColor:[UIColor iOS7greenColor] forName:@"green"];
     [UIColor registerColor:[UIColor iOS7orangeColor] forName:@"orange"];
     [UIColor registerColor:[UIColor iOS7pinkColor] forName:@"pink"];
