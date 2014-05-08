@@ -12,6 +12,8 @@
 
 + (HPTracker*)defaultTracker;
 
++ (void)setDebug:(BOOL)debug;
+
 - (void)setToPreviousScreen;
 
 - (void)setTrackingId:(NSString*)trackingId;

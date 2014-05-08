@@ -12,6 +12,10 @@
 #import "GAIFields.h"
 #import "GAIDictionaryBuilder.h"
 
+@interface HPAnalyticsConsoleLogger : NSObject<GAILogger>
+
+@end
+
 @implementation HPTracker {
     id<GAITracker> _tracker;
     NSMutableArray *_screenHistory;
@@ -34,6 +38,11 @@
         sharedInstance = [[[self class] alloc] init];
     });
     return sharedInstance;
+}
+
++ (void)setDebug:(BOOL)debug
+{
+    [GAI sharedInstance].logger = debug ? [HPAnalyticsConsoleLogger new] : nil;
 }
 
 - (void)setToPreviousScreen
@@ -78,6 +87,32 @@
     GAIDictionaryBuilder *builder = [GAIDictionaryBuilder createEventWithCategory:category action:action label:label value:value];
     NSDictionary *parameters = [builder build];
     [_tracker send:parameters];
+}
+
+@end
+
+@implementation HPAnalyticsConsoleLogger
+
+@synthesize logLevel = _logLevel;
+
+- (void)verbose:(NSString *)message
+{
+    NSLog(@"[GAI] V: %@", message);
+}
+
+- (void)info:(NSString *)message
+{
+    NSLog(@"[GAI] I: %@", message);
+}
+
+- (void)warning:(NSString *)message
+{
+    NSLog(@"[GAI] W: %@", message);
+}
+
+- (void)error:(NSString *)message
+{
+    NSLog(@"[GAI] E: %@", message);
 }
 
 @end
