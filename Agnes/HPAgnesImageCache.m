@@ -124,14 +124,14 @@ static NSString *const HPAgnesImageCacheFormatThumbnail = @"thumbnail";
 {
     HNKCache *cache = [HNKCache sharedCache];
     {
-        [cache clearFormatNamed:_thumbnailFormat.name];
+        [cache removeImagesOfFormatNamed:_thumbnailFormat.name];
         const CGFloat length = [HPNoteTableViewCell thumbnailViewWidth];
         _thumbnailFormat.size = CGSizeMake(length, length);
     }
     {
         const CGFloat height = [HPFontManager sharedManager].fontForNoteBody.pointSize;
         _characterFormat.size = CGSizeMake(_characterFormat.size.width, height);
-        [cache clearFormatNamed:_characterFormat.name];
+        [cache removeImagesOfFormatNamed:_characterFormat.name];
     }
 }
 
