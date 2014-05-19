@@ -1,10 +1,10 @@
 PODS:
   - ColorUtils (1.1.2)
-  - Haneke (0.0.6)
-  - HPReorderTableView (0.1)
+  - Haneke (0.1)
+  - HPReorderTableView (0.2)
   - iOS7Colors (2.0.0)
   - iRate (1.10.2)
-  - Lyt (0.2)
+  - Lyt (0.3)
   - MCSwipeTableViewCell (2.0.0)
   - MHWDirectoryWatcher (0.0.4)
   - MMDrawerController (0.5.5):
@@ -20,22 +20,22 @@ PODS:
   - MMDrawerController/Subclass (0.5.5):
     - MMDrawerController/Core
   - PSPDFTextView (1.1.0)
-  - RMGallery (0.0.2)
+  - RMGallery (0.1)
   - SSZipArchive (0.3.1)
   - TTTAttributedLabel (1.8.1)
 
 DEPENDENCIES:
   - ColorUtils (from `https://github.com/hpique/ColorUtils.git`, branch `agnes`)
-  - Haneke (from `https://github.com/hpique/Haneke.git`)
-  - HPReorderTableView (~> 0.1)
+  - Haneke (~> 0.1)
+  - HPReorderTableView (~> 0.2)
   - iOS7Colors (~> 2.0.0)
   - iRate (~> 1.9)
-  - Lyt (from `https://github.com/robotmedia/Lyt.git`)
+  - Lyt (~> 0.2)
   - MCSwipeTableViewCell (from `https://github.com/hpique/MCSwipeTableViewCell.git`)
   - MHWDirectoryWatcher (~> 0.0)
   - MMDrawerController (~> 0.5)
   - PSPDFTextView (from `https://github.com/hpique/PSPDFTextView.git`, branch `agnes`)
-  - RMGallery (from `https://github.com/robotmedia/RMGallery.git`)
+  - RMGallery (~> 0.1)
   - SSZipArchive (~> 0.3)
   - TTTAttributedLabel (from `https://github.com/hpique/TTTAttributedLabel.git`)
 
@@ -43,32 +43,26 @@ EXTERNAL SOURCES:
   ColorUtils:
     :branch: agnes
     :git: https://github.com/hpique/ColorUtils.git
-  Haneke:
-    :git: https://github.com/hpique/Haneke.git
-  Lyt:
-    :git: https://github.com/robotmedia/Lyt.git
   MCSwipeTableViewCell:
     :git: https://github.com/hpique/MCSwipeTableViewCell.git
   PSPDFTextView:
     :branch: agnes
     :git: https://github.com/hpique/PSPDFTextView.git
-  RMGallery:
-    :git: https://github.com/robotmedia/RMGallery.git
   TTTAttributedLabel:
     :git: https://github.com/hpique/TTTAttributedLabel.git
 
 SPEC CHECKSUMS:
   ColorUtils: 5740b610eb7b50833f46d6d9863ebaa1da55301d
-  Haneke: ad89e9a71eaa52b50170524b9105d45a0bae8408
-  HPReorderTableView: e614ee4bb07d17548d4c2131b48d59c668f424ca
+  Haneke: 0d28d92e23bbbbedf8f67a153d484dc3c36aaa52
+  HPReorderTableView: d526b1e3531dd3198d8c0d27403ee45d369efa86
   iOS7Colors: 4b2a8e22c0bacab6cc9818357e920fa734283246
   iRate: eb8ca35519dd57a586e4c72bb5135ccb6abee908
-  Lyt: 7b7df23953fa2a52cd1f6b869ed403564f5d3f02
+  Lyt: 31b887f8e572724a53079b9ebb2eeca03a1c344e
   MCSwipeTableViewCell: 40d2d91d618ed5248d20b7d75018a4a33b0477dc
   MHWDirectoryWatcher: c8d2677e94ab6e078d321f87c58be5fa101ae457
   MMDrawerController: fb6a17a3e2d1cb4f5f4a411915703b3569cdb227
   PSPDFTextView: f078c6015a9568241c9518a7bb284bb4cc2fa9e2
-  RMGallery: 13d56c1ee57d8a648fcb1d0c18dacb28e85ab4b2
+  RMGallery: d89a383bc62f8a308a698662079fe902e3ff8b9d
   SSZipArchive: 5479ec96c412904a987a3ae3180d65234aa46b6e
   TTTAttributedLabel: 3a571d73e055f4a79c304240598e4bfd199238e4
 
