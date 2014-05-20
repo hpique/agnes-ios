@@ -358,7 +358,7 @@ static NSString* AGNNoteListTableViewCellReuseIdentifier = @"Cell";
     NSIndexPath *indexPath = [_notesTableView indexPathForCell:cell];
     [self changeModel:block changeView:^{
         [_listDataSource removeItemAtIndex:indexPath.row];
-        [_notesTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [_notesTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
         [self updateEmptyView:YES];
     }];
 }
