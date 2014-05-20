@@ -58,8 +58,7 @@ NSString *const AGNModelManagerDidReplaceModelNotification = @"AGNModelManagerDi
     
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption : @YES,
-                               NSInferMappingModelAutomaticallyOption : @YES,
-                               NSPersistentStoreUbiquitousContentNameKey : @"notes" };
+                               NSInferMappingModelAutomaticallyOption : @YES };
     NSError* error;
     NSPersistentStore *persistentStore = [self.managedObjectContext.persistentStoreCoordinator
                                           addPersistentStoreWithType:NSSQLiteStoreType
