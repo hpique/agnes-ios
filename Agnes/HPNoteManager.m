@@ -50,7 +50,7 @@ static NSInteger HPNoteManagerTutorialNotesCount = 6;
 - (void)addTutorialNotesIfNeeded
 {
     [self performNoUndoModelUpdateAndSave:YES block:^{
-        NSArray *notes = [self notesWithKeyFormat:@"tutorial%ld" context:self.context];
+        NSArray *notes = [self notesWithKeyFormat:@"demo%ld" context:self.context];
         NSMutableArray *tutorialUUIDs = [NSMutableArray array];
         for (HPNote *note in notes)
         {
@@ -63,7 +63,7 @@ static NSInteger HPNoteManagerTutorialNotesCount = 6;
 {
     for (int i = 0; i < HPNoteManagerTutorialNotesCount; i++)
     {
-        NSString *uuid = [NSString stringWithFormat:@"tutorial%d", i];
+        NSString *uuid = [NSString stringWithFormat:@"demo%d", i];
         HPNote *note = [self noteForUUID:uuid];
         if (note)
         {
