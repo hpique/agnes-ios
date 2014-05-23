@@ -37,6 +37,10 @@
 		872C19AD18987B970013C9A5 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 872C19A718987B970013C9A5 /* libTestFlight.a */; };
 		872C19B118987BC80013C9A5 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 872C19B018987BC80013C9A5 /* libz.dylib */; };
 		872C19B9189896B90013C9A5 /* HPNoteListSearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 872C19B8189896B90013C9A5 /* HPNoteListSearchBar.m */; };
+		87374813192FC67000BF6AE6 /* demo2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 87374811192FC67000BF6AE6 /* demo2.jpg */; };
+		87374814192FC67000BF6AE6 /* demo2@2x.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 87374812192FC67000BF6AE6 /* demo2@2x.jpg */; };
+		87374817192FC82300BF6AE6 /* demo3.png in Resources */ = {isa = PBXBuildFile; fileRef = 87374815192FC82300BF6AE6 /* demo3.png */; };
+		87374818192FC82300BF6AE6 /* demo3@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 87374816192FC82300BF6AE6 /* demo3@2x.png */; };
 		87393C5318A55F0D006AB087 /* UITextView+hp_utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 87393C5218A55F0D006AB087 /* UITextView+hp_utils.m */; };
 		873E091918EB829A007E9675 /* AGNListDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E091818EB829A007E9675 /* AGNListDataSource.m */; };
 		873E091C18EB85CA007E9675 /* HPArrayDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 873E091B18EB85CA007E9675 /* HPArrayDataSource.m */; };
@@ -181,6 +185,10 @@
 		872C19B018987BC80013C9A5 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		872C19B7189896B90013C9A5 /* HPNoteListSearchBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNoteListSearchBar.h; sourceTree = "<group>"; };
 		872C19B8189896B90013C9A5 /* HPNoteListSearchBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HPNoteListSearchBar.m; sourceTree = "<group>"; };
+		87374811192FC67000BF6AE6 /* demo2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = demo2.jpg; sourceTree = "<group>"; };
+		87374812192FC67000BF6AE6 /* demo2@2x.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "demo2@2x.jpg"; sourceTree = "<group>"; };
+		87374815192FC82300BF6AE6 /* demo3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = demo3.png; sourceTree = "<group>"; };
+		87374816192FC82300BF6AE6 /* demo3@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "demo3@2x.png"; sourceTree = "<group>"; };
 		87393C5118A55F0D006AB087 /* UITextView+hp_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextView+hp_utils.h"; sourceTree = "<group>"; };
 		87393C5218A55F0D006AB087 /* UITextView+hp_utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextView+hp_utils.m"; sourceTree = "<group>"; };
 		873E091718EB829A007E9675 /* AGNListDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGNListDataSource.h; sourceTree = "<group>"; };
@@ -765,6 +773,10 @@
 		87F47BB318ACE5EA00F1FB48 /* Sample */ = {
 			isa = PBXGroup;
 			children = (
+				87374815192FC82300BF6AE6 /* demo3.png */,
+				87374816192FC82300BF6AE6 /* demo3@2x.png */,
+				87374811192FC67000BF6AE6 /* demo2.jpg */,
+				87374812192FC67000BF6AE6 /* demo2@2x.jpg */,
 				871CD011189B4EE200E39CFA /* sample.jpg */,
 				871CD012189B4EE200E39CFA /* sample@2x.jpg */,
 				87F47BAF18ACE5E600F1FB48 /* sample-thumbnail@2x.jpg */,
@@ -863,16 +875,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				8740FAEB188ACEF9004CF099 /* Localizable.strings in Resources */,
+				87374818192FC82300BF6AE6 /* demo3@2x.png in Resources */,
 				87AD2F83188E900B0065EEBA /* HPNoteListTableViewCell.xib in Resources */,
+				87374814192FC67000BF6AE6 /* demo2@2x.jpg in Resources */,
 				87A6905B18B4C59400F97E13 /* hashtags.plist in Resources */,
 				87E37EFB188D97F3000333EA /* HPBrowserViewController.xib in Resources */,
 				871CD014189B4EE200E39CFA /* sample@2x.jpg in Resources */,
 				8763DA3518883ACF000D9569 /* InfoPlist.strings in Resources */,
+				87374817192FC82300BF6AE6 /* demo3.png in Resources */,
 				8763DA5D18883B6D000D9569 /* AGNNoteListViewController.xib in Resources */,
 				87F47BB218ACE5E600F1FB48 /* sample-thumbnail.jpg in Resources */,
 				871429A91892E87A00DA588F /* HPIndexItemTableViewCell.xib in Resources */,
 				872C19A518986F6C0013C9A5 /* Localizable.stringsdict in Resources */,
 				871CD013189B4EE200E39CFA /* sample.jpg in Resources */,
+				87374813192FC67000BF6AE6 /* demo2.jpg in Resources */,
 				8763DA6818884650000D9569 /* AGNNoteViewController.xib in Resources */,
 				87F47BB118ACE5E600F1FB48 /* sample-thumbnail@2x.jpg in Resources */,
 				871CD00A189B098200E39CFA /* HPNoteSearchTableViewCell.xib in Resources */,
