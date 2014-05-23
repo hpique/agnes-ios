@@ -34,7 +34,10 @@
     
     NSRange lastLineRange = [summary lineRangeForRange:NSMakeRange(summary.length - 1, 1)];
     NSString *lastLine = [summary substringWithRange:lastLineRange];
-    if (![lastLine isEqualToString:tag.name]) return summary;
+    
+    NSString *normalizedLastLine = lastLine.lowercaseString;
+    NSString *normalizedTagName = tag.name.lowercaseString;
+    if (![normalizedLastLine isEqualToString:normalizedTagName]) return summary;
     
     NSString *summaryForTag = [summary stringByReplacingCharactersInRange:lastLineRange withString:@""];
     summaryForTag = [summaryForTag stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
