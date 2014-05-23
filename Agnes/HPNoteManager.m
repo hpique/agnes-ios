@@ -142,20 +142,25 @@ static NSInteger HPNoteManagerTutorialNotesCount = 18;
     NSMutableArray *texts = [NSMutableArray array];
     while ((text = [self localizedStringWithFormat:keyFormat index:i]))
     {
-        [texts addObject:text];
+        NSInteger views = [[self localizedStringWithFormat:@"demo%d-views" index:i] integerValue];
+        NSString *dateString = [self localizedStringWithFormat:@"demo%d-date" index:i];
+        [texts addObject:@{@"text": text, @"views": @(views), @"date":dateString}];
         i++;
     };
     NSRegularExpression *attachmentRegex = [HPAttachment templateRegex];
     NSMutableArray *notes = [NSMutableArray array];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.dateFormat = @"yyyy-MM-dd";
     for (i = texts.count - 1; i >= 0; i--)
     {
         NSString *uuid = [NSString stringWithFormat:keyFormat, i];
         if ([self noteForUUID:uuid]) continue;
         
-        NSMutableString *mutableText = [texts[i] mutableCopy];
+        NSMutableString *mutableText = [texts[i][@"text"] mutableCopy];
         HPNote *note = [HPNote insertNewObjectIntoContext:context];
         note.uuid = uuid;
-        note.createdAt = [NSDate date];
+        note.createdAt = [dateFormatter dateFromString:texts[i][@"date"]];
+        note.views = [texts[i][@"views"] integerValue];
         note.modifiedAt = note.createdAt;
         note.detailMode = HPNoteDetailModeNone;
         

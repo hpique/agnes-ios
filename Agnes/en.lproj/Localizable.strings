@@ -6,24 +6,24 @@
   Copyright (c) 2014 Hermes Pique. All rights reserved.
 */
 
-"demo1"="Visit La Sagrada Familia\n\n#barcelona";
-"demo2"="A night out\n\n#barcelona";
-"demo3"="Dinner in a fancy restaurant\n\n#barcelona";
-"demo4"="Torre Agbar detail\n\n#inspiration";
-"demo5"="Some text\n\n#inspiration";
-"demo6"="Some text\n\n#inspiration";
-"demo7"="Some text\n\n#movies";
-"demo8"="Some text\n\n#movies";
-"demo9"="Some text\n\n#movies";
-"demo10"="Some text\n\n#movies";
-"demo11"="The Life Aquatic with Steve Zissou\n\n#movies";
-"demo12"="Some text\n\n#home";
-"demo13"="Some text\n\n#home";
-"demo14"="Some text\n\n#urgent";
-"demo15"="Some text\n\n#monday";
-"demo16"="Some text\n\n#home";
-"demo17"="Some text\n\n#later";
-"demo18"="Some text\n\n#todo";
+"demo1"="Visit La Sagrada Familia\n\n#barcelona";	"demo1-views"="1";	"demo1-date"="2014-05-22";
+"demo2"="A night out\n\n#barcelona";	"demo2-views"="1";	"demo2-date"="2014-05-22";
+"demo3"="Dinner in a fancy restaurant\n\n#barcelona";	"demo3-views"="1";	"demo3-date"="2014-05-18";
+"demo4"="Torre Agbar detail\n\n#inspiration";	"demo4-views"="15";	"demo4-date"="2014-05-22";
+"demo5"="Some text\n\n#inspiration";	"demo5-views"="4";	"demo5-date"="2014-05-22";
+"demo6"="Some text\n\n#inspiration";	"demo6-views"="10";	"demo6-date"="2014-05-22";
+"demo7"="Some text\n\n#movies";	"demo7-views"="1";	"demo7-date"="2014-05-22";
+"demo8"="Some text\n\n#movies";	"demo8-views"="1";	"demo8-date"="2014-05-20";
+"demo9"="Some text\n\n#movies";	"demo9-views"="1";	"demo9-date"="2014-05-22";
+"demo10"="Some text\n\n#movies";	"demo10-views"="1";	"demo10-date"="2014-05-22";
+"demo11"="The Life Aquatic with Steve Zissou\n\n#movies";	"demo11-views"="1";	"demo11-date"="2014-05-22";
+"demo12"="Some text\n\n#home";	"demo12-views"="1";	"demo12-date"="2014-05-22";
+"demo13"="Some text\n\n#home";	"demo13-views"="1";	"demo13-date"="2014-05-22";
+"demo14"="Some text\n\n#urgent";	"demo14-views"="1";	"demo14-date"="2014-05-22";
+"demo15"="Some text\n\n#monday";	"demo15-views"="1";	"demo15-date"="2014-05-19";
+"demo16"="Some text\n\n#home";	"demo16-views"="1";	"demo16-date"="2014-05-22";
+"demo17"="Some text\n\n#later";	"demo17-views"="1";	"demo17-date"="2014-05-22";
+"demo18"="Some text\n\n#todo";	"demo18-views"="1";	"demo18-date"="2014-05-22";
 
 "tutorial1"="Welcome to Agnes\n\nLet’s get started! Tap on this note to learn more.\n\nThanks for being an Agnes early adopter. Please don't hesitate to send feedback to hello@agnesapp.com.\n\nThis is the note screen. From here you can read, write, edit and share notes. What anyone would expect from a note app.\n\nNow return to Inbox and I’ll show you what really makes Agnes special.\n\n#tutorial";
 
