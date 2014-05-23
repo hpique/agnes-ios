@@ -502,6 +502,11 @@ NSString* const HPIndexItemDidChangeNotification = @"HPIndexItemDidChangeNotific
     return self.title;
 }
 
+- (NSUInteger)noteCount
+{
+    return 22;
+}
+
 @end
 
 @implementation HPIndexItemSystem

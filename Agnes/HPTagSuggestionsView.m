@@ -119,7 +119,13 @@
         if (length1 > length2) return NSOrderedDescending;
         return [name1 compare:name2 options:NSCaseInsensitiveSearch | NSDiacriticInsensitiveSearch];
     }];
-    _suggestions = tagNames;
+    NSMutableArray *tags = [NSMutableArray array];
+    if (tagNames.count > 0)
+    {
+        [tags addObject:@"#favorites"];
+    }
+    [tags addObjectsFromArray:tagNames];
+    _suggestions = tags;
     [_suggestionsView reloadData];
 }
 
