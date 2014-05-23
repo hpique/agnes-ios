@@ -23,7 +23,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 static void *HPNoteManagerContext = &HPNoteManagerContext;
-static NSInteger HPNoteManagerTutorialNotesCount = 6;
+static NSInteger HPNoteManagerTutorialNotesCount = 18;
 
 @implementation HPNoteManager {
     NSArray *_systemNotes;

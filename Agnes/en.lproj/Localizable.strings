@@ -6,7 +6,24 @@
   Copyright (c) 2014 Hermes Pique. All rights reserved.
 */
 
-"demo1" = "Watch the sunrise at the beach #barcelona";
+"demo1"="Visit La Sagrada Familia\n\n#barcelona";
+"demo2"="A night out\n\n#barcelona";
+"demo3"="Dinner in a fancy restaurant\n\n#barcelona";
+"demo4"="Torre Agbar detail\n\n#inspiration";
+"demo5"="Some text\n\n#inspiration";
+"demo6"="Some text\n\n#inspiration";
+"demo7"="Some text\n\n#movies";
+"demo8"="Some text\n\n#movies";
+"demo9"="Some text\n\n#movies";
+"demo10"="Some text\n\n#movies";
+"demo11"="The Life Aquatic with Steve Zissou\n\n#movies";
+"demo12"="Some text\n\n#home";
+"demo13"="Some text\n\n#home";
+"demo14"="Some text\n\n#urgent";
+"demo15"="Some text\n\n#monday";
+"demo16"="Some text\n\n#home";
+"demo17"="Some text\n\n#later";
+"demo18"="Some text\n\n#todo";
 
 "tutorial1"="Welcome to Agnes\n\nLet’s get started! Tap on this note to learn more.\n\nThanks for being an Agnes early adopter. Please don't hesitate to send feedback to hello@agnesapp.com.\n\nThis is the note screen. From here you can read, write, edit and share notes. What anyone would expect from a note app.\n\nNow return to Inbox and I’ll show you what really makes Agnes special.\n\n#tutorial";
 
@@ -31,7 +48,7 @@
 
 "system1"="About\n\nLovingly made in Barcelona for Inés. Her favorite color is violet.\n\n{$agnes-appName} {$agnes-appVersion}";
 
-"system2"="Settings\n\nIn Agnes everything is a note, even settings.\n\nChange the values below to your liking:\n\nCOLORS\n\nbarTintColor={$agnes-barTintColor}\n(navigation bar color)\n\ntintColor={$agnes-tintColor}\n(highlight and icons color)\n\nFONT\n\nfontName={$agnes-fontName}\n(font name)\n\nfontSize={$agnes-fontSize}\n(font size in points, from 8 to 28)\n\ndynamicType={$agnes-dynamicType}\n(override font with device Settings)\n\nOTHER\n\nstatusBarHidden={$agnes-statusBarHidden}\n\nlistSeparatorsHidden={$agnes-listSeparatorsHidden}\n\nUse the word default to restore a setting to its original value.";
+"system2"="Settings\n\nIn Agnes everything is a note, even settings.\n\nreset=0\n\nChange the values below to your liking:\n\nCOLORS\n\nbarTintColor={$agnes-barTintColor}\n(navigation bar color)\n\ntintColor={$agnes-tintColor}\n(highlight and icons color)\n\nFONT\n\nfontName={$agnes-fontName}\n(font name)\n\nfontSize={$agnes-fontSize}\n(font size in points, from 8 to 28)\n\ndynamicType={$agnes-dynamicType}\n(override font with device Settings)\n\nOTHER\n\nstatusBarHidden={$agnes-statusBarHidden}\n\nlistSeparatorsHidden={$agnes-listSeparatorsHidden}\n\nUse the word default to restore a setting to its original value.";
 
 "system2~ipad"="Settings\n\nIn Agnes everything is a note, even settings.\n\nChange the values below to your liking:\n\nCOLORS\n\nbarTintColor={$agnes-barTintColor}\n(navigation bar color)\n\ntintColor={$agnes-tintColor}\n(highlight and icons color)\n\nFONT\n\nfontName={$agnes-fontName}\n(font name)\n\nfontSize={$agnes-fontSize}\n(font size in points, from 8 to 28)\n\ndynamicType={$agnes-dynamicType}\n(override font with device Settings)\n\nOTHER\n\nlistSeparatorsHidden={$agnes-listSeparatorsHidden}\n\nUse the word default to restore a setting to its original value.";
 

@@ -13,6 +13,7 @@
 #import <iOS7Colors/UIColor+iOS7Colors.h>
 #import <ColorUtils/ColorUtils.h>
 #import "HPTracker.h"
+#import "HPNoteManager.h"
 
 NSString *const AGNPreferencesManagerDidChangePreferencesNotification = @"AGNPreferencesManagerDidChangePreferencesNotification";
 
@@ -329,6 +330,11 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     else if ([key isEqualToString:AGNPreferencesKeyFontSize])
     {
         [self updateFontSizeFromValue:value];
+    }
+    else if ([key isEqualToString:@"reset"] && [value boolValue])
+    {
+        [[HPNoteManager sharedManager] removeTutorialNotes];
+        [[HPNoteManager sharedManager] addTutorialNotesIfNeeded];
     }
 }
 
