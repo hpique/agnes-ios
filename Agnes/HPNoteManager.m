@@ -121,6 +121,12 @@ static NSInteger HPNoteManagerTutorialNotesCount = 18;
     note.modifiedAt = note.createdAt;
     note.detailMode = HPNoteDetailModeModifiedAt;
     note.text = [HPNoteManager textOfBlankNoteWithTag:tag];
+    if (tag)
+    {
+        [note setOrder:CGFLOAT_MIN inTag:tag.name];
+    }
+    HPTag *inboxTag = [[HPTagManager sharedManager] inboxTag];
+    [note setOrder:CGFLOAT_MIN inTag:inboxTag.name];
     return note;
 }
 
