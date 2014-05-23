@@ -333,7 +333,10 @@ static CGFloat const AGNLuminanceMiddle = 0.6;
     }
     else if ([key isEqualToString:@"reset"] && [value boolValue])
     {
-        [[HPNoteManager sharedManager] removeTutorialNotes];
+        for (HPNote* note in [HPNoteManager sharedManager].objects)
+        {
+            [[HPNoteManager sharedManager] trashNote:note];
+        }
         [[HPNoteManager sharedManager] addTutorialNotesIfNeeded];
     }
 }
