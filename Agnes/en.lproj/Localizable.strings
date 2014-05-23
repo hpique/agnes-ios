@@ -9,21 +9,21 @@
 "demo1"="La Sagrada Familia\n\nDon't miss elevator!\n\n#barcelona";	"demo1-views"="1";	"demo1-date"="2014-05-16";
 "demo2"="La Boqueria\n\nCloses on Sundays\n\n#barcelona";	"demo2-views"="1";	"demo2-date"="2014-05-07";
 "demo3"="Font Magica\n\nFri Sat from 7pm to 9pm\n\n#barcelona";	"demo3-views"="2";	"demo3-date"="2014-05-06";
-"demo4"="Torre Agbar detail\n\nDesigned by Jean Nouvel\n\n#inspiration";	"demo4-views"="5";	"demo4-date"="2014-05-22";
-"demo5"="Donal Duck Bay\n\n#inspiration";	"demo5-views"="15";	"demo5-date"="2014-05-21";
+"demo4"="Torre Agbar detail\n\nDesigned by Jean Nouvel\n\n{img}demo2.jpg{/img}\n\n#inspiration";	"demo4-views"="5";	"demo4-date"="2014-05-22";
+"demo5"="Donal Duck Bay\n\n{img}sample.jpg{/img}\n\n#inspiration";	"demo5-views"="15";	"demo5-date"="2014-05-21";
 "demo6"="The Descendants\n\n#movies";	"demo6-views"="1";	"demo6-date"="2014-05-13";
 "demo7"="A Simple Man\n\nRecommended by Hermes\n\n#movies";	"demo7-views"="1";	"demo7-date"="2014-05-15";
 "demo8"="Veronica Mars\n\n#movies";	"demo8-views"="1";	"demo8-date"="2014-05-15";
 "demo9"="Eternal Sunshine of the Spotless Mind\n\n#movies";	"demo9-views"="1";	"demo9-date"="2014-03-12";
 "demo10"="The Life Aquatic with Steve Zissou\n\nRecommended by Jane\n\n#movies";	"demo10-views"="1";	"demo10-date"="2014-05-18";
-"demo11"="Verify TV subscription cancelled\n\nCase number 77081\n\n#home";	"demo11-views"="2";	"demo11-date"="2014-05-16";
-"demo12"="Throw away old washing machine\n\nPick up #monday\n\n#home";	"demo12-views"="1";	"demo12-date"="2014-05-16";
-"demo13"="Use supermarket coupon\nbefore Barcelona trip\n\n#urgent";	"demo13-views"="2";	"demo13-date"="2014-05-02";
-"demo14"="Proof-read article\n\n#monday";	"demo14-views"="1";	"demo14-date"="2014-05-19";
-"demo15"="Return book to work\n\n#todo";	"demo15-views"="1";	"demo15-date"="2014-05-22";
+"demo11"="Verify TV subscription cancelled\n\nCase number 77081\n\n#home\n\n#ToDo";	"demo11-views"="2";	"demo11-date"="2014-05-16";
+"demo12"="Throw away old washing machine\n\nPick up on #monday\n\n#home\n\n#ToDo";	"demo12-views"="1";	"demo12-date"="2014-05-16";
+"demo13"="Use supermarket coupon\nbefore Barcelona trip\n\n{img}demo3{/img}\n\n#urgent";	"demo13-views"="2";	"demo13-date"="2014-05-02";
+"demo14"="Proof-read article\n\n#monday\n\n#ToDo";	"demo14-views"="1";	"demo14-date"="2014-05-19";
+"demo15"="Return book to work\n\n#ToDo";	"demo15-views"="1";	"demo15-date"="2014-05-22";
 "demo16"="Gift for mom\n\nIdeas: Jamon iberico, Miro litograph\n\n#barcelona";	"demo16-views"="3";	"demo16-date"="2014-05-21";
 "demo17"="Hotel wifi password\n\nsuperpink\n\n#info";	"demo17-views"="3";	"demo17-date"="2014-05-20";
-"demo18"="Dali museum\nTake train to Figueres\n\n#barcelona";	"demo18-views"="2";	"demo18-date"="2014-05-22";
+"demo18"="Barceloneta beach\n\nRemember to take a picture\n\n\n\n#barcelona";	"demo18-views"="2";	"demo18-date"="2014-05-22";
 
 "tutorial1"="Welcome to Agnes\n\nLet’s get started! Tap on this note to learn more.\n\nThanks for being an Agnes early adopter. Please don't hesitate to send feedback to hello@agnesapp.com.\n\nThis is the note screen. From here you can read, write, edit and share notes. What anyone would expect from a note app.\n\nNow return to Inbox and I’ll show you what really makes Agnes special.\n\n#tutorial";
 
