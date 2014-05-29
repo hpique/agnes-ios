@@ -6,24 +6,24 @@
   Copyright (c) 2014 Hermes Pique. All rights reserved.
 */
 
-"demo1"="La Sagrada Familia\n\nDon't miss elevator!\n\n#barcelona";	"demo1-views"="1";	"demo1-date"="2014-05-16";
-"demo2"="La Boqueria\n\nCloses on Sundays\n\n#barcelona";	"demo2-views"="1";	"demo2-date"="2014-05-07";
-"demo3"="Font Magica\n\nFri Sat from 7pm to 9pm\n\n#barcelona";	"demo3-views"="2";	"demo3-date"="2014-05-06";
-"demo4"="Torre Agbar detail\n\nDesigned by Jean Nouvel\n\n{img}demo2.jpg{/img}\n\n#inspiration";	"demo4-views"="5";	"demo4-date"="2014-05-22";
-"demo5"="Donal Duck Bay\n\n{img}sample.jpg{/img}\n\n#inspiration";	"demo5-views"="15";	"demo5-date"="2014-05-21";
-"demo6"="The Descendants\n\n#movies";	"demo6-views"="1";	"demo6-date"="2014-05-13";
-"demo7"="A Simple Man\n\nRecommended by Hermes\n\n#movies";	"demo7-views"="1";	"demo7-date"="2014-05-15";
-"demo8"="Veronica Mars\n\n#movies";	"demo8-views"="1";	"demo8-date"="2014-05-15";
-"demo9"="Eternal Sunshine of the Spotless Mind\n\n#movies";	"demo9-views"="1";	"demo9-date"="2014-03-12";
-"demo10"="The Life Aquatic with Steve Zissou\n\nRecommended by Jane\n\n#movies";	"demo10-views"="1";	"demo10-date"="2014-05-18";
-"demo11"="Verify TV subscription cancelled\n\nCase number 77081\n\n#home\n\n#ToDo";	"demo11-views"="2";	"demo11-date"="2014-05-16";
-"demo12"="Throw away old washing machine\n\nPick up on #monday\n\n#home\n\n#ToDo";	"demo12-views"="1";	"demo12-date"="2014-05-16";
-"demo13"="Use supermarket coupon\nbefore Barcelona trip\n\n{img}demo3{/img}\n\n#urgent";	"demo13-views"="2";	"demo13-date"="2014-05-02";
-"demo14"="Proof-read article\n\n#monday\n\n#ToDo";	"demo14-views"="1";	"demo14-date"="2014-05-19";
-"demo15"="Return book to work\n\n#ToDo";	"demo15-views"="1";	"demo15-date"="2014-05-22";
-"demo16"="Gift for mom\n\nIdeas: Jamon iberico, Miro litograph\n\n#barcelona";	"demo16-views"="3";	"demo16-date"="2014-05-21";
-"demo17"="Hotel wifi password\n\nsuperpink\n\n#info";	"demo17-views"="3";	"demo17-date"="2014-05-20";
-"demo18"="Barceloneta beach\n\nRemember to take a picture\n\n\n\n#barcelona";	"demo18-views"="2";	"demo18-date"="2014-05-22";
+"demo1"="La Sagrada Familia\n\nDon't miss elevator!\n\n#barcelona";	"demo1-views"="1";	"demo1-date"="2014-05-17";
+"demo2"="La Boqueria\n\nCloses on Sundays\n\n#barcelona";	"demo2-views"="1";	"demo2-date"="2014-05-08";
+"demo3"="Font Magica\n\nFri Sat from 7pm to 9pm\n\n#barcelona";	"demo3-views"="2";	"demo3-date"="2014-05-07";
+"demo4"="Torre Agbar detail\n\nDesigned by Jean Nouvel\n\n{img}demo2.jpg{/img}\n\n#inspiration";	"demo4-views"="5";	"demo4-date"="2014-05-23";
+"demo5"="Donal Duck Bay\n\n{img}sample.jpg{/img}\n\n#inspiration";	"demo5-views"="15";	"demo5-date"="2014-05-22";
+"demo6"="The Descendants\n\n#movies";	"demo6-views"="1";	"demo6-date"="2014-05-14";
+"demo7"="A Simple Man\n\nRecommended by Hermes\n\n#movies";	"demo7-views"="1";	"demo7-date"="2014-05-16";
+"demo8"="Veronica Mars\n\n#movies";	"demo8-views"="1";	"demo8-date"="2014-05-16";
+"demo9"="Eternal Sunshine of the Spotless Mind\n\n#movies";	"demo9-views"="1";	"demo9-date"="2014-03-13";
+"demo10"="The Life Aquatic with Steve Zissou\n\nRecommended by Jane\n\n#movies";	"demo10-views"="1";	"demo10-date"="2014-05-19";
+"demo11"="Verify TV subscription cancelled\n\nCase number 77081\n\n#home\n\n#ToDo";	"demo11-views"="2";	"demo11-date"="2014-05-17";
+"demo12"="Throw away old washing machine\n\nPick up on #monday\n\n#home\n\n#ToDo";	"demo12-views"="1";	"demo12-date"="2014-05-17";
+"demo13"="Use supermarket coupon\nbefore Barcelona trip\n\n{img}demo3{/img}\n\n#urgent";	"demo13-views"="2";	"demo13-date"="2014-05-03";
+"demo14"="Proof-read article\n\n#monday\n\n#ToDo";	"demo14-views"="1";	"demo14-date"="2014-05-20";
+"demo15"="Return book to work\n\n#ToDo";	"demo15-views"="1";	"demo15-date"="2014-05-23";
+"demo16"="Gift for mom\n\nIdeas: Jamon iberico, Miro litograph\n\n#barcelona";	"demo16-views"="3";	"demo16-date"="2014-05-22";
+"demo17"="Hotel wifi password\n\nsuperpink\n\n#info";	"demo17-views"="3";	"demo17-date"="2014-05-21";
+"demo18"="Morning at the beach\n\nTake a picture\n\n\n\n#barcelona";	"demo18-views"="2";	"demo18-date"="2014-05-23";
 
 "tutorial1"="Welcome to Agnes\n\nLet’s get started! Tap on this note to learn more.\n\nThanks for being an Agnes early adopter. Please don't hesitate to send feedback to hello@agnesapp.com.\n\nThis is the note screen. From here you can read, write, edit and share notes. What anyone would expect from a note app.\n\nNow return to Inbox and I’ll show you what really makes Agnes special.\n\n#tutorial";
 
@@ -46,7 +46,7 @@
 
 "tutorial6~ipad"="Discover Agnes\n\nAgnes has many features and very few buttons. Here's what else she can do.\n\nCHANGE COLORS AND FONT\nSelect {img mode=\"1\"}icon-gear{/img} and then Settings to change font, colors and more.\n\nHASHTAG FASTER\nTap {img mode=\"1\"}icon-plus{/img} in a hashtag list to start a note with that hashtag. Or begin typing a hashtag and Agnes will suggest it. She’s helpful like that.\n\nSWIPE TO CHANGE NOTES\nFrom this screen, swipe left or right to browse other notes.\n\nTAP ON LINKS\nEmails, links and phone numbers are highlighted automatically and can be interacted with if the keyboard is down. Try it: hello@agnesapp.com.\n\nCHARACTER AND WORD COUNT\nIn this screen, tap on the center of the bottom toolbar to toggle info about the note, such as date and number of characters, words and views.\n\nUNDO AND REDO\nTap {img mode=\"1\"}icon-more{/img} to undo the latest changes.\n\nSORT TAGS\nIn the Agnes index, tap & hold on a tag to reorder it or tap on \"Agnes\" to sort them by name or notes.\n\nEXPORT LISTS\nTap {img mode=\"1\"}icon-more{/img} to export the current list or all notes. The notes will be saved as a text files and zipped to your email.\n\nIMPORT NOTES\nImport notes into Agnes via iTunes. Both .txt and .zip files are supported.\n\nAnd much more...\n\n#tutorial";
 
-"system1"="About\n\nLovingly made in Barcelona for Inés. Her favorite color is violet.\n\n{$agnes-appName} {$agnes-appVersion}";
+"system1"="About\n\nLovingly made in Barcelona for Inés. Her favorite color is violet.\n\n{$agnes-appName} 1.0";
 
 "system2"="Settings\n\nIn Agnes everything is a note, even settings.\n\nreset=0\n\nChange the values below to your liking:\n\nCOLORS\n\nbarTintColor={$agnes-barTintColor}\n(navigation bar color)\n\ntintColor={$agnes-tintColor}\n(highlight and icons color)\n\nFONT\n\nfontName={$agnes-fontName}\n(font name)\n\nfontSize={$agnes-fontSize}\n(font size in points, from 8 to 28)\n\ndynamicType={$agnes-dynamicType}\n(override font with device Settings)\n\nOTHER\n\nstatusBarHidden={$agnes-statusBarHidden}\n\nlistSeparatorsHidden={$agnes-listSeparatorsHidden}\n\nUse the word default to restore a setting to its original value.";
 

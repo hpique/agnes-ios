@@ -1192,7 +1192,7 @@
 					"/Users/hpique/workspace/agnes-ios/Agnes/GoogleAnalyticsServicesiOS_3.03a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "F7D02201-5ABC-466F-B0D8-59C4F8808027";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1222,7 +1222,7 @@
 					"/Users/hpique/workspace/agnes-ios/Agnes/GoogleAnalyticsServicesiOS_3.03a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "380D25B8-7BEA-4A74-BE29-B982A16C73EB";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
