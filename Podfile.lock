@@ -30,7 +30,7 @@ DEPENDENCIES:
   - HPReorderTableView (~> 0.2)
   - iOS7Colors (~> 2.0.0)
   - iRate (~> 1.9)
-  - Lyt (~> 0.2)
+  - Lyt (~> 0.3)
   - MCSwipeTableViewCell (from `https://github.com/hpique/MCSwipeTableViewCell.git`)
   - MHWDirectoryWatcher (~> 0.0)
   - MMDrawerController (~> 0.5)
@@ -53,17 +53,17 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   ColorUtils: 5740b610eb7b50833f46d6d9863ebaa1da55301d
-  Haneke: 0d28d92e23bbbbedf8f67a153d484dc3c36aaa52
-  HPReorderTableView: d526b1e3531dd3198d8c0d27403ee45d369efa86
-  iOS7Colors: 4b2a8e22c0bacab6cc9818357e920fa734283246
-  iRate: eb8ca35519dd57a586e4c72bb5135ccb6abee908
-  Lyt: 31b887f8e572724a53079b9ebb2eeca03a1c344e
+  Haneke: 17fa6fd6adb56410342e65a9bbb73040f5ed7584
+  HPReorderTableView: 245322ad8ca898bffd5f121fd2385ea962ff2b4c
+  iOS7Colors: 38fd2461757b55f44cde3fcb1667fdedd8470e0c
+  iRate: 7d204971bab2f727195b868e32e05216fe257681
+  Lyt: fca90feadfd8343544c4944691aea6ae2eafb6ff
   MCSwipeTableViewCell: 40d2d91d618ed5248d20b7d75018a4a33b0477dc
-  MHWDirectoryWatcher: c8d2677e94ab6e078d321f87c58be5fa101ae457
-  MMDrawerController: fb6a17a3e2d1cb4f5f4a411915703b3569cdb227
+  MHWDirectoryWatcher: 50b28610da2572f845182f486a863e0a745da513
+  MMDrawerController: 45c08be28375eac9f0ecaa75f1f0e47eb38c8eb1
   PSPDFTextView: f078c6015a9568241c9518a7bb284bb4cc2fa9e2
-  RMGallery: d89a383bc62f8a308a698662079fe902e3ff8b9d
-  SSZipArchive: 5479ec96c412904a987a3ae3180d65234aa46b6e
+  RMGallery: b8aa7cae8e976e3002b0419982dd3f4a25e762f0
+  SSZipArchive: 6dc0ea3fe4b55574bee23c9f01d7c0f8437d59ef
   TTTAttributedLabel: 3a571d73e055f4a79c304240598e4bfd199238e4
 
-COCOAPODS: 0.32.1
+COCOAPODS: 0.33.1
