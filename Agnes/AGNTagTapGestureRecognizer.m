@@ -38,7 +38,7 @@
     if (tagName && ![tagName isEqualToString:HPNoteTagEscapeString])
     {
 
-        const NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:range actualCharacterRange:nil];
+        const NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:foundRange actualCharacterRange:nil];
         CGRect boundingRect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textContainer];
         if (CGRectContainsPoint(boundingRect, point))
         {
