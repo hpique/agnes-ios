@@ -61,7 +61,8 @@
         _needsUpdate = NO;
         NSRange extendedRange = [_backingStore.string hp_extendedRangeForRange:self.editedRange];
         [self addLinksInRange:extendedRange];
-        [self styleParagraphs];
+        [self styleTitleInExtendedRange:extendedRange];
+        [self styleParagraphsInRange:extendedRange];
         [self highlightTags:extendedRange];
         [self highlightSearch]; // TODO: Title is not highligted
         [_backingStore endEditing];
@@ -138,27 +139,42 @@
      }];
 }
 
-/** Bold first line and center attachments.
+/** 
+ Bold first line.
  */
-- (void)styleParagraphs
+- (void)styleTitleInExtendedRange:(NSRange)extendedRange
 {
     UIFont *bodyFont = [[HPFontManager sharedManager] fontForNoteBody];
-    UIFont *titleFont = [[HPFontManager sharedManager] fontForNoteTitle];
+    if (extendedRange.location > 0)
+    { // In case the paragraph is inheriting the bold font
+        [self addAttribute:NSFontAttributeName value:bodyFont range:extendedRange];
+    }
+    else
+    {
+        extendedRange.length = self.string.length; // To remove title font if needed
+        UIFont *titleFont = [[HPFontManager sharedManager] fontForNoteTitle];
+        
+        __block NSInteger paragraphIndex = 0;
+        [_backingStore.string enumerateSubstringsInRange:extendedRange options:NSStringEnumerationByParagraphs usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+            NSString *trimmed = [substring stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            trimmed = [trimmed stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
+            // Skip first empty lines, if any
+            if (paragraphIndex != 0 || trimmed.length > 0)
+            {
+                UIFont *font = paragraphIndex == 0 && ![self.tag isEqualToString:trimmed] ? titleFont : bodyFont;
+                [self addAttribute:NSFontAttributeName value:font range:enclosingRange];
+                paragraphIndex++;
+            }
+        }];
+    }
+}
 
-    NSRange range = NSMakeRange(0, _backingStore.string.length);
-    __block NSInteger paragraphIndex = 0;
-    
+/** 
+ Center attachments.
+ */
+- (void)styleParagraphsInRange:(NSRange)range
+{
     [_backingStore.string enumerateSubstringsInRange:range options:NSStringEnumerationByParagraphs usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-        NSString *trimmed = [substring stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-        trimmed = [trimmed stringByReplacingOccurrencesOfString:[HPNote attachmentString] withString:@""];
-        // Skip first empty lines, if any
-        if (paragraphIndex != 0 || trimmed.length > 0)
-        {
-            UIFont *font = paragraphIndex == 0 && ![self.tag isEqualToString:trimmed] ? titleFont : bodyFont;
-            [_backingStore addAttribute:NSFontAttributeName value:font range:enclosingRange];
-            paragraphIndex++;
-        }
-
         NSParagraphStyle *paragraphStyle = [HPNote paragraphStyleOfAttributedText:_backingStore paragraphRange:substringRange];
         [_backingStore addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:enclosingRange];
     }];
