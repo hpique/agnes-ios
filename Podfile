@@ -6,7 +6,7 @@ pod 'iOS7Colors', '~> 2.0.0'
 pod 'MHWDirectoryWatcher', '~> 0.0'
 pod 'iRate', '~> 1.9'
 
-pod 'TTTAttributedLabel', :git => 'https://github.com/hpique/TTTAttributedLabel.git'
+pod 'TTTAttributedLabel', :git => 'https://github.com/hpique/TTTAttributedLabel.git', :branch=>'agnes'
 pod 'ColorUtils', :git => 'https://github.com/hpique/ColorUtils.git', :branch=>'agnes'
 pod 'MCSwipeTableViewCell', :git => 'https://github.com/hpique/MCSwipeTableViewCell.git'
 pod 'PSPDFTextView', :git => 'https://github.com/hpique/PSPDFTextView.git', :branch=>'agnes'
